@@ -6,11 +6,10 @@ setup(
     include_package_data=True,
     install_requires=[
         "flask",
-        "python-dotenv",
         "Flask-Session",
+        "python-dotenv",
         "numpy",
         "datetime",
-        "numpy",
         "brotli",
         "gunicorn",
     ],

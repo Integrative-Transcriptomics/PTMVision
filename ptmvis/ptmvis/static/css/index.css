@@ -1,8 +1,8 @@
 /**
-MUSIAL WEB APPLICATION
-AUTHOR: Simon Hackl
-CONTACT: simon.hackl@uni-tuebingen.de
-VERSION: 2.1
+PTMVis WEB APPLICATION
+AUTHOR: Caroline Jachmann, Simon Hackl
+CONTACT: caroline.jachmann@uni-tuebingen.de, simon.hackl@uni-tuebingen.de
+VERSION: 1.0
 
 LICENSE
 This program is free software: you can redistribute it and/or modify
@@ -23,53 +23,46 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 :root {
   font-family: Arial, Helvetica, sans-serif;
-  --background-color-primary: #eff0f8;
-  --background-color-secondary: #e4e5ed;
-  --background-color-tertiary: #fafafc;
-  --color-primary: rgb(96, 113, 150);
-  --color-secondary: #cbd0e0;
-  --color-tertiary: #6d81ad;
-  --color-quarternary: #9ba6bd;
-  --contrast-primary: #fe4848cc;
-  --contrast-secondary: #39c093cc;
-  --text-color-secondary: #747474;
+  --background-color-1: #f3f3f3;
+  --background-color-2: #d4d4d4;
+  --color-1: #5497a7;
+  --color-2: #50858b;
+  --color-3: #62a8ac;
+  --color-4: #a1d2ce;
+  --color-failure: #fe4848cc;
 }
 ::-webkit-scrollbar {
   width: 0.4vw;
   margin: 0.1vw;
 }
 ::-webkit-scrollbar-track {
-  background: var(--background-color-secondary);
+  background: var(--background-color-2);
   border-radius: 2px;
   margin: 0.1vw;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-secondary);
+  background: var(--color-2);
   border-radius: 2px;
   margin: 0.2vw;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-color-secondary);
-}
-
-body.wait * {
-  cursor: wait;
+  background: var(--color-failure);
 }
 
 #menu {
-  background-color: var(--color-primary);
-  color: var(--background-color-primary);
+  background-color: var(--color-1);
+  color: var(--background-color-1);
   height: 5vh;
   display: none;
 }
 
 #menu .active {
-  background-color: var(--color-tertiary);
+  background-color: var(--color-3);
   pointer-events: none;
 }
 
 .main {
-  background-color: var(--background-color-primary);
+  background-color: var(--background-color-1);
   position: absolute;
   top: 5vh;
   right: 0;
@@ -89,139 +82,10 @@ body.wait * {
   width: auto;
 }
 
-#menu-active-session-indicator {
+.button-no-decoration {
+  color: var(--color-2);
+  font-size: xx-large;
   background-color: transparent;
   border: none;
-  text-decoration: none;
-  margin-right: 10px;
-  font-size: large;
-}
-
-body.swal2-shown > [aria-hidden="true"] {
-  transition: 0.5s filter;
-  filter: blur(2px);
-}
-
-.custom-switch-on-off .check::after {
-  border-color: var(--contrast-primary) !important;
-  background: var(--contrast-primary) !important;
-}
-
-.custom-switch-on-off input[type="checkbox"] ~ .check {
-  background: var(--color-secondary) !important;
-}
-
-.custom-switch-on-off input[type="checkbox"]:checked ~ .check {
-  background: var(--color-secondary) !important;
-}
-
-.custom-switch-on-off input[type="checkbox"]:checked ~ .check::after {
-  border-color: var(--contrast-secondary) !important;
-  background: var(--contrast-secondary) !important;
-}
-
-.custom-switch-choice .check::after {
-  border-color: var(--color-tertiary) !important;
-  background: var(--color-tertiary) !important;
-}
-
-.custom-switch-choice input[type="checkbox"] ~ .check {
-  background: var(--color-secondary) !important;
-}
-
-.custom-switch-choice input[type="checkbox"]:checked ~ .check {
-  background: var(--color-secondary) !important;
-}
-
-.custom-switch-choice input[type="checkbox"]:checked ~ .check::after {
-  border-color: var(--color-tertiary) !important;
-  background: var(--color-tertiary) !important;
-}
-
-.tag-light {
-  padding: 2px 2px 2px 2px;
-  font-size: small;
-  background-color: var(--background-color-primary);
-  color: var(--text-color-secondary);
-  border-radius: 2px;
-  text-transform: uppercase;
-}
-
-.tag-translucent {
-  padding: 2px;
-  font-size: small;
-  background-color: hsla(233, 20%, 91%, 0.8);
-  color: var(--text-color-secondary);
-  border-radius: 2px;
-  text-transform: uppercase;
-}
-
-.tag-dark {
-  margin-left: 4px;
-  margin-right: 4px;
-  padding: 2px 8px 2px 8px;
-  font-size: small;
-  background-color: var(--color-secondary);
-  color: var(--text-color-secondary);
-  border-radius: 1px;
-  text-transform: uppercase;
-}
-
-.tag-citation {
-  margin-top: 4px;
-  padding: 2px;
-  font-size: small;
-  background-color: var(--background-color-secondary);
-  color: var(--text-color-secondary);
-  border-radius: 2px;
-}
-
-.tag-info-text {
-  padding: 4px;
-  font-size: small;
-  background-color: hsla(233, 20%, 91%, 0.1);
-  color: var(--background-color-tertiary);
-  border-radius: 4px;
-  border: 1px ridge var(--color-secondary);
-}
-
-.error-icon {
-  font-size: 1.2em;
-  color: var(--contrast-primary);
-}
-
-.swal2-icon {
-  border: none !important;
-}
-
-.hint {
-  background-color: rgba(227, 229, 237, 0.9) !important;
-  color: var(--text-color-secondary) !important;
-  font-size: small;
-  border-radius: 4px;
-}
-
-#cookie-consent-icon-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-}
-
-#cookie-consent-text-container {
-  text-align: left;
-}
-
-.fa-cookie {
-  font-size: 1.8em;
-  color: #e6cea0;
-  z-index: 2;
-  text-shadow: 0px 0px 2px #685a4e;
-}
-
-.fa-circle {
-  font-size: 1.2em;
-  color: #685a4e;
-  z-index: 1;
-  position: absolute;
+  margin: 10px;
 }

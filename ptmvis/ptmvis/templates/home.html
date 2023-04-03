@@ -1,0 +1,35 @@
+{% extends 'index.html' %} {% block styles %}
+
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{url_for('static', filename='css/home.css')}}"
+/>
+
+{% endblock %} {% block scripts %}
+
+<script
+  type="text/javascript"
+  src="{{url_for('static', filename='js/home.js')}}"
+  defer
+></script>
+
+{% endblock %} {% block menu %}
+
+<!-- Menu elements floating left -->
+<div class="app-bar-container mr-auto d-none d-flex-fs"></div>
+<!-- Menu elements floating right -->
+<div class="app-bar-container ml-auto d-none d-flex-fs">
+  <button onclick="redirectSource()" class="button-no-decoration">
+    <i class="fa-brands fa-square-github"></i>
+  </button>
+  <button onclick="redirectHelp()" class="button-no-decoration">
+    <i class="fa-duotone fa-square-question"></i>
+  </button>
+</div>
+
+{% endblock %} {% block content %}
+
+<div id="main-home" class="main">Hello</div>
+
+{% endblock %}
