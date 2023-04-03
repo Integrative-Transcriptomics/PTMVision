@@ -1,0 +1,227 @@
+/**
+MUSIAL WEB APPLICATION
+AUTHOR: Simon Hackl
+CONTACT: simon.hackl@uni-tuebingen.de
+VERSION: 2.1
+
+LICENSE
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/* Definition of root properties and variables. */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  --background-color-primary: #eff0f8;
+  --background-color-secondary: #e4e5ed;
+  --background-color-tertiary: #fafafc;
+  --color-primary: rgb(96, 113, 150);
+  --color-secondary: #cbd0e0;
+  --color-tertiary: #6d81ad;
+  --color-quarternary: #9ba6bd;
+  --contrast-primary: #fe4848cc;
+  --contrast-secondary: #39c093cc;
+  --text-color-secondary: #747474;
+}
+::-webkit-scrollbar {
+  width: 0.4vw;
+  margin: 0.1vw;
+}
+::-webkit-scrollbar-track {
+  background: var(--background-color-secondary);
+  border-radius: 2px;
+  margin: 0.1vw;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-secondary);
+  border-radius: 2px;
+  margin: 0.2vw;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-color-secondary);
+}
+
+body.wait * {
+  cursor: wait;
+}
+
+#menu {
+  background-color: var(--color-primary);
+  color: var(--background-color-primary);
+  height: 5vh;
+  display: none;
+}
+
+#menu .active {
+  background-color: var(--color-tertiary);
+  pointer-events: none;
+}
+
+.main {
+  background-color: var(--background-color-primary);
+  position: absolute;
+  top: 5vh;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: none;
+}
+
+.brand {
+  height: 4vh;
+}
+
+.brand img {
+  object-fit: cover;
+  margin: auto;
+  height: 80%;
+  width: auto;
+}
+
+#menu-active-session-indicator {
+  background-color: transparent;
+  border: none;
+  text-decoration: none;
+  margin-right: 10px;
+  font-size: large;
+}
+
+body.swal2-shown > [aria-hidden="true"] {
+  transition: 0.5s filter;
+  filter: blur(2px);
+}
+
+.custom-switch-on-off .check::after {
+  border-color: var(--contrast-primary) !important;
+  background: var(--contrast-primary) !important;
+}
+
+.custom-switch-on-off input[type="checkbox"] ~ .check {
+  background: var(--color-secondary) !important;
+}
+
+.custom-switch-on-off input[type="checkbox"]:checked ~ .check {
+  background: var(--color-secondary) !important;
+}
+
+.custom-switch-on-off input[type="checkbox"]:checked ~ .check::after {
+  border-color: var(--contrast-secondary) !important;
+  background: var(--contrast-secondary) !important;
+}
+
+.custom-switch-choice .check::after {
+  border-color: var(--color-tertiary) !important;
+  background: var(--color-tertiary) !important;
+}
+
+.custom-switch-choice input[type="checkbox"] ~ .check {
+  background: var(--color-secondary) !important;
+}
+
+.custom-switch-choice input[type="checkbox"]:checked ~ .check {
+  background: var(--color-secondary) !important;
+}
+
+.custom-switch-choice input[type="checkbox"]:checked ~ .check::after {
+  border-color: var(--color-tertiary) !important;
+  background: var(--color-tertiary) !important;
+}
+
+.tag-light {
+  padding: 2px 2px 2px 2px;
+  font-size: small;
+  background-color: var(--background-color-primary);
+  color: var(--text-color-secondary);
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.tag-translucent {
+  padding: 2px;
+  font-size: small;
+  background-color: hsla(233, 20%, 91%, 0.8);
+  color: var(--text-color-secondary);
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.tag-dark {
+  margin-left: 4px;
+  margin-right: 4px;
+  padding: 2px 8px 2px 8px;
+  font-size: small;
+  background-color: var(--color-secondary);
+  color: var(--text-color-secondary);
+  border-radius: 1px;
+  text-transform: uppercase;
+}
+
+.tag-citation {
+  margin-top: 4px;
+  padding: 2px;
+  font-size: small;
+  background-color: var(--background-color-secondary);
+  color: var(--text-color-secondary);
+  border-radius: 2px;
+}
+
+.tag-info-text {
+  padding: 4px;
+  font-size: small;
+  background-color: hsla(233, 20%, 91%, 0.1);
+  color: var(--background-color-tertiary);
+  border-radius: 4px;
+  border: 1px ridge var(--color-secondary);
+}
+
+.error-icon {
+  font-size: 1.2em;
+  color: var(--contrast-primary);
+}
+
+.swal2-icon {
+  border: none !important;
+}
+
+.hint {
+  background-color: rgba(227, 229, 237, 0.9) !important;
+  color: var(--text-color-secondary) !important;
+  font-size: small;
+  border-radius: 4px;
+}
+
+#cookie-consent-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+}
+
+#cookie-consent-text-container {
+  text-align: left;
+}
+
+.fa-cookie {
+  font-size: 1.8em;
+  color: #e6cea0;
+  z-index: 2;
+  text-shadow: 0px 0px 2px #685a4e;
+}
+
+.fa-circle {
+  font-size: 1.2em;
+  color: #685a4e;
+  z-index: 1;
+  position: absolute;
+}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<!--
+MUSIAL WEB APPLICATION
+AUTHOR: Simon Hackl
+CONTACT: simon.hackl@uni-tuebingen.de
+VERSION: 2.1
+
+LICENSE
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+  <head>
+    <title>MUSIAL</title>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='resources/icon.ico') }}"
+    />
+    <!--
+      Provide meta information about the application.
+      -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Webserver for the analysis and visualization of nucleotide variants and their induced amino-acid mutations from multiple samples."
+    />
+    <meta name="author" content="Simon Hackl" />
+    <!--
+      Definition of stylesheets to use in the application.
+      -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.korzh.com/metroui/v4/css/metro-all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{url_for('static', filename='css/index.css')}}"
+    />
+    {% block styles %} {% endblock %}
+    <!--
+      Definition of java script files to use in the application.
+      -->
+    <script src="https://cdn.korzh.com/metroui/v4/js/metro.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://3Dmol.org/build/3Dmol-min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://kit.fontawesome.com/df04f22e3d.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/resize-sensor@0.0.6/ResizeSensor.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/echarts@5.1.0/dist/echarts.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/index.js')}}"
+      defer
+    ></script>
+    <script>
+      var API_PARAMETERS = JSON.parse(
+        "{{api_parameters|safe}}".replaceAll("'", '"')
+      );
+      var LOADING_GIF =
+        "{{ url_for('static', filename='resources/loading_animation.gif') }}";
+    </script>
+    {% block scripts %} {% endblock %}
+  </head>
+  <body onLoad="init();">
+    <!-- App menu; Displayed independent of other components -->
+    <header
+      id="menu"
+      class="app-bar app-bar-expand app_header"
+      data-role="appbar"
+      data-expand="true"
+      data-role-appbar="true"
+    >
+      <!-- App icon -->
+      <div class="brand no-hover">
+        <img
+          src="{{ url_for('static', filename='resources/logo.png') }}"
+          alt="no picture"
+        />
+      </div>
+      {% block menu %} {% endblock %}
+    </header>
+    {% block content %} {% endblock %}
+  </body>
+</html>
