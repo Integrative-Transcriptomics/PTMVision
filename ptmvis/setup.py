@@ -13,5 +13,6 @@ setup(
         "numpy",
         "brotli",
         "gunicorn",
+        "psm_utils"
     ],
 )
