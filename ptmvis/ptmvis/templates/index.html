@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-PTMVis WEB APPLICATION
+PTMVision WEB APPLICATION
 AUTHOR: Caroline Jachmann, Simon Hackl
 CONTACT: caroline.jachmann@uni-tuebingen.de, simon.hackl@uni-tuebingen.de
 VERSION: 1.0
@@ -19,12 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <html>
   <head>
-    <title>PTMVis</title>
-    <!--<link
+    <title>PTMVision</title>
+    <link
       rel="icon"
       type="image/x-icon"
-      href="{{ url_for('static', filename='resources/icon.ico') }}"
-    /> TODO, GENERATE ICON -->
+      href="{{ url_for('static', filename='resources/logo.png') }}"
+    />
     <!--
       Provide meta information about the application.
       -->
@@ -47,7 +47,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       type="text/css"
       href="{{url_for('static', filename='css/index.css')}}"
     />
-    {% block styles %} {% endblock %}
     <!--
       Definition of java script files to use in the application.
       -->
@@ -91,10 +90,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         "{{api_parameters|safe}}".replaceAll("'", '"')
       );
     </script>
-    {% block scripts %} {% endblock %}
   </head>
   <body onLoad="init();">
-    <!-- App menu; Displayed independent of other components -->
+    <!-- App menu -->
     <header
       id="menu"
       class="app-bar app-bar-expand"
@@ -102,15 +100,276 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       data-expand="true"
       data-role-appbar="true"
     >
-      <!-- App icon -->
-      <!-- <div class="brand no-hover">
-        <img
-          src="{{ url_for('static', filename='resources/logo.png') }}"
-          alt="no picture"
-        />
-      </div> TODO; ADD ICON -->
-      {% block menu %} {% endblock %}
+      <div id="menu-grid" class="grid w-100">
+        <div class="row">
+          <div class="cell-1 text-center">
+            <div class="logo no-hover">
+              <img
+                src="{{ url_for('static', filename='resources/logo.png') }}"
+                alt="<LOGO>"
+              />
+            </div>
+          </div>
+          <div class="cell-4 offset-3 mt-0 text-center">
+            <button
+              id="panel-back-button"
+              onclick="stepBack()"
+              class="button-no-decoration menu-button"
+              data-role="hint"
+              data-hint-text="Back"
+              data-hint-position="bottom"
+              disabled
+            >
+              <i class="fa-duotone fa-angle-left"></i>
+            </button>
+            <div
+              style="display: inline"
+              data-role="hint"
+              data-hint-text="1. Step<br>Upload Data"
+              data-hint-position="bottom"
+            >
+              <i
+                id="progress-no-1"
+                class="progress-icon progress-active fa-thin fa-circle-1"
+                style="margin: 0 !important"
+              ></i>
+              <i
+                id="progress-icon-1"
+                class="progress-icon progress-active fa-duotone fa-file-arrow-up"
+              ></i>
+            </div>
+            <i class="progress-icon fa-sharp fa-light fa-horizontal-rule"></i>
+            <div
+              style="display: inline"
+              data-role="hint"
+              data-hint-text="2. Step<br>Validate and Edit Data"
+              data-hint-position="bottom"
+            >
+              <i
+                id="progress-no-2"
+                class="progress-icon fa-thin fa-circle-2"
+                style="margin: 0 !important"
+              ></i>
+              <i
+                id="progress-icon-2"
+                class="progress-icon fa-duotone fa-gears"
+              ></i>
+            </div>
+            <i class="progress-icon fa-sharp fa-light fa-horizontal-rule"></i>
+            <div
+              style="display: inline"
+              data-role="hint"
+              data-hint-text="3. Step<br>View Results"
+              data-hint-position="bottom"
+            >
+              <i
+                id="progress-no-3"
+                class="progress-icon fa-thin fa-circle-3"
+                style="margin: 0 !important"
+              ></i>
+              <i
+                id="progress-icon-3"
+                class="progress-icon fa-duotone fa-magnifying-glass-chart"
+              ></i>
+            </div>
+            <button
+              id="panel-next-button"
+              onclick="stepNext()"
+              class="button-no-decoration menu-button"
+              data-role="hint"
+              data-hint-text="Next"
+              data-hint-position="bottom"
+            >
+              <i class="fa-duotone fa-angle-right"></i>
+            </button>
+          </div>
+          <div class="cell-1 offset-3 text-center">
+            <i
+              id="progress-indicator"
+              class="fa-regular fa-circle"
+              data-role="hint"
+              data-hint-text="No Progress Running"
+              data-hint-position="bottom"
+            ></i>
+            <button
+              onclick="redirectSource()"
+              class="button-no-decoration menu-button"
+              data-role="hint"
+              data-hint-text="Source Code<br>(GitHub)"
+              data-hint-position="bottom"
+            >
+              <i class="fa-brands fa-square-github"></i>
+            </button>
+            <button
+              onclick="redirectHelp()"
+              class="button-no-decoration menu-button"
+              data-role="hint"
+              data-hint-text="Additional<br>Information"
+              data-hint-position="bottom"
+            >
+              <i class="fa-duotone fa-square-question"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </header>
-    {% block content %} {% endblock %}
+    <div id="main">
+      <div id="main-panel-1">
+        <div id="main-panel-1-info-text" class="panel-container">
+          <img
+            src="{{ url_for('static', filename='resources/logo.png') }}"
+            alt="<LOGO>"
+          />
+          <p class="text-secondary">
+            PTM Vision enables easily accessible visualizations of the
+            post-translational modifications (PTMs) of your protein of interest.
+            Our platform utilizes data from open search software such as ionbot,
+            MSFragger, and OpenPFind to provide you with an interactive and
+            comprehensive view of your protein's PTMs. With our user-friendly
+            interface, you can easily upload your data, explore the identified
+            PTMs, and visualize their location on the protein sequence. Our
+            website provides a valuable tool for researchers and scientists to
+            better understand the modifications that occur on their proteins and
+            how they may impact their function.
+          </p>
+          <hr />
+          <p class="text-secondary">
+            <i class="fa-duotone fa-circle-info"></i> Our website layout
+            features three simple steps: upload, adjust, and view results. The
+            navigation bar at the top displays your progress and allows easy
+            navigation with arrows or scrolling. A graphical abstract in the
+            upper right corner provides additional information, and buttons on
+            the top bar direct to source code and more information. Our
+            user-friendly layout streamlines the data analysis process for
+            researchers and scientists.
+          </p>
+          <hr />
+          <p class="text-secondary">
+            <i class="fa-duotone fa-circle-1"></i> The first step is to upload
+            your search engine output from Ionbot, MS-Fragger, or OpenPFind into
+            the forms of the lower right. The appropriate pipeline must be
+            selected to ensure accurate processing of your data.
+          </p>
+          <hr />
+          <p class="text-secondary">
+            <i class="fa-duotone fa-circle-2"></i> In the second step, you can
+            interact with an intuitive table to validate and edit your data as
+            needed. Additionally, you can adjust final parsing parameters to
+            ensure accuracy and completeness.
+          </p>
+          <hr />
+          <p class="text-secondary">
+            <i class="fa-duotone fa-circle-3"></i> In the third and final step,
+            users can select their protein and we will match modifications to
+            its structure. If we are unable to match any, users can supply their
+            own structure. Once completed, users can view the results dashboard
+            for a comprehensive analysis of their data.
+          </p>
+          <hr />
+          <div class="footer remark">
+            <div class="grid">
+              <div class="row">
+                <div class="cell-2">
+                  <p class="text-upper text-leader2 text-center">citation</p>
+                  <p class="text-light">
+                    If you use any component of PTMVision in your work, please
+                    cite
+                    <br />
+                    <span class="citation">
+                      Jachmann et al., (2023, April 05), PTMVision,
+                      https://github.com/Integrative-Transcriptomics/PTMVision</span
+                    >
+                  </p>
+                </div>
+                <div class="cell-6 offset-1">
+                  <p class="text-upper text-leader2 text-center">
+                    compatibility
+                  </p>
+                  <table class="table subcompact table-border cell-border">
+                    <thead>
+                      <tr>
+                        <th>OS</th>
+                        <th>Version</th>
+                        <th>Chrome</th>
+                        <th>Firefox</th>
+                        <th>Edge</th>
+                        <th>Safari</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>Linux</th>
+                        <th>Ubuntu 20.04.4</th>
+                        <th>not tested</th>
+                        <th>102.08</th>
+                        <th>n/a</th>
+                        <th>n/a</th>
+                      </tr>
+                      <tr>
+                        <th>MacOS</th>
+                        <th>Ventura 13.0.1</th>
+                        <th>108.0.5359.124</th>
+                        <th>108.1</th>
+                        <th>n/a</th>
+                        <th>16.1</th>
+                      </tr>
+                      <tr>
+                        <th>Windows</th>
+                        <th>11</th>
+                        <th>108.0.5359.125</th>
+                        <th>108.0</th>
+                        <th>108.0.1462.54</th>
+                        <th>n/a</th>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="cell-2 offset-1">
+                  <p class="text-upper text-leader2 text-center">legal</p>
+                  <p class="text-light">
+                    This website is free and open to all users and there is no
+                    login requirement. If cookies are used, you will receive a
+                    consent form. Our web service does not use tracking cookies
+                    and all submitted data is kept confidential. You will find
+                    additional information on the legal page.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="main-panel-1-info-image" class="panel-container">
+          <img
+            src="{{ url_for('static', filename='resources/placeholder_image_1.jpg') }}"
+            alt="<GRAPHICAL_ABSTRACT>"
+          />
+        </div>
+        <div id="main-panel-1-inputs" class="panel-container">
+          <h4 class="secondary">
+            <i class="fa-duotone fa-circle-1"></i> Upload Search Engine Output
+          </h4>
+          <h5 class="secondary">Select Pipeline Type:</h5>
+          <select data-role="select" data-prepend="Pipeline">
+            <optgroup label="Pipeline">
+              <option value="ionbot">Ionbot</option>
+              <option value="msfragger">MSFragger</option>
+              <option value="openpfind">Open-pFind</option>
+            </optgroup>
+          </select>
+          <br />
+          <h5 class="secondary">Select Pipeline Output:</h5>
+          <input
+            type="file"
+            data-role="file"
+            data-prepend="Select Files:"
+            data-button-title='<i class="fa-duotone fa-folder-open"></i>'
+          />
+          <br />
+          <button class="proceed-button">Proceed</button>
+        </div>
+      </div>
+      <div id="main-panel-2">Panel 2</div>
+      <div id="main-panel-3">Panel 3</div>
+    </div>
   </body>
 </html>

@@ -23,13 +23,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 :root {
   font-family: Arial, Helvetica, sans-serif;
-  --background-color-1: #f3f3f3;
+  --background-color-1: #fbfbfb;
   --background-color-2: #d4d4d4;
+  --background-color-3: #f0f5f5;
   --color-1: #5497a7;
   --color-2: #50858b;
   --color-3: #62a8ac;
   --color-4: #a1d2ce;
-  --color-failure: #fe4848cc;
+  --highlight-1: #ff6663;
+  --highlight-2: #dc5754;
 }
 ::-webkit-scrollbar {
   width: 0.4vw;
@@ -49,6 +51,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   background: var(--color-failure);
 }
 
+body {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 #menu {
   background-color: var(--color-1);
   color: var(--background-color-1);
@@ -56,36 +63,171 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   display: none;
 }
 
-#menu .active {
-  background-color: var(--color-3);
-  pointer-events: none;
+#menu-grid {
+  height: 100%;
 }
 
-.main {
-  background-color: var(--background-color-1);
+#progress-indicator {
+  font-size: xx-large;
+  color: var(--color-4);
+  margin: 2px;
+  margin-right: 5px !important;
+}
+
+.menu-button {
+  color: var(--background-color-2);
+}
+
+.menu-button:hover {
+  color: var(--background-color-1);
+  transition: 0.2s;
+}
+
+.button-no-decoration {
+  font-size: xx-large;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  margin: 2px;
+}
+
+.progress-icon {
+  font-size: xx-large;
+  margin-left: 1vw;
+  margin-right: 1vw;
+  color: var(--color-3);
+}
+
+.progress-active {
+  color: var(--background-color-1);
+}
+
+.hint {
+  text-align: center;
+  background-color: var(--color-2);
+  opacity: 0.9;
+  color: var(--background-color-2);
+  border-radius: 5px;
+}
+
+.citation {
+  font-style: italic;
+  color: var(--color-2);
+}
+
+.logo {
+  height: 5vh;
+}
+
+.logo img {
+  height: 95%;
+}
+
+.proceed-button {
+  background-color: var(--highlight-1);
+  color: var(--background-color-1);
+  border: none;
+  border-radius: 2px;
+  font-size: large;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.proceed-button:hover {
+  background-color: var(--highlight-2);
+  transition: 0.2s;
+}
+
+#main {
+  background-color: var(--background-color-3);
   position: absolute;
   top: 5vh;
   right: 0;
   bottom: 0;
   left: 0;
+}
+
+.panel-container {
+  border-width: 1px;
+  border-radius: 2px;
+  border-color: var(--color-2);
+  background-color: var(--background-color-1);
+  padding: 10px;
+  margin: 0.25%;
+}
+
+#main-panel-1 {
+  width: 100%;
+  height: 100%;
   display: none;
 }
 
-.brand {
-  height: 4vh;
+#main-panel-1-info-text {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 49.5%;
+  height: 99%;
 }
 
-.brand img {
-  object-fit: cover;
-  margin: auto;
-  height: 80%;
-  width: auto;
+#main-panel-1-info-text img {
+  justify-content: center;
+  height: auto;
+  width: 25%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.button-no-decoration {
+#main-panel-1-info-text i {
+  font-size: large;
+  color: var(--color-3);
+}
+
+#main-panel-1-info-text .footer {
+  position: absolute;
+  font-size: x-small;
+  color: dimgrey;
+  bottom: 0;
+  left: 16px !important;
+  right: 16px;
+}
+
+#main-panel-1-info-image {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 49.5%;
+  height: 65%;
+}
+
+#main-panel-1-info-image img {
+  width: 100%;
+  height: 100%;
+}
+
+#main-panel-1-inputs {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 49.5%;
+  height: 33%;
+}
+
+#main-panel-1-inputs i {
+  font-size: x-large;
   color: var(--color-2);
-  font-size: xx-large;
-  background-color: transparent;
-  border: none;
-  margin: 10px;
+}
+
+#main-panel-2 {
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+#main-panel-3 {
+  width: 100%;
+  height: 100%;
+  display: none;
 }

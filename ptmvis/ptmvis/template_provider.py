@@ -4,5 +4,5 @@ from flask import render_template
 
 
 @app.route("/")
-def get_template_home():
-    return render_template("home.html", api_parameters=api_parameters)
+def get_landing_page():
+    return render_template("index.html", api_parameters=api_parameters)
