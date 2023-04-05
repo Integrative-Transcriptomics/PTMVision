@@ -226,8 +226,46 @@ body {
   display: none;
 }
 
+#main-panel-2-menu {
+  position: absolute;
+  top: 0;
+  width: 99.5%;
+  height: 8%;
+}
+
+#main-panel-2-menu i {
+  font-size: x-large;
+  color: var(--color-2);
+}
+
+#main-panel-2-table {
+  position: absolute;
+  bottom: 0;
+  width: 99.5%;
+  height: 90%;
+}
+
 #main-panel-3 {
   width: 100%;
   height: 100%;
   display: none;
+}
+
+#main-panel-3-menu {
+  position: absolute;
+  top: 0;
+  width: 99.5%;
+  height: 8%;
+}
+
+#main-panel-3-menu i {
+  font-size: x-large;
+  color: var(--color-2);
+}
+
+#main-panel-3-dashboard {
+  position: absolute;
+  bottom: 0;
+  width: 99.5%;
+  height: 90%;
 }

@@ -1,6 +1,7 @@
 EXAMPLE_PARAMETER = ""; // Exemplary parameter.
 WWW = "";
 ACTIVE_PANEL = "main-panel-1";
+DATA_TABLE = undefined;
 
 window.addEventListener("wheel", (event) => {
   if (event.deltaY > 0) {
@@ -18,6 +19,7 @@ function init() {
   WWW = API_PARAMETERS["URL"];
   $("#menu")[0].style.display = "flex";
   $("#main-panel-1")[0].style.display = "block";
+  initTable();
 }
 
 function downloadBlob(blob, name) {
@@ -102,4 +104,16 @@ function toggleProgress(hint) {
       .first()
       .attr({ "data-hint-text": "No Progress Running" });
   }
+}
+
+function initTable() {
+  DATA_TABLE = new Tabulator("#main-panel-2-table", {
+    columns: [],
+    maxHeight: "100%",
+    columnDefaults: {
+      width: "9vw",
+      resizable: "header",
+    },
+    placeholder: `<span class="tag-dark text-upper">Start by Uploading Data in Step <i class="fa-duotone fa-circle-1"></i></span>`,
+  });
 }

@@ -43,6 +43,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       href="https://cdn.korzh.com/metroui/v4/css/metro-all.min.css"
     />
     <link
+      href="https://unpkg.com/tabulator-tables@5.4.2/dist/css/tabulator.min.css"
+      rel="stylesheet"
+    />
+
+    <link
+      href="https://unpkg.com/tabulator-tables@5.4.2/dist/css/tabulator_materialize.min.css"
+      rel="stylesheet"
+    />
+    <link
       rel="stylesheet"
       type="text/css"
       href="{{url_for('static', filename='css/index.css')}}"
@@ -79,6 +88,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <script
       type="text/javascript"
       src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/tabulator-tables@5.4.2/dist/js/tabulator.min.js"
     ></script>
     <script
       type="text/javascript"
@@ -368,8 +381,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <button class="proceed-button">Proceed</button>
         </div>
       </div>
-      <div id="main-panel-2">Panel 2</div>
-      <div id="main-panel-3">Panel 3</div>
+      <div id="main-panel-2">
+        <div id="main-panel-2-menu" class="panel-container">
+          <h4 class="secondary">
+            <i class="fa-duotone fa-circle-2"></i> Validate and Edit uploaded
+            Data
+          </h4>
+        </div>
+        <div id="main-panel-2-table" class="panel-container"></div>
+      </div>
+      <div id="main-panel-3">
+        <div id="main-panel-3-menu" class="panel-container">
+          <h4 class="secondary">
+            <i class="fa-duotone fa-circle-3"></i> View Results
+          </h4>
+        </div>
+        <div id="main-panel-3-dashboard" class="panel-container"></div>
+      </div>
     </div>
   </body>
 </html>
