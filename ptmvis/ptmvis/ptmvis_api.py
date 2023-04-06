@@ -1,4 +1,5 @@
 from ptmvis import app
+from ptmvis.backend import utils
 from flask import request, session, render_template, send_file
 from flask_session import Session
 from datetime import timedelta
@@ -41,7 +42,8 @@ def process_search_engine_output():
         json_string_request_data = inflated_request_data.decode("utf8")
         json_request_data = json.loads(json_string_request_data)
         content_type = json_request_data["contentType"]
-        df = pd.read_csv(StringIO(json_request_data["content"]))
+        print(content_type)
+        df = utils.parse_user_input(StringIO(json_request_data["content"]), content_type)
         print(df)
     except Exception as e:
         print(e)

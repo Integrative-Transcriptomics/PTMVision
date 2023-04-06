@@ -1,0 +1,6 @@
+uniprot_id,position,modification_unimod_name,modification_unimod_id
+P30871,61,deamidated,7
+P30871,266,met->hse,10
+P76491,168,oxidation,35
+P00350,11,oxidation,35
+P00350,167,sulfanilicacid,9999575

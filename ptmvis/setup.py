@@ -12,6 +12,8 @@ setup(
         "datetime",
         "brotli",
         "gunicorn",
-        "psm_utils"
+        "psm_utils",
+        "biopython",
+        "unimod-mapper"
     ],
 )
