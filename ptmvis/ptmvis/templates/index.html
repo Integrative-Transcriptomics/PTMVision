@@ -82,6 +82,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ></script>
     <script
       type="text/javascript"
+      src="{{url_for('static', filename='js/pako.min.js')}}"
+      defer
+    ></script>
+    <script
+      type="text/javascript"
       src="{{url_for('static', filename='js/index.js')}}"
       defer
     ></script>
@@ -323,7 +328,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <i class="fa-duotone fa-circle-1"></i> Upload Search Engine Output
           </h4>
           <h5 class="secondary">Specify Pipeline Type:</h5>
-          <select data-role="select">
+          <select data-role="select" id="data-type-form">
             <optgroup label="Pipeline">
               <option value="ionbot">Ionbot</option>
               <option value="msfragger">MSFragger</option>
@@ -333,12 +338,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <br />
           <h5 class="secondary">Select Pipeline Output:</h5>
           <input
+            id="data-input-form"
             type="file"
             data-role="file"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
           <br />
-          <button class="proceed-button">Proceed</button>
+          <button class="proceed-button" onclick="uploadData()">Proceed</button>
         </div>
       </div>
       <div id="main-panel-2">

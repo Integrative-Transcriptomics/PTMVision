@@ -1,5 +1,5 @@
 EXAMPLE_PARAMETER = ""; // Exemplary parameter.
-WWW = "";
+WWW = "http://127.0.0.1:5000/";
 ACTIVE_PANEL = "main-panel-1";
 DASHBOARD_OPTION = {
   grid: [
@@ -94,6 +94,22 @@ function downloadBlob(blob, name) {
 
 /**
  *
+ * @param {*} file
+ * @returns
+ */
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    var fileReader = new FileReader();
+    fileReader.onload = (event) => {
+      resolve(event.target.result);
+    };
+    fileReader.onerror = (error) => reject(error);
+    fileReader.readAsText(file);
+  });
+}
+
+/**
+ *
  */
 function redirectSource() {
   window.open(
@@ -174,4 +190,37 @@ function initDashboard() {
     height: "auto",
   });
   DASHBOARD.setOption(DASHBOARD_OPTION);
+}
+
+async function uploadData() {
+  request = {
+    contentType: null,
+    content: null,
+  };
+  await readFile($("#data-input-form")[0].files[0]).then((response) => {
+    request.content = response;
+  });
+  request.contentType = $("#data-type-form")[0].value;
+  toggleProgress("Processing Data");
+  axios
+    .post(
+      WWW + "/process_search_engine_output",
+      pako.deflate(JSON.stringify(request)),
+      {
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Content-Encoding": "zlib",
+        },
+      }
+    )
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+    .finally((_) => {
+      toggleProgress(null);
+      return;
+    });
 }
