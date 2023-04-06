@@ -1,7 +1,65 @@
 EXAMPLE_PARAMETER = ""; // Exemplary parameter.
 WWW = "";
 ACTIVE_PANEL = "main-panel-1";
-DATA_TABLE = undefined;
+DASHBOARD_OPTION = {
+  grid: [
+    {
+      id: "grid_primary_sequence_profile",
+      show: true,
+      left: 0,
+      top: 0,
+      right: "38%",
+      bottom: "85%",
+      backgroundColor: "#ECC8AF",
+    },
+    {
+      id: "grid_primary_sequence_annotation",
+      show: true,
+      left: 0,
+      top: "15%",
+      right: "38%",
+      bottom: "80%",
+      backgroundColor: "#E7AD99",
+    },
+    {
+      id: "grid_contact_map",
+      show: true,
+      left: 0,
+      top: "20%",
+      right: "38%",
+      bottom: 0,
+      backgroundColor: "#CE796B",
+    },
+    {
+      id: "grid_composition_one",
+      show: true,
+      left: "61%",
+      top: 0,
+      right: "19%",
+      bottom: "50%",
+      backgroundColor: "#495867",
+    },
+    {
+      id: "grid_composition_two",
+      show: true,
+      left: "61%",
+      top: "50%",
+      right: "19%",
+      bottom: 0,
+      backgroundColor: "#495867",
+    },
+    {
+      id: "grid_residue_view",
+      show: true,
+      left: "80%",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "#420039",
+    },
+  ],
+};
+DASHBOARD = null;
 
 window.addEventListener("wheel", (event) => {
   if (event.deltaY > 0) {
@@ -19,9 +77,13 @@ function init() {
   WWW = API_PARAMETERS["URL"];
   $("#menu")[0].style.display = "flex";
   $("#main-panel-1")[0].style.display = "block";
-  initTable();
 }
 
+/**
+ *
+ * @param {*} blob
+ * @param {*} name
+ */
 function downloadBlob(blob, name) {
   var download_link = document.createElement("a");
   download_link.href = window.URL.createObjectURL(new Blob([blob]));
@@ -30,6 +92,9 @@ function downloadBlob(blob, name) {
   download_link.remove();
 }
 
+/**
+ *
+ */
 function redirectSource() {
   window.open(
     "https://github.com/Integrative-Transcriptomics/MUSIAL",
@@ -37,10 +102,17 @@ function redirectSource() {
   );
 }
 
+/**
+ *
+ */
 function redirectHelp() {
   window.open("https://www.google.com/webhp", "_blank");
 }
 
+/**
+ *
+ * @returns
+ */
 function stepBack() {
   if (ACTIVE_PANEL === "main-panel-1") {
     return;
@@ -49,50 +121,35 @@ function stepBack() {
     $("#main-panel-1").first().slideToggle("medium");
     $("#panel-back-button")[0].disabled = true;
     $("#panel-next-button")[0].disabled = false;
-    $("#progress-no-2")[0].classList.toggle("progress-active");
     $("#progress-icon-2")[0].classList.toggle("progress-active");
-    $("#progress-no-1")[0].classList.toggle("progress-active");
     $("#progress-icon-1")[0].classList.toggle("progress-active");
     ACTIVE_PANEL = "main-panel-1";
-  } else if (ACTIVE_PANEL === "main-panel-3") {
-    $("#main-panel-3").first().slideToggle("medium");
-    $("#main-panel-2").first().slideToggle("medium");
-    $("#panel-back-button")[0].disabled = false;
-    $("#panel-next-button")[0].disabled = false;
-    $("#progress-no-3")[0].classList.toggle("progress-active");
-    $("#progress-icon-3")[0].classList.toggle("progress-active");
-    $("#progress-no-2")[0].classList.toggle("progress-active");
-    $("#progress-icon-2")[0].classList.toggle("progress-active");
-    ACTIVE_PANEL = "main-panel-2";
   }
 }
 
+/**
+ *
+ * @returns
+ */
 function stepNext() {
   if (ACTIVE_PANEL === "main-panel-1") {
     $("#main-panel-1").first().slideToggle("medium");
     $("#main-panel-2").first().slideToggle("medium");
     $("#panel-back-button")[0].disabled = false;
-    $("#panel-next-button")[0].disabled = false;
-    $("#progress-no-1")[0].classList.toggle("progress-active");
+    $("#panel-next-button")[0].disabled = true;
     $("#progress-icon-1")[0].classList.toggle("progress-active");
-    $("#progress-no-2")[0].classList.toggle("progress-active");
     $("#progress-icon-2")[0].classList.toggle("progress-active");
     ACTIVE_PANEL = "main-panel-2";
+    initDashboard();
   } else if (ACTIVE_PANEL === "main-panel-2") {
-    $("#main-panel-2").first().slideToggle("medium");
-    $("#main-panel-3").first().slideToggle("medium");
-    $("#panel-back-button")[0].disabled = false;
-    $("#panel-next-button")[0].disabled = true;
-    $("#progress-no-2")[0].classList.toggle("progress-active");
-    $("#progress-icon-2")[0].classList.toggle("progress-active");
-    $("#progress-no-3")[0].classList.toggle("progress-active");
-    $("#progress-icon-3")[0].classList.toggle("progress-active");
-    ACTIVE_PANEL = "main-panel-3";
-  } else if (ACTIVE_PANEL === "main-panel-3") {
     return;
   }
 }
 
+/**
+ *
+ * @param {*} hint
+ */
 function toggleProgress(hint) {
   $("#progress-indicator").first().toggleClass("fa-spin");
   $("#progress-indicator").first().toggleClass("fa-circle");
@@ -106,14 +163,15 @@ function toggleProgress(hint) {
   }
 }
 
-function initTable() {
-  DATA_TABLE = new Tabulator("#main-panel-2-table", {
-    columns: [],
-    maxHeight: "100%",
-    columnDefaults: {
-      width: "9vw",
-      resizable: "header",
-    },
-    placeholder: `<span class="tag-dark text-upper">Start by Uploading Data in Step <i class="fa-duotone fa-circle-1"></i></span>`,
+/**
+ *
+ */
+function initDashboard() {
+  DASHBOARD = echarts.init($("#main-panel-2-dashboard")[0], {
+    devicePixelRatio: 2,
+    renderer: "svg",
+    width: "auto",
+    height: "auto",
   });
+  DASHBOARD.setOption(DASHBOARD_OPTION);
 }

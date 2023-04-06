@@ -43,15 +43,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       href="https://cdn.korzh.com/metroui/v4/css/metro-all.min.css"
     />
     <link
-      href="https://unpkg.com/tabulator-tables@5.4.2/dist/css/tabulator.min.css"
-      rel="stylesheet"
-    />
-
-    <link
-      href="https://unpkg.com/tabulator-tables@5.4.2/dist/css/tabulator_materialize.min.css"
-      rel="stylesheet"
-    />
-    <link
       rel="stylesheet"
       type="text/css"
       href="{{url_for('static', filename='css/index.css')}}"
@@ -88,10 +79,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <script
       type="text/javascript"
       src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://unpkg.com/tabulator-tables@5.4.2/dist/js/tabulator.min.js"
     ></script>
     <script
       type="text/javascript"
@@ -138,14 +125,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <div
               style="display: inline"
               data-role="hint"
-              data-hint-text="1. Step<br>Upload Data"
+              data-hint-text="Upload Data"
               data-hint-position="bottom"
             >
-              <i
-                id="progress-no-1"
-                class="progress-icon progress-active fa-thin fa-circle-1"
-                style="margin: 0 !important"
-              ></i>
               <i
                 id="progress-icon-1"
                 class="progress-icon progress-active fa-duotone fa-file-arrow-up"
@@ -155,34 +137,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <div
               style="display: inline"
               data-role="hint"
-              data-hint-text="2. Step<br>Validate and Edit Data"
+              data-hint-text="View Dashboard"
               data-hint-position="bottom"
             >
-              <i
-                id="progress-no-2"
-                class="progress-icon fa-thin fa-circle-2"
-                style="margin: 0 !important"
-              ></i>
               <i
                 id="progress-icon-2"
-                class="progress-icon fa-duotone fa-gears"
-              ></i>
-            </div>
-            <i class="progress-icon fa-sharp fa-light fa-horizontal-rule"></i>
-            <div
-              style="display: inline"
-              data-role="hint"
-              data-hint-text="3. Step<br>View Results"
-              data-hint-position="bottom"
-            >
-              <i
-                id="progress-no-3"
-                class="progress-icon fa-thin fa-circle-3"
-                style="margin: 0 !important"
-              ></i>
-              <i
-                id="progress-icon-3"
-                class="progress-icon fa-duotone fa-magnifying-glass-chart"
+                class="progress-icon fa-duotone fa-magnifying-glass-chart fa-flip-horizontal"
               ></i>
             </div>
             <button
@@ -229,7 +189,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <div id="main">
       <div id="main-panel-1">
         <div id="main-panel-1-info-text" class="panel-container">
-          <img
+          <!--<img
             src="{{ url_for('static', filename='resources/logo.png') }}"
             alt="<LOGO>"
           />
@@ -278,8 +238,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             own structure. Once completed, users can view the results dashboard
             for a comprehensive analysis of their data.
           </p>
-          <hr />
-          <div class="footer remark">
+          <hr />-->
+          <div class="footer">
             <div class="grid">
               <div class="row">
                 <div class="cell-2">
@@ -298,6 +258,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   <p class="text-upper text-leader2 text-center">
                     compatibility
                   </p>
+                  <br />
                   <table class="table subcompact table-border cell-border">
                     <thead>
                       <tr>
@@ -361,8 +322,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <h4 class="secondary">
             <i class="fa-duotone fa-circle-1"></i> Upload Search Engine Output
           </h4>
-          <h5 class="secondary">Select Pipeline Type:</h5>
-          <select data-role="select" data-prepend="Pipeline">
+          <h5 class="secondary">Specify Pipeline Type:</h5>
+          <select data-role="select">
             <optgroup label="Pipeline">
               <option value="ionbot">Ionbot</option>
               <option value="msfragger">MSFragger</option>
@@ -374,7 +335,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <input
             type="file"
             data-role="file"
-            data-prepend="Select Files:"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
           <br />
@@ -383,20 +343,57 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </div>
       <div id="main-panel-2">
         <div id="main-panel-2-menu" class="panel-container">
-          <h4 class="secondary">
-            <i class="fa-duotone fa-circle-2"></i> Validate and Edit uploaded
-            Data
-          </h4>
+          <div class="grid">
+            <div class="row">
+              <div class="cell-2">
+                <h4 class="secondary">
+                  <i class="fa-duotone fa-circle-2"></i> Dashboard
+                </h4>
+              </div>
+              <div class="cell-2">
+                <select
+                  class="input-small"
+                  data-role="select"
+                  data-prepend="Protein"
+                >
+                  <optgroup label="Proteins (UniProt ID)">
+                    <option value="A2VEY9">A2VEY9</option>
+                    <option value="P53933">P53933</option>
+                    <option value="Q92624">Q92624</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="cell-2">
+                <select
+                  class="input-small"
+                  data-role="select"
+                  data-prepend="Contact Attribute"
+                >
+                  <optgroup label="Criteria">
+                    <option value="common">Common PTMs</option>
+                    <option value="repulsing">Repulsing PTMs</option>
+                    <option value="attracting">Attracting PTMs</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="cell-2">
+                <input
+                  type="text"
+                  class="input-small"
+                  data-role="input"
+                  data-prepend="Distance Cutoff"
+                />
+              </div>
+              <div class="cell-2">
+                <button class="custom-button">Annotation</button>
+              </div>
+              <div class="cell-1 offset-1">
+                <button class="proceed-button">Proceed</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="main-panel-2-table" class="panel-container"></div>
-      </div>
-      <div id="main-panel-3">
-        <div id="main-panel-3-menu" class="panel-container">
-          <h4 class="secondary">
-            <i class="fa-duotone fa-circle-3"></i> View Results
-          </h4>
-        </div>
-        <div id="main-panel-3-dashboard" class="panel-container"></div>
+        <div id="main-panel-2-dashboard" class="panel-container"></div>
       </div>
     </div>
   </body>

@@ -30,8 +30,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   --color-2: #50858b;
   --color-3: #62a8ac;
   --color-4: #a1d2ce;
+  --color-4-70: rgb(161, 210, 206, 0.7);
   --highlight-1: #ff6663;
   --highlight-2: #dc5754;
+  --text-color: #333333;
 }
 ::-webkit-scrollbar {
   width: 0.4vw;
@@ -127,10 +129,14 @@ body {
   background-color: var(--highlight-1);
   color: var(--background-color-1);
   border: none;
-  border-radius: 2px;
-  font-size: large;
+  border-radius: 5px;
+  font-size: small;
   padding: 4px;
   cursor: pointer;
+}
+
+.proceed-button i {
+  font-size: xx-small;
 }
 
 .proceed-button:hover {
@@ -138,8 +144,23 @@ body {
   transition: 0.2s;
 }
 
-#main {
+.custom-button {
+  background-color: var(--background-color-1);
+  color: var(--text-color);
+  border: none;
+  border-radius: 5px;
+  font-size: small;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.custom-button:hover {
   background-color: var(--background-color-3);
+  transition: 0.2s;
+}
+
+#main {
+  background-color: var(--color-1);
   position: absolute;
   top: 5vh;
   right: 0;
@@ -149,57 +170,55 @@ body {
 
 .panel-container {
   border-width: 1px;
-  border-radius: 2px;
-  border-color: var(--color-2);
-  background-color: var(--background-color-1);
-  padding: 10px;
-  margin: 0.25%;
+  border-radius: 10px;
+  border-color: var(--color-3);
+  background-color: var(--color-4-70);
+  color: var(--text-color);
+  padding: 15px;
+  margin: 2%;
 }
 
 #main-panel-1 {
   width: 100%;
   height: 100%;
   display: none;
+  background-image: url("/static/resources/background_panel_1.jpg");
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  background-position-y: 5vh;
 }
 
 #main-panel-1-info-text {
   position: absolute;
-  top: 0;
   bottom: 0;
-  left: 0;
-  width: 49.5%;
-  height: 99%;
-}
-
-#main-panel-1-info-text img {
-  justify-content: center;
-  height: auto;
-  width: 25%;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-#main-panel-1-info-text i {
-  font-size: large;
-  color: var(--color-3);
+  right: 0;
+  width: 46%;
+  height: 30%;
 }
 
 #main-panel-1-info-text .footer {
   position: absolute;
-  font-size: x-small;
-  color: dimgrey;
-  bottom: 0;
+  font-size: small;
   left: 16px !important;
   right: 16px;
+}
+
+#main-panel-1-info-text .footer thead,
+table,
+tbody,
+th {
+  border-color: var(--color-2) !important;
+  border-width: 1px;
+  border-radius: 2px !important;
 }
 
 #main-panel-1-info-image {
   position: absolute;
   top: 0;
   right: 0;
-  width: 49.5%;
-  height: 65%;
+  width: 96%;
+  height: 62%;
 }
 
 #main-panel-1-info-image img {
@@ -210,9 +229,9 @@ body {
 #main-panel-1-inputs {
   position: absolute;
   bottom: 0;
-  right: 0;
-  width: 49.5%;
-  height: 33%;
+  left: 0;
+  width: 46%;
+  height: 30%;
 }
 
 #main-panel-1-inputs i {
@@ -224,13 +243,18 @@ body {
   width: 100%;
   height: 100%;
   display: none;
+  background-image: url("/static/resources/background_panel_2.jpg");
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  background-position-y: 5vh;
 }
 
 #main-panel-2-menu {
   position: absolute;
   top: 0;
-  width: 99.5%;
-  height: 8%;
+  width: 96%;
+  height: 5vh;
 }
 
 #main-panel-2-menu i {
@@ -238,34 +262,13 @@ body {
   color: var(--color-2);
 }
 
-#main-panel-2-table {
+#main-panel-2-menu .cell-2 {
+  padding-left: 5px;
+}
+
+#main-panel-2-dashboard {
   position: absolute;
   bottom: 0;
-  width: 99.5%;
-  height: 90%;
-}
-
-#main-panel-3 {
-  width: 100%;
-  height: 100%;
-  display: none;
-}
-
-#main-panel-3-menu {
-  position: absolute;
-  top: 0;
-  width: 99.5%;
-  height: 8%;
-}
-
-#main-panel-3-menu i {
-  font-size: x-large;
-  color: var(--color-2);
-}
-
-#main-panel-3-dashboard {
-  position: absolute;
-  bottom: 0;
-  width: 99.5%;
-  height: 90%;
+  width: 96%;
+  height: calc(92% - 5vh);
 }
