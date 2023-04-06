@@ -12,5 +12,6 @@ setup(
         "datetime",
         "brotli",
         "gunicorn",
+        "psm_utils"
     ],
 )
