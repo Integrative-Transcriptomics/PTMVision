@@ -35,7 +35,6 @@ Session(app)
 """ Definition of session keys """
 MOD_DF = "modifications_data_frame"
 AVAIL_PROT = "available_proteins"
-PROT_STRUC = "protein_structure"
 
 
 def request_to_json(zlib_req):
@@ -89,22 +88,29 @@ def get_dashboard_data():
         return response
 
 
-@app.route("/load_protein_structure_into_session", methods=["POST"])
-def load_protein_structure_into_session():
+@app.route("/get_protein_data", methods=["POST"])
+def get_protein_data():
     """
     TODO
     """
-    response = "Ok"
+    response = {"status": "Ok", "ptms": None, "contacts": None}
     try:
         json_request_data = request_to_json(request.data)
-        print(json_request_data)
+        structure = None
         if json_request_data["opt_pdb_text"] != None:
-            session[PROT_STRUC] = utils.parse_structure(
-                json_request_data["opt_pdb_text"]
-            )
+            structure = utils.parse_structure(json_request_data["opt_pdb_text"])
         else:
-            session[PROT_STRUC] = utils.get_structure(json_request_data["uniprot_id"])
+            structure = utils.get_structure(json_request_data["uniprot_id"])
+        if structure != None:
+            df = session[MOD_DF]
+            response["ptms"] = df[
+                df["uniprot_id"] == json_request_data["uniprot_id"]
+            ].to_csv()
+            response["contacts"] = utils.get_contacts(
+                utils.get_distance_matrix(structure),
+                int(json_request_data["distance_cutoff"]),
+            )
     except Exception as e:
-        response = "Failed: " + str(e)
+        response["status"] = "Failed: " + str(e)
     finally:
         return response

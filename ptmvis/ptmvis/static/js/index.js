@@ -1,6 +1,7 @@
-EXAMPLE_PARAMETER = ""; // Exemplary parameter.
 WWW = "http://127.0.0.1:5000/";
 ACTIVE_PANEL = "main-panel-1";
+PTM_DATA = null;
+CONTACT_DATA = null;
 DASHBOARD_OPTION = {
   grid: [
     {
@@ -73,7 +74,6 @@ window.addEventListener("keyup", (event) => {
  *
  */
 function init() {
-  EXAMPLE_PARAMETER = null;
   WWW = API_PARAMETERS["URL"];
   $("#menu")[0].style.display = "flex";
   $("#main-panel-1")[0].style.display = "block";
@@ -257,26 +257,23 @@ async function processDashboardRequest() {
   request = {
     uniprot_id: Metro.getPlugin("#main-panel-2-protein-select", "select").val(),
     opt_pdb_text: null,
-    contact_attr: Metro.getPlugin(
+    distance_cutoff: $("#main-panel-2-distance-cutoff")[0].value,
+    /*contact_attr: Metro.getPlugin(
       "#main-panel-2-contact-attribute",
       "select"
     ).val(),
-    distance_cutoff: $("#main-panel-2-distance-cutoff")[0].value,
-    annotation_obj: null,
+    annotation_obj: null,*/
   };
   axios
-    .post(
-      WWW + "/load_protein_structure_into_session",
-      pako.deflate(JSON.stringify(request)),
-      {
-        headers: {
-          "Content-Type": "application/octet-stream",
-          "Content-Encoding": "zlib",
-        },
-      }
-    )
+    .post(WWW + "/get_protein_data", pako.deflate(JSON.stringify(request)), {
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "Content-Encoding": "zlib",
+      },
+    })
     .then((response) => {
-      if (response.data.startsWith("Failed")) {
+      console.log(response);
+      if (response.data.status.startsWith("Failed")) {
         Swal.fire({
           title: "Unable to match UniProt ID " + request.uniprot_id,
           icon: "question",
@@ -307,7 +304,7 @@ async function processDashboardRequest() {
                 request.opt_pdb_text = response;
                 axios
                   .post(
-                    WWW + "/load_protein_structure_into_session",
+                    WWW + "/get_protein_data",
                     pako.deflate(JSON.stringify(request)),
                     {
                       headers: {
@@ -317,12 +314,12 @@ async function processDashboardRequest() {
                     }
                   )
                   .then((response) => {
-                    if (response.data == "Ok") {
-                      console.log("Done");
+                    if (response.data.status == "Ok") {
+                      console.log(response.data);
                     } else {
                       throw Error(
                         "Failed to parse provided .pdb structure: " +
-                          response.data
+                          response.data.status
                       );
                     }
                   })
@@ -337,8 +334,8 @@ async function processDashboardRequest() {
             return;
           }
         });
-      } else if (response.data == "Ok") {
-        console.log("Done");
+      } else if (response.data.status == "Ok") {
+        console.log(response.data);
       }
     })
     .catch((error) => {

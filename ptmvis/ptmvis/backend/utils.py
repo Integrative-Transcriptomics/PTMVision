@@ -27,12 +27,11 @@ def get_distance_matrix(structure):
 
 def get_contacts(dist_matrix, threshold):
     contacts = {}
-
     for pairwise_contact in np.argwhere(dist_matrix < threshold):
-        print(pairwise_contact)
         if pairwise_contact[0] != pairwise_contact[1]:
-            contacts.setdefault(pairwise_contact[0], []).append(pairwise_contact[1])
-
+            contacts.setdefault(int(pairwise_contact[0]), []).append(
+                int(pairwise_contact[1])
+            )
     return contacts
 
 
