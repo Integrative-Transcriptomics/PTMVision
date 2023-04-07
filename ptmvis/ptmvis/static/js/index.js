@@ -61,10 +61,10 @@ DASHBOARD_OPTION = {
 };
 DASHBOARD = null;
 
-window.addEventListener("wheel", (event) => {
-  if (event.deltaY > 0) {
+window.addEventListener("keyup", (event) => {
+  if (event.key == "ArrowDown") {
     stepNext();
-  } else {
+  } else if (event.key == "ArrowUp") {
     stepBack();
   }
 });
@@ -110,6 +110,14 @@ function readFile(file) {
 
 /**
  *
+ * @param {*} msg
+ */
+function handleError(msg) {
+  Metro.toast.create("Fatal Error: " + msg, null, 6000, "error-toast");
+}
+
+/**
+ *
  */
 function redirectSource() {
   window.open(
@@ -149,6 +157,7 @@ function stepBack() {
  */
 function stepNext() {
   if (ACTIVE_PANEL === "main-panel-1") {
+    initDashboard();
     $("#main-panel-1").first().slideToggle("medium");
     $("#main-panel-2").first().slideToggle("medium");
     $("#panel-back-button")[0].disabled = false;
@@ -156,7 +165,6 @@ function stepNext() {
     $("#progress-icon-1")[0].classList.toggle("progress-active");
     $("#progress-icon-2")[0].classList.toggle("progress-active");
     ACTIVE_PANEL = "main-panel-2";
-    initDashboard();
   } else if (ACTIVE_PANEL === "main-panel-2") {
     return;
   }
@@ -183,6 +191,14 @@ function toggleProgress(hint) {
  *
  */
 function initDashboard() {
+  toggleProgress("Initialize Dashboard");
+  axios.get(WWW + "/get_available_proteins").then((response) => {
+    let options = {};
+    response.data.forEach((entry) => {
+      options[entry] = entry;
+    });
+    Metro.getPlugin("#main-panel-2-protein-select", "select").data(options);
+  });
   DASHBOARD = echarts.init($("#main-panel-2-dashboard")[0], {
     devicePixelRatio: 2,
     renderer: "svg",
@@ -190,9 +206,14 @@ function initDashboard() {
     height: "auto",
   });
   DASHBOARD.setOption(DASHBOARD_OPTION);
+  toggleProgress();
 }
 
+/**
+ *
+ */
 async function uploadData() {
+  toggleProgress("Uploading Data");
   request = {
     contentType: null,
     content: null,
@@ -201,7 +222,6 @@ async function uploadData() {
     request.content = response;
   });
   request.contentType = $("#data-type-form")[0].value;
-  toggleProgress("Processing Data");
   axios
     .post(
       WWW + "/process_search_engine_output",
@@ -214,13 +234,123 @@ async function uploadData() {
       }
     )
     .then((response) => {
-      console.log(response);
+      Metro.toast.create(
+        "Your data has been uploaded successfully.\nYou can proceed to the dashboard.",
+        null,
+        5000
+      );
     })
     .catch((error) => {
-      console.log(error);
+      handleError(error.message);
     })
     .finally((_) => {
       toggleProgress(null);
       return;
     });
 }
+
+/**
+ *
+ */
+async function processDashboardRequest() {
+  toggleProgress("Preparing Dashboard");
+  request = {
+    uniprot_id: Metro.getPlugin("#main-panel-2-protein-select", "select").val(),
+    opt_pdb_text: null,
+    contact_attr: Metro.getPlugin(
+      "#main-panel-2-contact-attribute",
+      "select"
+    ).val(),
+    distance_cutoff: $("#main-panel-2-distance-cutoff")[0].value,
+    annotation_obj: null,
+  };
+  axios
+    .post(
+      WWW + "/load_protein_structure_into_session",
+      pako.deflate(JSON.stringify(request)),
+      {
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Content-Encoding": "zlib",
+        },
+      }
+    )
+    .then((response) => {
+      if (response.data.startsWith("Failed")) {
+        Swal.fire({
+          title: "Unable to match UniProt ID " + request.uniprot_id,
+          icon: "question",
+          iconHtml:
+            '<i class="fa-solid fa-circle-exclamation fa-shake fa-xl" style="color: #ff6663;"></i>',
+          html: upload_pdb_html,
+          width: "100vw",
+          padding: "0.5em",
+          position: "bottom",
+          showCancelButton: true,
+          grow: true,
+          heightAuto: true,
+          cancelButtonColor: "#d4d4d4",
+          cancelButtonText: "Cancel",
+          confirmButtonColor: "#dc5754",
+          confirmButtonText: "Ok",
+          color: "#333333",
+          background: "#f0f5f5",
+          backdrop: `
+            rgba(161, 210, 206, 0.2)
+            left top
+            no-repeat
+          `,
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            await readFile($("#optional-pdb-input")[0].files[0])
+              .then((response) => {
+                request.opt_pdb_text = response;
+                axios
+                  .post(
+                    WWW + "/load_protein_structure_into_session",
+                    pako.deflate(JSON.stringify(request)),
+                    {
+                      headers: {
+                        "Content-Type": "application/octet-stream",
+                        "Content-Encoding": "zlib",
+                      },
+                    }
+                  )
+                  .then((response) => {
+                    if (response.data == "Ok") {
+                      console.log("Done");
+                    } else {
+                      throw Error(
+                        "Failed to parse provided .pdb structure: " +
+                          response.data
+                      );
+                    }
+                  })
+                  .catch((error) => {
+                    handleError(error.message);
+                  });
+              })
+              .catch((error) => {
+                handleError(error.message);
+              });
+          } else {
+            return;
+          }
+        });
+      } else if (response.data == "Ok") {
+        console.log("Done");
+      }
+    })
+    .catch((error) => {
+      handleError(error.message);
+    })
+    .finally((_) => {
+      toggleProgress(null);
+      return;
+    });
+}
+
+var upload_pdb_html = `
+    <p>You can provide a structure in .pdb format to continue.</p>
+    <br>
+    <input id="optional-pdb-input" type="file" data-role="file" data-mode="drop">`;

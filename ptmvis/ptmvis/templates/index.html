@@ -50,10 +50,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!--
       Definition of java script files to use in the application.
       -->
-    <script src="https://cdn.korzh.com/metroui/v4/js/metro.min.js"></script>
     <script
       type="text/javascript"
       src="https://code.jquery.com/jquery-3.6.0.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.korzh.com/metroui/v4/js/metro.min.js"
     ></script>
     <script
       type="text/javascript"
@@ -83,12 +86,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <script
       type="text/javascript"
       src="{{url_for('static', filename='js/pako.min.js')}}"
-      defer
     ></script>
     <script
       type="text/javascript"
       src="{{url_for('static', filename='js/index.js')}}"
-      defer
     ></script>
     <script>
       var API_PARAMETERS = JSON.parse(
@@ -332,7 +333,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <optgroup label="Pipeline">
               <option value="ionbot">Ionbot</option>
               <option value="msfragger">MSFragger</option>
-              <option value="csv">csv</option>
+              <option value="csv">Plain CSV</option>
             </optgroup>
           </select>
           <br />
@@ -359,18 +360,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               <div class="cell-2">
                 <select
                   class="input-small"
+                  id="main-panel-2-protein-select"
                   data-role="select"
                   data-prepend="Protein"
-                >
-                  <optgroup label="Proteins (UniProt ID)">
-                    <option value="A2VEY9">A2VEY9</option>
-                    <option value="P53933">P53933</option>
-                    <option value="Q92624">Q92624</option>
-                  </optgroup>
-                </select>
+                ></select>
               </div>
               <div class="cell-2">
                 <select
+                  id="main-panel-2-contact-attribute"
                   class="input-small"
                   data-role="select"
                   data-prepend="Contact Attribute"
@@ -384,6 +381,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               </div>
               <div class="cell-2">
                 <input
+                  id="main-panel-2-distance-cutoff"
                   type="text"
                   class="input-small"
                   data-role="input"
@@ -391,10 +389,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 />
               </div>
               <div class="cell-2">
-                <button class="custom-button">Annotation</button>
+                <button class="custom-button" disabled>Annotation</button>
               </div>
               <div class="cell-1 offset-1">
-                <button class="proceed-button">Proceed</button>
+                <button
+                  class="proceed-button"
+                  onclick="processDashboardRequest()"
+                >
+                  Proceed
+                </button>
               </div>
             </div>
           </div>

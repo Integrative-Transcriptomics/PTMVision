@@ -58,6 +58,21 @@ body {
   text-overflow: ellipsis;
 }
 
+body.swal2-shown > [aria-hidden="true"] {
+  transition: 0.5s filter;
+  filter: blur(2px);
+}
+
+body .toast {
+  background-color: var(--text-color);
+  color: var(--background-color-3);
+}
+
+body .error-toast {
+  background-color: var(--highlight-2) !important;
+  color: var(--background-color-2) !important;
+}
+
 #menu {
   background-color: var(--color-1);
   color: var(--background-color-1);
