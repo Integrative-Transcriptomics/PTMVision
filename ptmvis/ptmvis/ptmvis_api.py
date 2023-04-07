@@ -68,10 +68,10 @@ def get_available_proteins():
     """
     TODO
     """
+    response = {"prot_names": []}
     if AVAIL_PROT in session:
-        return session[AVAIL_PROT]
-    else:
-        return []
+        response["prot_names"] = session[AVAIL_PROT]
+    return response
 
 
 @app.route("/get_dashboard_data", methods=["GET"])

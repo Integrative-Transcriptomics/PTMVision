@@ -194,7 +194,7 @@ function initDashboard() {
   toggleProgress("Initialize Dashboard");
   axios.get(WWW + "/get_available_proteins").then((response) => {
     let options = {};
-    response.data.forEach((entry) => {
+    response.data["prot_names"].forEach((entry) => {
       options[entry] = entry;
     });
     Metro.getPlugin("#main-panel-2-protein-select", "select").data(options);
@@ -272,7 +272,6 @@ async function processDashboardRequest() {
       },
     })
     .then((response) => {
-      console.log(response);
       if (response.data.status.startsWith("Failed")) {
         Swal.fire({
           title: "Unable to match UniProt ID " + request.uniprot_id,
@@ -315,7 +314,7 @@ async function processDashboardRequest() {
                   )
                   .then((response) => {
                     if (response.data.status == "Ok") {
-                      console.log(response.data);
+                      updateDashboardInformation(response.data);
                     } else {
                       throw Error(
                         "Failed to parse provided .pdb structure: " +
@@ -335,7 +334,7 @@ async function processDashboardRequest() {
           }
         });
       } else if (response.data.status == "Ok") {
-        console.log(response.data);
+        updateDashboardInformation(response.data);
       }
     })
     .catch((error) => {
@@ -351,3 +350,17 @@ var upload_pdb_html = `
     <p>You can provide a structure in .pdb format to continue.</p>
     <br>
     <input id="optional-pdb-input" type="file" data-role="file" data-mode="drop">`;
+
+/**
+ *
+ * @param {*} data
+ */
+function updateDashboardInformation(data) {
+  PTM_DATA = data.ptms;
+  CONTACT_DATA = data.contacts;
+  Metro.toast.create(
+    "Dashboard information was updated successfully.",
+    null,
+    5000
+  );
+}
