@@ -73,7 +73,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ></script>
     <script
       type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/echarts@5.1.0/dist/echarts.min.js"
+      src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"
     ></script>
     <script
       type="text/javascript"
@@ -85,11 +85,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ></script>
     <script
       type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"
+    ></script>
+    <script
+      type="text/javascript"
       src="{{url_for('static', filename='js/pako.min.js')}}"
     ></script>
     <script
       type="text/javascript"
+      src="{{url_for('static', filename='js/peity-vanilla.min.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/papaparse.min.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
       src="{{url_for('static', filename='js/index.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/dashboard.js')}}"
     ></script>
     <script>
       var API_PARAMETERS = JSON.parse(
@@ -195,56 +211,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <div id="main">
       <div id="main-panel-1">
         <div id="main-panel-1-info-text" class="panel-container">
-          <!--<img
-            src="{{ url_for('static', filename='resources/logo.png') }}"
-            alt="<LOGO>"
-          />
-          <p class="text-secondary">
-            PTM Vision enables easily accessible visualizations of the
-            post-translational modifications (PTMs) of your protein of interest.
-            Our platform utilizes data from open search software such as ionbot,
-            MSFragger, and OpenPFind to provide you with an interactive and
-            comprehensive view of your protein's PTMs. With our user-friendly
-            interface, you can easily upload your data, explore the identified
-            PTMs, and visualize their location on the protein sequence. Our
-            website provides a valuable tool for researchers and scientists to
-            better understand the modifications that occur on their proteins and
-            how they may impact their function.
-          </p>
-          <hr />
-          <p class="text-secondary">
-            <i class="fa-duotone fa-circle-info"></i> Our website layout
-            features three simple steps: upload, adjust, and view results. The
-            navigation bar at the top displays your progress and allows easy
-            navigation with arrows or scrolling. A graphical abstract in the
-            upper right corner provides additional information, and buttons on
-            the top bar direct to source code and more information. Our
-            user-friendly layout streamlines the data analysis process for
-            researchers and scientists.
-          </p>
-          <hr />
-          <p class="text-secondary">
-            <i class="fa-duotone fa-circle-1"></i> The first step is to upload
-            your search engine output from Ionbot, MS-Fragger, or OpenPFind into
-            the forms of the lower right. The appropriate pipeline must be
-            selected to ensure accurate processing of your data.
-          </p>
-          <hr />
-          <p class="text-secondary">
-            <i class="fa-duotone fa-circle-2"></i> In the second step, you can
-            interact with an intuitive table to validate and edit your data as
-            needed. Additionally, you can adjust final parsing parameters to
-            ensure accuracy and completeness.
-          </p>
-          <hr />
-          <p class="text-secondary">
-            <i class="fa-duotone fa-circle-3"></i> In the third and final step,
-            users can select their protein and we will match modifications to
-            its structure. If we are unable to match any, users can supply their
-            own structure. Once completed, users can view the results dashboard
-            for a comprehensive analysis of their data.
-          </p>
-          <hr />-->
           <div class="footer">
             <div class="grid">
               <div class="row">
@@ -345,7 +311,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
           <br />
-          <button class="proceed-button" onclick="uploadData()">Proceed</button>
+          <button class="proceed-button" onclick="uploadData()">Submit</button>
         </div>
       </div>
       <div id="main-panel-2">
@@ -373,9 +339,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   data-prepend="Contact Attribute"
                 >
                   <optgroup label="Criteria">
-                    <option value="common">Common PTMs</option>
-                    <option value="repulsing">Repulsing PTMs</option>
-                    <option value="attracting">Attracting PTMs</option>
+                    <option value="common">Common PTMs (Jaccard)</option>
+                    <!--<option value="repulsing">Repulsing PTMs</option>-->
+                    <!--<option value="attracting">Attracting PTMs</option>-->
                   </optgroup>
                 </select>
               </div>
@@ -386,6 +352,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   class="input-small"
                   data-role="input"
                   data-prepend="Distance Cutoff"
+                  data-default-value="5"
                 />
               </div>
               <div class="cell-2">
@@ -396,7 +363,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   class="proceed-button"
                   onclick="processDashboardRequest()"
                 >
-                  Proceed
+                  Display
                 </button>
               </div>
             </div>

@@ -1,65 +1,11 @@
 WWW = "http://127.0.0.1:5000/";
 ACTIVE_PANEL = "main-panel-1";
-PTM_DATA = null;
-CONTACT_DATA = null;
-DASHBOARD_OPTION = {
-  grid: [
-    {
-      id: "grid_primary_sequence_profile",
-      show: true,
-      left: 0,
-      top: 0,
-      right: "38%",
-      bottom: "85%",
-      backgroundColor: "#ECC8AF",
-    },
-    {
-      id: "grid_primary_sequence_annotation",
-      show: true,
-      left: 0,
-      top: "15%",
-      right: "38%",
-      bottom: "80%",
-      backgroundColor: "#E7AD99",
-    },
-    {
-      id: "grid_contact_map",
-      show: true,
-      left: 0,
-      top: "20%",
-      right: "38%",
-      bottom: 0,
-      backgroundColor: "#CE796B",
-    },
-    {
-      id: "grid_composition_one",
-      show: true,
-      left: "61%",
-      top: 0,
-      right: "19%",
-      bottom: "50%",
-      backgroundColor: "#495867",
-    },
-    {
-      id: "grid_composition_two",
-      show: true,
-      left: "61%",
-      top: "50%",
-      right: "19%",
-      bottom: 0,
-      backgroundColor: "#495867",
-    },
-    {
-      id: "grid_residue_view",
-      show: true,
-      left: "80%",
-      top: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "#420039",
-    },
-  ],
-};
+STATE_AVAILABLE_PROTEINS_CHANGED = false; // This should be stored on the server in some appropriate way for long term usage.
+AVAILABLE_PROTEINS = null;
+DATA_PER_POSITION_PTMS = null;
+DATA_CONTACTS = null;
+DATA_SEQUENCE = null;
+DASHBOARD_SIZE_OBSERVER = null;
 DASHBOARD = null;
 
 window.addEventListener("keyup", (event) => {
@@ -77,6 +23,19 @@ function init() {
   WWW = API_PARAMETERS["URL"];
   $("#menu")[0].style.display = "flex";
   $("#main-panel-1")[0].style.display = "block";
+  DASHBOARD = echarts.init($("#main-panel-2-dashboard")[0], {
+    devicePixelRatio: 2,
+    renderer: "canvas",
+    width: "auto",
+    height: "auto",
+  });
+  DASHBOARD_SIZE_OBSERVER = new ResizeObserver((entries) => {
+    DASHBOARD.resize({
+      width: entries[0].width,
+      height: entries[0].height,
+    });
+  });
+  DASHBOARD_SIZE_OBSERVER.observe($("#main-panel-2-dashboard")[0]);
 }
 
 /**
@@ -192,20 +151,16 @@ function toggleProgress(hint) {
  */
 function initDashboard() {
   toggleProgress("Initialize Dashboard");
-  axios.get(WWW + "/get_available_proteins").then((response) => {
-    let options = {};
-    response.data["prot_names"].forEach((entry) => {
-      options[entry] = entry;
+  if (STATE_AVAILABLE_PROTEINS_CHANGED) {
+    axios.get(WWW + "/get_available_proteins").then((response) => {
+      let options = {};
+      for (const [k, v] of Object.entries(response.data["proteins"])) {
+        options[k] = "(" + String(v) + ") " + k;
+      }
+      Metro.getPlugin("#main-panel-2-protein-select", "select").data(options);
     });
-    Metro.getPlugin("#main-panel-2-protein-select", "select").data(options);
-  });
-  DASHBOARD = echarts.init($("#main-panel-2-dashboard")[0], {
-    devicePixelRatio: 2,
-    renderer: "svg",
-    width: "auto",
-    height: "auto",
-  });
-  DASHBOARD.setOption(DASHBOARD_OPTION);
+    STATE_AVAILABLE_PROTEINS_CHANGED = false;
+  }
   toggleProgress();
 }
 
@@ -239,6 +194,7 @@ async function uploadData() {
         null,
         5000
       );
+      STATE_AVAILABLE_PROTEINS_CHANGED = true;
     })
     .catch((error) => {
       handleError(error.message);
@@ -273,6 +229,7 @@ async function processDashboardRequest() {
     })
     .then((response) => {
       if (response.data.status.startsWith("Failed")) {
+        console.log(response);
         Swal.fire({
           title: "Unable to match UniProt ID " + request.uniprot_id,
           icon: "question",
@@ -356,11 +313,46 @@ var upload_pdb_html = `
  * @param {*} data
  */
 function updateDashboardInformation(data) {
-  PTM_DATA = data.ptms;
-  CONTACT_DATA = data.contacts;
+  toggleProgress("Update Dashboard");
+  Papa.parse(data.ptms, {
+    skipEmptyLines: "greedy",
+    complete: (results) => {
+      headers = results.data[0];
+      parsed_entries = results.data.slice(1);
+      per_position_ptms = {};
+      for (const entry of parsed_entries) {
+        let position = entry[2];
+        let ptm = entry[3];
+        let ptm_acc = entry[4];
+        let ptm_classification = entry[5];
+        if (position in per_position_ptms) {
+          per_position_ptms[position].add(
+            ptm + "$" + ptm_acc + "$" + ptm_classification
+          );
+        } else {
+          per_position_ptms[position] = new Set([
+            ptm + "$" + ptm_acc + "$" + ptm_classification,
+          ]); // Store in Set to remove duplicates.
+        }
+      }
+      for (const [k, v] of Object.entries(per_position_ptms)) {
+        per_position_ptms[k] = Array.from(v);
+      }
+      DATA_PER_POSITION_PTMS = per_position_ptms;
+    },
+  });
+  DATA_CONTACTS = data.contacts;
+  DATA_SEQUENCE = data.sequence;
+  updateDashboardOption(
+    DATA_PER_POSITION_PTMS,
+    DATA_CONTACTS,
+    DATA_SEQUENCE,
+    DASHBOARD
+  );
   Metro.toast.create(
     "Dashboard information was updated successfully.",
     null,
     5000
   );
+  toggleProgress();
 }

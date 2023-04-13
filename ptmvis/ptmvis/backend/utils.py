@@ -61,6 +61,13 @@ def parse_structure(structure_string):
             return structure
 
 
+def get_sequence_from_structure(structure):
+    sequence = []
+    for residue in structure.get_residues():
+        sequence.append(residue.resname)
+    return sequence
+
+
 def get_ptm_position_in_protein(mod, protein_start):
     position_ptm_in_peptide = int(re.search(".+?(?=\D)", mod)[0])
     position_ptm_in_protein = protein_start + position_ptm_in_peptide - 1

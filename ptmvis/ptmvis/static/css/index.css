@@ -283,6 +283,7 @@ th {
 
 #main-panel-2-dashboard {
   position: absolute;
+  background-color: #fbfbfb;
   bottom: 0;
   width: 96%;
   height: calc(92% - 5vh);

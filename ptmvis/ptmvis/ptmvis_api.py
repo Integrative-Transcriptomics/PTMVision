@@ -56,7 +56,13 @@ def process_search_engine_output():
             StringIO(json_request_data["content"]), content_type
         )
         session[MOD_DF] = df
-        session[AVAIL_PROT] = df["uniprot_id"].unique().tolist()
+        session[AVAIL_PROT] = (
+            session[MOD_DF]
+            .groupby("uniprot_id")["modification_unimod_name"]
+            .unique()
+            .str.len()
+            .to_dict()
+        )
     except TypeError as e:
         response = "Failed: " + str(e)
     finally:
@@ -68,9 +74,9 @@ def get_available_proteins():
     """
     TODO
     """
-    response = {"prot_names": []}
+    response = {"proteins": []}
     if AVAIL_PROT in session:
-        response["prot_names"] = session[AVAIL_PROT]
+        response["proteins"] = session[AVAIL_PROT]
     return response
 
 
@@ -110,6 +116,7 @@ def get_protein_data():
                 utils.get_distance_matrix(structure),
                 int(json_request_data["distance_cutoff"]),
             )
+            response["sequence"] = utils.get_sequence_from_structure(structure)
     except Exception as e:
         response["status"] = "Failed: " + str(e)
     finally:
