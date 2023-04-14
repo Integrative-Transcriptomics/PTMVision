@@ -32,6 +32,14 @@ var _style_sunburst_composition = {
   emphasis: {
     focus: "ancestor",
   },
+  tooltip: {
+    trigger: "item",
+    backgroundColor: "#fafafa",
+    borderColor: "transparent",
+    formatter: (params, ticket, callback) => {
+      return params.name;
+    },
+  },
   levels: [
     {
       r0: "0%",
@@ -48,10 +56,7 @@ var _style_sunburst_composition = {
       },
       emphasis: {
         label: {
-          show: true,
-          rotate: 0,
-          position: "outside",
-          distance: 30,
+          show: false,
         },
       },
       itemStyle: {
@@ -79,6 +84,7 @@ var _style_sunburst_composition = {
     },
   ],
 };
+var _tmp = {};
 var _ptms = null;
 var _ptms_accessors = null;
 var _contacts = null;
@@ -88,8 +94,8 @@ var _board_option = {
   title: [
     {
       id: "composition_one_text",
-      text: "Modification Composition Residue 10",
-      left: "79.5%",
+      text: "",
+      left: "84.5%",
       bottom: "77.5%",
       textStyle: {
         fontWeight: "normal",
@@ -99,8 +105,8 @@ var _board_option = {
     },
     {
       id: "composition_two_text",
-      text: "Modification Composition Residue 10",
-      left: "79.5%",
+      text: "",
+      left: "84.5%",
       bottom: "42%",
       textStyle: {
         fontWeight: "normal",
@@ -163,6 +169,7 @@ var _board_option = {
       height: "35.4%",
       width: "20%",
       backgroundColor: "transparent",
+      borderColor: "transparent",
     },
     {
       id: "grid_composition_two",
@@ -172,6 +179,7 @@ var _board_option = {
       height: "35.4%",
       width: "20%",
       backgroundColor: "transparent",
+      borderColor: "transparent",
     },
     {
       id: "grid_extra_view",
@@ -216,6 +224,39 @@ var _board_option = {
         },
         xAxisIndex: [0],
         yAxisIndex: [0, 1],
+      },
+      myToggleComponents: {
+        show: true,
+        title: "Toggle Components",
+        icon: "path://M272 64c8.8 0 16 7.2 16 16V208c0 8.8-7.2 16-16 16H48c-8.8 0-16-7.2-16-16V80c0-8.8 7.2-16 16-16H272zM48 32C21.5 32 0 53.5 0 80V208c0 26.5 21.5 48 48 48H272c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48H48zM528 64c8.8 0 16 7.2 16 16V336c0 8.8-7.2 16-16 16H432c-8.8 0-16-7.2-16-16V80c0-8.8 7.2-16 16-16h96zM432 32c-26.5 0-48 21.5-48 48V336c0 26.5 21.5 48 48 48h96c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48H432zM112 336H288c8.8 0 16 7.2 16 16v80c0 8.8-7.2 16-16 16H112c-8.8 0-16-7.2-16-16V352c0-8.8 7.2-16 16-16zM64 352v80c0 26.5 21.5 48 48 48H288c26.5 0 48-21.5 48-48V352c0-26.5-21.5-48-48-48H112c-26.5 0-48 21.5-48 48z",
+        onclick: () => {
+          new Contextual({
+            isSticky: false,
+            width: "200px",
+            items: [
+              {
+                type: "custom",
+                markup: `<h6 class="text-center"><small>Click to toggle Components</small></h6>`,
+              },
+              {
+                label: "Modifications Map",
+                onClick: _toggleComponentModificationMap,
+              },
+              {
+                label: "Secondary Profile",
+                onClick: () => {
+                  console.log("Item 1 clicked");
+                },
+              },
+              {
+                label: "Composition View",
+                onClick: () => {
+                  console.log("Item 1 clicked");
+                },
+              },
+            ],
+          });
+        },
       },
     },
   },
@@ -290,6 +331,7 @@ var _board_option = {
     },
     {
       id: "grid_extra_xaxis",
+      show: true,
       type: "category",
       data: [],
       gridIndex: 7,
@@ -457,6 +499,7 @@ var _board_option = {
     },
     {
       id: "extra_xzoom",
+      show: true,
       type: "slider",
       xAxisIndex: [1],
       left: "6%",
@@ -501,6 +544,10 @@ var _board_option = {
       min: -1,
       max: 1,
       seriesIndex: [0],
+      top: "top",
+      right: "right",
+      orient: "horizontal",
+      text: ["", "Central Map Contact Attribute Coloring"],
     },
   ],
   series: [
@@ -671,13 +718,13 @@ function updateDashboardOption(ptms, contacts, sequence, board) {
   _board_option.series.filter((srs) => srs.id == "secondary_profile")[0].data =
     per_site_modifications;
   // Update the board.
-  _apply_option();
+  _apply_option(false);
 }
 
-function _apply_option() {
+function _apply_option(merge) {
   _board.showLoading();
   _board.setOption(_board_option, {
-    notMerge: false,
+    notMerge: merge,
     lazyUpdate: true,
     silent: true,
   });
@@ -854,7 +901,27 @@ function _setCompositionContent(resx_index, resy_index) {
   _board_option.series.filter(
     (s) => s.id == "sunburst_composition_two"
   )[0].data = sunburst_composition_two_data;
-  _apply_option();
+  _apply_option(false);
+}
+
+function _toggleComponentModificationMap() {
+  let grid = _board_option.grid.filter((g) => g.id == "grid_extra_view")[0];
+  grid.show = !grid.show;
+  let xaxis = _board_option.xAxis.filter((x) => x.id == "grid_extra_xaxis")[0];
+  xaxis.show = !xaxis.show;
+  let zoom = _board_option.dataZoom.filter((e) => e.id == "extra_xzoom")[0];
+  zoom.show = !zoom.show;
+  let series = _board_option.series.filter((s) => s.id == "modifications_map");
+  console.log(series);
+  if (series.length == 0) {
+    _board_option.series.push(_tmp["modifications_map"]);
+  } else {
+    _tmp["modifications_map"] = _deepcopyObject(series[0]);
+    delete _board_option.series[_board_option.series.indexOf(series[0])];
+  }
+  console.log(_tmp["modifications_map"]);
+  console.log("_____");
+  _apply_option(true);
 }
 
 String.prototype.toHex = function () {
@@ -871,3 +938,7 @@ String.prototype.toHex = function () {
   }
   return color;
 };
+
+function _deepcopyObject(o) {
+  return Object.assign({}, o);
+}
