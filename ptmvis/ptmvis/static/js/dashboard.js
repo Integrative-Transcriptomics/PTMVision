@@ -84,6 +84,18 @@ var _style_sunburst_composition = {
     },
   ],
 };
+var _style_profile = {
+  showSymbol: false,
+  lineStyle: {
+    width: 0.5,
+    color: "#333333",
+  },
+  areaStyle: {
+    opacity: 0.5,
+    color: "#333333",
+  },
+  smooth: true,
+};
 var _tmp = {};
 var _ptms = null;
 var _ptms_accessors = null;
@@ -244,15 +256,11 @@ var _board_option = {
               },
               {
                 label: "Secondary Profile",
-                onClick: () => {
-                  console.log("Item 1 clicked");
-                },
+                disabled: true,
               },
               {
                 label: "Composition View",
-                onClick: () => {
-                  console.log("Item 1 clicked");
-                },
+                disabled: true,
               },
             ],
           });
@@ -547,7 +555,7 @@ var _board_option = {
       top: "top",
       right: "right",
       orient: "horizontal",
-      text: ["", "Central Map Contact Attribute Coloring"],
+      text: ["", "Contact Map Attribute Coloring"],
     },
   ],
   series: [
@@ -585,24 +593,20 @@ var _board_option = {
     {
       id: "primary_profile",
       name: "Primary Profile",
-      type: "bar",
+      type: "line",
       data: [],
       xAxisIndex: 2,
       yAxisIndex: 2,
-      itemStyle: {
-        color: "#333333",
-      },
+      ..._style_profile,
     },
     {
       id: "secondary_profile",
       name: "Secondary Profile",
-      type: "bar",
+      type: "line",
       data: [],
       xAxisIndex: 3,
       yAxisIndex: 3,
-      itemStyle: {
-        color: "#333333",
-      },
+      ..._style_profile,
     },
     {
       id: "sunburst_composition_one",
