@@ -144,7 +144,7 @@ var _board_option = {
       bottom: "80.8%",
       height: "5%",
       width: "40%",
-      backgroundColor: "#d4d4d4",
+      backgroundColor: "#fafafa",
     },
     {
       id: "grid_secondary_profile",
@@ -162,7 +162,7 @@ var _board_option = {
       bottom: "10%",
       height: "70.8%",
       width: "2.82%",
-      backgroundColor: "#d4d4d4",
+      backgroundColor: "#fafafa",
     },
     {
       id: "grid_map",
@@ -290,7 +290,7 @@ var _board_option = {
         xAxisIndex: [0, 2],
       },
       {
-        yAxisIndex: [0, 3],
+        yAxisIndex: [0, 1, 3],
       },
     ],
     label: {
@@ -414,6 +414,21 @@ var _board_option = {
       },
       hideOverlap: true,
     },
+    {
+      id: "grid_primary_annotation_xaxis",
+      type: "category",
+      data: [],
+      gridIndex: 1,
+      show: false,
+      hideOverlap: true,
+    },
+    {
+      id: "grid_secondary_annotation_xaxis",
+      type: "category",
+      data: ["1"],
+      gridIndex: 3,
+      show: false,
+    },
   ],
   yAxis: [
     {
@@ -493,12 +508,28 @@ var _board_option = {
       hideOverlap: true,
       inverse: true,
     },
+    {
+      id: "grid_primary_annotation_yaxis",
+      type: "category",
+      data: ["1"],
+      gridIndex: 1,
+      show: false,
+    },
+    {
+      id: "grid_secondary_annotation_yaxis",
+      type: "category",
+      data: [],
+      gridIndex: 3,
+      show: false,
+      hideOverlap: true,
+      inverse: true,
+    },
   ],
   dataZoom: [
     {
       id: "main_xzoom",
       type: "slider",
-      xAxisIndex: [0, 2],
+      xAxisIndex: [0, 2, 4],
       left: "30%",
       bottom: "80.8%",
       height: "5%",
@@ -519,7 +550,7 @@ var _board_option = {
     {
       id: "main_yzoom",
       type: "slider",
-      yAxisIndex: [0, 1, 3],
+      yAxisIndex: [0, 1, 3, 5],
       left: "70%",
       bottom: "10%",
       height: "70.8%",
@@ -622,6 +653,38 @@ var _board_option = {
       center: ["90%", "73%"], //["89.47", "55.4%"],
       ..._style_sunburst_composition,
     },
+    {
+      id: "primary_annotation",
+      name: "Primary Annotation",
+      type: "heatmap",
+      data: [],
+      xAxisIndex: 4,
+      yAxisIndex: 4,
+      itemStyle: {
+        color: "#1A1F16",
+        borderWidth: 0.5,
+        borderColor: "#fafafa",
+        borderCap: "round",
+        borderJoin: "round",
+        borderRadius: 3,
+      },
+    },
+    {
+      id: "secondary_annotation",
+      name: "Secondary Annotation",
+      type: "heatmap",
+      data: [],
+      xAxisIndex: 5,
+      yAxisIndex: 5,
+      itemStyle: {
+        color: "#1A1F16",
+        borderWidth: 0.5,
+        borderColor: "#fafafa",
+        borderCap: "round",
+        borderJoin: "round",
+        borderRadius: 3,
+      },
+    },
   ],
 };
 
@@ -631,6 +694,7 @@ function updateDashboardOption(ptms, contacts, sequence, board) {
   _contacts = contacts;
   _sequence = sequence;
   _board = board;
+
   // Reset composition overviews.
   _board_option.title.filter((t) => t.id == "composition_one_text")[0].text =
     "";
@@ -642,6 +706,7 @@ function updateDashboardOption(ptms, contacts, sequence, board) {
   _board_option.series.filter(
     (s) => s.id == "sunburst_composition_two"
   )[0].data = [];
+
   // Add click event listener.
   _board.on("click", function (params) {
     if (params.seriesId == "modifications_map") {
@@ -650,6 +715,7 @@ function updateDashboardOption(ptms, contacts, sequence, board) {
       _handleContactMapClick(params);
     }
   });
+
   // Contact map.
   _board_option.xAxis.filter((ax) => ax.id == "grid_map_xaxis")[0].data =
     Array.from({ length: _sequence.length }, (_, i) => i + 1);
@@ -669,22 +735,28 @@ function updateDashboardOption(ptms, contacts, sequence, board) {
   }
   _board_option.series.filter((srs) => srs.id == "contact_map")[0].data =
     contact_map_data;
+
   // Mod. map.
   let per_modification_sites = {};
-  for (let [modifications, sites] of Object.entries(_.invertBy(_ptms))) {
-    for (let modification of modifications.split(",")) {
+  for (let [site, modifications] of Object.entries(_ptms)) {
+    for (let modification of modifications) {
       let content = modification.split("$"),
         name = content[0],
         accessor = content[1];
       _ptms_accessors[name] = accessor;
       if (name in per_modification_sites) {
-        per_modification_sites[name].push(...sites);
+        per_modification_sites[name].push(site);
       } else {
-        per_modification_sites[name] = sites;
+        per_modification_sites[name] = [site];
       }
     }
   }
-  let modifications = Array.from(Object.keys(per_modification_sites));
+  console.log(_ptms);
+  console.log(per_modification_sites);
+
+  let modifications = Array.from(Object.keys(per_modification_sites)).sort(
+    (x1, x2) => x1.localeCompare(x2, "en", { numeric: true })
+  );
   _board_option.xAxis.filter((ax) => ax.id == "grid_extra_xaxis")[0].data =
     modifications;
   _board_option.yAxis.filter((ax) => ax.id == "grid_extra_yaxis")[0].data =
@@ -701,6 +773,7 @@ function updateDashboardOption(ptms, contacts, sequence, board) {
   }
   _board_option.series.filter((srs) => srs.id == "modifications_map")[0].data =
     modification_map_data;
+
   // Primary Profile Simple.
   let per_site_modifications = [];
   for (let i = 1; i <= _sequence.length; i++) {
@@ -715,12 +788,41 @@ function updateDashboardOption(ptms, contacts, sequence, board) {
   )[0].data = Array.from({ length: _sequence.length }, (_, i) => i + 1);
   _board_option.series.filter((srs) => srs.id == "primary_profile")[0].data =
     per_site_modifications;
+
   // Secondary Profile Simple.
   _board_option.yAxis.filter(
     (ax) => ax.id == "grid_secondary_profile_yaxis"
   )[0].data = Array.from({ length: _sequence.length }, (_, i) => i + 1);
   _board_option.series.filter((srs) => srs.id == "secondary_profile")[0].data =
     per_site_modifications;
+
+  // Primary Annotation Simple.
+  _board_option.xAxis.filter(
+    (ax) => ax.id == "grid_primary_annotation_xaxis"
+  )[0].data = Array.from({ length: _sequence.length }, (_, i) => i + 1);
+  let annotation_data = [];
+  for (const [site, modification] of Object.entries(_ptms)) {
+    if (modification.some((e) => e.split("$")[3] == "1")) {
+      annotation_data.push([parseInt(site) - 1, 0, 1]);
+    }
+  }
+  _board_option.series.filter((srs) => srs.id == "primary_annotation")[0].data =
+    annotation_data;
+
+  // Secondary Annotation Simple.
+  _board_option.yAxis.filter(
+    (ax) => ax.id == "grid_secondary_annotation_yaxis"
+  )[0].data = Array.from({ length: _sequence.length }, (_, i) => i + 1);
+  annotation_data = [];
+  for (const [site, modification] of Object.entries(_ptms)) {
+    if (modification.some((e) => e.split("$")[3] == "1")) {
+      annotation_data.push([0, parseInt(site) - 1, 1]);
+    }
+  }
+  _board_option.series.filter(
+    (srs) => srs.id == "secondary_annotation"
+  )[0].data = annotation_data;
+
   // Update the board.
   _apply_option(false);
 }
@@ -916,15 +1018,12 @@ function _toggleComponentModificationMap() {
   let zoom = _board_option.dataZoom.filter((e) => e.id == "extra_xzoom")[0];
   zoom.show = !zoom.show;
   let series = _board_option.series.filter((s) => s.id == "modifications_map");
-  console.log(series);
   if (series.length == 0) {
     _board_option.series.push(_tmp["modifications_map"]);
   } else {
     _tmp["modifications_map"] = _deepcopyObject(series[0]);
     delete _board_option.series[_board_option.series.indexOf(series[0])];
   }
-  console.log(_tmp["modifications_map"]);
-  console.log("_____");
   _apply_option(true);
 }
 

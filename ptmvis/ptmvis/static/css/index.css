@@ -208,8 +208,8 @@ body .error-toast {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 46%;
-  height: 30%;
+  width: 66%;
+  height: 33%;
 }
 
 #main-panel-1-info-text .footer {
@@ -233,7 +233,7 @@ th {
   top: 0;
   right: 0;
   width: 96%;
-  height: 62%;
+  height: 58%;
 }
 
 #main-panel-1-info-image img {
@@ -247,8 +247,8 @@ th {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 46%;
-  height: 30%;
+  width: 29%;
+  height: 33%;
 }
 
 #main-panel-1-inputs i {
@@ -288,5 +288,5 @@ th {
   background-color: #fbfbfb;
   bottom: 0;
   width: 96%;
-  height: calc(92% - 5vh);
+  height: calc(92% - 6vh);
 }
