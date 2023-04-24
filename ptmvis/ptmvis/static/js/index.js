@@ -53,6 +53,17 @@ function downloadBlob(blob, name) {
 
 /**
  *
+ */
+function downloadExampleData() {
+  axios
+    .get(WWW + "/example_data", { responseType: "blob" })
+    .then((response) => {
+      downloadBlob(response.data, "example_data.csv");
+    });
+}
+
+/**
+ *
  * @param {*} file
  * @returns
  */

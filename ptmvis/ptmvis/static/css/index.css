@@ -33,6 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   --color-4-70: rgb(161, 210, 206, 0.7);
   --highlight-1: #ff6663;
   --highlight-2: #dc5754;
+  --highlight-3: #dd9ac2;
+  --highlight-4: #b486ab;
   --text-color: #333333;
 }
 ::-webkit-scrollbar {
@@ -156,6 +158,21 @@ body .error-toast {
 
 .proceed-button:hover {
   background-color: var(--highlight-2);
+  transition: 0.2s;
+}
+
+.example-data-button {
+  background-color: var(--color-4);
+  color: var(--background-color-1);
+  border: none;
+  border-radius: 5px;
+  font-size: small;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.example-data-button:hover {
+  background-color: var(--color-3);
   transition: 0.2s;
 }
 

@@ -270,6 +270,7 @@ var _board_option = {
   },
   tooltip: {
     trigger: "item",
+    show: false,
     textStyle: {
       fontSize: 9,
     },
@@ -353,7 +354,7 @@ var _board_option = {
       position: "top",
       axisLabel: {
         rotate: -50,
-        interval: 0,
+        interval: "auto",
         show: true,
         margin: 25,
         fontSize: 9,
@@ -370,7 +371,7 @@ var _board_option = {
       },
       splitLine: {
         show: true,
-        interval: 0,
+        interval: "auto",
         lineStyle: {
           width: 0.5,
         },
@@ -584,7 +585,7 @@ var _board_option = {
       max: 1,
       seriesIndex: [0],
       top: "top",
-      right: "right",
+      right: "center",
       orient: "horizontal",
       text: ["", "Contact Map Attribute Coloring"],
     },

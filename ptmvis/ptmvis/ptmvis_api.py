@@ -43,6 +43,11 @@ def request_to_json(zlib_req):
     return json.loads(json_string_request_data)
 
 
+@app.route("/example_data", methods=["GET"])
+def example_data():
+    return send_file("./static/resources/example_data.csv", as_attachment=True)
+
+
 @app.route("/process_search_engine_output", methods=["POST"])
 def process_search_engine_output():
     """
