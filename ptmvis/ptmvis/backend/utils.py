@@ -2,9 +2,11 @@ import re, warnings, urllib.request
 import pandas as pd
 import numpy as np
 from Bio.PDB import PDBParser
+from Bio import SeqIO
 from io import StringIO
 from scipy.spatial import distance_matrix
 from unimod_mapper import UnimodMapper
+import requests
 
 mapper = UnimodMapper()
 pdbparser = PDBParser(PERMISSIVE=False)
@@ -59,6 +61,38 @@ def parse_structure(structure_string):
             raise Exception("Failed to parse provided .pdb structure: " + str(e))
         else:
             return structure
+        
+
+def get_fasta(uniprot_ids):
+
+    url = "https://rest.uniprot.org/uniprotkb/stream?format=fasta&query=%28"
+    url_separator = "%20OR%20"
+    id_list = ["%28id%3A{}".format(uniprot_id + "%29") for uniprot_id in uniprot_ids]
+
+    fasta_text = ""
+    
+    # split into batches to avoid bad gateway
+    id_lists = [id_list[x:x+100] for x in range(0, len(id_list), 100)]
+    for id_chunk in id_lists:
+        id_chunk = url_separator.join(id_chunk) + "%29"
+        query = url+id_chunk
+        response = requests.get(query)
+
+        if response.status_code == 200:
+            response_text = "".join(response.text)
+            fasta_text += response_text
+
+    fasta = SeqIO.parse(StringIO(fasta_text), "fasta")
+    fasta_dict = {}
+    for rec in fasta:
+        fasta_dict[rec.id.split("|")[-1]] = str(rec.seq)
+    return fasta_dict
+
+def get_protein_sequence(fasta_dict, uniprot_id):
+    try:
+        return fasta_dict[uniprot_id]
+    except KeyError:
+        return ""
 
 
 def get_sequence_from_structure(structure):
@@ -68,11 +102,37 @@ def get_sequence_from_structure(structure):
     return sequence
 
 
+def get_peptide_position_in_protein(peptide, protein):
+    if protein == "":
+        return -1
+    peptide_sequence = re.sub( r"\[(.*?)\]", "", peptide).replace("[", "").replace("]", "").replace("-", "")
+    return int(protein.find(peptide_sequence))
+
+
 def get_ptm_position_in_protein(mod, protein_start):
+    if protein_start == -1:
+        return -1
     position_ptm_in_peptide = int(re.search(".+?(?=\D)", mod)[0])
     position_ptm_in_protein = protein_start + position_ptm_in_peptide - 1
     return position_ptm_in_protein
 
+
+def sage_peptide_to_msfragger_mod(sage_peptide):
+    modified_sites = re.finditer("\[", sage_peptide)
+    indices = [index.start() for index in modified_sites]
+    assigned_modifications = []
+
+    for index in indices:
+        modified_aa = sage_peptide[index-1]
+        weight = sage_peptide[index+1:].split("]")[0].replace("+", "")
+
+        # get index of modified peptide (not same as index bc modifications are in the string as well)
+        prefix = sage_peptide[:index]
+        prefix = re.sub( r"\[(.*?)\]", "", prefix).replace("[", "").replace("]", "").replace("-", "")
+        mod_index = len(prefix)
+        assigned_modifications.append(str(mod_index) + modified_aa + "(" + weight + ")")
+
+    return ",".join(assigned_modifications)
 
 def map_mass_to_unimod(mods):
     modstr = ""
@@ -176,6 +236,66 @@ def read_mod_csv(file):
     df = pd.read_csv(file)
     return df
 
+def read_sage_csv(file):
+    df = pd.read_table(file)
+    df.columns = [x.lower() for x in df.columns] #sometimes its upper, sometimes its lower case (version specific?)
+
+    df = df[["peptide", "proteins", "label"]]
+
+    # drop decoy matches
+    df = df.loc[df["label"] == 1]
+    df = df.drop(columns=["label"])
+
+    # drop PSMs without modification
+    df = df.loc[df["peptide"].str.contains("\[")]
+
+    # one protein per line
+    df = df.set_index(['peptide']).apply(lambda x: x.str.split(';').explode()).reset_index()
+
+    # parse uniprot Accession IDs (but use IDs for uniprot mapping)
+    df["Protein ID"] =  df["proteins"].apply(lambda x: x.split("|")[-2])
+
+    # get protein sequences (first: try uniprot, if it fails, let user upload fasta)
+    uniprot_ids = df["proteins"].unique().tolist()
+    uniprot_ids = [x.split("|")[-1] for x in uniprot_ids]
+    fasta_dict = get_fasta(uniprot_ids)
+    print(fasta_dict)
+
+    # check how many proteins were found in uniprot, let the user decide if they want to provide their own fasta
+    found = len(fasta_dict)
+    total = len(uniprot_ids)
+    not_found = total - found
+    if not_found > 50:
+        raise Exception("Not able to retrieve protein sequences for {} protein IDs. Please provide the fasta used for database search.".format(not_found))
+    
+    # add protein sequences to df 
+    print(df)
+    df["protein_sequence"] = df["proteins"].apply(lambda x: get_protein_sequence(fasta_dict, x.split("|")[-1]))
+    df = df.loc[df["protein_sequence"] != ""]
+
+    print(df)
+
+    # find Protein Start index of peptide
+    df["Protein Start"] = df.apply(lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]), axis = 1)
+
+    # convert to MSFragger Assigned Modifications Format (10S(79.9663), 8M(15.9949)) so we can reuse functions
+    df["Assigned Modifications"] = df["peptide"].apply(lambda x: sage_peptide_to_msfragger_mod(x))
+
+
+    # try to assign modifications to mass shifts
+    print("Assigning modifications to mass shifts...")
+    df["Assigned Modifications parsed"] = df[
+        "Assigned Modifications"
+    ].apply(lambda x: map_mass_to_unimod(x))
+
+    # rewrite to protein level modifications
+    print("Mapping modification sites onto proteins...")
+    df = from_psm_to_protein(df)
+
+
+    print(df)
+
+    return df
 
 def read_file(file, flag):
     if flag == "ionbot":
@@ -184,6 +304,8 @@ def read_file(file, flag):
         df = read_msfragger(file)
     elif flag == "csv":
         df = read_mod_csv(file)
+    elif flag == "sage":
+        df = read_sage_csv(file)
     return df
 
 
@@ -195,3 +317,7 @@ def parse_user_input(user_file, user_flag):
             "Your file could not be parsed. Have you selected the right format?"
         )
     return df
+
+if __name__ == "__main__":
+    print("hello")
+    parse_user_input("example_data/results_open.sage.tsv", "sage")
