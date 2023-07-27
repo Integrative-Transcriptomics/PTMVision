@@ -1,0 +1,128 @@
+{
+  "$schema": "PTMVision.schema.json",
+  "title": "PTMVision Data Storage Schema",
+  "description": "Storage of post-translational modification data with respect to one single protein.",
+  "type": "object",
+  "properties": {
+    "proteins": {
+      "description": "Single protein entries for which PTM data is stored in this file.",
+      "type": "object",
+      "patternProperties": {
+        "^.+$": {
+          "description": "Key/Name for this protein entry.",
+          "type": "object",
+          "properties": {
+            "pdb_structure": {
+              "description": "The brotli encoded PDB string of a protein structure of this entry.",
+              "type": "string"
+            },
+            "positions": {
+              "description": "annotated positions",
+              "patternProperties": {
+                "^[0-9]+$": {
+                  "description": "Each key represents one position with modifications of the stored protein entry.",
+                  "type": "object",
+                  "properties": {
+                    "modifications": {
+                      "description": "modification at this position",
+                      "type": "array",
+                      "items": {
+                        "modification_unimod_name": {
+                          "description": "The UNIMOD name of this modification.",
+                          "type": "string"
+                        },
+                        "modification_unimod_id": {
+                          "description": "The UNIMOD id of this modification.",
+                          "type": "string"
+                        },
+                        "modification_classification": {
+                          "description": "The classification name of this modification.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "annotations": {
+                      "description": "Custom annotations at this position",
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^custom_annotation_[A-Za-z0-9]+$"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "meta_data": {
+      "description": "Generalized meta data for classifications and annotations for all stored protein entries.",
+      "type": "object",
+      "properties": {
+        "modification_classifications": {
+          "description": "List of modification classifications that occur across all stored protein entries.",
+          "type": "object",
+          "patternProperties": {
+            "^.+$": {
+              "description": "The key of this object names the resp. modification classification.",
+              "type": "object",
+              "properties": {
+                "color": {
+                  "description": "Color to use for vis. of this modification classifcation.",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Description to use for this modification classifcation.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "distance_cutoff": {
+          "description": "The distance cutoff in Angstrom to determine residues in contact.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "modification_metadata": {
+          "description": "Information about modifications",
+          "type": "object",
+          "patternProperties": {
+            "^custom_modification_annotation_[0-9]+$": {
+              "description": "Any custom annotation object (for modifications).",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "The internal name to use for this custom modification annotation (e.g. polar).",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patternProperties": {
+        "^custom_annotation_[A-Za-z0-9]+$": {
+          "description": "Any custom annotation object (for modified positions).",
+          "type": "object",
+          "properties": {
+            "name": {
+              "description": "The internal name to use for this custom annotation.",
+              "type": "string"
+            },
+            "color": {
+              "description": "Color to use for vis. of this custom annotation.",
+              "type": "string"
+            },
+            "description": {
+              "description": "Description to use for this custom annotation.",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

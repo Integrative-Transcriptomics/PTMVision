@@ -7,6 +7,7 @@ from io import StringIO
 from scipy.spatial import distance_matrix
 from unimod_mapper import UnimodMapper
 import requests
+import json
 
 mapper = UnimodMapper()
 pdbparser = PDBParser(PERMISSIVE=False)
@@ -88,6 +89,7 @@ def get_fasta(uniprot_ids):
         fasta_dict[rec.id.split("|")[-1]] = str(rec.seq)
     return fasta_dict
 
+
 def get_protein_sequence(fasta_dict, uniprot_id):
     try:
         return fasta_dict[uniprot_id]
@@ -133,6 +135,7 @@ def sage_peptide_to_msfragger_mod(sage_peptide):
         assigned_modifications.append(str(mod_index) + modified_aa + "(" + weight + ")")
 
     return ",".join(assigned_modifications)
+
 
 def map_mass_to_unimod(mods):
     modstr = ""
@@ -234,6 +237,7 @@ def read_ionbot(file):
 
 def read_mod_csv(file):
     df = pd.read_csv(file)
+    json = parse_df_to_json_schema(df)
     return df
 
 def read_sage_csv(file):
@@ -259,7 +263,6 @@ def read_sage_csv(file):
     uniprot_ids = df["proteins"].unique().tolist()
     uniprot_ids = [x.split("|")[-1] for x in uniprot_ids]
     fasta_dict = get_fasta(uniprot_ids)
-    print(fasta_dict)
 
     # check how many proteins were found in uniprot, let the user decide if they want to provide their own fasta
     found = len(fasta_dict)
@@ -269,18 +272,14 @@ def read_sage_csv(file):
         raise Exception("Not able to retrieve protein sequences for {} protein IDs. Please provide the fasta used for database search.".format(not_found))
     
     # add protein sequences to df 
-    print(df)
     df["protein_sequence"] = df["proteins"].apply(lambda x: get_protein_sequence(fasta_dict, x.split("|")[-1]))
     df = df.loc[df["protein_sequence"] != ""]
-
-    print(df)
 
     # find Protein Start index of peptide
     df["Protein Start"] = df.apply(lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]), axis = 1)
 
     # convert to MSFragger Assigned Modifications Format (10S(79.9663), 8M(15.9949)) so we can reuse functions
     df["Assigned Modifications"] = df["peptide"].apply(lambda x: sage_peptide_to_msfragger_mod(x))
-
 
     # try to assign modifications to mass shifts
     print("Assigning modifications to mass shifts...")
@@ -292,10 +291,8 @@ def read_sage_csv(file):
     print("Mapping modification sites onto proteins...")
     df = from_psm_to_protein(df)
 
-
-    print(df)
-
     return df
+
 
 def read_file(file, flag):
     if flag == "ionbot":
@@ -308,6 +305,51 @@ def read_file(file, flag):
         df = read_sage_csv(file)
     return df
 
+def parse_df_to_json_schema(dataframe):
+    protein_dict = {"proteins": {}, "meta_data": ()}
+
+    for i, row in dataframe.iterrows():
+        # if protein is not there, add entire entry
+        if row["uniprot_id"] not in protein_dict["proteins"].keys():
+            entry = {row["uniprot_id"]: 
+                     {
+                       "positions": {
+                           row["position"]: {
+                               "modifications": [
+                                   { "modification_unimod_name": row["modification_unimod_name"], 
+                                     "modification_classification": row["classification"],
+                                     "modification_unimod_id": row["modification_unimod_id"]}
+                               ]                               
+                           }
+                       },
+                       "pdb_structure": "NaN"  
+                     }
+            } 
+            protein_dict["proteins"].update(entry)
+
+        # if position is not there, but protein is, add position and mod id/name/class/annotations
+        elif row["position"] not in protein_dict["proteins"][row["uniprot_id"]]["positions"].keys():
+           protein_dict["proteins"][row["uniprot_id"]]["positions"][row["position"]] = {
+               "modifications": [
+                { "modification_unimod_name": row["modification_unimod_name"], 
+                   "modification_classification": row["classification"], 
+                   "modification_unimod_id": row["modification_unimod_id"]}
+                ]
+           }
+
+        # if position in this protein is already in dict, add mod id/name/class/annotations 
+        elif row["position"] in protein_dict["proteins"][row["uniprot_id"]]["positions"].keys():
+           protein_dict["proteins"][row["uniprot_id"]]["positions"][row["position"]]["modifications"].append(
+               { "modification_unimod_name": row["modification_unimod_name"], 
+                 "modification_classification": row["classification"], 
+                 "modification_unimod_id": row["modification_unimod_id"]
+                } 
+            )
+
+    with open("example_json.json", "w") as f:
+        json.dump(protein_dict, f, indent=3)
+    return protein_dict
+
 
 def parse_user_input(user_file, user_flag):
     try:
@@ -319,5 +361,4 @@ def parse_user_input(user_file, user_flag):
     return df
 
 if __name__ == "__main__":
-    print("hello")
-    parse_user_input("example_data/results_open.sage.tsv", "sage")
+    parse_user_input("example_data/example_data.csv", "csv")
