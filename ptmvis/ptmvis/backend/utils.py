@@ -1,10 +1,10 @@
 import re, warnings, urllib.request
 import pandas as pd
 import numpy as np
+import scipy as sc
 from Bio.PDB import PDBParser
 from Bio import SeqIO
 from io import StringIO
-from scipy.spatial import distance_matrix
 from unimod_mapper import UnimodMapper
 import requests
 import json
@@ -24,7 +24,7 @@ def get_distance_matrix(structure):
             if atom.get_name() == "CA":
                 calpha_coords[i] = atom.get_coord()
                 break
-    residue_distances = distance_matrix(calpha_coords, calpha_coords)
+    residue_distances = sc.spatial.distance_matrix(calpha_coords, calpha_coords)
     return residue_distances
 
 
@@ -62,7 +62,7 @@ def parse_structure(structure_string):
             raise Exception("Failed to parse provided .pdb structure: " + str(e))
         else:
             return structure
-        
+
 
 def get_fasta(uniprot_ids):
 
@@ -71,12 +71,12 @@ def get_fasta(uniprot_ids):
     id_list = ["%28id%3A{}".format(uniprot_id + "%29") for uniprot_id in uniprot_ids]
 
     fasta_text = ""
-    
+
     # split into batches to avoid bad gateway
-    id_lists = [id_list[x:x+100] for x in range(0, len(id_list), 100)]
+    id_lists = [id_list[x : x + 100] for x in range(0, len(id_list), 100)]
     for id_chunk in id_lists:
         id_chunk = url_separator.join(id_chunk) + "%29"
-        query = url+id_chunk
+        query = url + id_chunk
         response = requests.get(query)
 
         if response.status_code == 200:
@@ -107,7 +107,12 @@ def get_sequence_from_structure(structure):
 def get_peptide_position_in_protein(peptide, protein):
     if protein == "":
         return -1
-    peptide_sequence = re.sub( r"\[(.*?)\]", "", peptide).replace("[", "").replace("]", "").replace("-", "")
+    peptide_sequence = (
+        re.sub(r"\[(.*?)\]", "", peptide)
+        .replace("[", "")
+        .replace("]", "")
+        .replace("-", "")
+    )
     return int(protein.find(peptide_sequence))
 
 
@@ -125,12 +130,17 @@ def sage_peptide_to_msfragger_mod(sage_peptide):
     assigned_modifications = []
 
     for index in indices:
-        modified_aa = sage_peptide[index-1]
-        weight = sage_peptide[index+1:].split("]")[0].replace("+", "")
+        modified_aa = sage_peptide[index - 1]
+        weight = sage_peptide[index + 1 :].split("]")[0].replace("+", "")
 
         # get index of modified peptide (not same as index bc modifications are in the string as well)
         prefix = sage_peptide[:index]
-        prefix = re.sub( r"\[(.*?)\]", "", prefix).replace("[", "").replace("]", "").replace("-", "")
+        prefix = (
+            re.sub(r"\[(.*?)\]", "", prefix)
+            .replace("[", "")
+            .replace("]", "")
+            .replace("-", "")
+        )
         mod_index = len(prefix)
         assigned_modifications.append(str(mod_index) + modified_aa + "(" + weight + ")")
 
@@ -240,9 +250,12 @@ def read_mod_csv(file):
     json = parse_df_to_json_schema(df)
     return df
 
+
 def read_sage_csv(file):
     df = pd.read_table(file)
-    df.columns = [x.lower() for x in df.columns] #sometimes its upper, sometimes its lower case (version specific?)
+    df.columns = [
+        x.lower() for x in df.columns
+    ]  # sometimes its upper, sometimes its lower case (version specific?)
 
     df = df[["peptide", "proteins", "label"]]
 
@@ -254,10 +267,14 @@ def read_sage_csv(file):
     df = df.loc[df["peptide"].str.contains("\[")]
 
     # one protein per line
-    df = df.set_index(['peptide']).apply(lambda x: x.str.split(';').explode()).reset_index()
+    df = (
+        df.set_index(["peptide"])
+        .apply(lambda x: x.str.split(";").explode())
+        .reset_index()
+    )
 
     # parse uniprot Accession IDs (but use IDs for uniprot mapping)
-    df["Protein ID"] =  df["proteins"].apply(lambda x: x.split("|")[-2])
+    df["Protein ID"] = df["proteins"].apply(lambda x: x.split("|")[-2])
 
     # get protein sequences (first: try uniprot, if it fails, let user upload fasta)
     uniprot_ids = df["proteins"].unique().tolist()
@@ -269,23 +286,34 @@ def read_sage_csv(file):
     total = len(uniprot_ids)
     not_found = total - found
     if not_found > 50:
-        raise Exception("Not able to retrieve protein sequences for {} protein IDs. Please provide the fasta used for database search.".format(not_found))
-    
-    # add protein sequences to df 
-    df["protein_sequence"] = df["proteins"].apply(lambda x: get_protein_sequence(fasta_dict, x.split("|")[-1]))
+        raise Exception(
+            "Not able to retrieve protein sequences for {} protein IDs. Please provide the fasta used for database search.".format(
+                not_found
+            )
+        )
+
+    # add protein sequences to df
+    df["protein_sequence"] = df["proteins"].apply(
+        lambda x: get_protein_sequence(fasta_dict, x.split("|")[-1])
+    )
     df = df.loc[df["protein_sequence"] != ""]
 
     # find Protein Start index of peptide
-    df["Protein Start"] = df.apply(lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]), axis = 1)
+    df["Protein Start"] = df.apply(
+        lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]),
+        axis=1,
+    )
 
     # convert to MSFragger Assigned Modifications Format (10S(79.9663), 8M(15.9949)) so we can reuse functions
-    df["Assigned Modifications"] = df["peptide"].apply(lambda x: sage_peptide_to_msfragger_mod(x))
+    df["Assigned Modifications"] = df["peptide"].apply(
+        lambda x: sage_peptide_to_msfragger_mod(x)
+    )
 
     # try to assign modifications to mass shifts
     print("Assigning modifications to mass shifts...")
-    df["Assigned Modifications parsed"] = df[
-        "Assigned Modifications"
-    ].apply(lambda x: map_mass_to_unimod(x))
+    df["Assigned Modifications parsed"] = df["Assigned Modifications"].apply(
+        lambda x: map_mass_to_unimod(x)
+    )
 
     # rewrite to protein level modifications
     print("Mapping modification sites onto proteins...")
@@ -303,7 +331,8 @@ def read_file(file, flag):
         df = read_mod_csv(file)
     elif flag == "sage":
         df = read_sage_csv(file)
-    return df
+    return parse_df_to_json_schema(df)
+
 
 def parse_df_to_json_schema(dataframe):
     protein_dict = {"proteins": {}, "meta_data": ()}
@@ -311,54 +340,76 @@ def parse_df_to_json_schema(dataframe):
     for i, row in dataframe.iterrows():
         # if protein is not there, add entire entry
         if row["uniprot_id"] not in protein_dict["proteins"].keys():
-            entry = {row["uniprot_id"]: 
-                     {
-                       "positions": {
-                           row["position"]: {
-                               "modifications": [
-                                   { "modification_unimod_name": row["modification_unimod_name"], 
-                                     "modification_classification": row["classification"],
-                                     "modification_unimod_id": row["modification_unimod_id"]}
-                               ]                               
-                           }
-                       },
-                       "pdb_structure": "NaN"  
-                     }
-            } 
+            entry = {
+                row["uniprot_id"]: {
+                    "positions": {
+                        row["position"]: {
+                            "modifications": [
+                                {
+                                    "modification_unimod_name": row[
+                                        "modification_unimod_name"
+                                    ],
+                                    "modification_classification": row[
+                                        "classification"
+                                    ],
+                                    "modification_unimod_id": row[
+                                        "modification_unimod_id"
+                                    ],
+                                }
+                            ]
+                        }
+                    },
+                    "pdb_structure": "NaN",
+                }
+            }
             protein_dict["proteins"].update(entry)
 
         # if position is not there, but protein is, add position and mod id/name/class/annotations
-        elif row["position"] not in protein_dict["proteins"][row["uniprot_id"]]["positions"].keys():
-           protein_dict["proteins"][row["uniprot_id"]]["positions"][row["position"]] = {
-               "modifications": [
-                { "modification_unimod_name": row["modification_unimod_name"], 
-                   "modification_classification": row["classification"], 
-                   "modification_unimod_id": row["modification_unimod_id"]}
+        elif (
+            row["position"]
+            not in protein_dict["proteins"][row["uniprot_id"]]["positions"].keys()
+        ):
+            protein_dict["proteins"][row["uniprot_id"]]["positions"][
+                row["position"]
+            ] = {
+                "modifications": [
+                    {
+                        "modification_unimod_name": row["modification_unimod_name"],
+                        "modification_classification": row["classification"],
+                        "modification_unimod_id": row["modification_unimod_id"],
+                    }
                 ]
-           }
+            }
 
-        # if position in this protein is already in dict, add mod id/name/class/annotations 
-        elif row["position"] in protein_dict["proteins"][row["uniprot_id"]]["positions"].keys():
-           protein_dict["proteins"][row["uniprot_id"]]["positions"][row["position"]]["modifications"].append(
-               { "modification_unimod_name": row["modification_unimod_name"], 
-                 "modification_classification": row["classification"], 
-                 "modification_unimod_id": row["modification_unimod_id"]
-                } 
+        # if position in this protein is already in dict, add mod id/name/class/annotations
+        elif (
+            row["position"]
+            in protein_dict["proteins"][row["uniprot_id"]]["positions"].keys()
+        ):
+            protein_dict["proteins"][row["uniprot_id"]]["positions"][row["position"]][
+                "modifications"
+            ].append(
+                {
+                    "modification_unimod_name": row["modification_unimod_name"],
+                    "modification_classification": row["classification"],
+                    "modification_unimod_id": row["modification_unimod_id"],
+                }
             )
 
-    with open("example_json.json", "w") as f:
+    with open("example_json.json", "w+") as f:
         json.dump(protein_dict, f, indent=3)
     return protein_dict
 
 
 def parse_user_input(user_file, user_flag):
     try:
-        df = read_file(user_file, user_flag)
+        json = read_file(user_file, user_flag)
     except TypeError:
         raise TypeError(
             "Your file could not be parsed. Have you selected the right format?"
         )
-    return df
+    return json
+
 
 if __name__ == "__main__":
     parse_user_input("example_data/example_data.csv", "csv")

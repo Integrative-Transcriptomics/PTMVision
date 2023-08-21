@@ -1,12 +1,10 @@
-WWW = "http://127.0.0.1:5000/";
-ACTIVE_PANEL = "main-panel-1";
-STATE_AVAILABLE_PROTEINS_CHANGED = false; // This should be stored on the server in some appropriate way for long term usage.
-AVAILABLE_PROTEINS = null;
-DATA_PER_POSITION_PTMS = null;
-DATA_CONTACTS = null;
-DATA_SEQUENCE = null;
-DASHBOARD_SIZE_OBSERVER = null;
-DASHBOARD = null;
+_URL = "http://127.0.0.1:5000/";
+_ACTIVE_PANEL = "main-panel-1";
+_PROTEINS_OVERVIEW_DATA = null;
+_PROTEINS_OVERVIEW_TABLE = null;
+_PROTEIN_MODIFICATIONS_DATA = null;
+_DASHBOARD_SIZE_OBSERVER = null;
+_DASHBOARD = null;
 
 window.addEventListener("keyup", (event) => {
   if (event.key == "ArrowDown") {
@@ -17,31 +15,57 @@ window.addEventListener("keyup", (event) => {
 });
 
 /**
- *
+ * Inizializes all client side elements of the PTMVision application.
  */
 function init() {
-  WWW = API_PARAMETERS["URL"];
+  _URL = API_PARAMETERS["URL"];
   $("#menu")[0].style.display = "flex";
   $("#main-panel-1")[0].style.display = "block";
-  DASHBOARD = echarts.init($("#main-panel-2-dashboard")[0], {
+  _PROTEINS_OVERVIEW_TABLE = new Tabulator("#main-panel-1-table", {
+    height: "90%",
+    maxHeight: "90%",
+    selectable: 1,
+    columns: [
+      {
+        title: "Identifier",
+        field: "id",
+        sorter: "string",
+        width: 150,
+      },
+      {
+        title: "No. Modified Positions",
+        field: "modified_positions",
+        sorter: "number",
+        width: 250,
+      },
+      {
+        title: "No. Unique Modifications",
+        field: "unique_modifications",
+        sorter: "number",
+        width: 250,
+      },
+    ],
+  });
+  _DASHBOARD = echarts.init($("#main-panel-2-dashboard")[0], {
     devicePixelRatio: 2,
     renderer: "canvas",
     width: "auto",
     height: "auto",
   });
-  DASHBOARD_SIZE_OBSERVER = new ResizeObserver((entries) => {
-    DASHBOARD.resize({
+  _DASHBOARD_SIZE_OBSERVER = new ResizeObserver((entries) => {
+    _DASHBOARD.resize({
       width: entries[0].width,
       height: entries[0].height,
     });
   });
-  DASHBOARD_SIZE_OBSERVER.observe($("#main-panel-2-dashboard")[0]);
+  _DASHBOARD_SIZE_OBSERVER.observe($("#main-panel-2-dashboard")[0]);
 }
 
 /**
+ * Downloads the content of a blob to a client file.
  *
- * @param {*} blob
- * @param {*} name
+ * @param {Blob} blob File-like blob data to download.
+ * @param {String} name The file name to save the downloaded content to.
  */
 function downloadBlob(blob, name) {
   var download_link = document.createElement("a");
@@ -52,20 +76,21 @@ function downloadBlob(blob, name) {
 }
 
 /**
- *
+ * Downloads an example dataset to the client.
  */
 function downloadExampleData() {
   axios
-    .get(WWW + "/example_data", { responseType: "blob" })
+    .get(_URL + "/example_data", { responseType: "blob" })
     .then((response) => {
       downloadBlob(response.data, "example_data.csv");
     });
 }
 
 /**
+ * Reads a file-like blob object to its String content.
  *
- * @param {*} file
- * @returns
+ * @param {Blob} file File-like blob data to read.
+ * @returns String content of the file-like input blob.
  */
 function readFile(file) {
   return new Promise((resolve, reject) => {
@@ -79,15 +104,16 @@ function readFile(file) {
 }
 
 /**
+ * Displays a toast element with a custom error message to the user.
  *
- * @param {*} msg
+ * @param {String} msg The error message to display.
  */
 function handleError(msg) {
   Metro.toast.create("Fatal Error: " + msg, null, 6000, "error-toast");
 }
 
 /**
- *
+ * Redirects the browser to the GitHub repository of this project.
  */
 function redirectSource() {
   window.open(
@@ -97,7 +123,7 @@ function redirectSource() {
 }
 
 /**
- *
+ * Displays a {@link sweetalert2} container yielding legal notice information.
  */
 function redirectHelp() {
   Swal.fire({
@@ -196,7 +222,7 @@ function redirectHelp() {
           distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
           without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
           PARTICULAR PURPOSE. See the GNU General Public License for more details.
-          (<a href="http://www.gnu.org/licenses">http://www.gnu.org/licenses</a>)
+          (<a href="http://_URL.gnu.org/licenses">http://_URL.gnu.org/licenses</a>)
         </p>
       </div>
       <div class="remark m-4">
@@ -244,50 +270,44 @@ function redirectHelp() {
 }
 
 /**
- *
- * @returns
+ * Switches back to the first panel, if the second application panel is currently displayed.
  */
 function stepBack() {
-  if (ACTIVE_PANEL === "main-panel-1") {
-    return;
-  } else if (ACTIVE_PANEL === "main-panel-2") {
+  if (_ACTIVE_PANEL === "main-panel-2") {
     $("#main-panel-2").first().slideToggle("medium");
     $("#main-panel-1").first().slideToggle("medium");
     $("#panel-back-button")[0].disabled = true;
     $("#panel-next-button")[0].disabled = false;
     $("#progress-icon-2")[0].classList.toggle("progress-active");
     $("#progress-icon-1")[0].classList.toggle("progress-active");
-    ACTIVE_PANEL = "main-panel-1";
+    _ACTIVE_PANEL = "main-panel-1";
   }
 }
 
 /**
- *
- * @returns
+ * Switches to the second panel, if the first application panel is currently displayed.
  */
 function stepNext() {
-  if (ACTIVE_PANEL === "main-panel-1") {
-    initDashboard();
+  return;
+  if (_ACTIVE_PANEL === "main-panel-1") {
+    init_Dashboard();
     $("#main-panel-1").first().slideToggle("medium");
     $("#main-panel-2").first().slideToggle("medium");
     $("#panel-back-button")[0].disabled = false;
     $("#panel-next-button")[0].disabled = true;
     $("#progress-icon-1")[0].classList.toggle("progress-active");
     $("#progress-icon-2")[0].classList.toggle("progress-active");
-    ACTIVE_PANEL = "main-panel-2";
-  } else if (ACTIVE_PANEL === "main-panel-2") {
-    return;
+    _ACTIVE_PANEL = "main-panel-2";
   }
 }
 
 /**
+ * Animates the progress indicator icon and displays a custom message.
  *
- * @param {*} hint
+ * @param {String} hint Progress message to display.
  */
 function toggleProgress(hint) {
-  $("#progress-indicator").first().toggleClass("fa-spin");
-  $("#progress-indicator").first().toggleClass("fa-circle");
-  $("#progress-indicator").first().toggleClass("fa-circle-dashed");
+  $("#progress-indicator").first().toggleClass("fa-flip");
   if (hint) {
     $("#progress-indicator").first().attr({ "data-hint-text": hint });
   } else {
@@ -298,25 +318,7 @@ function toggleProgress(hint) {
 }
 
 /**
- *
- */
-function initDashboard() {
-  toggleProgress("Initialize Dashboard");
-  if (STATE_AVAILABLE_PROTEINS_CHANGED) {
-    axios.get(WWW + "/get_available_proteins").then((response) => {
-      let options = {};
-      for (const [k, v] of Object.entries(response.data["proteins"])) {
-        options[k] = "(" + String(v) + ") " + k;
-      }
-      Metro.getPlugin("#main-panel-2-protein-select", "select").data(options);
-    });
-    STATE_AVAILABLE_PROTEINS_CHANGED = false;
-  }
-  toggleProgress();
-}
-
-/**
- *
+ * Sends the specified search enginge output data to the PTMVision backend and loads the results in the overview table.
  */
 async function uploadData() {
   toggleProgress("Uploading Data");
@@ -324,13 +326,18 @@ async function uploadData() {
     contentType: null,
     content: null,
   };
+  if ($("#data-input-form")[0].files.length == 0) {
+    handleError("No search engine output data was supplied.");
+    toggleProgress(null);
+    return;
+  }
   await readFile($("#data-input-form")[0].files[0]).then((response) => {
     request.content = response;
   });
   request.contentType = $("#data-type-form")[0].value;
   axios
     .post(
-      WWW + "/process_search_engine_output",
+      _URL + "/process_search_engine_output",
       pako.deflate(JSON.stringify(request)),
       {
         headers: {
@@ -339,13 +346,16 @@ async function uploadData() {
         },
       }
     )
-    .then((response) => {
+    .then((_) => {
       Metro.toast.create(
-        "Your data has been uploaded successfully.\nYou can proceed to the dashboard.",
+        "Your data has been uploaded successfully.",
         null,
         5000
       );
-      STATE_AVAILABLE_PROTEINS_CHANGED = true;
+      axios.get(_URL + "/get_available_proteins").then((response) => {
+        console.log(response.data);
+        _PROTEINS_OVERVIEW_TABLE.setData(response.data);
+      });
     })
     .catch((error) => {
       handleError(error.message);
@@ -356,11 +366,22 @@ async function uploadData() {
     });
 }
 
-/**
- *
- */
-async function processDashboardRequest() {
-  toggleProgress("Preparing Dashboard");
+function init_Dashboard() {
+  toggleProgress("Initialize _Dashboard");
+  if (STATE__PROTEINS_OVERVIEW_DATA_CHANGED) {
+    axios.get(_URL + "/get__proteins_OVERVIEW_DATA").then((response) => {
+      let options = {};
+      for (const [k, v] of Object.entries(response.data["proteins"])) {
+        options[k] = "(" + String(v) + ") " + k;
+      }
+      Metro.getPlugin("#main-panel-2-protein-select", "select").data(options);
+    });
+  }
+  toggleProgress();
+}
+
+async function process_DashboardRequest() {
+  toggleProgress("Preparing _Dashboard");
   request = {
     uniprot_id: Metro.getPlugin("#main-panel-2-protein-select", "select").val(),
     opt_pdb_text: null,
@@ -372,7 +393,7 @@ async function processDashboardRequest() {
     annotation_obj: null,*/
   };
   axios
-    .post(WWW + "/get_protein_data", pako.deflate(JSON.stringify(request)), {
+    .post(_URL + "/get_protein_data", pako.deflate(JSON.stringify(request)), {
       headers: {
         "Content-Type": "application/octet-stream",
         "Content-Encoding": "zlib",
@@ -410,7 +431,7 @@ async function processDashboardRequest() {
                 request.opt_pdb_text = response;
                 axios
                   .post(
-                    WWW + "/get_protein_data",
+                    _URL + "/get_protein_data",
                     pako.deflate(JSON.stringify(request)),
                     {
                       headers: {
@@ -421,7 +442,7 @@ async function processDashboardRequest() {
                   )
                   .then((response) => {
                     if (response.data.status == "Ok") {
-                      updateDashboardInformation(response.data);
+                      update_DashboardInformation(response.data);
                     } else {
                       throw Error(
                         "Failed to parse provided .pdb structure: " +
@@ -441,7 +462,7 @@ async function processDashboardRequest() {
           }
         });
       } else if (response.data.status == "Ok") {
-        updateDashboardInformation(response.data);
+        update_DashboardInformation(response.data);
       }
     })
     .catch((error) => {
@@ -458,12 +479,8 @@ var upload_pdb_html = `
     <br>
     <input id="optional-pdb-input" type="file" data-role="file" data-mode="drop">`;
 
-/**
- *
- * @param {*} data
- */
-function updateDashboardInformation(data) {
-  toggleProgress("Update Dashboard");
+function update_DashboardInformation(data) {
+  toggleProgress("Update _Dashboard");
   Papa.parse(data.ptms, {
     skipEmptyLines: "greedy",
     complete: (results) => {
@@ -506,14 +523,14 @@ function updateDashboardInformation(data) {
   });
   DATA_CONTACTS = data.contacts;
   DATA_SEQUENCE = data.sequence;
-  updateDashboardOption(
+  update_DashboardOption(
     DATA_PER_POSITION_PTMS,
     DATA_CONTACTS,
     DATA_SEQUENCE,
-    DASHBOARD
+    _DASHBOARD
   );
   Metro.toast.create(
-    "Dashboard information was updated successfully.",
+    "_Dashboard information was updated successfully.",
     null,
     5000
   );

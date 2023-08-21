@@ -223,10 +223,10 @@ body .error-toast {
 
 #main-panel-1-info-text {
   position: absolute;
-  bottom: 0;
+  top: 0;
   right: 0;
   width: 66%;
-  height: 33%;
+  height: 41%;
 }
 
 #main-panel-1-info-text .footer {
@@ -245,27 +245,40 @@ th {
   border-radius: 2px !important;
 }
 
-#main-panel-1-info-image {
+#main-panel-1-info-table {
   position: absolute;
-  top: 0;
+  bottom: 0;
   right: 0;
   width: 96%;
-  height: 58%;
+  height: 50%;
 }
 
-#main-panel-1-info-image img {
-  height: 100%;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+#main-panel-1-info-table i {
+  font-size: x-large;
+  color: var(--color-2);
+}
+
+#main-panel-1-info-table #main-panel-1-table {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 90%;
+  background-color: var(--background-color-1);
+  border-radius: 4px !important;
+}
+
+.tabulator-col-title {
+  font-size: medium;
+  padding-left: 25px;
 }
 
 #main-panel-1-inputs {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   width: 29%;
-  height: 33%;
+  height: 41%;
 }
 
 #main-panel-1-inputs i {

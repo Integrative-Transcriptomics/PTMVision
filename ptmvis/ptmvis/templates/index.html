@@ -55,6 +55,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <link
       rel="stylesheet"
       type="text/css"
+      href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap4.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
       href="{{url_for('static', filename='css/index.css')}}"
     />
     <!--
@@ -92,6 +102,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <script
       type="text/javascript"
       src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"
     ></script>
     <script
       type="text/javascript"
@@ -294,11 +308,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </div>
           </div>
         </div>
-        <div id="main-panel-1-info-image" class="panel-container">
-          <img
-            src="{{ url_for('static', filename='resources/wordcloud.png') }}"
-            alt="<GRAPHICAL_ABSTRACT>"
-          />
+        <div id="main-panel-1-info-table" class="panel-container">
+          <h4 class="secondary">
+            <i class="fa-duotone fa-circle-2"></i> Select Protein to Explore
+          </h4>
+          <div id="main-panel-1-table"></div>
         </div>
         <div id="main-panel-1-inputs" class="panel-container">
           <h4 class="secondary">
@@ -314,7 +328,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </optgroup>
           </select>
           <br />
-          <h5 class="secondary">Upload Search Engine Output:</h5>
+          <h5 class="secondary">Specify Search Engine Output:</h5>
           <input
             id="data-input-form"
             type="file"
@@ -322,10 +336,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
           <br />
+          <h5 class="secondary">Specify Meta-Information:</h5>
+          <input
+            id="meta-input-form"
+            type="file"
+            data-role="file"
+            data-button-title='<i class="fa-duotone fa-folder-open"></i>'
+          />
+          <br />
           <button class="proceed-button" onclick="uploadData()">Submit</button>
-          <button class="example-data-button" onclick="downloadExampleData()">
-            Example Data
-          </button>
         </div>
       </div>
       <div id="main-panel-2">

@@ -14,6 +14,7 @@ setup(
         "gunicorn",
         "psm_utils",
         "biopython",
-        "unimod-mapper"
+        "unimod-mapper",
+        "scipy",
     ],
 )
