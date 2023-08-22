@@ -171,7 +171,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <div
               style="display: inline"
               data-role="hint"
-              data-hint-text="Upload Data"
+              data-hint-text="Data Upload Panel"
               data-hint-position="bottom"
             >
               <i
@@ -183,7 +183,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <div
               style="display: inline"
               data-role="hint"
-              data-hint-text="View Dashboard"
+              data-hint-text="Dashboard Panel"
               data-hint-position="bottom"
             >
               <i
@@ -203,13 +203,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </button>
           </div>
           <div class="cell-1 offset-3 text-center">
-            <i
-              id="progress-indicator"
-              class="fa-regular fa-circle"
-              data-role="hint"
-              data-hint-text="No Progress Running"
-              data-hint-position="bottom"
-            ></i>
             <button
               onclick="redirectSource()"
               class="button-no-decoration menu-button"
@@ -217,7 +210,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               data-hint-text="Source Code<br>(GitHub)"
               data-hint-position="bottom"
             >
-              <i class="fa-brands fa-square-github"></i>
+              <i class="fa-brands fa-github"></i>
             </button>
             <button
               onclick="redirectHelp()"
@@ -226,14 +219,87 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               data-hint-text="Legal<br>Information"
               data-hint-position="bottom"
             >
-              <i class="fa-duotone fa-square-info"></i>
+              <i class="fa-duotone fa-circle-info"></i>
             </button>
+            <i
+              id="progress-indicator"
+              class="fa-regular fa-circle"
+              data-role="hint"
+              data-hint-text="No Progress Running"
+              data-hint-position="bottom"
+            ></i>
           </div>
         </div>
       </div>
     </header>
     <div id="main">
       <div id="main-panel-1">
+        <div id="main-panel-1-inputs" class="panel-container">
+          <h6 class="secondary">
+            <i class="fa-duotone fa-circle-1"></i> Upload Search Engine Output
+          </h6>
+          <h7 class="secondary">Specify Pipeline:</h7>
+          <select data-role="select" id="data-type-form">
+            <optgroup label="Pipeline">
+              <option value="ionbot">Ionbot</option>
+              <option value="msfragger">MSFragger</option>
+              <option value="sage">Sage</option>
+              <option value="csv">Plain CSV</option>
+            </optgroup>
+          </select>
+          <br />
+          <h7 class="secondary">Specify Search Engine Output:</h7>
+          <input
+            id="data-input-form"
+            type="file"
+            data-role="file"
+            data-button-title='<i class="fa-duotone fa-folder-open"></i>'
+          />
+          <br />
+          <h7 class="secondary">Specify Meta-Information:</h7>
+          <input
+            id="meta-input-form"
+            type="file"
+            data-role="file"
+            data-button-title='<i class="fa-duotone fa-folder-open"></i>'
+          />
+          <br />
+          <button class="proceed-button" onclick="uploadData()">Submit</button>
+        </div>
+        <div id="main-panel-1-info-table" class="panel-container">
+          <div class="grid">
+            <div class="row">
+              <div class="cell-3">
+                <h6 class="secondary">
+                  <i class="fa-duotone fa-circle-2"></i> Select Protein to
+                  Explore
+                </h6>
+              </div>
+              <div class="cell-8">
+                <input
+                  id="main-panel-1-table-filter"
+                  type="text"
+                  class="input-small"
+                  data-role="taginput"
+                  data-autocomplete=""
+                  data-clear-button="false"
+                  data-on-tag="_set_table_filter"
+                  data-max-tags="6"
+                />
+              </div>
+              <div class="cell-1">
+                <button
+                  class="proceed-button float-right"
+                  onclick="window.open('https:\/\/www.reddit.com/r/templates4memes/comments/b4g2zi/ok_black_guy_with_blue_shirt_says_ok_in_green/', '_blank')"
+                  disabled
+                >
+                  Display
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="main-panel-1-table"></div>
+        </div>
         <div id="main-panel-1-info-text" class="panel-container">
           <div class="footer">
             <div class="grid">
@@ -307,44 +373,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               </div>
             </div>
           </div>
-        </div>
-        <div id="main-panel-1-info-table" class="panel-container">
-          <h6 class="secondary">
-            <i class="fa-duotone fa-circle-2"></i> Select Protein to Explore
-          </h6>
-          <div id="main-panel-1-table"></div>
-        </div>
-        <div id="main-panel-1-inputs" class="panel-container">
-          <h6 class="secondary">
-            <i class="fa-duotone fa-circle-1"></i> Upload Search Engine Output
-          </h6>
-          <h7 class="secondary">Specify Pipeline:</h7>
-          <select data-role="select" id="data-type-form">
-            <optgroup label="Pipeline">
-              <option value="ionbot">Ionbot</option>
-              <option value="msfragger">MSFragger</option>
-              <option value="sage">Sage</option>
-              <option value="csv">Plain CSV</option>
-            </optgroup>
-          </select>
-          <br />
-          <h7 class="secondary">Specify Search Engine Output:</h7>
-          <input
-            id="data-input-form"
-            type="file"
-            data-role="file"
-            data-button-title='<i class="fa-duotone fa-folder-open"></i>'
-          />
-          <br />
-          <h7 class="secondary">Specify Meta-Information:</h7>
-          <input
-            id="meta-input-form"
-            type="file"
-            data-role="file"
-            data-button-title='<i class="fa-duotone fa-folder-open"></i>'
-          />
-          <br />
-          <button class="proceed-button" onclick="uploadData()">Submit</button>
         </div>
       </div>
       <div id="main-panel-2">

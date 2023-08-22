@@ -72,6 +72,19 @@ function init() {
   _DASHBOARD_SIZE_OBSERVER.observe($("#main-panel-2-dashboard")[0]);
 }
 
+function _set_table_filter(_, _, values) {
+  _PROTEINS_OVERVIEW_TABLE.clearFilter(true);
+  const filters = [];
+  for (let v of values) {
+    filters.push({
+      field: "modifications",
+      type: "like",
+      value: v,
+    });
+  }
+  _PROTEINS_OVERVIEW_TABLE.setFilter(filters);
+}
+
 /**
  * Downloads the content of a blob to a client file.
  *
@@ -364,8 +377,16 @@ async function uploadData() {
         5000
       );
       axios.get(_URL + "/get_available_proteins").then((response) => {
-        console.log(response.data);
+        console.log(response);
         _PROTEINS_OVERVIEW_TABLE.setData(response.data);
+        modifications = new Set();
+        for (let entry of response.data) {
+          entry.modifications.split("$").forEach((m) => modifications.add(m));
+        }
+        Metro.getPlugin(
+          "#main-panel-1-table-filter",
+          "taginput"
+        ).setAutocompleteList([...modifications]);
       });
     })
     .catch((error) => {
