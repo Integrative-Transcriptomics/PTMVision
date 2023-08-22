@@ -81,7 +81,7 @@ def process_search_engine_output():
 @app.route("/get_available_proteins", methods=["GET"])
 def get_available_proteins():
     """Route to retrieve all available proteins of the session as a JSON."""
-    response = []
+    protein_entries = []
     if MODIFICATIONS_DATA in session:
         protein_identifiers = [_ for _ in session[MODIFICATIONS_DATA]["proteins"]]
         # Try to map UniProt identifiers to gene names.
@@ -117,8 +117,8 @@ def get_available_proteins():
                 "unique_modifications": len(modifications),
                 "modifications": "$".join(modifications),
             }
-            response.append(protein_entry)
-    return response
+            protein_entries.append(protein_entry)
+    return protein_entries
 
 
 @app.route("/get_protein_data", methods=["POST"])

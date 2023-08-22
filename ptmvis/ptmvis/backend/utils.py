@@ -335,69 +335,48 @@ def read_file(file, flag):
 
 
 def parse_df_to_json_schema(dataframe):
+    # Init. dictionary to store results in JSON schema.
     protein_dict = {"proteins": {}, "meta_data": ()}
-
-    for i, row in dataframe.iterrows():
-        # if protein is not there, add entire entry
+    # Internal function to add entries.
+    construct_modifications_entry = lambda row: {
+        "modification_unimod_name": row["modification_unimod_name"],
+        "modification_classification": row["classification"]
+        if "classification" in row
+        else "N/A",
+        "modification_unimod_id": row["modification_unimod_id"],
+    }
+    # For each row
+    for _, row in dataframe.iterrows():
+        # Add entire entry, if protein does not exist yet.
         if row["uniprot_id"] not in protein_dict["proteins"].keys():
             entry = {
                 row["uniprot_id"]: {
                     "positions": {
                         row["position"]: {
-                            "modifications": [
-                                {
-                                    "modification_unimod_name": row[
-                                        "modification_unimod_name"
-                                    ],
-                                    "modification_classification": row[
-                                        "classification"
-                                    ],
-                                    "modification_unimod_id": row[
-                                        "modification_unimod_id"
-                                    ],
-                                }
-                            ]
+                            "modifications": [construct_modifications_entry(row)]
                         }
                     },
-                    "pdb_structure": "NaN",
+                    "pdb_structure": "N/A",
                 }
             }
             protein_dict["proteins"].update(entry)
-
-        # if position is not there, but protein is, add position and mod id/name/class/annotations
+        # Add position and modification identifier, name, class and annotations, if protein already exists but not the position.
         elif (
             row["position"]
             not in protein_dict["proteins"][row["uniprot_id"]]["positions"].keys()
         ):
             protein_dict["proteins"][row["uniprot_id"]]["positions"][
                 row["position"]
-            ] = {
-                "modifications": [
-                    {
-                        "modification_unimod_name": row["modification_unimod_name"],
-                        "modification_classification": row["classification"],
-                        "modification_unimod_id": row["modification_unimod_id"],
-                    }
-                ]
-            }
+            ] = {"modifications": [construct_modifications_entry(row)]}
 
-        # if position in this protein is already in dict, add mod id/name/class/annotations
+        # Add modification identifier, name, class and annotations, if the position in the protein already exists.
         elif (
             row["position"]
             in protein_dict["proteins"][row["uniprot_id"]]["positions"].keys()
         ):
             protein_dict["proteins"][row["uniprot_id"]]["positions"][row["position"]][
                 "modifications"
-            ].append(
-                {
-                    "modification_unimod_name": row["modification_unimod_name"],
-                    "modification_classification": row["classification"],
-                    "modification_unimod_id": row["modification_unimod_id"],
-                }
-            )
-
-    with open("example_json.json", "w+") as f:
-        json.dump(protein_dict, f, indent=3)
+            ].append(construct_modifications_entry(row))
     return protein_dict
 
 
