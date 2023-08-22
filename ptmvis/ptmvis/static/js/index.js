@@ -22,13 +22,19 @@ function init() {
   $("#menu")[0].style.display = "flex";
   $("#main-panel-1")[0].style.display = "block";
   _PROTEINS_OVERVIEW_TABLE = new Tabulator("#main-panel-1-table", {
-    height: "90%",
-    maxHeight: "90%",
+    height: "88%",
+    maxHeight: "88%",
     selectable: 1,
     columns: [
       {
         title: "Identifier",
         field: "id",
+        sorter: "string",
+        width: 150,
+      },
+      {
+        title: "Gene Name",
+        field: "name",
         sorter: "string",
         width: 150,
       },
@@ -43,6 +49,11 @@ function init() {
         field: "unique_modifications",
         sorter: "number",
         width: 250,
+      },
+      {
+        title: "Modifications",
+        field: "modifications",
+        visible: false,
       },
     ],
   });

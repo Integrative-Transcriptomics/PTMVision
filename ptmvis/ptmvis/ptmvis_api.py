@@ -1,5 +1,11 @@
 from ptmvis import app
 from ptmvis.backend import utils
+from ptmvis.backend.uniprot_id_mapping import (
+    submit_id_mapping,
+    check_id_mapping_results_ready,
+    get_id_mapping_results_link,
+    get_id_mapping_results_search,
+)
 from flask import request, session, render_template, send_file
 from flask_session import Session
 from dotenv import load_dotenv
@@ -77,29 +83,41 @@ def get_available_proteins():
     """Route to retrieve all available proteins of the session as a JSON."""
     response = []
     if MODIFICATIONS_DATA in session:
-        for protein_identifier in session[MODIFICATIONS_DATA]["proteins"]:
+        protein_identifiers = [_ for _ in session[MODIFICATIONS_DATA]["proteins"]]
+        # Try to map UniProt identifiers to gene names.
+        gene_name_mapping_response = _map_uniprot_identifiers(
+            protein_identifiers, "Gene_Name"
+        )
+        gene_name_mapping = {}
+        # Collect mapping results into dictionary.
+        for entry in gene_name_mapping_response["results"]:
+            gene_name_mapping[entry["from"]] = entry["to"]
+        if "failedIds" in gene_name_mapping_response:
+            for failed_identifier in gene_name_mapping_response["failedIds"]:
+                gene_name_mapping[failed_identifier] = "N/A"
+        # Construct entry per protein in input data.
+        for protein_identifier in protein_identifiers:
+            position_modification_data = session[MODIFICATIONS_DATA]["proteins"][
+                protein_identifier
+            ]["positions"]
             modified_positions = []
             modifications = []
-            for modified_position in session[MODIFICATIONS_DATA]["proteins"][
-                protein_identifier
-            ]["positions"]:
-                modified_positions.append(modified_position)
-                for modification in session[MODIFICATIONS_DATA]["proteins"][
-                    protein_identifier
-                ]["positions"][modified_position]["modifications"]:
+            for modified_position in position_modification_data:
+                modified_positions.append(int(modified_position))
+                for modification in position_modification_data[modified_position][
+                    "modifications"
+                ]:
                     modifications.append(modification["modification_unimod_name"])
+            modified_positions = sorted(modified_positions)
             modifications = list(set(modifications))
             protein_entry = {
                 "id": protein_identifier,
+                "name": gene_name_mapping[protein_identifier],
                 "modified_positions": len(modified_positions),
                 "unique_modifications": len(modifications),
+                "modifications": "$".join(modifications),
             }
             response.append(protein_entry)
-            print(
-                requests.get(
-                    "https://rest.uniprot.org/uniprotkb/" + protein_identifier + ".json"
-                ).content.decode()
-            )
     return response
 
 
@@ -130,3 +148,13 @@ def get_protein_data():
         response["status"] = "Failed: " + str(e)
     finally:
         return response
+
+
+def _map_uniprot_identifiers(identifiers, target_db):
+    job_id = submit_id_mapping(
+        from_db="UniProtKB_AC-ID", to_db=target_db, ids=identifiers
+    )
+    if check_id_mapping_results_ready(job_id):
+        link = get_id_mapping_results_link(job_id)
+        results = get_id_mapping_results_search(link)
+    return results
