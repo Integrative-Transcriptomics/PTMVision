@@ -1,5 +1,4 @@
 _URL = "http://127.0.0.1:5000/";
-_ACTIVE_PANEL = "main-panel-1";
 _PROTEINS_OVERVIEW_DATA = null;
 _PROTEINS_OVERVIEW_TABLE = null;
 _PROTEIN_MODIFICATIONS_DATA = null;
@@ -20,10 +19,10 @@ window.addEventListener("keyup", (event) => {
 function init() {
   _URL = API_PARAMETERS["URL"];
   $("#menu")[0].style.display = "flex";
-  $("#main-panel-1")[0].style.display = "block";
-  _PROTEINS_OVERVIEW_TABLE = new Tabulator("#main-panel-1-table", {
-    height: "88%",
-    maxHeight: "88%",
+  $("#panel")[0].style.display = "block";
+  _PROTEINS_OVERVIEW_TABLE = new Tabulator("#panel-table-tabulator", {
+    height: "87%",
+    maxHeight: "87%",
     selectable: 1,
     columns: [
       {
@@ -57,7 +56,7 @@ function init() {
       },
     ],
   });
-  _DASHBOARD = echarts.init($("#main-panel-2-dashboard")[0], {
+  _DASHBOARD = echarts.init($("#panel-dashboard")[0], {
     devicePixelRatio: 2,
     renderer: "canvas",
     width: "auto",
@@ -69,7 +68,7 @@ function init() {
       height: entries[0].height,
     });
   });
-  _DASHBOARD_SIZE_OBSERVER.observe($("#main-panel-2-dashboard")[0]);
+  _DASHBOARD_SIZE_OBSERVER.observe($("#panel-dashboard")[0]);
 }
 
 function _set_table_filter(_, _, values) {
@@ -246,7 +245,7 @@ function redirectHelp() {
           distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
           without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
           PARTICULAR PURPOSE. See the GNU General Public License for more details.
-          (<a href="http://_URL.gnu.org/licenses">http://_URL.gnu.org/licenses</a>)
+          (<a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">www.gnu.org/licenses/gpl-3.0.en</a>)
         </p>
       </div>
       <div class="remark m-4">
@@ -275,14 +274,13 @@ function redirectHelp() {
         </address>
       </div>
     </div>`,
-    width: "80vw",
-    padding: "0.5em",
+    width: "100%",
     position: "bottom",
+    showCloseButton: true,
     showCancelButton: false,
+    showConfirmButton: false,
     grow: true,
     heightAuto: true,
-    confirmButtonColor: "#62a8ac",
-    confirmButtonText: "Ok",
     color: "#333333",
     background: "#fafafcd9",
     backdrop: `
@@ -294,50 +292,18 @@ function redirectHelp() {
 }
 
 /**
- * Switches back to the first panel, if the second application panel is currently displayed.
- */
-function stepBack() {
-  if (_ACTIVE_PANEL === "main-panel-2") {
-    $("#main-panel-2").first().slideToggle("medium");
-    $("#main-panel-1").first().slideToggle("medium");
-    $("#panel-back-button")[0].disabled = true;
-    $("#panel-next-button")[0].disabled = false;
-    $("#progress-icon-2")[0].classList.toggle("progress-active");
-    $("#progress-icon-1")[0].classList.toggle("progress-active");
-    _ACTIVE_PANEL = "main-panel-1";
-  }
-}
-
-/**
- * Switches to the second panel, if the first application panel is currently displayed.
- */
-function stepNext() {
-  return;
-  if (_ACTIVE_PANEL === "main-panel-1") {
-    init_Dashboard();
-    $("#main-panel-1").first().slideToggle("medium");
-    $("#main-panel-2").first().slideToggle("medium");
-    $("#panel-back-button")[0].disabled = false;
-    $("#panel-next-button")[0].disabled = true;
-    $("#progress-icon-1")[0].classList.toggle("progress-active");
-    $("#progress-icon-2")[0].classList.toggle("progress-active");
-    _ACTIVE_PANEL = "main-panel-2";
-  }
-}
-
-/**
  * Animates the progress indicator icon and displays a custom message.
  *
  * @param {String} hint Progress message to display.
  */
 function toggleProgress(hint) {
-  $("#progress-indicator").first().toggleClass("fa-flip");
+  $("#process-indicator").first().toggleClass("fa-flip");
   if (hint) {
-    $("#progress-indicator").first().attr({ "data-hint-text": hint });
+    $("#process-indicator").first().attr({ "data-hint-text": hint });
   } else {
-    $("#progress-indicator")
+    $("#process-indicator")
       .first()
-      .attr({ "data-hint-text": "No Progress Running" });
+      .attr({ "data-hint-text": "No Process Running" });
   }
 }
 
@@ -383,10 +349,9 @@ async function uploadData() {
         for (let entry of response.data) {
           entry.modifications.split("$").forEach((m) => modifications.add(m));
         }
-        Metro.getPlugin(
-          "#main-panel-1-table-filter",
-          "taginput"
-        ).setAutocompleteList([...modifications]);
+        Metro.getPlugin("#panel-table-filter", "taginput").setAutocompleteList([
+          ...modifications,
+        ]);
       });
     })
     .catch((error) => {

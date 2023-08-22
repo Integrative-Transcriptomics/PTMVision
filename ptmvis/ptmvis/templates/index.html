@@ -149,60 +149,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <div id="menu-grid" class="grid w-100">
         <div class="row">
           <div class="cell-1 text-center">
-            <div class="logo no-hover">
-              <img
-                src="{{ url_for('static', filename='resources/logo.png') }}"
-                alt="<LOGO>"
-              />
-            </div>
-          </div>
-          <div class="cell-4 offset-3 mt-0 text-center">
-            <button
-              id="panel-back-button"
-              onclick="stepBack()"
-              class="button-no-decoration menu-button"
-              data-role="hint"
-              data-hint-text="Back"
-              data-hint-position="bottom"
-              disabled
-            >
-              <i class="fa-duotone fa-angle-left"></i>
-            </button>
-            <div
-              style="display: inline"
-              data-role="hint"
-              data-hint-text="Data Upload Panel"
-              data-hint-position="bottom"
-            >
-              <i
-                id="progress-icon-1"
-                class="progress-icon progress-active fa-duotone fa-file-arrow-up"
-              ></i>
-            </div>
-            <i class="progress-icon fa-sharp fa-light fa-horizontal-rule"></i>
-            <div
-              style="display: inline"
-              data-role="hint"
-              data-hint-text="Dashboard Panel"
-              data-hint-position="bottom"
-            >
-              <i
-                id="progress-icon-2"
-                class="progress-icon fa-duotone fa-magnifying-glass-chart fa-flip-horizontal"
-              ></i>
-            </div>
-            <button
-              id="panel-next-button"
-              onclick="stepNext()"
-              class="button-no-decoration menu-button"
-              data-role="hint"
-              data-hint-text="Next"
-              data-hint-position="bottom"
-            >
-              <i class="fa-duotone fa-angle-right"></i>
-            </button>
-          </div>
-          <div class="cell-1 offset-3 text-center">
             <button
               onclick="redirectSource()"
               class="button-no-decoration menu-button"
@@ -221,20 +167,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             >
               <i class="fa-duotone fa-circle-info"></i>
             </button>
-            <i
-              id="progress-indicator"
-              class="fa-regular fa-circle"
-              data-role="hint"
-              data-hint-text="No Progress Running"
-              data-hint-position="bottom"
-            ></i>
+          </div>
+          <div class="cell-10 text-center">
+            <div class="logo no-hover">
+              <img
+                src="{{ url_for('static', filename='resources/logo.png') }}"
+                alt="PTMVision Logo"
+              />
+            </div>
+          </div>
+          <div class="cell-1 text-center">
+            <button
+              class="button-no-decoration menu-button"
+              style="cursor: default"
+            >
+              <i
+                id="process-indicator"
+                class="fa-regular fa-circle"
+                data-role="hint"
+                data-hint-text="No Process Running"
+                data-hint-position="bottom"
+              ></i>
+            </button>
           </div>
         </div>
       </div>
     </header>
     <div id="main">
-      <div id="main-panel-1">
-        <div id="main-panel-1-inputs" class="panel-container">
+      <div id="panel">
+        <div id="panel-info" class="panel-container"></div>
+        <div id="panel-inputs" class="panel-container">
           <h6 class="secondary">
             <i class="fa-duotone fa-circle-1"></i> Upload Search Engine Output
           </h6>
@@ -266,7 +228,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <br />
           <button class="proceed-button" onclick="uploadData()">Submit</button>
         </div>
-        <div id="main-panel-1-info-table" class="panel-container">
+        <div id="panel-table" class="panel-container">
           <div class="grid">
             <div class="row">
               <div class="cell-3">
@@ -277,7 +239,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               </div>
               <div class="cell-8">
                 <input
-                  id="main-panel-1-table-filter"
+                  id="panel-table-filter"
                   type="text"
                   class="input-small"
                   data-role="taginput"
@@ -298,142 +260,79 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               </div>
             </div>
           </div>
-          <div id="main-panel-1-table"></div>
+          <div id="panel-table-tabulator"></div>
         </div>
-        <div id="main-panel-1-info-text" class="panel-container">
-          <div class="footer">
-            <div class="grid">
-              <div class="row">
-                <div class="cell-2">
-                  <p class="text-upper text-leader2 text-center">citation</p>
-                  <p class="text-light text-just">
-                    If you use any component of PTMVision in your work, please
-                    cite
-                    <br />
-                    <span class="citation">
-                      Jachmann et al., (2023, April 05), PTMVision,
-                      https://github.com/Integrative-Transcriptomics/PTMVision</span
-                    >
-                  </p>
-                </div>
-                <div class="cell-6 offset-1">
-                  <p class="text-upper text-leader2 text-center">
-                    compatibility
-                  </p>
-                  <br />
-                  <table class="table subcompact table-border cell-border">
-                    <thead>
-                      <tr>
-                        <th>OS</th>
-                        <th>Version</th>
-                        <th>Chrome</th>
-                        <th>Firefox</th>
-                        <th>Edge</th>
-                        <th>Safari</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th>Linux</th>
-                        <th>Ubuntu 20.04.4</th>
-                        <th>not tested</th>
-                        <th>102.08</th>
-                        <th>n/a</th>
-                        <th>n/a</th>
-                      </tr>
-                      <tr>
-                        <th>MacOS</th>
-                        <th>Ventura 13.0.1</th>
-                        <th>108.0.5359.124</th>
-                        <th>108.1</th>
-                        <th>n/a</th>
-                        <th>16.1</th>
-                      </tr>
-                      <tr>
-                        <th>Windows</th>
-                        <th>11</th>
-                        <th>108.0.5359.125</th>
-                        <th>108.0</th>
-                        <th>108.0.1462.54</th>
-                        <th>n/a</th>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="cell-2 offset-1">
-                  <p class="text-upper text-leader2 text-center">legal</p>
-                  <p class="text-light text-just">
-                    This website is free and open to all users and there is no
-                    login requirement. All submitted data is kept confidential.
-                    We use a strictly necessary (http-only non-tracking) session
-                    cookie so that you can access your data! By using PTMVision
-                    you consent to using this cookie.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="main-panel-2">
-        <div id="main-panel-2-menu" class="panel-container">
+        <div id="panel-dashboard" class="panel-container"></div>
+        <div id="panel-legal">
           <div class="grid">
             <div class="row">
               <div class="cell-2">
-                <h4 class="secondary">
-                  <i class="fa-duotone fa-circle-2"></i> Dashboard
-                </h4>
+                <p class="text-upper text-leader2 text-center">citation</p>
+                <p class="text-light text-just">
+                  If you use any component of PTMVision in your work, please
+                  cite
+                  <br />
+                  <span class="citation">
+                    Jachmann et al., (2023, April 05), PTMVision,
+                    https://github.com/Integrative-Transcriptomics/PTMVision</span
+                  >
+                </p>
               </div>
-              <div class="cell-2">
-                <select
-                  class="input-small"
-                  id="main-panel-2-protein-select"
-                  data-role="select"
-                  data-prepend="Protein"
-                ></select>
+              <div class="cell-6 offset-1">
+                <p class="text-upper text-leader2 text-center">compatibility</p>
+                <br />
+                <table class="table subcompact table-border cell-border">
+                  <thead>
+                    <tr>
+                      <th>OS</th>
+                      <th>Version</th>
+                      <th>Chrome</th>
+                      <th>Firefox</th>
+                      <th>Edge</th>
+                      <th>Safari</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th>Linux</th>
+                      <th>Ubuntu 20.04.4</th>
+                      <th>not tested</th>
+                      <th>102.08</th>
+                      <th>N/A</th>
+                      <th>N/A</th>
+                    </tr>
+                    <tr>
+                      <th>MacOS</th>
+                      <th>Ventura 13.0.1</th>
+                      <th>108.0.5359.124</th>
+                      <th>108.1</th>
+                      <th>N/A</th>
+                      <th>16.1</th>
+                    </tr>
+                    <tr>
+                      <th>Windows</th>
+                      <th>11</th>
+                      <th>108.0.5359.125</th>
+                      <th>108.0</th>
+                      <th>108.0.1462.54</th>
+                      <th>N/A</th>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-              <div class="cell-2">
-                <select
-                  id="main-panel-2-contact-attribute"
-                  class="input-small"
-                  data-role="select"
-                  data-prepend="Contact Attribute"
-                >
-                  <optgroup label="Criteria">
-                    <option value="common">Common PTMs (Jaccard)</option>
-                    <option value="repulsing" disabled>Repelling Forces</option>
-                    <option value="attracting" disabled>
-                      Attracting Forces
-                    </option>
-                    <option value="steric" disabled>Steric Clashes</option>
-                  </optgroup>
-                </select>
-              </div>
-              <div class="cell-2">
-                <input
-                  id="main-panel-2-distance-cutoff"
-                  type="text"
-                  class="input-small"
-                  data-role="input"
-                  data-prepend="Distance Cutoff"
-                  data-default-value="5"
-                />
-              </div>
-              <div class="cell-2">
-                <button class="custom-button" disabled>Annotation</button>
-              </div>
-              <div class="cell-1 offset-1">
-                <button
-                  class="proceed-button"
-                  onclick="processDashboardRequest()"
-                >
-                  Display
-                </button>
+              <div class="cell-2 offset-1">
+                <p class="text-upper text-leader2 text-center">legal</p>
+                <p class="text-light text-just">
+                  This website is free and open to all users and there is no
+                  login requirement. All submitted data is kept confidential. We
+                  use a strictly necessary (http-only non-tracking) session
+                  cookie so that you can access your data! By using PTMVision
+                  you consent to using this cookie.
+                </p>
               </div>
             </div>
           </div>
         </div>
-        <div id="main-panel-2-dashboard" class="panel-container"></div>
       </div>
     </div>
   </body>
