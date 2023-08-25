@@ -193,9 +193,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
       </div>
     </header>
+
     <div id="main">
       <div id="panel">
         <div id="panel-info" class="panel-container"></div>
+
         <div id="panel-inputs" class="panel-container">
           <h6 class="secondary">
             <i class="fa-duotone fa-circle-1"></i> Upload Search Engine Output
@@ -228,6 +230,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <br />
           <button class="proceed-button" onclick="uploadData()">Submit</button>
         </div>
+
         <div id="panel-table" class="panel-container">
           <div class="grid">
             <div class="row">
@@ -237,7 +240,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   Explore
                 </h6>
               </div>
-              <div class="cell-8">
+              <div class="cell-2">
+                <h7 class="secondary float-right"
+                  >Filter Modifications:&nbsp;</h7
+                >
+              </div>
+              <div class="cell-6">
                 <input
                   id="panel-table-filter"
                   type="text"
@@ -262,7 +270,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </div>
           <div id="panel-table-tabulator"></div>
         </div>
+
+        <div id="panel-modifications-graph" class="panel-container"></div>
+
         <div id="panel-dashboard" class="panel-container"></div>
+
         <div id="panel-legal">
           <div class="grid">
             <div class="row">

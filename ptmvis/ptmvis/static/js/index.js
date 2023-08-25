@@ -4,6 +4,8 @@ _PROTEINS_OVERVIEW_TABLE = null;
 _PROTEIN_MODIFICATIONS_DATA = null;
 _DASHBOARD_SIZE_OBSERVER = null;
 _DASHBOARD = null;
+_MODIFICATIONS_GRAPH_SIZE_OBSERVER = null;
+_MODIFICATIONS_GRAPH = null;
 
 window.addEventListener("keyup", (event) => {
   if (event.key == "ArrowDown") {
@@ -29,25 +31,25 @@ function init() {
         title: "Identifier",
         field: "id",
         sorter: "string",
-        width: 150,
+        width: "25%",
       },
       {
         title: "Gene Name",
         field: "name",
         sorter: "string",
-        width: 150,
+        width: "25%",
       },
       {
         title: "No. Modified Positions",
         field: "modified_positions",
         sorter: "number",
-        width: 250,
+        width: "25%",
       },
       {
         title: "No. Unique Modifications",
         field: "unique_modifications",
         sorter: "number",
-        width: 250,
+        width: "25%",
       },
       {
         title: "Modifications",
@@ -69,6 +71,21 @@ function init() {
     });
   });
   _DASHBOARD_SIZE_OBSERVER.observe($("#panel-dashboard")[0]);
+  _MODIFICATIONS_GRAPH = echarts.init($("#panel-modifications-graph")[0], {
+    devicePixelRatio: 2,
+    renderer: "canvas",
+    width: "auto",
+    height: "auto",
+  });
+  _MODIFICATIONS_GRAPH_SIZE_OBSERVER = new ResizeObserver((entries) => {
+    _MODIFICATIONS_GRAPH.resize({
+      width: entries[0].width,
+      height: entries[0].height,
+    });
+  });
+  _MODIFICATIONS_GRAPH_SIZE_OBSERVER.observe(
+    $("#panel-modifications-graph")[0]
+  );
 }
 
 function _set_table_filter(_, _, values) {
@@ -342,8 +359,8 @@ async function uploadData() {
         null,
         5000
       );
+
       axios.get(_URL + "/get_available_proteins").then((response) => {
-        console.log(response);
         _PROTEINS_OVERVIEW_TABLE.setData(response.data);
         modifications = new Set();
         for (let entry of response.data) {
@@ -353,13 +370,62 @@ async function uploadData() {
           ...modifications,
         ]);
       });
+
+      axios.get(_URL + "/get_modifications_graph").then((response) => {
+        const opt = response.data;
+        opt["tooltip"]["formatter"] = (params, ticket, callback) => {
+          if (params.dataType == "edge") {
+            return (
+              `<u>` +
+              params.data.source +
+              `</u><b> and </b>` +
+              `<u>` +
+              params.data.target +
+              `</u>
+            <br>
+            No. common occurrences: ` +
+              params.data.value
+            );
+          } else if (params.dataType == "node") {
+            return (
+              `<b>Modification</b> <u>` +
+              params.data.name +
+              `</u>
+            <br>
+            No. occurrences: ` +
+              params.data.value +
+              `<br>Frequency: ` +
+              params.data.frequency +
+              `%`
+            );
+          }
+        };
+        opt["series"][0]["itemStyle"]["color"] = (params) => {
+          let R = 100; // to 220
+          let G = 170; // to 90
+          let B = 170; // to 80
+          let Rs = 1.2;
+          let Gs = 0.8;
+          let Bs = 0.9;
+          let frequency = params.data.frequency;
+          return (
+            "rgb(" +
+            (R + Rs * frequency) +
+            "," +
+            (G - Gs * frequency) +
+            "," +
+            (B - Bs * frequency) +
+            ")"
+          );
+        };
+        _MODIFICATIONS_GRAPH.setOption(opt);
+      });
     })
     .catch((error) => {
       handleError(error.message);
     })
     .finally((_) => {
       toggleProgress(null);
-      return;
     });
 }
 

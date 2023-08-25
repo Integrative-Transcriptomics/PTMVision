@@ -90,6 +90,7 @@ body .error-toast {
 
 #menu-grid {
   height: 100%;
+  box-shadow: 0px 1px 5px var(--color-2);
 }
 
 #process-indicator {
@@ -200,16 +201,16 @@ body .error-toast {
   top: top;
   right: 0;
   width: 98%;
-  height: 28%;
+  height: 21%;
   margin-top: 1% !important;
 }
 
 #panel-inputs {
   position: absolute;
-  top: 29%;
+  top: 22%;
   left: 0;
-  width: 30%;
-  height: 17%;
+  width: 25%;
+  height: 23%;
 }
 
 #panel-inputs i {
@@ -219,10 +220,10 @@ body .error-toast {
 
 #panel-table {
   position: absolute;
-  top: 29%;
-  right: 0;
-  width: 67%;
-  height: 17%;
+  top: 22%;
+  left: 26%;
+  right: 26%;
+  height: 23%;
 }
 
 #panel-info-table i {
@@ -248,6 +249,20 @@ body .error-toast {
   font-style: bold;
   background-color: var(--highlight-1) !important;
   border-radius: 4px;
+}
+
+#panel-modifications-graph {
+  position: absolute;
+  background-color: var(--background-color-1);
+  padding: 0 !important;
+  top: 22%;
+  right: 0;
+  width: 25%;
+  height: 23%;
+}
+
+#panel-modifications-graph .div {
+  border-radius: 6px;
 }
 
 #panel-dashboard {

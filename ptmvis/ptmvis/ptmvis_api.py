@@ -10,6 +10,8 @@ from flask import request, session, render_template, send_file
 from flask_session import Session
 from dotenv import load_dotenv
 from io import StringIO
+from itertools import combinations
+from math import ceil
 import json, zlib, os, requests
 
 """ Load variables from local file system. """
@@ -119,6 +121,132 @@ def get_available_proteins():
             }
             protein_entries.append(protein_entry)
     return protein_entries
+
+
+@app.route("/get_modifications_graph", methods=["GET"])
+def get_modifications_graph():
+    """Route to retrieve an ECharts graph definition representing all modifications of a dataset."""
+    nodes = {}
+    links = {}
+    modification_occurrence = {}
+    if MODIFICATIONS_DATA in session:
+        # Construct full modifications graph; Nodes represent modificiations, Links represent common occurrence.
+        protein_identifiers = [_ for _ in session[MODIFICATIONS_DATA]["proteins"]]
+        for protein_identifier in protein_identifiers:
+            position_modification_data = session[MODIFICATIONS_DATA]["proteins"][
+                protein_identifier
+            ]["positions"]
+            for position in position_modification_data:
+                per_position_modifications = []
+                for modification in position_modification_data[position][
+                    "modifications"
+                ]:
+                    modification_name = modification["modification_unimod_name"]
+                    per_position_modifications.append(modification_name)
+                    if not modification_name in nodes:
+                        nodes[modification_name] = {
+                            "name": modification_name,
+                            "value": 1,
+                        }
+                    else:
+                        nodes[modification_name]["value"] += 1
+                    if not modification_name in modification_occurrence:
+                        modification_occurrence[modification_name] = {
+                            protein_identifier
+                        }
+                    else:
+                        modification_occurrence[modification_name].add(
+                            protein_identifier
+                        )
+                for pair in combinations(set(per_position_modifications), 2):
+                    try:
+                        link_key = frozenset([pair[0], pair[1]])
+                        if not link_key in links:
+                            links[link_key] = {
+                                "source": list(link_key)[0],
+                                "target": list(link_key)[1],
+                                "value": 1,
+                            }
+                        else:
+                            links[link_key]["value"] += 1
+                    except IndexError as e:
+                        print(pair)
+        # Filter modifications graph for top x% and adjust layout settings.
+        # (i) Adjust nodes.
+        cap = 0.9
+        nodes_values = sorted([node["value"] for node in nodes.values()])
+        cap_value = nodes_values[ceil(len(nodes_values) * cap) - 1]
+        nodes = {k: v for k, v in nodes.items() if v["value"] >= cap_value}
+        nodes_values = sorted([node["value"] for node in nodes.values()])
+        nodes_values_min = min(nodes_values)
+        nodes_values_max = max(nodes_values)
+        for k, v in nodes.items():
+            v["symbolSize"] = max(
+                2,
+                ceil(
+                    (
+                        (v["value"] - nodes_values_min)
+                        / (nodes_values_max - nodes_values_min)
+                    )
+                    * 20
+                ),
+            )
+            v["frequency"] = (
+                round(len(modification_occurrence[k]) / len(protein_identifiers), 3)
+                * 100
+            )
+        # (ii) Adjust links.
+        links = [
+            l for l in links.values() if (l["source"] in nodes and l["target"] in nodes)
+        ]
+        links_values = sorted([link["value"] for link in links])
+        links_values_min = min(links_values)
+        links_values_max = max(links_values)
+        for link in links:
+            link["lineStyle"] = {
+                "width": max(
+                    0.1,
+                    (
+                        (link["value"] - links_values_min)
+                        / (links_values_max - links_values_min)
+                    )
+                    * 2,
+                )
+            }
+        # Construct EChart option.
+        option = {
+            "backgroundColor": "#fbfbfb",
+            "animation": False,
+            "tooltip": {"position": [5, 5]},
+            "series": [
+                {
+                    "name": "Modifications Graph",
+                    "force": {
+                        "repulsion": 128,
+                        "edgeLength": 64,
+                        "friction": 0.32,
+                        "layoutAnimation": False,
+                    },
+                    "emphasis": {
+                        "focus": "adjacency",
+                        "label": {"show": False},
+                        "itemStyle": {"shadowColor": "#dc5754", "shadowBlur": 10},
+                    },
+                    "label": {
+                        "show": False,
+                    },
+                    "edgeLabel": {"show": False},
+                    "type": "graph",
+                    "layout": "force",
+                    "data": list(nodes.values()),
+                    "links": links,
+                    "roam": True,
+                    "lineStyle": {"color": "#333333", "curveness": 0.2},
+                    "itemStyle": {},
+                }
+            ],
+        }
+    return option
 
 
 @app.route("/get_protein_data", methods=["POST"])
