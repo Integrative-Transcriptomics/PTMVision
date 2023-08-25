@@ -182,7 +182,7 @@ def get_modifications_graph():
         nodes_values_max = max(nodes_values)
         for k, v in nodes.items():
             v["symbolSize"] = max(
-                2,
+                4,
                 ceil(
                     (
                         (v["value"] - nodes_values_min)
@@ -191,7 +191,8 @@ def get_modifications_graph():
                     * 20
                 ),
             )
-            v["frequency"] = (
+            v["count"] = v["value"]
+            v["value"] = (
                 round(len(modification_occurrence[k]) / len(protein_identifiers), 3)
                 * 100
             )
@@ -205,7 +206,7 @@ def get_modifications_graph():
         for link in links:
             link["lineStyle"] = {
                 "width": max(
-                    0.1,
+                    0.2,
                     (
                         (link["value"] - links_values_min)
                         / (links_values_max - links_values_min)
@@ -218,6 +219,16 @@ def get_modifications_graph():
             "backgroundColor": "#fbfbfb",
             "animation": False,
             "tooltip": {"position": [5, 5]},
+            "visualMap": {
+                "bottom": "bottom",
+                "left": "center",
+                "min": 0,
+                "max": 100,
+                "color": ["rgb(255,60,0)", "rgb(0,190,210)"],
+                "orient": "horizontal",
+                "precision": 1,
+                "text": ["", "Frequency in Proteins"],
+            },
             "series": [
                 {
                     "name": "Modifications Graph",

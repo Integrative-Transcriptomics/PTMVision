@@ -7,14 +7,6 @@ _DASHBOARD = null;
 _MODIFICATIONS_GRAPH_SIZE_OBSERVER = null;
 _MODIFICATIONS_GRAPH = null;
 
-window.addEventListener("keyup", (event) => {
-  if (event.key == "ArrowDown") {
-    stepNext();
-  } else if (event.key == "ArrowUp") {
-    stepBack();
-  }
-});
-
 /**
  * Inizializes all client side elements of the PTMVision application.
  */
@@ -22,16 +14,16 @@ function init() {
   _URL = API_PARAMETERS["URL"];
   $("#menu")[0].style.display = "flex";
   $("#panel")[0].style.display = "block";
-  _PROTEINS_OVERVIEW_TABLE = new Tabulator("#panel-table-tabulator", {
-    height: "87%",
-    maxHeight: "87%",
+  _PROTEINS_OVERVIEW_TABLE = new Tabulator("#panel-overview-table-tabulator", {
+    height: "73%",
+    maxHeight: "73%",
     selectable: 1,
     columns: [
       {
         title: "Identifier",
         field: "id",
         sorter: "string",
-        width: "25%",
+        width: "24%",
       },
       {
         title: "Gene Name",
@@ -71,7 +63,7 @@ function init() {
     });
   });
   _DASHBOARD_SIZE_OBSERVER.observe($("#panel-dashboard")[0]);
-  _MODIFICATIONS_GRAPH = echarts.init($("#panel-modifications-graph")[0], {
+  _MODIFICATIONS_GRAPH = echarts.init($("#panel-overview-graph-chart")[0], {
     devicePixelRatio: 2,
     renderer: "canvas",
     width: "auto",
@@ -84,18 +76,34 @@ function init() {
     });
   });
   _MODIFICATIONS_GRAPH_SIZE_OBSERVER.observe(
-    $("#panel-modifications-graph")[0]
+    $("#panel-overview-graph-chart")[0]
   );
 }
 
-function _set_table_filter(_, _, values) {
+function _set_table_filters(_) {
+  const id_values = Metro.getPlugin(
+    "#panel-overview-table-filter-id",
+    "select"
+  ).val();
+  const mod_values = Metro.getPlugin(
+    "#panel-overview-table-filter-modification",
+    "select"
+  ).val();
   _PROTEINS_OVERVIEW_TABLE.clearFilter(true);
   const filters = [];
-  for (let v of values) {
+  for (let mod_value of mod_values) {
     filters.push({
       field: "modifications",
       type: "like",
-      value: v,
+      value: mod_value,
+    });
+  }
+  for (let id_value of id_values) {
+    let id_value_fields = id_value.split("$");
+    filters.push({
+      field: id_value_fields[0] == "id" ? "id" : "name",
+      type: "like",
+      value: id_value_fields[1],
     });
   }
   _PROTEINS_OVERVIEW_TABLE.setFilter(filters);
@@ -359,18 +367,45 @@ async function uploadData() {
         null,
         5000
       );
-
+      // Init. table.
       axios.get(_URL + "/get_available_proteins").then((response) => {
         _PROTEINS_OVERVIEW_TABLE.setData(response.data);
         modifications = new Set();
+        identifiers = new Set();
         for (let entry of response.data) {
           entry.modifications.split("$").forEach((m) => modifications.add(m));
+          identifiers.add(entry.id + "$" + entry.name);
         }
-        Metro.getPlugin("#panel-table-filter", "taginput").setAutocompleteList([
-          ...modifications,
-        ]);
+        modifications = [...modifications];
+        modifications_data_string = "";
+        modifications.forEach((m) => {
+          modifications_data_string +=
+            `<option value="` + m + `">` + m + `</option>`;
+        });
+        Metro.getPlugin(
+          "#panel-overview-table-filter-modification",
+          "select"
+        ).data(modifications_data_string);
+        identifiers = [...identifiers];
+        identifiers_data_string = "";
+        identifiers.forEach((i) => {
+          let entry = i.split("$");
+          identifiers_data_string +=
+            `<option value="id$` +
+            entry[0] +
+            `">` +
+            entry[0] +
+            `</option><option value="name$` +
+            entry[1] +
+            `">` +
+            entry[1] +
+            `</option>`;
+        });
+        Metro.getPlugin("#panel-overview-table-filter-id", "select").data(
+          identifiers_data_string
+        );
       });
-
+      // Init. graph.
       axios.get(_URL + "/get_modifications_graph").then((response) => {
         const opt = response.data;
         opt["tooltip"]["formatter"] = (params, ticket, callback) => {
@@ -393,20 +428,20 @@ async function uploadData() {
               `</u>
             <br>
             No. occurrences: ` +
-              params.data.value +
+              params.data.count +
               `<br>Frequency: ` +
-              params.data.frequency +
+              params.data.value +
               `%`
             );
           }
         };
         opt["series"][0]["itemStyle"]["color"] = (params) => {
-          let R = 100; // to 220
-          let G = 170; // to 90
-          let B = 170; // to 80
-          let Rs = 1.2;
-          let Gs = 0.8;
-          let Bs = 0.9;
+          let R = 0; // to 255
+          let G = 190; // to 60
+          let B = 210; // to 0
+          let Rs = 2.55;
+          let Gs = 1.3;
+          let Bs = 2.1;
           let frequency = params.data.frequency;
           return (
             "rgb(" +

@@ -231,31 +231,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <button class="proceed-button" onclick="uploadData()">Submit</button>
         </div>
 
-        <div id="panel-table" class="panel-container">
+        <div id="panel-overview-table" class="panel-container">
           <div class="grid">
             <div class="row">
-              <div class="cell-3">
+              <div class="cell-11">
                 <h6 class="secondary">
                   <i class="fa-duotone fa-circle-2"></i> Select Protein to
                   Explore
                 </h6>
-              </div>
-              <div class="cell-2">
-                <h7 class="secondary float-right"
-                  >Filter Modifications:&nbsp;</h7
-                >
-              </div>
-              <div class="cell-6">
-                <input
-                  id="panel-table-filter"
-                  type="text"
-                  class="input-small"
-                  data-role="taginput"
-                  data-autocomplete=""
-                  data-clear-button="false"
-                  data-on-tag="_set_table_filter"
-                  data-max-tags="6"
-                />
               </div>
               <div class="cell-1">
                 <button
@@ -267,11 +250,60 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 </button>
               </div>
             </div>
+            <div class="row">
+              <div class="cell-2">
+                <h7 class="secondary float-left"
+                  >Filter Modifications:&nbsp;</h7
+                >
+              </div>
+              <div class="cell-10">
+                <select
+                  id="panel-overview-table-filter-modification"
+                  class="input-small"
+                  data-role="select"
+                  data-on-change="_set_table_filters"
+                  multiple
+                ></select>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="cell-2">
+                <h7 class="secondary float-left">Filter Id./Name:&nbsp;</h7>
+              </div>
+              <div class="cell-10">
+                <select
+                  id="panel-overview-table-filter-id"
+                  class="input-small"
+                  data-role="select"
+                  data-on-change="_set_table_filters"
+                  multiple
+                ></select>
+              </div>
+            </div>
           </div>
-          <div id="panel-table-tabulator"></div>
+          <div id="panel-overview-table-tabulator"></div>
         </div>
 
-        <div id="panel-modifications-graph" class="panel-container"></div>
+        <div id="panel-overview-graph" class="panel-container">
+          <i
+            class="fa-duotone fa-circle-info"
+            data-role="hint"
+            data-hint-position="left"
+            data-hint-text="
+            <p class='text-just'>
+            <text-just>
+            <b>Modifications Overview Graph</b>
+            <br>
+            &#8226; Displays top 10% of modifications wrt. absolute occurrence in the dataset.
+            <br>
+            &#8226; Nodes represent modifications; Size encodes absolute occurrence; Color encodes frequency wrt. proteins.
+            <br>
+            &#8226; Edges link modifications that co-occurr at positions; Width encodes absolute co-occurrence.
+            </p>
+            "
+          ></i>
+          <div id="panel-overview-graph-chart"></div>
+        </div>
 
         <div id="panel-dashboard" class="panel-container"></div>
 

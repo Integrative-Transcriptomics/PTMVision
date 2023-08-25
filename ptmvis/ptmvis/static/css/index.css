@@ -218,7 +218,7 @@ body .error-toast {
   color: var(--color-2);
 }
 
-#panel-table {
+#panel-overview-table {
   position: absolute;
   top: 22%;
   left: 26%;
@@ -226,12 +226,12 @@ body .error-toast {
   height: 23%;
 }
 
-#panel-info-table i {
+#panel-overview-table i {
   font-size: large;
   color: var(--color-2);
 }
 
-#panel-table-tabulator {
+#panel-overview-table-tabulator {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -251,7 +251,7 @@ body .error-toast {
   border-radius: 4px;
 }
 
-#panel-modifications-graph {
+#panel-overview-graph {
   position: absolute;
   background-color: var(--background-color-1);
   padding: 0 !important;
@@ -261,7 +261,28 @@ body .error-toast {
   height: 23%;
 }
 
-#panel-modifications-graph .div {
+#panel-overview-graph i {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  font-size: large;
+  color: var(--color-2);
+}
+
+#panel-overview-graph-chart {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#panel-overview-graph-chart div {
+  border-radius: 6px;
+}
+
+#panel-overview-graph-chart canvas {
   border-radius: 6px;
 }
 
