@@ -9,7 +9,7 @@ chemical-composition==1.0.6
 click @ file:///opt/concourse/worker/volumes/live/2d66025a-4d79-47c4-43be-6220928b6c82/volume/click_1646056610594/work
 exceptiongroup==1.1.1
 Flask @ file:///opt/conda/conda-bld/flask_1648041541647/work
-Flask-Session==0.4.0
+Flask-Session==0.5.0
 idna==3.4
 iniconfig==2.0.0
 itsdangerous @ file:///tmp/build/80754af9/itsdangerous_1621432558163/work
