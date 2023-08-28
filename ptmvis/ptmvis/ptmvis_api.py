@@ -86,19 +86,16 @@ def get_available_proteins():
     protein_entries = []
     if MODIFICATIONS_DATA in session:
         protein_identifiers = [_ for _ in session[MODIFICATIONS_DATA]["proteins"]]
-        # Try to map UniProt identifiers to gene names.
-        gene_name_mapping_response = _map_uniprot_identifiers(
-            protein_identifiers, "Gene_Name"
-        )
-        gene_name_mapping = {}
-        # Collect mapping results into dictionary.
-        for entry in gene_name_mapping_response["results"]:
-            gene_name_mapping[entry["from"]] = entry["to"]
-        if "failedIds" in gene_name_mapping_response:
-            for failed_identifier in gene_name_mapping_response["failedIds"]:
-                gene_name_mapping[failed_identifier] = "N/A"
+        with open(
+            "./ptmvis/static/resources/uniprot_id_mapping.json", "r"
+        ) as protein_name_mapping_in:
+            protein_name_mapping = json.load(protein_name_mapping_in)
         # Construct entry per protein in input data.
         for protein_identifier in protein_identifiers:
+            if protein_identifier in protein_name_mapping:
+                protein_name = protein_name_mapping[protein_identifier]
+            else:
+                protein_name = "N/A"
             position_modification_data = session[MODIFICATIONS_DATA]["proteins"][
                 protein_identifier
             ]["positions"]
@@ -114,7 +111,7 @@ def get_available_proteins():
             modifications = list(set(modifications))
             protein_entry = {
                 "id": protein_identifier,
-                "name": gene_name_mapping[protein_identifier],
+                "name": protein_name,
                 "modified_positions": len(modified_positions),
                 "unique_modifications": len(modifications),
                 "modifications": "$".join(modifications),
@@ -192,9 +189,8 @@ def get_modifications_graph():
                 ),
             )
             v["count"] = v["value"]
-            v["value"] = (
-                round(len(modification_occurrence[k]) / len(protein_identifiers), 3)
-                * 100
+            v["value"] = round(
+                (len(modification_occurrence[k]) / len(protein_identifiers)) * 100
             )
         # (ii) Adjust links.
         links = [
@@ -206,7 +202,7 @@ def get_modifications_graph():
         for link in links:
             link["lineStyle"] = {
                 "width": max(
-                    0.2,
+                    0.05,
                     (
                         (link["value"] - links_values_min)
                         / (links_values_max - links_values_min)
@@ -218,7 +214,7 @@ def get_modifications_graph():
         option = {
             "backgroundColor": "#fbfbfb",
             "animation": False,
-            "tooltip": {"position": [5, 5]},
+            "tooltip": {"position": [5, 45]},
             "visualMap": {
                 "bottom": "bottom",
                 "left": "center",

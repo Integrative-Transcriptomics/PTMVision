@@ -26,7 +26,7 @@ function init() {
         width: "24%",
       },
       {
-        title: "Gene Name",
+        title: "Protein Name",
         field: "name",
         sorter: "string",
         width: "25%",
@@ -427,9 +427,9 @@ async function uploadData() {
               params.data.name +
               `</u>
             <br>
-            No. occurrences: ` +
+            No. total occurrences: ` +
               params.data.count +
-              `<br>Frequency: ` +
+              `<br>Frequency wrt. proteins: ` +
               params.data.value +
               `%`
             );
