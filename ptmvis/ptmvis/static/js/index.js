@@ -50,6 +50,16 @@ function init() {
       },
     ],
   });
+  _PROTEINS_OVERVIEW_TABLE.on(
+    "rowSelectionChanged",
+    function (data, rows, selected, deselected) {
+      if (data.length > 0) {
+        $("#dashboard-display-button")[0].disabled = false;
+      } else {
+        $("#dashboard-display-button")[0].disabled = true;
+      }
+    }
+  );
   _DASHBOARD = echarts.init($("#panel-dashboard")[0], {
     devicePixelRatio: 2,
     renderer: "canvas",
@@ -176,7 +186,246 @@ function redirectSource() {
 function redirectHelp() {
   Swal.fire({
     title: "Legal Notice",
-    html: `
+    html: _redirect_help_html,
+    width: "100%",
+    position: "bottom",
+    showCloseButton: true,
+    showCancelButton: false,
+    showConfirmButton: false,
+    grow: true,
+    heightAuto: true,
+    color: "#333333",
+    background: "#fafafcd9",
+    backdrop: `
+      rgba(239, 240, 248, 0.1)
+      left top
+      no-repeat
+    `,
+  });
+}
+
+/**
+ * Animates the progress indicator icon and displays a custom message.
+ *
+ * @param {String} hint Progress message to display.
+ */
+function toggleProgress(hint) {
+  $("#process-indicator").first().toggleClass("fa-flip");
+  if (hint) {
+    $("#process-indicator").first().attr({ "data-hint-text": hint });
+  } else {
+    $("#process-indicator")
+      .first()
+      .attr({ "data-hint-text": "No Process Running" });
+  }
+}
+
+/**
+ * Sends the specified search enginge output data to the PTMVision backend and loads the results in the overview table.
+ */
+async function uploadData() {
+  toggleProgress("Uploading Data");
+  request = {
+    contentType: null,
+    content: null,
+  };
+  if ($("#data-input-form")[0].files.length == 0) {
+    handleError("No search engine output data was supplied.");
+    toggleProgress();
+    return;
+  }
+  await readFile($("#data-input-form")[0].files[0]).then((response) => {
+    request.content = response;
+  });
+  request.contentType = $("#data-type-form")[0].value;
+  axios
+    .post(
+      _URL + "/process_search_engine_output",
+      pako.deflate(JSON.stringify(request)),
+      {
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Content-Encoding": "zlib",
+        },
+      }
+    )
+    .then((_) => {
+      Metro.toast.create(
+        "Your data has been uploaded successfully.",
+        null,
+        5000
+      );
+      // Init. table.
+      axios.get(_URL + "/get_available_proteins").then((response) => {
+        _PROTEINS_OVERVIEW_TABLE.setData(response.data);
+        modifications = new Set();
+        identifiers = new Set();
+        for (let entry of response.data) {
+          entry.modifications.split("$").forEach((m) => modifications.add(m));
+          identifiers.add(entry.id + "$" + entry.name);
+        }
+        modifications = [...modifications];
+        modifications_data_string = "";
+        modifications.forEach((m) => {
+          modifications_data_string +=
+            `<option value="` + m + `">` + m + `</option>`;
+        });
+        Metro.getPlugin(
+          "#panel-overview-table-filter-modification",
+          "select"
+        ).data(modifications_data_string);
+        identifiers = [...identifiers];
+        identifiers_data_string = "";
+        identifiers.forEach((i) => {
+          let entry = i.split("$");
+          identifiers_data_string +=
+            `<option value="id$` +
+            entry[0] +
+            `">` +
+            entry[0] +
+            `</option><option value="name$` +
+            entry[1] +
+            `">` +
+            entry[1] +
+            `</option>`;
+        });
+        Metro.getPlugin("#panel-overview-table-filter-id", "select").data(
+          identifiers_data_string
+        );
+      });
+      // Init. graph.
+      axios.get(_URL + "/get_modifications_graph").then((response) => {
+        const opt = response.data;
+        opt["tooltip"]["formatter"] = (params, ticket, callback) => {
+          if (params.dataType == "edge") {
+            return (
+              `<u>` +
+              params.data.source +
+              `</u><b> and </b>` +
+              `<u>` +
+              params.data.target +
+              `</u>
+            <br>
+            No. common occurrences: ` +
+              params.data.value
+            );
+          } else if (params.dataType == "node") {
+            return (
+              `<b>Modification</b> <u>` +
+              params.data.name +
+              `</u>
+            <br>
+            No. total occurrences: ` +
+              params.data.count +
+              `<br>Frequency wrt. proteins: ` +
+              params.data.value +
+              `%`
+            );
+          }
+        };
+        opt["series"][0]["itemStyle"]["color"] = (params) => {
+          let R = 0; // to 255
+          let G = 190; // to 60
+          let B = 210; // to 0
+          let Rs = 2.55;
+          let Gs = 1.3;
+          let Bs = 2.1;
+          let frequency = params.data.frequency;
+          return (
+            "rgb(" +
+            (R + Rs * frequency) +
+            "," +
+            (G - Gs * frequency) +
+            "," +
+            (B - Bs * frequency) +
+            ")"
+          );
+        };
+        _MODIFICATIONS_GRAPH.setOption(opt);
+      });
+    })
+    .catch((error) => {
+      handleError(error.message);
+    })
+    .finally((_) => {
+      toggleProgress();
+    });
+}
+
+function getDashboard(cutoff_value, pdb_text_value) {
+  if (cutoff_value == null) {
+    cutoff_value = 4.69;
+  }
+  if (pdb_text_value == null) {
+    pdb_text_value = null;
+  }
+  toggleProgress("Initialize Dashboard");
+  request = {
+    uniprot_id: _PROTEINS_OVERVIEW_TABLE.getSelectedData()[0].id,
+    pdb_text: pdb_text_value,
+    cutoff: cutoff_value,
+  };
+
+  console.log(request);
+
+  axios
+    .post(_URL + "/get_dashboard", pako.deflate(JSON.stringify(request)), {
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "Content-Encoding": "zlib",
+      },
+    })
+    .then((response) => {
+      console.log(response);
+      // FIXME: Bad style.
+      if (
+        response.data.status == "Failed: Alphafold structure not available."
+      ) {
+        _requestPdb();
+      }
+    })
+    .catch((error) => {
+      handleError(error.message);
+    })
+    .finally((_) => {
+      toggleProgress();
+    });
+}
+
+function _requestPdb() {
+  Swal.fire({
+    title: "Failed to fetch Protein Structure!",
+    html: _upload_pdb_html,
+    width: "1000%",
+    position: "bottom",
+    showCloseButton: false,
+    showCancelButton: true,
+    cancelButtonColor: "#dc5754",
+    showConfirmButton: true,
+    confirmButtonColor: "#62a8ac",
+    confirmButtonText: "Continue",
+    grow: true,
+    heightAuto: true,
+    color: "#333333",
+    background: "#fafafcd9",
+    backdrop: `
+      rgba(239, 240, 248, 0.1)
+      left top
+      no-repeat
+    `,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      getDashboard(null, readFile($("#optional-pdb-input")[0].files[0]));
+    }
+  });
+}
+
+var _upload_pdb_html = `
+    <p>You can provide a structure in .pdb format to continue.</p>
+    <br>
+    <input id="optional-pdb-input" type="file" data-role="file" data-mode="drop">`;
+
+var _redirect_help_html = `
     <div>
       <div class="remark m-4">
         <h2 class="p-2 text-center">
@@ -298,339 +547,4 @@ function redirectHelp() {
           >
         </address>
       </div>
-    </div>`,
-    width: "100%",
-    position: "bottom",
-    showCloseButton: true,
-    showCancelButton: false,
-    showConfirmButton: false,
-    grow: true,
-    heightAuto: true,
-    color: "#333333",
-    background: "#fafafcd9",
-    backdrop: `
-      rgba(239, 240, 248, 0.1)
-      left top
-      no-repeat
-    `,
-  });
-}
-
-/**
- * Animates the progress indicator icon and displays a custom message.
- *
- * @param {String} hint Progress message to display.
- */
-function toggleProgress(hint) {
-  $("#process-indicator").first().toggleClass("fa-flip");
-  if (hint) {
-    $("#process-indicator").first().attr({ "data-hint-text": hint });
-  } else {
-    $("#process-indicator")
-      .first()
-      .attr({ "data-hint-text": "No Process Running" });
-  }
-}
-
-/**
- * Sends the specified search enginge output data to the PTMVision backend and loads the results in the overview table.
- */
-async function uploadData() {
-  toggleProgress("Uploading Data");
-  request = {
-    contentType: null,
-    content: null,
-  };
-  if ($("#data-input-form")[0].files.length == 0) {
-    handleError("No search engine output data was supplied.");
-    toggleProgress(null);
-    return;
-  }
-  await readFile($("#data-input-form")[0].files[0]).then((response) => {
-    request.content = response;
-  });
-  request.contentType = $("#data-type-form")[0].value;
-  axios
-    .post(
-      _URL + "/process_search_engine_output",
-      pako.deflate(JSON.stringify(request)),
-      {
-        headers: {
-          "Content-Type": "application/octet-stream",
-          "Content-Encoding": "zlib",
-        },
-      }
-    )
-    .then((_) => {
-      Metro.toast.create(
-        "Your data has been uploaded successfully.",
-        null,
-        5000
-      );
-      // Init. table.
-      axios.get(_URL + "/get_available_proteins").then((response) => {
-        _PROTEINS_OVERVIEW_TABLE.setData(response.data);
-        modifications = new Set();
-        identifiers = new Set();
-        for (let entry of response.data) {
-          entry.modifications.split("$").forEach((m) => modifications.add(m));
-          identifiers.add(entry.id + "$" + entry.name);
-        }
-        modifications = [...modifications];
-        modifications_data_string = "";
-        modifications.forEach((m) => {
-          modifications_data_string +=
-            `<option value="` + m + `">` + m + `</option>`;
-        });
-        Metro.getPlugin(
-          "#panel-overview-table-filter-modification",
-          "select"
-        ).data(modifications_data_string);
-        identifiers = [...identifiers];
-        identifiers_data_string = "";
-        identifiers.forEach((i) => {
-          let entry = i.split("$");
-          identifiers_data_string +=
-            `<option value="id$` +
-            entry[0] +
-            `">` +
-            entry[0] +
-            `</option><option value="name$` +
-            entry[1] +
-            `">` +
-            entry[1] +
-            `</option>`;
-        });
-        Metro.getPlugin("#panel-overview-table-filter-id", "select").data(
-          identifiers_data_string
-        );
-      });
-      // Init. graph.
-      axios.get(_URL + "/get_modifications_graph").then((response) => {
-        const opt = response.data;
-        opt["tooltip"]["formatter"] = (params, ticket, callback) => {
-          if (params.dataType == "edge") {
-            return (
-              `<u>` +
-              params.data.source +
-              `</u><b> and </b>` +
-              `<u>` +
-              params.data.target +
-              `</u>
-            <br>
-            No. common occurrences: ` +
-              params.data.value
-            );
-          } else if (params.dataType == "node") {
-            return (
-              `<b>Modification</b> <u>` +
-              params.data.name +
-              `</u>
-            <br>
-            No. total occurrences: ` +
-              params.data.count +
-              `<br>Frequency wrt. proteins: ` +
-              params.data.value +
-              `%`
-            );
-          }
-        };
-        opt["series"][0]["itemStyle"]["color"] = (params) => {
-          let R = 0; // to 255
-          let G = 190; // to 60
-          let B = 210; // to 0
-          let Rs = 2.55;
-          let Gs = 1.3;
-          let Bs = 2.1;
-          let frequency = params.data.frequency;
-          return (
-            "rgb(" +
-            (R + Rs * frequency) +
-            "," +
-            (G - Gs * frequency) +
-            "," +
-            (B - Bs * frequency) +
-            ")"
-          );
-        };
-        _MODIFICATIONS_GRAPH.setOption(opt);
-      });
-    })
-    .catch((error) => {
-      handleError(error.message);
-    })
-    .finally((_) => {
-      toggleProgress(null);
-    });
-}
-
-function init_Dashboard() {
-  toggleProgress("Initialize _Dashboard");
-  if (STATE__PROTEINS_OVERVIEW_DATA_CHANGED) {
-    axios.get(_URL + "/get__proteins_OVERVIEW_DATA").then((response) => {
-      let options = {};
-      for (const [k, v] of Object.entries(response.data["proteins"])) {
-        options[k] = "(" + String(v) + ") " + k;
-      }
-      Metro.getPlugin("#main-panel-2-protein-select", "select").data(options);
-    });
-  }
-  toggleProgress();
-}
-
-async function process_DashboardRequest() {
-  toggleProgress("Preparing _Dashboard");
-  request = {
-    uniprot_id: Metro.getPlugin("#main-panel-2-protein-select", "select").val(),
-    opt_pdb_text: null,
-    distance_cutoff: $("#main-panel-2-distance-cutoff")[0].value,
-    /*contact_attr: Metro.getPlugin(
-      "#main-panel-2-contact-attribute",
-      "select"
-    ).val(),
-    annotation_obj: null,*/
-  };
-  axios
-    .post(_URL + "/get_protein_data", pako.deflate(JSON.stringify(request)), {
-      headers: {
-        "Content-Type": "application/octet-stream",
-        "Content-Encoding": "zlib",
-      },
-    })
-    .then((response) => {
-      if (response.data.status.startsWith("Failed")) {
-        Swal.fire({
-          title: "Unable to match UniProt ID " + request.uniprot_id,
-          icon: "question",
-          iconHtml:
-            '<i class="fa-solid fa-circle-exclamation fa-shake fa-xl" style="color: #ff6663;"></i>',
-          html: upload_pdb_html,
-          width: "100vw",
-          padding: "0.5em",
-          position: "bottom",
-          showCancelButton: true,
-          grow: true,
-          heightAuto: true,
-          cancelButtonColor: "#d4d4d4",
-          cancelButtonText: "Cancel",
-          confirmButtonColor: "#dc5754",
-          confirmButtonText: "Ok",
-          color: "#333333",
-          background: "#f0f5f5",
-          backdrop: `
-            rgba(161, 210, 206, 0.2)
-            left top
-            no-repeat
-          `,
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            await readFile($("#optional-pdb-input")[0].files[0])
-              .then((response) => {
-                request.opt_pdb_text = response;
-                axios
-                  .post(
-                    _URL + "/get_protein_data",
-                    pako.deflate(JSON.stringify(request)),
-                    {
-                      headers: {
-                        "Content-Type": "application/octet-stream",
-                        "Content-Encoding": "zlib",
-                      },
-                    }
-                  )
-                  .then((response) => {
-                    if (response.data.status == "Ok") {
-                      update_DashboardInformation(response.data);
-                    } else {
-                      throw Error(
-                        "Failed to parse provided .pdb structure: " +
-                          response.data.status
-                      );
-                    }
-                  })
-                  .catch((error) => {
-                    handleError(error.message);
-                  });
-              })
-              .catch((error) => {
-                handleError(error.message);
-              });
-          } else {
-            return;
-          }
-        });
-      } else if (response.data.status == "Ok") {
-        update_DashboardInformation(response.data);
-      }
-    })
-    .catch((error) => {
-      handleError(error.message);
-    })
-    .finally((_) => {
-      toggleProgress(null);
-      return;
-    });
-}
-
-var upload_pdb_html = `
-    <p>You can provide a structure in .pdb format to continue.</p>
-    <br>
-    <input id="optional-pdb-input" type="file" data-role="file" data-mode="drop">`;
-
-function update_DashboardInformation(data) {
-  toggleProgress("Update _Dashboard");
-  Papa.parse(data.ptms, {
-    skipEmptyLines: "greedy",
-    complete: (results) => {
-      headers = results.data[0];
-      parsed_entries = results.data.slice(1);
-      per_position_ptms = {};
-      for (const entry of parsed_entries) {
-        let position = entry[2];
-        let ptm = entry[3];
-        let ptm_acc = entry[4];
-        let ptm_classification = entry[5];
-        let ptm_annotation = entry[6];
-        if (position in per_position_ptms) {
-          per_position_ptms[position].add(
-            ptm +
-              "$" +
-              ptm_acc +
-              "$" +
-              ptm_classification +
-              "$" +
-              ptm_annotation
-          );
-        } else {
-          per_position_ptms[position] = new Set([
-            ptm +
-              "$" +
-              ptm_acc +
-              "$" +
-              ptm_classification +
-              "$" +
-              ptm_annotation,
-          ]); // Store in Set to remove duplicates.
-        }
-      }
-      for (const [k, v] of Object.entries(per_position_ptms)) {
-        per_position_ptms[k] = Array.from(v);
-      }
-      DATA_PER_POSITION_PTMS = per_position_ptms;
-    },
-  });
-  DATA_CONTACTS = data.contacts;
-  DATA_SEQUENCE = data.sequence;
-  update_DashboardOption(
-    DATA_PER_POSITION_PTMS,
-    DATA_CONTACTS,
-    DATA_SEQUENCE,
-    _DASHBOARD
-  );
-  Metro.toast.create(
-    "_Dashboard information was updated successfully.",
-    null,
-    5000
-  );
-  toggleProgress();
-}
+    </div>`;

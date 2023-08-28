@@ -256,31 +256,33 @@ def get_modifications_graph():
     return option
 
 
-@app.route("/get_protein_data", methods=["POST"])
+@app.route("/get_dashboard", methods=["POST"])
 def get_protein_data():
-    """
-    TODO
-    """
     response = {"status": "Ok", "ptms": None, "contacts": None}
     try:
         json_request_data = request_to_json(request.data)
-        structure = None
-        if json_request_data["opt_pdb_text"] != None:
-            structure = utils.parse_structure(json_request_data["opt_pdb_text"])
+        # Try to fetch PDB format structure for UniProt identifier from AlphaFold database.
+        if json_request_data["pdb_text"] != None:
+            structure = utils.parse_structure(json_request_data["pdb_text"])
         else:
             structure = utils.get_structure(json_request_data["uniprot_id"])
         if structure != None:
-            df = session[MODIFICATIONS_DATA]
-            response["ptms"] = df[
-                df["uniprot_id"] == json_request_data["uniprot_id"]
-            ].to_csv()
-            response["contacts"] = utils.get_contacts(
-                utils.get_distance_matrix(structure),
-                int(json_request_data["distance_cutoff"]),
+            annotation = _map_uniprot_identifiers(
+                [json_request_data["uniprot_id"]], "UniProtKB"
             )
+            response["annotation"] = annotation
+            # TODO: Setup dashboard.
+            # response["ptms"] = df[
+            #    df["uniprot_id"] == json_request_data["uniprot_id"]
+            # ].to_csv()
+            # response["contacts"] = utils.get_contacts(
+            #    utils.get_distance_matrix(structure),
+            #    int(json_request_data["cutoff"]),
+            # )
             response["sequence"] = utils.get_sequence_from_structure(structure)
     except Exception as e:
         response["status"] = "Failed: " + str(e)
+        raise e
     finally:
         return response
 
