@@ -20,28 +20,28 @@ function init() {
     selectable: 1,
     columns: [
       {
-        title: "Identifier",
+        title: "ID",
         field: "id",
         sorter: "string",
-        width: "24%",
+        width: "14%",
       },
       {
-        title: "Protein Name",
+        title: "Name",
         field: "name",
         sorter: "string",
-        width: "25%",
+        width: "14%",
       },
       {
-        title: "No. Modified Positions",
+        title: "# Positions with Modifications",
         field: "modified_positions",
         sorter: "number",
-        width: "25%",
+        width: "35%",
       },
       {
-        title: "No. Unique Modifications",
+        title: "# Distinct Modifications",
         field: "unique_modifications",
         sorter: "number",
-        width: "25%",
+        width: "35%",
       },
       {
         title: "Modifications",
@@ -365,16 +365,17 @@ function getDashboard(cutoff_value, pdb_text_value) {
     pdb_text: pdb_text_value,
     cutoff: cutoff_value,
   };
-
-  console.log(request);
-
   axios
-    .post(_URL + "/get_dashboard", pako.deflate(JSON.stringify(request)), {
-      headers: {
-        "Content-Type": "application/octet-stream",
-        "Content-Encoding": "zlib",
-      },
-    })
+    .post(
+      _URL + "/get_extended_protein_data",
+      pako.deflate(JSON.stringify(request)),
+      {
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Content-Encoding": "zlib",
+        },
+      }
+    )
     .then((response) => {
       console.log(response);
       // FIXME: Bad style.
