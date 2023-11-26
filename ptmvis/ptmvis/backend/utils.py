@@ -38,17 +38,17 @@ def get_contacts(dist_matrix, threshold):
     return contacts
 
 
-def get_structure(unimod_id):
-    url = "https://alphafold.ebi.ac.uk/files/AF-{}-F1-model_v4.pdb".format(unimod_id)
+def get_structure(uniprot_id):
+    url = "https://alphafold.ebi.ac.uk/files/AF-{}-F1-model_v4.pdb".format(uniprot_id)
     structure = None
     try:
         response = urllib.request.urlopen(url)
         data = response.read()
-        text = data.decode("utf-8")
-        structure = pdbparser.get_structure(unimod_id, StringIO(text))
+        pdb_text = data.decode("utf-8")
+        structure = pdbparser.get_structure(uniprot_id, StringIO(pdb_text))
     except:
         raise Exception("Alphafold structure not available.")
-    return structure
+    return structure, pdb_text
 
 
 def parse_structure(structure_string):
@@ -61,7 +61,7 @@ def parse_structure(structure_string):
         except Exception as e:
             raise Exception("Failed to parse provided .pdb structure: " + str(e))
         else:
-            return structure
+            return structure, structure_string
 
 
 def get_fasta(uniprot_ids):
@@ -336,7 +336,7 @@ def read_file(file, flag):
 
 def parse_df_to_json_schema(dataframe):
     # Init. dictionary to store results in JSON schema.
-    protein_dict = {"proteins": {}, "meta_data": ()}
+    protein_dict = {"proteins": {}, "meta_data": {}}
     # Internal function to add entries.
     construct_modifications_entry = lambda row: {
         "modification_unimod_name": row["modification_unimod_name"],

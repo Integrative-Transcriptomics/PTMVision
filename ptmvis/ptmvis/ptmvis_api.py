@@ -229,9 +229,9 @@ def get_modifications_graph():
                 {
                     "name": "Modifications Graph",
                     "force": {
-                        "repulsion": 128,
-                        "edgeLength": 64,
-                        "friction": 0.32,
+                        "repulsion": 200,
+                        "edgeLength": 200,
+                        "friction": 0.8,
                         "layoutAnimation": False,
                     },
                     "emphasis": {
@@ -256,35 +256,39 @@ def get_modifications_graph():
     return option
 
 
-@app.route("/get_dashboard", methods=["POST"])
-def get_protein_data():
-    response = {"status": "Ok", "ptms": None, "contacts": None}
-    try:
-        json_request_data = request_to_json(request.data)
-        # Try to fetch PDB format structure for UniProt identifier from AlphaFold database.
-        if json_request_data["pdb_text"] != None:
-            structure = utils.parse_structure(json_request_data["pdb_text"])
-        else:
-            structure = utils.get_structure(json_request_data["uniprot_id"])
-        if structure != None:
-            annotation = _map_uniprot_identifiers(
-                [json_request_data["uniprot_id"]], "UniProtKB"
-            )
-            response["annotation"] = annotation
-            # TODO: Setup dashboard.
-            # response["ptms"] = df[
-            #    df["uniprot_id"] == json_request_data["uniprot_id"]
-            # ].to_csv()
-            # response["contacts"] = utils.get_contacts(
-            #    utils.get_distance_matrix(structure),
-            #    int(json_request_data["cutoff"]),
-            # )
-            response["sequence"] = utils.get_sequence_from_structure(structure)
-    except Exception as e:
-        response["status"] = "Failed: " + str(e)
-        raise e
-    finally:
-        return response
+@app.route("/get_extended_protein_data", methods=["POST"])
+def get_extended_protein_data():
+    response = {"status": "Ok"}
+    json_request_data = request_to_json(request.data)
+    # Try to fetch PDB format structure for UniProt identifier from AlphaFold database.
+    if json_request_data["pdb_text"] != None:
+        structure, pdb_text = utils.parse_structure(json_request_data["pdb_text"])
+    else:
+        structure, pdb_text = utils.get_structure(json_request_data["uniprot_id"])
+    if structure != None:
+        # Extract annotations for protein from UniProt.
+        annotation = _map_uniprot_identifiers(
+            [json_request_data["uniprot_id"]], "UniProtKB"
+        )
+        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["annotation"] = annotation[ "results" ][ 0 ][ "to" ]
+
+        # Compute contacts from structure and store them in session data.
+        session[MODIFICATIONS_DATA]["meta_data"]["distance_cutoff"] = int(json_request_data["cutoff"])
+        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ] = { }
+        contacts = utils.get_contacts(
+            utils.get_distance_matrix(structure),
+            int(json_request_data["cutoff"]),
+        )
+        for source_position, contacts_list in contacts.items( ) :
+            session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ][ source_position ] = contacts_list
+
+        # Extract protein sequence from structure and store it in session data.
+        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["sequence"] = utils.get_sequence_from_structure(structure)
+        
+        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "structure" ] = pdb_text
+
+        print( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ] )
+    return response
 
 
 def _map_uniprot_identifiers(identifiers, target_db):
