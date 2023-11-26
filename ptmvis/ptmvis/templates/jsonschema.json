@@ -13,18 +13,19 @@
           "type": "object",
           "properties": {
             "pdb_structure": {
-              "description": "The brotli encoded PDB string of a protein structure of this entry.",
+              "description": "brotli encoded PDB string of a protein structure of this entry.",
               "type": "string"
             },
             "positions": {
-              "description": "annotated positions",
+              "description": "Annotated positions, i.e., per position PTM data.",
+              "type": "object",
               "patternProperties": {
                 "^[0-9]+$": {
                   "description": "Each key represents one position with modifications of the stored protein entry.",
                   "type": "object",
                   "properties": {
                     "modifications": {
-                      "description": "modification at this position",
+                      "description": "Modification at this position",
                       "type": "array",
                       "items": {
                         "modification_unimod_name": {
@@ -52,6 +53,30 @@
                   }
                 }
               }
+            },
+            "sequence": {
+              "description": "Stores the three letter code aminoacid sequence of this protein.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "contacts": {
+              "description": "Maps protein positions to all positions in contact.",
+              "type": "object",
+              "patternProperties": {
+                "^[0-9]+$": {
+                  "description": "List of positions in contact with the position represented by key.",
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "annotation": {
+              "description": "UniProt annotations associated with this entry.",
+              "type": "object"
             }
           }
         }
