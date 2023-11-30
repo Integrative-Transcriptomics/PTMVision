@@ -330,6 +330,7 @@ def read_file(file, flag):
         df = read_mod_csv(file)
     elif flag == "sage":
         df = read_sage_csv(file)
+    df = df.fillna("null")
     return parse_df_to_json_schema(df)
 
 
@@ -341,7 +342,7 @@ def parse_df_to_json_schema(dataframe):
         "modification_unimod_name": row["modification_unimod_name"],
         "modification_classification": row["classification"]
         if "classification" in row
-        else "N/A",
+        else "null",
         "modification_unimod_id": row["modification_unimod_id"],
     }
     # For each row
@@ -355,7 +356,7 @@ def parse_df_to_json_schema(dataframe):
                             "modifications": [construct_modifications_entry(row)]
                         }
                     },
-                    "pdb_structure": "N/A",
+                    "pdb_structure": "null",
                 }
             }
             protein_dict["proteins"].update(entry)
@@ -390,11 +391,11 @@ def parse_user_input(user_file, user_flag):
 
 
 def _brotli_decompress(content: str) -> str:
-    return brotli.decompress( base64.b64decode( content ) ).decode( )
+    return brotli.decompress( base64.urlsafe_b64decode( content ) ).decode( )
 
 
 def _brotly_compress(content: str) -> str:
-    return base64.b64encode( brotli.compress( content.encode( ) ) ).decode( )
+    return base64.urlsafe_b64encode( brotli.compress( content.encode( ) ) ).decode( )
 
 if __name__ == "__main__":
     parse_user_input("example_data/example_data.csv", "csv")
