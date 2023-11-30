@@ -284,7 +284,7 @@ body .error-toast {
 #panel-dashboard {
   position: absolute;
   background-color: var(--background-color-1);
-  top: 47%;
+  top: 46%;
   width: 98%;
   height: 44%;
 }
@@ -293,7 +293,7 @@ body .error-toast {
   font-size: small;
   padding: 13px;
   position: absolute;
-  top: 93%;
+  top: 92%;
   bottom: 0;
   width: 100%;
   background-color: var(--color-3);
