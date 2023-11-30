@@ -230,23 +230,24 @@ def get_modifications_graph():
             "series": [
                 {
                     "name": "Modifications Graph",
-                    "force": {
-                        "repulsion": 200,
-                        "edgeLength": 200,
-                        "friction": 0.8,
-                        "layoutAnimation": False,
-                    },
                     "emphasis": {
                         "focus": "adjacency",
                         "label": {"show": False},
                         "itemStyle": {"shadowColor": "#dc5754", "shadowBlur": 10},
                     },
                     "label": {
-                        "show": False,
+                        "show": True,
+                        "position": "top",
+                        "color": "#333333",
+                        "fontWeight": "lighter",
+                        "fontSize": 12,
+                        "backgroundColor": "rgba(240, 245, 245, 0.6)",
+                        "borderRadius": 4
+
                     },
                     "edgeLabel": {"show": False},
                     "type": "graph",
-                    "layout": "force",
+                    "layout": "circular",
                     "data": list(nodes.values()),
                     "links": links,
                     "roam": True,
@@ -268,9 +269,6 @@ def get_protein_data():
     else:
         if "structure" in session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ] :
             pdb_text = utils._brotli_decompress( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["structure"] )
-            
-            print( pdb_text )
-
             structure = utils.parse_structure( pdb_text )
         else :
             structure, pdb_text = utils.get_structure(json_request_data["uniprot_id"])
@@ -297,11 +295,8 @@ def get_protein_data():
             for source_position, contacts_list in contacts.items( ) :
                 session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ][ source_position ] = contacts_list
 
-        with open('./ptmvis/session/dump.json', 'w+') as f:
-            json.dump( session[MODIFICATIONS_DATA], f, indent = 3 )
-
-        print( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ] )
-
+    with open('./ptmvis/session/dump.json', 'w+') as f:
+        json.dump( session[MODIFICATIONS_DATA], f, indent = 3 )
     return response
 
 

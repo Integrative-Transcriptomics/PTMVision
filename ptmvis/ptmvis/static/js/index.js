@@ -60,19 +60,6 @@ function init() {
       }
     }
   );
-  _DASHBOARD = echarts.init($("#panel-dashboard")[0], {
-    devicePixelRatio: 2,
-    renderer: "canvas",
-    width: "auto",
-    height: "auto",
-  });
-  _DASHBOARD_SIZE_OBSERVER = new ResizeObserver((entries) => {
-    _DASHBOARD.resize({
-      width: entries[0].width,
-      height: entries[0].height,
-    });
-  });
-  _DASHBOARD_SIZE_OBSERVER.observe($("#panel-dashboard")[0]);
   _MODIFICATIONS_GRAPH = echarts.init($("#panel-overview-graph-chart")[0], {
     devicePixelRatio: 2,
     renderer: "canvas",
@@ -88,6 +75,19 @@ function init() {
   _MODIFICATIONS_GRAPH_SIZE_OBSERVER.observe(
     $("#panel-overview-graph-chart")[0]
   );
+  /*_DASHBOARD = echarts.init($("#panel-dashboard")[0], {
+    devicePixelRatio: 2,
+    renderer: "canvas",
+    width: "auto",
+    height: "auto",
+  });
+  _DASHBOARD_SIZE_OBSERVER = new ResizeObserver((entries) => {
+    _DASHBOARD.resize({
+      width: entries[0].width,
+      height: entries[0].height,
+    });
+  });
+  _DASHBOARD_SIZE_OBSERVER.observe($("#panel-dashboard")[0]);*/
 }
 
 function _set_table_filters(_) {
