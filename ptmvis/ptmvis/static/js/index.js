@@ -1,11 +1,9 @@
 _URL = "http://127.0.0.1:5000/";
-_PROTEINS_OVERVIEW_DATA = null;
 _PROTEINS_OVERVIEW_TABLE = null;
-_PROTEIN_MODIFICATIONS_DATA = null;
-_DASHBOARD_SIZE_OBSERVER = null;
-_DASHBOARD = null;
-_MODIFICATIONS_GRAPH_SIZE_OBSERVER = null;
+// _DASHBOARD_SIZE_OBSERVER = null;
 _MODIFICATIONS_GRAPH = null;
+_MODIFICATIONS_GRAPH_SIZE_OBSERVER = null;
+_DASHBOARD_STRUCTURE_VIEW = null;
 
 /**
  * Inizializes all client side elements of the PTMVision application.
@@ -75,6 +73,12 @@ function init() {
   _MODIFICATIONS_GRAPH_SIZE_OBSERVER.observe(
     $("#panel-overview-graph-chart")[0]
   );
+  _DASHBOARD_STRUCTURE_VIEW = $3Dmol.createViewer($("#dashboard-structure"), {
+    backgroundColor: "#FAFAFC",
+    antialias: true,
+    cartoonQuality: 6,
+  });
+
   /*_DASHBOARD = echarts.init($("#panel-dashboard")[0], {
     devicePixelRatio: 2,
     renderer: "canvas",
@@ -299,27 +303,26 @@ async function uploadData() {
         opt["tooltip"]["formatter"] = (params, ticket, callback) => {
           if (params.dataType == "edge") {
             return (
-              `<u>` +
+              `<b><u>` +
               params.data.source +
-              `</u><b> and </b>` +
+              `</u> and ` +
               `<u>` +
               params.data.target +
-              `</u>
-            <br>
-            No. common occurrences: ` +
-              params.data.value
+              `</u></b>
+            <br>` +
+              params.data.value +
+              ` joint occurrences.`
             );
           } else if (params.dataType == "node") {
             return (
-              `<b>Modification</b> <u>` +
+              `<b>Modification <u>` +
               params.data.name +
-              `</u>
-            <br>
-            No. total occurrences: ` +
+              `</u></b>
+            <br>` +
               params.data.count +
-              `<br>Frequency wrt. proteins: ` +
+              ` occurrences. Occurs<br>in ` +
               params.data.value +
-              `%`
+              `% of proteins at least once.`
             );
           }
         };
@@ -374,11 +377,11 @@ function getDashboard(cutoff_value, pdb_text_value) {
     })
     .then((response) => {
       console.log(response);
-      // FIXME: Bad style.
-      if (
-        response.data.status == "Failed: Alphafold structure not available."
-      ) {
+      if (response.data.status == "Failed: No protein structure available.") {
         _requestPdb();
+      } else {
+        // Initialize single components.
+        _initializeStructureView(response.data.content.structure);
       }
     })
     .catch((error) => {
@@ -387,6 +390,29 @@ function getDashboard(cutoff_value, pdb_text_value) {
     .finally((_) => {
       toggleProgress();
     });
+}
+
+function _initializeStructureView(pdb_text) {
+  _DASHBOARD_STRUCTURE_VIEW.clear();
+  _DASHBOARD_STRUCTURE_VIEW.addModel(pdb_text, "pdb");
+  _DASHBOARD_STRUCTURE_VIEW.zoomTo();
+  _DASHBOARD_STRUCTURE_VIEW.addSurface(
+    "SAS",
+    {
+      color: "#a1d2ce",
+      opacity: 0.4,
+    },
+    {}
+  );
+  _DASHBOARD_STRUCTURE_VIEW.setStyle(
+    {},
+    {
+      line: {
+        color: "#62a8ac",
+      },
+    }
+  );
+  _DASHBOARD_STRUCTURE_VIEW.render();
 }
 
 function _requestPdb() {

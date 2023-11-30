@@ -6,13 +6,14 @@ from ptmvis.backend.uniprot_id_mapping import (
     get_id_mapping_results_link,
     get_id_mapping_results_search,
 )
-from flask import request, session, render_template, send_file
+from flask import request, session, send_file
 from flask_session import Session
 from dotenv import load_dotenv
 from io import StringIO
 from itertools import combinations
 from math import ceil
-import json, zlib, os, base64
+from copy import deepcopy
+import json, zlib, os
 
 """ Load variables from local file system. """
 load_dotenv()
@@ -261,7 +262,7 @@ def get_modifications_graph():
 
 @app.route("/get_protein_data", methods=["POST"])
 def get_protein_data():
-    response = {"status": "Ok"}
+    response = {"status": "ok", "content": None}
     json_request_data = request_to_json(request.data)
     # Try to fetch PDB format structure for UniProt identifier from AlphaFold database.
     if json_request_data["pdb_text"] != None:
@@ -281,6 +282,7 @@ def get_protein_data():
             annotation = _map_uniprot_identifiers(
                 [json_request_data["uniprot_id"]], "UniProtKB"
             )
+            # TODO: Clean annotation.
             session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["annotation"] = { }
             session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["annotation"] = annotation[ "results" ][ 0 ][ "to" ]
 
@@ -294,11 +296,14 @@ def get_protein_data():
             )
             for source_position, contacts_list in contacts.items( ) :
                 session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ][ source_position ] = contacts_list
-
+        # Construct response.
+        response[ "content" ] = deepcopy( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ] )
+        response[ "content" ][ "structure" ] = utils._brotli_decompress( response[ "content" ][ "structure" ] )
+    else :
+        response = {"status": "Failed: No protein structure available.", "content": None}
     with open('./ptmvis/session/dump.json', 'w+') as f:
         json.dump( session[MODIFICATIONS_DATA], f, indent = 3 )
     return response
-
 
 def _map_uniprot_identifiers(identifiers, target_db):
     job_id = submit_id_mapping(
