@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from io import StringIO
 from itertools import combinations
 from math import ceil
-import json, zlib, os, requests, base64
+import json, zlib, os, base64
 
 """ Load variables from local file system. """
 load_dotenv()
@@ -258,40 +258,50 @@ def get_modifications_graph():
     return option
 
 
-@app.route("/get_extended_protein_data", methods=["POST"])
-def get_extended_protein_data():
+@app.route("/get_protein_data", methods=["POST"])
+def get_protein_data():
     response = {"status": "Ok"}
     json_request_data = request_to_json(request.data)
     # Try to fetch PDB format structure for UniProt identifier from AlphaFold database.
     if json_request_data["pdb_text"] != None:
         structure, pdb_text = utils.parse_structure(json_request_data["pdb_text"])
     else:
-        structure, pdb_text = utils.get_structure(json_request_data["uniprot_id"])
+        if "structure" in session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ] :
+            pdb_text = utils._brotli_decompress( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["structure"] )
+            
+            print( pdb_text )
+
+            structure = utils.parse_structure( pdb_text )
+        else :
+            structure, pdb_text = utils.get_structure(json_request_data["uniprot_id"])
+            # Extract protein sequence from structure and store it in session data.
+            session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["sequence"] = utils.get_sequence_from_structure(structure)
+            session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "structure" ] = utils._brotly_compress(pdb_text)
     if structure != None:
         # Extract annotations for protein from UniProt.
-        annotation = _map_uniprot_identifiers(
-            [json_request_data["uniprot_id"]], "UniProtKB"
-        )
-        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["annotation"] = { }
-        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["annotation"] = annotation[ "results" ][ 0 ][ "to" ]
+        if not "annotation" in session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ] :
+            annotation = _map_uniprot_identifiers(
+                [json_request_data["uniprot_id"]], "UniProtKB"
+            )
+            session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["annotation"] = { }
+            session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["annotation"] = annotation[ "results" ][ 0 ][ "to" ]
 
         # Compute contacts from structure and store them in session data.
-        session[MODIFICATIONS_DATA]["meta_data"]["distance_cutoff"] = int(json_request_data["cutoff"])
-        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ] = { }
-        contacts = utils.get_contacts(
-            utils.get_distance_matrix(structure),
-            int(json_request_data["cutoff"]),
-        )
-        for source_position, contacts_list in contacts.items( ) :
-            session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ][ source_position ] = contacts_list
-
-        # Extract protein sequence from structure and store it in session data.
-        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["sequence"] = utils.get_sequence_from_structure(structure)
-        
-        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "structure" ] = str( base64.urlsafe_b64encode( pdb_text.encode('utf-8') ) )
+        if not "contacts" in session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ] :
+            session[MODIFICATIONS_DATA]["meta_data"]["distance_cutoff"] = int(json_request_data["cutoff"])
+            session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ] = { }
+            contacts = utils.get_contacts(
+                utils.get_distance_matrix(structure),
+                int(json_request_data["cutoff"]),
+            )
+            for source_position, contacts_list in contacts.items( ) :
+                session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ][ source_position ] = contacts_list
 
         with open('./ptmvis/session/dump.json', 'w+') as f:
             json.dump( session[MODIFICATIONS_DATA], f, indent = 3 )
+
+        print( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ] )
+
     return response
 
 

@@ -1,13 +1,12 @@
-import re, warnings, urllib.request
-import pandas as pd
-import numpy as np
-import scipy as sc
 from Bio.PDB import PDBParser
 from Bio import SeqIO
 from io import StringIO
 from unimod_mapper import UnimodMapper
-import requests
-import json
+import pandas as pd
+import numpy as np
+import scipy as sc
+import re, warnings, urllib.request, requests, brotli, base64
+
 
 mapper = UnimodMapper()
 pdbparser = PDBParser(PERMISSIVE=False)
@@ -53,15 +52,15 @@ def get_structure(uniprot_id):
 
 def parse_structure(structure_string):
     structure = None
-    with warnings.filterwarnings("error"):
-        try:
-            structure = pdbparser.get_structure(
-                "custom_pdb", StringIO(structure_string)
-            )
-        except Exception as e:
-            raise Exception("Failed to parse provided .pdb structure: " + str(e))
-        else:
-            return structure, structure_string
+    # with warnings.filterwarnings("error"):
+    try:
+        structure = pdbparser.get_structure(
+            "custom_pdb", StringIO(structure_string)
+        )
+    except Exception as e:
+        raise Exception("Failed to parse provided .pdb structure: " + str(e))
+    finally:
+        return structure, structure_string
 
 
 def get_fasta(uniprot_ids):
@@ -389,6 +388,13 @@ def parse_user_input(user_file, user_flag):
         )
     return json
 
+
+def _brotli_decompress(content: str) -> str:
+    return brotli.decompress( base64.b64decode( content ) ).decode( )
+
+
+def _brotly_compress(content: str) -> str:
+    return base64.b64encode( brotli.compress( content.encode( ) ) ).decode( )
 
 if __name__ == "__main__":
     parse_user_input("example_data/example_data.csv", "csv")

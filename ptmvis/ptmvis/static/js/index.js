@@ -366,16 +366,12 @@ function getDashboard(cutoff_value, pdb_text_value) {
     cutoff: cutoff_value,
   };
   axios
-    .post(
-      _URL + "/get_extended_protein_data",
-      pako.deflate(JSON.stringify(request)),
-      {
-        headers: {
-          "Content-Type": "application/octet-stream",
-          "Content-Encoding": "zlib",
-        },
-      }
-    )
+    .post(_URL + "/get_protein_data", pako.deflate(JSON.stringify(request)), {
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "Content-Encoding": "zlib",
+      },
+    })
     .then((response) => {
       console.log(response);
       // FIXME: Bad style.
