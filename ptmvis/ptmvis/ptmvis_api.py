@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from io import StringIO
 from itertools import combinations
 from math import ceil
-import json, zlib, os, requests
+import json, zlib, os, requests, base64
 
 """ Load variables from local file system. """
 load_dotenv()
@@ -180,6 +180,7 @@ def get_modifications_graph():
         for k, v in nodes.items():
             v["symbolSize"] = max(
                 4,
+                20 if (nodes_values_max - nodes_values_min) == 0 else
                 ceil(
                     (
                         (v["value"] - nodes_values_min)
@@ -196,20 +197,21 @@ def get_modifications_graph():
         links = [
             l for l in links.values() if (l["source"] in nodes and l["target"] in nodes)
         ]
-        links_values = sorted([link["value"] for link in links])
-        links_values_min = min(links_values)
-        links_values_max = max(links_values)
-        for link in links:
-            link["lineStyle"] = {
-                "width": max(
-                    0.05,
-                    (
-                        (link["value"] - links_values_min)
-                        / (links_values_max - links_values_min)
+        if len( links ) > 0 :
+            links_values = sorted([link["value"] for link in links])
+            links_values_min = min(links_values)
+            links_values_max = max(links_values)
+            for link in links:
+                link["lineStyle"] = {
+                    "width": max(
+                        0.05,
+                        (
+                            (link["value"] - links_values_min)
+                            / (links_values_max - links_values_min)
+                        )
+                        * 2,
                     )
-                    * 2,
-                )
-            }
+                }
         # Construct EChart option.
         option = {
             "backgroundColor": "#fbfbfb",
@@ -220,7 +222,7 @@ def get_modifications_graph():
                 "left": "center",
                 "min": 0,
                 "max": 100,
-                "color": ["rgb(255,60,0)", "rgb(0,190,210)"],
+                "color": ["#F26430", "#4350A5"],
                 "orient": "horizontal",
                 "precision": 1,
                 "text": ["", "Frequency in Proteins"],
@@ -270,6 +272,7 @@ def get_extended_protein_data():
         annotation = _map_uniprot_identifiers(
             [json_request_data["uniprot_id"]], "UniProtKB"
         )
+        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["annotation"] = { }
         session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["annotation"] = annotation[ "results" ][ 0 ][ "to" ]
 
         # Compute contacts from structure and store them in session data.
@@ -285,9 +288,10 @@ def get_extended_protein_data():
         # Extract protein sequence from structure and store it in session data.
         session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ]["sequence"] = utils.get_sequence_from_structure(structure)
         
-        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "structure" ] = pdb_text
+        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "structure" ] = str( base64.urlsafe_b64encode( pdb_text.encode('utf-8') ) )
 
-        print( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ] )
+        with open('./ptmvis/session/dump.json', 'w+') as f:
+            json.dump( session[MODIFICATIONS_DATA], f, indent = 3 )
     return response
 
 
