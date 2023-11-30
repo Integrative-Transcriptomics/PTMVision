@@ -198,6 +198,7 @@ body .error-toast {
   width: 48.5%;
   height: 21%;
   margin-top: 1% !important;
+  overflow-y: auto;
 }
 
 #panel-inputs {
@@ -206,6 +207,7 @@ body .error-toast {
   left: 0;
   width: 48.5%;
   height: 21%;
+  overflow-y: auto;
 }
 
 #panel-inputs i {
@@ -219,6 +221,7 @@ body .error-toast {
   left: 0;
   width: 48.5%;
   height: 23%;
+  overflow-y: auto;
 }
 
 #panel-overview-table i {
@@ -254,6 +257,7 @@ body .error-toast {
   right: 0;
   width: 48.5%;
   height: 23%;
+  overflow-y: auto;
 }
 
 #panel-overview-graph span {
@@ -287,6 +291,7 @@ body .error-toast {
   top: 46%;
   width: 98%;
   height: 44%;
+  overflow-y: auto;
 }
 
 #panel-legal {

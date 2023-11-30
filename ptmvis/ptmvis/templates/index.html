@@ -148,7 +148,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     >
       <div id="menu-grid" class="grid w-100">
         <div class="row">
-          <div class="cell-1 text-center">
+          <div class="cell-5 text-center">
             <button
               onclick="redirectSource()"
               class="button-no-decoration menu-button float-left ml-8"
@@ -156,7 +156,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               data-hint-text="Source Code<br>(GitHub)"
               data-hint-position="bottom"
             >
-              <i class="fa-brands fa-github"></i>
+              <i class="fa-brands fa-github-alt"></i>
             </button>
             <button
               onclick="redirectHelp()"
@@ -165,10 +165,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               data-hint-text="Legal<br>Information"
               data-hint-position="bottom"
             >
-              <i class="fa-duotone fa-circle-info"></i>
+              <i class="fa-duotone fa-book-section"></i>
+            </button>
+            <button
+              class="button-no-decoration menu-button float-left ml-2"
+              data-role="hint"
+              data-hint-text="Download<br>Session (Binary)"
+              data-hint-position="bottom"
+              disabled
+            >
+              <i class="fa-duotone fa-cloud-arrow-down"></i>
             </button>
           </div>
-          <div class="cell-10 text-center">
+          <div class="cell-2 text-center">
             <div class="logo no-hover">
               <img
                 src="{{ url_for('static', filename='resources/logo.png') }}"
@@ -176,7 +185,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               />
             </div>
           </div>
-          <div class="cell-1 text-center">
+          <div class="cell-5 text-center">
             <button
               class="button-no-decoration menu-button float-right mr-8"
               style="cursor: default"
@@ -211,7 +220,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               <option value="csv">Plain CSV</option>
             </optgroup>
           </select>
-          <br />
           <h7 class="secondary">Select Data:</h7>
           <input
             id="data-input-form"
@@ -219,7 +227,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-role="file"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
-          <br />
           <h7 class="secondary">Select Meta-Information (Optional):</h7>
           <input
             id="meta-input-form"
@@ -227,8 +234,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-role="file"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
-          <br />
-          <button class="proceed-button" onclick="uploadData()">Submit</button>
+          <button class="proceed-button mt-2" onclick="uploadData()">
+            Submit
+          </button>
+          <hr class="mt-6" />
+          <h6 class="secondary">
+            <i class="fa-duotone fa-circle-arrow-up-right"></i> Restore Session
+          </h6>
+          <h7 class="secondary">Select Data:</h7>
+          <input
+            id="session-input-form"
+            type="file"
+            data-role="file"
+            data-button-title='<i class="fa-duotone fa-folder-open"></i>'
+            disabled
+          />
+          <button class="proceed-button mt-2" disabled>Restore</button>
         </div>
 
         <div id="panel-overview-table" class="panel-container">
