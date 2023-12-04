@@ -169,13 +169,11 @@ def get_modifications_graph():
                             links[link_key]["value"] += 1
                     except IndexError as e:
                         print(pair)
-        # Filter modifications graph for top x% and adjust layout settings.
+        # Filter modifications graph for top L and adjust layout settings.
         # (i) Adjust nodes.
-        cap = 0.9
-        nodes_values = sorted([node["value"] for node in nodes.values()])
-        cap_value = nodes_values[ceil(len(nodes_values) * cap) - 1]
-        nodes = {k: v for k, v in nodes.items() if v["value"] >= cap_value}
-        nodes_values = sorted([node["value"] for node in nodes.values()])
+        L = 90
+        nodes = dict( sorted( nodes.items(), key = lambda n: n[ 1 ][ "value" ], reverse = True )[ :L ] )
+        nodes_values = [node["value"] for node in nodes.values()]
         nodes_values_min = min(nodes_values)
         nodes_values_max = max(nodes_values)
         for k, v in nodes.items():
@@ -206,6 +204,7 @@ def get_modifications_graph():
                 link["lineStyle"] = {
                     "width": max(
                         0.05,
+                        2 if (links_values_max - links_values_min) == 0 else
                         (
                             (link["value"] - links_values_min)
                             / (links_values_max - links_values_min)
@@ -238,10 +237,9 @@ def get_modifications_graph():
                     },
                     "label": {
                         "show": True,
-                        "position": "top",
                         "color": "#333333",
                         "fontWeight": "lighter",
-                        "fontSize": 12,
+                        "fontSize": 11,
                         "backgroundColor": "rgba(240, 245, 245, 0.6)",
                         "borderRadius": 4
 
@@ -249,6 +247,9 @@ def get_modifications_graph():
                     "edgeLabel": {"show": False},
                     "type": "graph",
                     "layout": "circular",
+                    "circular": {
+                        "rotateLabel": True
+                    },
                     "data": list(nodes.values()),
                     "links": links,
                     "roam": True,
