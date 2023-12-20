@@ -171,7 +171,7 @@ def get_modifications_graph():
                         print(pair)
         # Filter modifications graph for top L and adjust layout settings.
         # (i) Adjust nodes.
-        L = 90
+        L = 50
         nodes = dict( sorted( nodes.items(), key = lambda n: n[ 1 ][ "value" ], reverse = True )[ :L ] )
         nodes_values = [node["value"] for node in nodes.values()]
         nodes_values_min = min(nodes_values)
@@ -291,12 +291,15 @@ def get_protein_data():
         if not "contacts" in session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ] :
             session[MODIFICATIONS_DATA]["meta_data"]["distance_cutoff"] = int(json_request_data["cutoff"])
             session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ] = { }
+            distance_matrix = utils.get_distance_matrix(structure)
             contacts = utils.get_contacts(
-                utils.get_distance_matrix(structure),
-                int(json_request_data["cutoff"]),
+                distance_matrix,
+                float(json_request_data["cutoff"]),
             )
             for source_position, contacts_list in contacts.items( ) :
-                session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ][ source_position ] = contacts_list
+                session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ][ source_position ] = [ ]
+                for contact_position in contacts_list :
+                    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ][ "contacts" ][ source_position ].append( ( contact_position, distance_matrix[ source_position, contact_position ] ) )
         # Construct response.
         response[ "content" ] = deepcopy( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_id"] ] )
         response[ "content" ][ "structure" ] = utils._brotli_decompress( response[ "content" ][ "structure" ] )
