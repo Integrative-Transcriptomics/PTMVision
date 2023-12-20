@@ -306,7 +306,7 @@ body .error-toast {
 
 #dashboard-structure {
   position: absolute;
-  background-color: lightblue;
+  background-color: "#FAFAFC";
   top: 30%;
   right: 0;
   width: 25%;
@@ -316,7 +316,7 @@ body .error-toast {
 
 #dashboard-map {
   position: absolute;
-  background-color: lightgrey;
+  background-color: "#FAFAFC";
   top: 30%;
   right: 25%;
   width: 50%;

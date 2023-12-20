@@ -4,6 +4,10 @@ _PROTEINS_OVERVIEW_TABLE = null;
 _MODIFICATIONS_GRAPH = null;
 _MODIFICATIONS_GRAPH_SIZE_OBSERVER = null;
 _DASHBOARD_STRUCTURE_VIEW = null;
+_DASHBOARD_MAP_CHART = null;
+_DASHBOARD_MAP_OBSERVER = null;
+_DASHBOARD_CONTACT_MAP_OPTION = null;
+_DASHBOARD_PRESENCE_MAP_OPTION = null;
 
 /**
  * Inizializes all client side elements of the PTMVision application.
@@ -78,20 +82,6 @@ function init() {
     antialias: true,
     cartoonQuality: 6,
   });
-
-  /*_DASHBOARD = echarts.init($("#panel-dashboard")[0], {
-    devicePixelRatio: 2,
-    renderer: "canvas",
-    width: "auto",
-    height: "auto",
-  });
-  _DASHBOARD_SIZE_OBSERVER = new ResizeObserver((entries) => {
-    _DASHBOARD.resize({
-      width: entries[0].width,
-      height: entries[0].height,
-    });
-  });
-  _DASHBOARD_SIZE_OBSERVER.observe($("#panel-dashboard")[0]);*/
 }
 
 function _set_table_filters(_) {
@@ -376,43 +366,34 @@ function getDashboard(cutoff_value, pdb_text_value) {
       },
     })
     .then((response) => {
-      console.log(response);
       if (response.data.status == "Failed: No protein structure available.") {
         _requestPdb();
       } else {
         // Initialize single components.
-        _initializeStructureView(response.data.content.structure);
+        _DASHBOARD_STRUCTURE_VIEW = _getStructureView(
+          response.data.content.structure,
+          $("#dashboard-structure")
+        );
+        _DASHBOARD_CONTACT_MAP_OPTION = _getContactMapOption(
+          response.data.content
+        );
+        _DASHBOARD_PRESENCE_MAP_OPTION = _getPresenceMapOption(
+          response.data.content
+        );
+        [_DASHBOARD_MAP_CHART, _DASHBOARD_MAP_OBSERVER] =
+          _constructEChartInstance(
+            $("#dashboard-map")[0],
+            _DASHBOARD_CONTACT_MAP_OPTION
+          );
       }
     })
     .catch((error) => {
       handleError(error.message);
+      console.log(error);
     })
     .finally((_) => {
       toggleProgress();
     });
-}
-
-function _initializeStructureView(pdb_text) {
-  _DASHBOARD_STRUCTURE_VIEW.clear();
-  _DASHBOARD_STRUCTURE_VIEW.addModel(pdb_text, "pdb");
-  _DASHBOARD_STRUCTURE_VIEW.zoomTo();
-  _DASHBOARD_STRUCTURE_VIEW.addSurface(
-    "SAS",
-    {
-      color: "#a1d2ce",
-      opacity: 0.4,
-    },
-    {}
-  );
-  _DASHBOARD_STRUCTURE_VIEW.setStyle(
-    {},
-    {
-      line: {
-        color: "#62a8ac",
-      },
-    }
-  );
-  _DASHBOARD_STRUCTURE_VIEW.render();
 }
 
 function _requestPdb() {
@@ -441,6 +422,24 @@ function _requestPdb() {
       getDashboard(null, readFile($("#optional-pdb-input")[0].files[0]));
     }
   });
+}
+
+function _constructEChartInstance(html_container, echart_option) {
+  var chart = echarts.init(html_container, {
+    devicePixelRatio: 4,
+    renderer: "canvas",
+    width: "auto",
+    height: "auto",
+  });
+  var observer = new ResizeObserver((entries) => {
+    chart.resize({
+      width: entries[0].width,
+      height: entries[0].height,
+    });
+  });
+  observer.observe(html_container);
+  chart.setOption(echart_option);
+  return [chart, observer];
 }
 
 var _upload_pdb_html = `
@@ -571,3 +570,613 @@ var _redirect_help_html = `
         </address>
       </div>
     </div>`;
+
+function _getStructureView(pdb_text, html_container) {
+  let view = $3Dmol.createViewer(html_container, {
+    backgroundColor: "#FAFAFC",
+    antialias: true,
+    cartoonQuality: 6,
+  });
+  view.clear();
+  view.addModel(pdb_text, "pdb");
+  view.zoomTo();
+  view.addSurface(
+    "SAS",
+    {
+      color: "#d4d4d4",
+      opacity: 0.4,
+    },
+    {}
+  );
+  view.setStyle(
+    {},
+    {
+      cartoon: {
+        color: "#d4d4d4",
+      },
+    }
+  );
+  view.render();
+  return view;
+}
+
+function _getContactMapOption(_data) {
+  let lower_data = [];
+  let upper_data = [];
+  for (let [residue_index_i, contacts_data] of Object.entries(_data.contacts)) {
+    let x = parseInt(residue_index_i);
+    for (let contact_data of contacts_data) {
+      let y = contact_data[0];
+      if (x > y) {
+        upper_data.push([x, y, contact_data[1]]);
+      } else {
+        lower_data.push([x, y, contact_data[1]]);
+      }
+    }
+  }
+  return {
+    title: {
+      text: "Cβ Contact Map",
+      textStyle: {
+        fontSize: 12,
+      },
+    },
+    legend: {
+      bottom: 0,
+      left: "center",
+      orient: "horizontal",
+      itemWidth: 10,
+      itemHeight: 10,
+      data: [],
+      textStyle: {
+        fontWeight: "lighter",
+        fontSize: 10,
+      },
+      pageTextStyle: {
+        fontWeight: "lighter",
+        fontSize: 10,
+      },
+      pageIcons: {
+        horizontal: [
+          "M18.3 250.3c-3.1 3.1-3.1 8.2 0 11.3l216 216c3.1 3.1 8.2 3.1 11.3 0s3.1-8.2 0-11.3L35.3 256 245.7 45.7c3.1-3.1 3.1-8.2 0-11.3s-8.2-3.1-11.3 0l-216 216z",
+          "M301.7 250.3c3.1 3.1 3.1 8.2 0 11.3l-216 216c-3.1 3.1-8.2 3.1-11.3 0s-3.1-8.2 0-11.3L284.7 256 74.3 45.7c-3.1-3.1-3.1-8.2 0-11.3s8.2-3.1 11.3 0l216 216z",
+        ],
+      },
+      width: "100%",
+      backgroundColor: "#f0f5f5",
+    },
+    dataZoom: [
+      {
+        type: "inside",
+        xAxisIndex: [0, 1],
+        yAxisIndex: 0,
+        throttle: 0,
+      },
+    ],
+    toolbox: {
+      feature: {
+        saveAsImage: {
+          pixelRatio: 4,
+        },
+      },
+    },
+    grid: {
+      top: "10%",
+      left: "10%",
+      height: "80%",
+      width: "80%",
+    },
+    xAxis: [
+      {
+        data: [...Array(_data.sequence.length).keys()].map((v) => v + 1),
+        name: "Protein Position",
+        nameGap: 25,
+        nameLocation: "center",
+        nameTextStyle: {
+          fontWeight: "bold",
+          fontSize: 11,
+        },
+        axisLabel: {
+          formatter: (p) => {
+            return parseInt(p) + 1;
+          },
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+      },
+    ],
+    yAxis: [
+      {
+        data: [...Array(_data.sequence.length).keys()].map((v) => v + 1),
+        inverse: true,
+        name: "Protein Position",
+        nameGap: 25,
+        nameLocation: "center",
+        nameTextStyle: {
+          fontWeight: "bold",
+          fontSize: 11,
+        },
+        axisLabel: {
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+      },
+    ],
+    axisPointer: {
+      show: true,
+      label: {
+        backgroundColor: "rgba(51, 51, 51, 0.7)",
+        fontWeight: "lighter",
+        fontSize: 10,
+        color: "#f0f5f5",
+      },
+      link: {
+        xAxisIndex: [0, 1],
+      },
+      triggerTooltip: false,
+    },
+    tooltip: {
+      formatter: (params, ticket, callback) => {
+        return (
+          `Residues ` +
+          params.data[0] +
+          ` and ` +
+          params.data[1] +
+          ` in contact (` +
+          parseFloat(params.data[2]).toFixed(2) +
+          `Å).`
+        );
+      },
+      backgroundColor: "rgba(51, 51, 51, 0.7)",
+      borderColor: "transparent",
+      textStyle: {
+        fontWeight: "lighter",
+        fontSize: 10,
+        color: "#f0f5f5",
+      },
+    },
+    series: [
+      {
+        type: "heatmap",
+        name: "Contacts (Lower Triangle)",
+        data: lower_data,
+        itemStyle: {
+          color: "#333333",
+          borderColor: "#FAFAFC",
+          borderWidth: 0.1,
+          borderRadius: 5,
+        },
+      },
+    ],
+  };
+}
+
+function _getPresenceMapOption(_data) {
+  let modifications = [];
+  for (let position_data of Object.values(_data.positions)) {
+    for (let modification of Object.values(position_data.modifications)) {
+      modifications.push(modification.modification_unimod_name);
+    }
+  }
+  modifications = [...new Set(modifications)].sort();
+  let data_series = {};
+  for (let [position, position_data] of Object.entries(_data.positions)) {
+    for (let modification of Object.values(position_data.modifications)) {
+      if (
+        !data_series.hasOwnProperty(modification.modification_classification)
+      ) {
+        data_series[modification.modification_classification] = {
+          type: "heatmap",
+          name: modification.modification_classification,
+          data: [],
+          xAxisIndex: 0,
+          yAxisIndex: 0,
+        };
+      }
+      let residue_index = parseInt(position);
+      data_series[modification.modification_classification].data.push([
+        residue_index,
+        modifications.indexOf(modification.modification_unimod_name),
+        1,
+        modification.modification_unimod_name,
+        modification.modification_classification,
+        _data.sequence[residue_index],
+      ]);
+    }
+  }
+
+  let annotation_types = {
+    "Initiator methionine": "Molecule processing",
+    Signal: "Molecule processing",
+    "Transit peptide": "Molecule processing",
+    Propeptide: "Molecule processing",
+    Chain: "Molecule processing",
+    Peptide: "Molecule processing",
+    "Topological domain": "Region",
+    Transmembrane: "Region",
+    Intramembrane: "Region",
+    Domain: "Region",
+    Repeat: "Region",
+    "Zinc finger": "Region",
+    "DNA binding": "Region",
+    Region: "Region",
+    "Coiled coil": "Region",
+    Motif: "Region",
+    "Compositional bias": "Region",
+    "Active site": "Site",
+    "Binding site": "Site",
+    Site: "Site",
+    "Non-standard residue": "Amino acid modifications",
+    "Modified residue": "Amino acid modifications",
+    Lipidation: "Amino acid modifications",
+    Glycosylation: "Amino acid modifications",
+    "Disulfide bond": "Amino acid modifications",
+    "Cross-link": "Amino acid modifications",
+    "Alternative sequence": "Natural variations",
+    "Natural variant": "Natural variations",
+    Mutagenesis: "Experimental info",
+    "Sequence uncertainty": "Experimental info",
+    "Sequence conflict": "Experimental info",
+    "Non-adjacent residues": "Experimental info",
+    "Non-terminal residue": "Experimental info",
+    Helix: "Secondary structure",
+    Turn: "Secondary structure",
+    "Beta strand": "Secondary structure",
+  };
+  let annotation_series = {
+    "Molecule processing": {
+      type: "heatmap",
+      data: {},
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      name: "Molecule processing",
+      id: "ann_molecule_processing",
+      itemStyle: {
+        color: "#211A1D",
+      },
+    },
+    Region: {
+      type: "heatmap",
+      data: {},
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      name: "Region",
+      id: "ann_region",
+      itemStyle: {
+        color: "#F0B67F",
+      },
+    },
+    Site: {
+      type: "heatmap",
+      data: {},
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      name: "Site",
+      id: "ann_site",
+      itemStyle: {
+        color: "#57B3DE",
+      },
+    },
+    "Amino acid modifications": {
+      type: "heatmap",
+      data: {},
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      name: "Amino acid modifications",
+
+      id: "ann_amino_acid_modifications",
+      itemStyle: {
+        color: "#E70D56",
+      },
+    },
+    "Natural variations": {
+      type: "heatmap",
+      data: {},
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      name: "Natural variations",
+      id: "ann_natural_variations",
+      itemStyle: {
+        color: "#54B679",
+      },
+    },
+    "Experimental info": {
+      type: "heatmap",
+      data: {},
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      name: "Experimental info",
+      id: "ann_experimental_info",
+      itemStyle: {
+        color: "#927C85",
+      },
+    },
+    "Secondary structure": {
+      type: "heatmap",
+      data: {},
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      name: "Secondary structure",
+      id: "ann_secondary_structure",
+    },
+  };
+  let annotation_secondary_structure_colors = {
+    Helix: "#E02222",
+    Turn: "#ADD46E",
+    "Beta strand": "#226CE0",
+  };
+  let annotation_labels = [...Object.keys(annotation_series)];
+  for (let annotation_entry of Object.values(_data.annotation.features)) {
+    if (annotation_entry.type == "Chain") {
+      continue;
+    }
+    for (
+      let index = parseInt(annotation_entry.location.start.value) - 1;
+      index < parseInt(annotation_entry.location.end.value);
+      index++
+    ) {
+      let y_index = annotation_labels.indexOf(
+        annotation_types[annotation_entry.type]
+      );
+      if (annotation_types[annotation_entry.type] == "Secondary structure") {
+        annotation_series[annotation_types[annotation_entry.type]].data[
+          index + "@" + y_index
+        ] = {
+          value: [
+            index,
+            y_index,
+            1,
+            [
+              annotation_entry.type,
+              annotation_entry.location.start.value,
+              annotation_entry.location.end.value,
+            ],
+          ],
+          itemStyle: {
+            color: annotation_secondary_structure_colors[annotation_entry.type],
+          },
+        };
+      } else {
+        if (
+          annotation_series[
+            annotation_types[annotation_entry.type]
+          ].data.hasOwnProperty(index + "@" + y_index)
+        ) {
+          annotation_series[annotation_types[annotation_entry.type]].data[
+            index + "@" + y_index
+          ][3].push([
+            annotation_entry.type,
+            annotation_entry.location.start.value,
+            annotation_entry.location.end.value,
+            annotation_entry.description,
+          ]);
+        } else {
+          annotation_series[annotation_types[annotation_entry.type]].data[
+            index + "@" + y_index
+          ] = [
+            index,
+            y_index,
+            1,
+            [
+              [
+                annotation_entry.type,
+                annotation_entry.location.start.value,
+                annotation_entry.location.end.value,
+                annotation_entry.description,
+              ],
+            ],
+          ];
+        }
+      }
+    }
+  }
+  let annotation_series_list = [];
+  for (const value of Object.values(annotation_series)) {
+    value.data = [...Object.values(value.data)];
+    annotation_series_list.push(value);
+  }
+
+  return {
+    title: {
+      text: "Modifications Presence Map",
+      textStyle: {
+        fontSize: 12,
+      },
+    },
+    legend: {
+      bottom: 0,
+      left: "center",
+      orient: "horizontal",
+      itemWidth: 10,
+      itemHeight: 10,
+      data: Object.values(data_series).map((S) => {
+        return { name: S.name, icon: "roundRect" };
+      }),
+      textStyle: {
+        fontWeight: "lighter",
+        fontSize: 10,
+      },
+      pageTextStyle: {
+        fontWeight: "lighter",
+        fontSize: 10,
+      },
+      pageIcons: {
+        horizontal: [
+          "M18.3 250.3c-3.1 3.1-3.1 8.2 0 11.3l216 216c3.1 3.1 8.2 3.1 11.3 0s3.1-8.2 0-11.3L35.3 256 245.7 45.7c3.1-3.1 3.1-8.2 0-11.3s-8.2-3.1-11.3 0l-216 216z",
+          "M301.7 250.3c3.1 3.1 3.1 8.2 0 11.3l-216 216c-3.1 3.1-8.2 3.1-11.3 0s-3.1-8.2 0-11.3L284.7 256 74.3 45.7c-3.1-3.1-3.1-8.2 0-11.3s8.2-3.1 11.3 0l216 216z",
+        ],
+      },
+      width: "100%",
+      backgroundColor: "#f0f5f5",
+    },
+    dataZoom: [
+      {
+        type: "inside",
+        xAxisIndex: [0, 1],
+        yAxisIndex: 0,
+        throttle: 0,
+      },
+    ],
+    toolbox: {
+      feature: {
+        saveAsImage: {
+          pixelRatio: 4,
+        },
+      },
+    },
+    grid: [
+      {
+        top: "22%",
+        left: "18%",
+        height: "66%",
+        width: "80%",
+      },
+      {
+        top: "5%",
+        left: "18%",
+        height: "15%",
+        width: "80%",
+        backgroundColor: "#769213",
+      },
+    ],
+    xAxis: [
+      {
+        data: [...Array(_data.sequence.length).keys()],
+        name: "Protein Position",
+        nameGap: 25,
+        nameLocation: "center",
+        nameTextStyle: {
+          fontWeight: "bold",
+          fontSize: 11,
+        },
+        axisLabel: {
+          formatter: (p) => {
+            return parseInt(p) + 1;
+          },
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: 0,
+      },
+      {
+        data: [...Array(_data.sequence.length).keys()],
+        axisLabel: {
+          show: false,
+        },
+        gridIndex: 1,
+      },
+    ],
+    yAxis: [
+      {
+        data: modifications,
+        inverse: true,
+        name: "Modification",
+        nameGap: 140,
+        nameLocation: "center",
+        nameTextStyle: {
+          fontWeight: "bold",
+          fontSize: 11,
+        },
+        axisLabel: {
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: 0,
+      },
+      {
+        data: annotation_labels,
+        name: "Annotations",
+        nameGap: 140,
+        nameLocation: "center",
+        nameTextStyle: {
+          fontWeight: "bold",
+          fontSize: 11,
+        },
+        axisLabel: {
+          fontWeight: "lighter",
+          fontSize: 9,
+        },
+        interval: 0,
+        gridIndex: 1,
+      },
+    ],
+    axisPointer: {
+      show: true,
+      label: {
+        backgroundColor: "rgba(51, 51, 51, 0.7)",
+        fontWeight: "lighter",
+        fontSize: 10,
+        color: "#f0f5f5",
+      },
+      link: {
+        xAxisIndex: [0, 1],
+      },
+      triggerTooltip: false,
+    },
+    tooltip: {
+      formatter: (params, ticket, callback) => {
+        let content;
+        if (params.seriesId.startsWith("ann_")) {
+          if (params.seriesId == "ann_secondary_structure") {
+            content =
+              `Secondary structure <b>` +
+              params.data.value[3][0] +
+              `</b>, Positions ` +
+              params.data.value[3][1] +
+              ` to ` +
+              params.data.value[3][2];
+          } else {
+            content = params.seriesName + ` annotation`;
+            for (let entry of params.data[3]) {
+              content +=
+                `<hr><br>` +
+                entry[0] +
+                ` (` +
+                (entry[3] == "" ? "no description" : entry[3]) +
+                `), Positions ` +
+                entry[1] +
+                ` to ` +
+                entry[2];
+            }
+          }
+        } else {
+          content =
+            `<b>Position: ` +
+            params.data[0] +
+            `<br>Aminoacid: ` +
+            params.data[5] +
+            `</b><br>Modification: ` +
+            params.data[3] +
+            ` [` +
+            params.data[4] +
+            `]`;
+        }
+        return content;
+      },
+      backgroundColor: "rgba(51, 51, 51, 0.7)",
+      borderColor: "transparent",
+      textStyle: {
+        fontWeight: "lighter",
+        fontSize: 10,
+        color: "#f0f5f5",
+      },
+    },
+    color: [
+      "#E54B4B",
+      "#05668D",
+      "#167911",
+      "#654597",
+      "#FFA630",
+      "#3BA9C7",
+      "#7DC95E",
+      "#AB81CD",
+      "#F4D35E",
+      "#A0C6E8",
+      "#BBDB9B",
+      "#E2ADF2",
+    ],
+    series: Object.values(data_series).concat(annotation_series_list),
+  };
+}
+
+function _generatePresenceMapOption() {}
