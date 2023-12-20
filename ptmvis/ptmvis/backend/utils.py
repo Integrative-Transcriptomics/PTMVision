@@ -19,8 +19,12 @@ def get_distance_matrix(structure):
     calpha_coords = np.zeros(shape=(residue_count, 3))
 
     for i, residue in enumerate(structure.get_residues()):
+        if residue.get_resname() == "GLY":
+            _ = "CA"
+        else :
+            _ = "CB"
         for atom in residue:
-            if atom.get_name() == "CA":
+            if atom.get_name() == _:
                 calpha_coords[i] = atom.get_coord()
                 break
     residue_distances = sc.spatial.distance_matrix(calpha_coords, calpha_coords)
