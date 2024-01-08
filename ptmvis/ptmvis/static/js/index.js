@@ -8,6 +8,7 @@ _DASHBOARD_MAP_CHART = null;
 _DASHBOARD_MAP_OBSERVER = null;
 _DASHBOARD_CONTACT_MAP_OPTION = null;
 _DASHBOARD_PRESENCE_MAP_OPTION = null;
+_CURRENT_PROTEIN_DATA = null;
 
 /**
  * Inizializes all client side elements of the PTMVision application.
@@ -369,6 +370,7 @@ function getDashboard(cutoff_value, pdb_text_value) {
       if (response.data.status == "Failed: No protein structure available.") {
         _requestPdb();
       } else {
+        _CURRENT_PROTEIN_DATA = response.data.content;
         // Initialize single components.
         _DASHBOARD_STRUCTURE_VIEW = _getStructureView(
           response.data.content.structure,
@@ -383,8 +385,103 @@ function getDashboard(cutoff_value, pdb_text_value) {
         [_DASHBOARD_MAP_CHART, _DASHBOARD_MAP_OBSERVER] =
           _constructEChartInstance(
             $("#dashboard-map")[0],
-            _DASHBOARD_CONTACT_MAP_OPTION
+            _DASHBOARD_PRESENCE_MAP_OPTION
           );
+
+        _DASHBOARD_MAP_CHART.on("click", "series", (params) => {
+          _DASHBOARD_STRUCTURE_VIEW.removeAllLabels();
+          _DASHBOARD_STRUCTURE_VIEW.removeAllShapes();
+          _GLViewerSetDefaultStyle(_DASHBOARD_STRUCTURE_VIEW);
+          let selectedResidue = params.data[0];
+          let selectedResidueCA = _DASHBOARD_STRUCTURE_VIEW.getAtomsFromSel({
+            resi: [selectedResidue],
+            atom: "CA",
+          })[0];
+          _DASHBOARD_STRUCTURE_VIEW.addStyle(
+            {
+              resi: [selectedResidue],
+            },
+            {
+              stick: {
+                color: "#ff6663",
+                radius: 1.0,
+              },
+            }
+          );
+          _DASHBOARD_STRUCTURE_VIEW.addResLabels(
+            {
+              resi: [selectedResidue],
+            },
+            {
+              backgroundColor: "rgb(51, 51, 51)",
+              backgroundOpacity: 0.7,
+              fontColor: "#f0f5f5",
+              fontSize: 11,
+            }
+          );
+          if (_CURRENT_PROTEIN_DATA.contacts.hasOwnProperty(selectedResidue)) {
+            for (let contactEntry of _CURRENT_PROTEIN_DATA.contacts[
+              selectedResidue
+            ]) {
+              _DASHBOARD_STRUCTURE_VIEW.addStyle(
+                {
+                  resi: [contactEntry[0]],
+                },
+                {
+                  stick: {
+                    color: "#b486ab",
+                    radius: 0.5,
+                  },
+                }
+              );
+              _DASHBOARD_STRUCTURE_VIEW.addResLabels(
+                {
+                  resi: [contactEntry[0]],
+                },
+                {
+                  backgroundColor: "rgb(51, 51, 51)",
+                  backgroundOpacity: 0.7,
+                  fontColor: "#f0f5f5",
+                  fontSize: 11,
+                }
+              );
+              let contactEntryCA = _DASHBOARD_STRUCTURE_VIEW.getAtomsFromSel({
+                resi: [contactEntry[0]],
+                atom: "CA",
+              })[0];
+              _DASHBOARD_STRUCTURE_VIEW.addLine({
+                color: "#000000",
+                hidden: false,
+                dashed: false,
+                start: {
+                  x: selectedResidueCA.x,
+                  y: selectedResidueCA.y,
+                  z: selectedResidueCA.z,
+                },
+                end: {
+                  x: contactEntryCA.x,
+                  y: contactEntryCA.y,
+                  z: contactEntryCA.z,
+                },
+              });
+              _DASHBOARD_STRUCTURE_VIEW.addLabel(
+                contactEntry[1].toFixed(2) + " Å",
+                {
+                  backgroundColor: "rgb(51, 51, 51)",
+                  backgroundOpacity: 0.6,
+                  fontColor: "#f0f5f5",
+                  fontSize: 10,
+                  position: {
+                    x: (selectedResidueCA.x + contactEntryCA.x) / 2,
+                    y: (selectedResidueCA.y + contactEntryCA.y) / 2,
+                    z: (selectedResidueCA.z + contactEntryCA.z) / 2,
+                  },
+                }
+              );
+            }
+          }
+          _DASHBOARD_STRUCTURE_VIEW.render();
+        });
       }
     })
     .catch((error) => {
@@ -438,7 +535,7 @@ function _constructEChartInstance(html_container, echart_option) {
     });
   });
   observer.observe(html_container);
-  chart.setOption(echart_option);
+  chart.setOption(echart_option, true);
   return [chart, observer];
 }
 
@@ -588,7 +685,13 @@ function _getStructureView(pdb_text, html_container) {
     },
     {}
   );
-  view.setStyle(
+  _GLViewerSetDefaultStyle(view);
+  view.render();
+  return view;
+}
+
+function _GLViewerSetDefaultStyle(viewer) {
+  viewer.setStyle(
     {},
     {
       cartoon: {
@@ -596,8 +699,6 @@ function _getStructureView(pdb_text, html_container) {
       },
     }
   );
-  view.render();
-  return view;
 }
 
 function _getContactMapOption(_data) {
@@ -657,6 +758,18 @@ function _getContactMapOption(_data) {
       feature: {
         saveAsImage: {
           pixelRatio: 4,
+        },
+        myTool1: {
+          show: true,
+          title: "Switch to presence map.",
+          icon: "M0 224c0 17.7 14.3 32 32 32s32-14.3 32-32c0-53 43-96 96-96H320v32c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l64-64c12.5-12.5 12.5-32.8 0-45.3l-64-64c-9.2-9.2-22.9-11.9-34.9-6.9S320 19.1 320 32V64H160C71.6 64 0 135.6 0 224zm512 64c0-17.7-14.3-32-32-32s-32 14.3-32 32c0 53-43 96-96 96H192V352c0-12.9-7.8-24.6-19.8-29.6s-25.7-2.2-34.9 6.9l-64 64c-12.5 12.5-12.5 32.8 0 45.3l64 64c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6V448H352c88.4 0 160-71.6 160-160z",
+          onclick: function () {
+            [_DASHBOARD_MAP_CHART, _DASHBOARD_MAP_OBSERVER] =
+              _constructEChartInstance(
+                $("#dashboard-map")[0],
+                _DASHBOARD_PRESENCE_MAP_OPTION
+              );
+          },
         },
       },
     },
@@ -1022,6 +1135,18 @@ function _getPresenceMapOption(_data) {
         saveAsImage: {
           pixelRatio: 4,
         },
+        myTool1: {
+          show: true,
+          title: "Switch to contact map.",
+          icon: "M0 224c0 17.7 14.3 32 32 32s32-14.3 32-32c0-53 43-96 96-96H320v32c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l64-64c12.5-12.5 12.5-32.8 0-45.3l-64-64c-9.2-9.2-22.9-11.9-34.9-6.9S320 19.1 320 32V64H160C71.6 64 0 135.6 0 224zm512 64c0-17.7-14.3-32-32-32s-32 14.3-32 32c0 53-43 96-96 96H192V352c0-12.9-7.8-24.6-19.8-29.6s-25.7-2.2-34.9 6.9l-64 64c-12.5 12.5-12.5 32.8 0 45.3l64 64c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6V448H352c88.4 0 160-71.6 160-160z",
+          onclick: function () {
+            [_DASHBOARD_MAP_CHART, _DASHBOARD_MAP_OBSERVER] =
+              _constructEChartInstance(
+                $("#dashboard-map")[0],
+                _DASHBOARD_CONTACT_MAP_OPTION
+              );
+          },
+        },
       },
     },
     grid: [
@@ -1178,5 +1303,3 @@ function _getPresenceMapOption(_data) {
     series: Object.values(data_series).concat(annotation_series_list),
   };
 }
-
-function _generatePresenceMapOption() {}

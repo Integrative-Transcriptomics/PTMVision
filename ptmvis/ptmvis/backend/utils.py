@@ -16,7 +16,7 @@ def get_distance_matrix(structure):
     residue_count = 0
     for residue in enumerate(structure.get_residues()):
         residue_count += 1
-    calpha_coords = np.zeros(shape=(residue_count, 3))
+    coords = np.zeros(shape=(residue_count, 3))
 
     for i, residue in enumerate(structure.get_residues()):
         if residue.get_resname() == "GLY":
@@ -25,9 +25,9 @@ def get_distance_matrix(structure):
             _ = "CB"
         for atom in residue:
             if atom.get_name() == _:
-                calpha_coords[i] = atom.get_coord()
+                coords[i] = atom.get_coord()
                 break
-    residue_distances = sc.spatial.distance_matrix(calpha_coords, calpha_coords)
+    residue_distances = sc.spatial.distance_matrix(coords, coords)
     return residue_distances
 
 
