@@ -216,7 +216,21 @@ def get_modifications_graph():
         option = {
             "backgroundColor": "#fbfbfb",
             "animation": False,
-            "tooltip": {"position": [5, 45]},
+            "tooltip": {"backgroundColor": "rgba(51, 51, 51, 0.7)",
+                        "borderColor": "transparent",
+                        "textStyle": {
+                            "fontWeight": "lighter",
+                            "fontSize": 10,
+                            "color": "#f0f5f5",
+                        }
+            },
+            "toolbox": {
+                "feature": {
+                    "saveAsImage": {
+                    "pixelRatio": 4,
+                    },
+                },
+            },
             "visualMap": {
                 "bottom": "bottom",
                 "left": "center",
@@ -225,7 +239,7 @@ def get_modifications_graph():
                 "color": ["#F26430", "#4350A5"],
                 "orient": "horizontal",
                 "precision": 1,
-                "text": ["", "Frequency in Proteins"],
+                "text": ["100% of Proteins", "Occurs in 0%"],
             },
             "series": [
                 {
