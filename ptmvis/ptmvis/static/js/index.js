@@ -3,12 +3,42 @@ _PROTEINS_OVERVIEW_TABLE = null;
 // _DASHBOARD_SIZE_OBSERVER = null;
 _MODIFICATIONS_GRAPH = null;
 _MODIFICATIONS_GRAPH_SIZE_OBSERVER = null;
+
 _DASHBOARD_STRUCTURE_VIEW = null;
+
 _DASHBOARD_MAP_CHART = null;
 _DASHBOARD_MAP_OBSERVER = null;
 _DASHBOARD_CONTACT_MAP_OPTION = null;
 _DASHBOARD_PRESENCE_MAP_OPTION = null;
+
+_DASHBOARD_OVERVIEW_CHART = null;
+_DASHBOARD_OVERVIEW_OBSERVER = null;
+_DASHBOARD_OVERVIEW_OPTION = null;
+
 _CURRENT_PROTEIN_DATA = null;
+
+const COLORS = {
+  M: {},
+  i: 0,
+  C: [
+    "#f44336",
+    "#673ab7",
+    "#2196f3",
+    "#4caf50",
+    "#ffeb3b",
+    "#ffc107",
+    "#ff5722",
+    "#3f51b5",
+    "#e81e63",
+    "#03a9f4",
+    "#009688",
+    "#cddc39",
+    "#ff9800",
+    "#00bcd4",
+    "#8bc34a",
+  ],
+};
+var MODIFICATIONS = [];
 
 /**
  * Inizializes all client side elements of the PTMVision application.
@@ -376,6 +406,12 @@ function getDashboard(cutoff_value, pdb_text_value) {
           response.data.content.structure,
           $("#dashboard-structure")
         );
+        _DASHBOARD_OVERVIEW_OPTION = _getOverviewOption(response.data.content);
+        [_DASHBOARD_OVERVIEW_CHART, _DASHBOARD_OVERVIEW_OBSERVER] =
+          _constructEChartInstance(
+            $("#dashboard-overview")[0],
+            _DASHBOARD_OVERVIEW_OPTION
+          );
         _DASHBOARD_CONTACT_MAP_OPTION = _getContactMapOption(
           response.data.content
         );
@@ -387,7 +423,6 @@ function getDashboard(cutoff_value, pdb_text_value) {
             $("#dashboard-map")[0],
             _DASHBOARD_PRESENCE_MAP_OPTION
           );
-
         _DASHBOARD_MAP_CHART.on("click", "series", (params) => {
           _DASHBOARD_STRUCTURE_VIEW.removeAllLabels();
           _DASHBOARD_STRUCTURE_VIEW.removeAllShapes();
@@ -403,8 +438,8 @@ function getDashboard(cutoff_value, pdb_text_value) {
             },
             {
               stick: {
-                color: "#ff6663",
-                radius: 1.0,
+                color: "#763bff",
+                radius: 0.9,
               },
             }
           );
@@ -429,8 +464,8 @@ function getDashboard(cutoff_value, pdb_text_value) {
                 },
                 {
                   stick: {
-                    color: "#b486ab",
-                    radius: 0.5,
+                    color: "#ff963b",
+                    radius: 0.3,
                   },
                 }
               );
@@ -468,7 +503,7 @@ function getDashboard(cutoff_value, pdb_text_value) {
                 contactEntry[1].toFixed(2) + " Å",
                 {
                   backgroundColor: "rgb(51, 51, 51)",
-                  backgroundOpacity: 0.6,
+                  backgroundOpacity: 0.4,
                   fontColor: "#f0f5f5",
                   fontSize: 10,
                   position: {
@@ -865,13 +900,6 @@ function _getContactMapOption(_data) {
 }
 
 function _getPresenceMapOption(_data) {
-  let modifications = [];
-  for (let position_data of Object.values(_data.positions)) {
-    for (let modification of Object.values(position_data.modifications)) {
-      modifications.push(modification.modification_unimod_name);
-    }
-  }
-  modifications = [...new Set(modifications)].sort();
   let data_series = {};
   for (let [position, position_data] of Object.entries(_data.positions)) {
     for (let modification of Object.values(position_data.modifications)) {
@@ -882,6 +910,9 @@ function _getPresenceMapOption(_data) {
           type: "heatmap",
           name: modification.modification_classification,
           data: [],
+          itemStyle: {
+            color: _getColor(modification.modification_classification),
+          },
           xAxisIndex: 0,
           yAxisIndex: 0,
         };
@@ -889,7 +920,7 @@ function _getPresenceMapOption(_data) {
       let residue_index = parseInt(position);
       data_series[modification.modification_classification].data.push([
         residue_index,
-        modifications.indexOf(modification.modification_unimod_name),
+        MODIFICATIONS.indexOf(modification.modification_unimod_name),
         1,
         modification.modification_unimod_name,
         modification.modification_classification,
@@ -956,7 +987,7 @@ function _getPresenceMapOption(_data) {
       name: "Region",
       id: "ann_region",
       itemStyle: {
-        color: "#F0B67F",
+        color: "#e0af80",
       },
     },
     Site: {
@@ -967,7 +998,7 @@ function _getPresenceMapOption(_data) {
       name: "Site",
       id: "ann_site",
       itemStyle: {
-        color: "#57B3DE",
+        color: "#27d3f5",
       },
     },
     "Amino acid modifications": {
@@ -979,7 +1010,7 @@ function _getPresenceMapOption(_data) {
 
       id: "ann_amino_acid_modifications",
       itemStyle: {
-        color: "#E70D56",
+        color: "#f01381",
       },
     },
     "Natural variations": {
@@ -990,7 +1021,7 @@ function _getPresenceMapOption(_data) {
       name: "Natural variations",
       id: "ann_natural_variations",
       itemStyle: {
-        color: "#54B679",
+        color: "#9e9e9e",
       },
     },
     "Experimental info": {
@@ -1001,7 +1032,7 @@ function _getPresenceMapOption(_data) {
       name: "Experimental info",
       id: "ann_experimental_info",
       itemStyle: {
-        color: "#927C85",
+        color: "#795548",
       },
     },
     "Secondary structure": {
@@ -1014,9 +1045,9 @@ function _getPresenceMapOption(_data) {
     },
   };
   let annotation_secondary_structure_colors = {
-    Helix: "#E02222",
-    Turn: "#ADD46E",
-    "Beta strand": "#226CE0",
+    Helix: "#F45B69",
+    Turn: "#A5C793",
+    "Beta strand": "#A1CDF4",
   };
   let annotation_labels = [...Object.keys(annotation_series)];
   for (let annotation_entry of Object.values(_data.annotation.features)) {
@@ -1193,7 +1224,7 @@ function _getPresenceMapOption(_data) {
     ],
     yAxis: [
       {
-        data: modifications,
+        data: MODIFICATIONS,
         inverse: true,
         name: "Modification",
         nameGap: 140,
@@ -1286,20 +1317,278 @@ function _getPresenceMapOption(_data) {
         color: "#f0f5f5",
       },
     },
-    color: [
-      "#E54B4B",
-      "#05668D",
-      "#167911",
-      "#654597",
-      "#FFA630",
-      "#3BA9C7",
-      "#7DC95E",
-      "#AB81CD",
-      "#F4D35E",
-      "#A0C6E8",
-      "#BBDB9B",
-      "#E2ADF2",
-    ],
     series: Object.values(data_series).concat(annotation_series_list),
   };
+}
+
+function _getOverviewOption(_data) {
+  let modifications = [];
+  for (let position_data of Object.values(_data.positions)) {
+    for (let modification of Object.values(position_data.modifications)) {
+      modifications.push(modification.modification_unimod_name);
+    }
+  }
+  MODIFICATIONS = [...new Set(modifications)].sort();
+
+  let per_position_series = {};
+  let per_modification_series = {};
+  let ptms_counts = {};
+  for (let position of [...Array(_data.sequence.length).keys()]) {
+    let position_counts = {};
+    if (_data.positions.hasOwnProperty(position)) {
+      for (let modification of _data.positions[position].modifications) {
+        if (
+          position_counts.hasOwnProperty(
+            modification.modification_classification
+          )
+        ) {
+          position_counts[modification.modification_classification] += 1;
+        } else {
+          position_counts[modification.modification_classification] = 1;
+        }
+        if (
+          !ptms_counts.hasOwnProperty(modification.modification_unimod_name)
+        ) {
+          ptms_counts[modification.modification_unimod_name] = {};
+        }
+        if (
+          !ptms_counts[modification.modification_unimod_name].hasOwnProperty(
+            modification.modification_classification
+          )
+        ) {
+          ptms_counts[modification.modification_unimod_name][
+            modification.modification_classification
+          ] = 0;
+        }
+        ptms_counts[modification.modification_unimod_name][
+          modification.modification_classification
+        ] += 1;
+      }
+      for (const [name, count] of Object.entries(position_counts)) {
+        if (!per_position_series.hasOwnProperty(name)) {
+          per_position_series[name] = {
+            name: name,
+            type: "bar",
+            stack: "total",
+            emphasis: {
+              focus: "series",
+            },
+            data: [],
+            itemStyle: {
+              color: _getColor(name),
+            },
+            xAxisIndex: 0,
+            yAxisIndex: 0,
+          };
+        }
+        per_position_series[name].data.push([position, count]);
+      }
+    }
+  }
+  for (const [modification_name, _] of Object.entries(ptms_counts)) {
+    for (const [modification_class, count] of Object.entries(_)) {
+      if (!per_modification_series.hasOwnProperty(modification_class)) {
+        per_modification_series[modification_class] = {
+          name: modification_class,
+          stack: "total2",
+          type: "bar",
+          emphasis: {
+            focus: "series",
+          },
+          data: [],
+          itemStyle: {
+            color: _getColor(modification_class),
+          },
+          xAxisIndex: 1,
+          yAxisIndex: 1,
+        };
+      }
+      per_modification_series[modification_class].data.push([
+        MODIFICATIONS.indexOf(modification_name),
+        count,
+      ]);
+    }
+  }
+
+  return {
+    title: [
+      {
+        text: "No. PTMs per Position",
+        left: "10%",
+        textStyle: {
+          fontSize: 12,
+        },
+      },
+      {
+        text: "Occurence per PTM",
+        left: "55%",
+        textStyle: {
+          fontSize: 12,
+        },
+      },
+      {
+        text: [
+          _data.annotation.proteinDescription.recommendedName.fullName.value,
+          "Length: " + Object.keys(_data.positions).length + " aa",
+          "Contacts: " +
+            Object.values(_data.contacts)
+              .map((v) => {
+                return v.length;
+              })
+              .reduce((a, z) => a + z, 0),
+          "Modifications: " +
+            Object.values(_data.positions)
+              .map((v) => {
+                return v.modifications.length;
+              })
+              .reduce((a, z) => a + z, 0),
+        ].join("\n"),
+        left: 2,
+        textStyle: {
+          fontSize: 11,
+          fontWeight: "lighter",
+        },
+      },
+    ],
+    dataZoom: [
+      {
+        type: "inside",
+        xAxisIndex: 0,
+        throttle: 0,
+      },
+      {
+        type: "inside",
+        xAxisIndex: 1,
+        throttle: 0,
+      },
+    ],
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {
+        type: "cross",
+        label: {
+          backgroundColor: "rgba(51, 51, 51, 0.7)",
+          fontWeight: "lighter",
+          fontSize: 10,
+          color: "#f0f5f5",
+        },
+      },
+      backgroundColor: "rgba(51, 51, 51, 0.7)",
+      borderColor: "transparent",
+      textStyle: {
+        fontWeight: "lighter",
+        fontSize: 10,
+        color: "#f0f5f5",
+      },
+    },
+    toolbox: {
+      feature: {
+        saveAsImage: {},
+      },
+    },
+    grid: [
+      {
+        top: "12%",
+        left: "10%",
+        height: "80%",
+        width: "40%",
+        containLabel: true,
+      },
+      {
+        top: "10%",
+        left: "55%",
+        height: "80%",
+        width: "40%",
+        containLabel: true,
+      },
+    ],
+    xAxis: [
+      {
+        data: [...Array(_data.sequence.length).keys()],
+        name: "Protein Position",
+        nameGap: 25,
+        nameLocation: "center",
+        nameTextStyle: {
+          fontWeight: "bold",
+          fontSize: 11,
+        },
+        axisLabel: {
+          formatter: (p) => {
+            return parseInt(p) + 1;
+          },
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: 0,
+      },
+      {
+        data: MODIFICATIONS,
+        name: "Modification",
+        nameGap: 25,
+        nameLocation: "center",
+        nameTextStyle: {
+          fontWeight: "bold",
+          fontSize: 11,
+        },
+        axisLabel: {
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: 1,
+      },
+    ],
+    yAxis: [
+      {
+        type: "value",
+        name: "No. PTMs",
+        nameGap: 25,
+        nameLocation: "center",
+        nameTextStyle: {
+          fontWeight: "bold",
+          fontSize: 11,
+        },
+        axisLabel: {
+          formatter: (p) => {
+            return parseInt(p) + 1;
+          },
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: 0,
+      },
+      {
+        type: "value",
+        name: "No. PTMs",
+        nameGap: 25,
+        nameLocation: "center",
+        nameTextStyle: {
+          fontWeight: "bold",
+          fontSize: 11,
+        },
+        axisLabel: {
+          formatter: (p) => {
+            return parseInt(p) + 1;
+          },
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: 1,
+      },
+    ],
+    series: [
+      ...Object.values(per_position_series),
+      ...Object.values(per_modification_series),
+    ],
+  };
+}
+
+function _getColor(key) {
+  if (!COLORS.M.hasOwnProperty(key)) {
+    COLORS.M[key] = COLORS.i;
+    COLORS.i += 1;
+    if (COLORS.i > COLORS.C.length) {
+      COLORS.i = 0;
+    }
+  }
+  return COLORS.C[COLORS.M[key]];
 }

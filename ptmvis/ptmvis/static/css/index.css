@@ -296,7 +296,7 @@ body .error-toast {
 
 #dashboard-overview {
   position: absolute;
-  background-color: lightcyan;
+  background-color: "#FAFAFC";
   top: 0;
   left: 0;
   width: 100%;
