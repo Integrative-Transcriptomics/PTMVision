@@ -171,7 +171,7 @@ def get_modifications_graph():
                         print(pair)
         # Filter modifications graph for top L and adjust layout settings.
         # (i) Adjust nodes.
-        L = 50
+        L = 45
         nodes = dict( sorted( nodes.items(), key = lambda n: n[ 1 ][ "value" ], reverse = True )[ :L ] )
         nodes_values = [node["value"] for node in nodes.values()]
         nodes_values_min = min(nodes_values)
