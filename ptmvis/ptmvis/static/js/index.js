@@ -230,18 +230,13 @@ function redirectHelp() {
 }
 
 /**
- * Animates the progress indicator icon and displays a custom message.
- *
- * @param {String} hint Progress message to display.
+ * Toggles the visibility of the PTMVision info panel.
  */
-function toggleProgress(hint) {
-  $("#process-indicator").first().toggleClass("fa-flip");
-  if (hint) {
-    $("#process-indicator").first().attr({ "data-hint-text": hint });
+function toggleInfo() {
+  if ($("#panel-info").is(":visible")) {
+    $("#panel-info").hide();
   } else {
-    $("#process-indicator")
-      .first()
-      .attr({ "data-hint-text": "No Process Running" });
+    $("#panel-info").show();
   }
 }
 
@@ -249,14 +244,13 @@ function toggleProgress(hint) {
  * Sends the specified search enginge output data to the PTMVision backend and loads the results in the overview table.
  */
 async function uploadData() {
-  toggleProgress("Uploading Data");
+  $("body").css("cursor", "wait");
   request = {
     contentType: null,
     content: null,
   };
   if ($("#data-input-form")[0].files.length == 0) {
     handleError("No search engine output data was supplied.");
-    toggleProgress();
     return;
   }
   await readFile($("#data-input-form")[0].files[0]).then((response) => {
@@ -366,24 +360,25 @@ async function uploadData() {
           );
         };
         _MODIFICATIONS_GRAPH.setOption(opt);
+        toggleInfo();
       });
     })
     .catch((error) => {
       handleError(error.message);
     })
-    .finally((_) => {
-      toggleProgress();
+    .finally(() => {
+      $("body").css("cursor", "auto");
     });
 }
 
 function getDashboard(cutoff_value, pdb_text_value) {
+  $("body").css("cursor", "wait");
   if (cutoff_value == null) {
     cutoff_value = 4.69;
   }
   if (pdb_text_value == null) {
     pdb_text_value = null;
   }
-  toggleProgress("Initialize Dashboard");
   request = {
     uniprot_id: _PROTEINS_OVERVIEW_TABLE.getSelectedData()[0].id,
     pdb_text: pdb_text_value,
@@ -521,10 +516,9 @@ function getDashboard(cutoff_value, pdb_text_value) {
     })
     .catch((error) => {
       handleError(error.message);
-      console.log(error);
     })
-    .finally((_) => {
-      toggleProgress();
+    .finally(() => {
+      $("body").css("cursor", "auto");
     });
 }
 

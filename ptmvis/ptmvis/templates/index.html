@@ -148,36 +148,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     >
       <div id="menu-grid" class="grid w-100">
         <div class="row">
-          <div class="cell-5 text-center">
-            <button
-              onclick="redirectSource()"
-              class="button-no-decoration menu-button float-left ml-8"
-              data-role="hint"
-              data-hint-text="Source Code<br>(GitHub)"
-              data-hint-position="bottom"
-            >
-              <i class="fa-brands fa-github-alt"></i>
-            </button>
-            <button
-              onclick="redirectHelp()"
-              class="button-no-decoration menu-button float-left ml-2"
-              data-role="hint"
-              data-hint-text="Legal<br>Information"
-              data-hint-position="bottom"
-            >
-              <i class="fa-duotone fa-book-section"></i>
-            </button>
-            <button
-              class="button-no-decoration menu-button float-left ml-2"
-              data-role="hint"
-              data-hint-text="Download<br>Session (Binary)"
-              data-hint-position="bottom"
-              disabled
-            >
-              <i class="fa-duotone fa-cloud-arrow-down"></i>
-            </button>
-          </div>
-          <div class="cell-2 text-center">
+          <div class="cell-1 text-center">
             <div class="logo no-hover">
               <img
                 src="{{ url_for('static', filename='resources/logo.png') }}"
@@ -187,16 +158,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </div>
           <div class="cell-5 text-center">
             <button
-              class="button-no-decoration menu-button float-right mr-8"
-              style="cursor: default"
+              onclick="redirectSource()"
+              class="button-no-decoration menu-button float-left ml-2"
+              data-role="hint"
+              data-hint-text="Source Code<br>(GitHub)"
+              data-hint-position="bottom"
             >
-              <i
-                id="process-indicator"
-                class="fa-regular fa-circle"
-                data-role="hint"
-                data-hint-text="No Process Running"
-                data-hint-position="left"
-              ></i>
+              Source
+            </button>
+            <button
+              onclick="redirectHelp()"
+              class="button-no-decoration menu-button float-left ml-2"
+              data-role="hint"
+              data-hint-text="Legal<br>Information"
+              data-hint-position="bottom"
+            >
+              Legal
+            </button>
+            <button
+              class="button-no-decoration menu-button float-left ml-2"
+              data-role="hint"
+              data-hint-text="Download<br>Session (Binary)"
+              data-hint-position="bottom"
+              disabled
+            >
+              Save Session
             </button>
           </div>
         </div>
@@ -205,8 +191,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <div id="main">
       <div id="panel">
-        <div id="panel-info" class="panel-container"></div>
-
         <div id="panel-inputs" class="panel-container">
           <h6 class="secondary">
             <i class="fa-duotone fa-circle-1"></i> Upload Search Engine Output
@@ -250,6 +234,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             disabled
           />
           <button class="proceed-button mt-2" disabled>Restore</button>
+        </div>
+
+        <div id="panel-info" class="panel-container">
+          <h6 class="secondary">PTMVision Usage</h6>
         </div>
 
         <div id="panel-overview-table" class="panel-container">
@@ -311,7 +299,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <i
               class="fa-duotone fa-circle-info"
               data-role="hint"
-              data-hint-position="left"
+              data-hint-position="bottom"
               data-hint-hide="20000"
               data-hint-text="
                 <p class='text-just'>
