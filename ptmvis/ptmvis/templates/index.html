@@ -294,42 +294,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <div id="panel-overview-table-tabulator"></div>
         </div>
 
-        <div id="panel-overview-graph" class="panel-container">
-          <span>
-            <i
-              class="fa-duotone fa-circle-info"
-              data-role="hint"
-              data-hint-position="bottom"
-              data-hint-hide="20000"
-              data-hint-text="
-                <p class='text-just'>
-                <text-just>
-                &#8226; Displays top 45 modifications wrt. absolute occurrence in the dataset.
-                <br>
-                &#8226; Hovering emphazises adjacency.
-                <br>
-                &#8226; Nodes represent modifications:
-                <br>
-                &nbsp;&#8901; Size encodes absolute occurrence across all proteins.
-                <br>
-                &nbsp;&#8901; Color encodes frequency (at least one occurrence) across all proteins.
-                <br>
-                &#8226; Edges link modifications that co-occur at the same residue within a protein:
-                <br>
-                &nbsp;&#8901; Width encodes absolute co-occurrence across all proteins.
-                </p>
-                "
-            ></i>
-            Modifications Overview Graph (All Proteins)
-          </span>
-          <div id="panel-overview-graph-chart"></div>
-        </div>
+        <div
+          id="panel-overview-graph"
+          data-role="window"
+          data-width="48.5%"
+          data-height="21%"
+          data-top="top"
+          data-left="49.5%"
+          data-draggable="false"
+          data-resizable="false"
+          data-title="Modifications Overview Graph"
+          data-btn-close="false"
+          data-btn-min="false"
+          data-cls-window="panel-overview-graph-window"
+          data-cls-caption="panel-overview-graph-caption"
+        ></div>
 
         <div id="panel-dashboard" class="panel-container">
           <div id="dashboard-overview"></div>
-          <div id="dashboard-structure"></div>
           <div id="dashboard-map"></div>
-          <div id="dashboard-detail">Detail</div>
+          <div id="dashboard-detail"></div>
+          <div
+            id="panel-structure"
+            data-role="window"
+            data-width="25%"
+            data-height="45%"
+            data-top="55%"
+            data-left="0"
+            data-draggable="true"
+            data-resizable="false"
+            data-title="Protein Structure View"
+            data-btn-close="false"
+            data-btn-min="true"
+            data-cls-window="panel-structure-window"
+            data-cls-caption="panel-structure-caption"
+          ></div>
         </div>
 
         <div id="panel-legal">

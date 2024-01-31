@@ -187,7 +187,7 @@ body .error-toast {
   position: absolute;
   top: top;
   left: 0;
-  width: 49%;
+  width: 48.5%;
   height: 21%;
   overflow-y: auto;
 }
@@ -202,7 +202,7 @@ body .error-toast {
   background-color: var(--background-color-3);
   top: top;
   right: 0;
-  width: 49%;
+  width: 48.5%;
   height: 21%;
   overflow-y: auto;
   z-index: 3;
@@ -212,35 +212,27 @@ body .error-toast {
   position: absolute;
   background-color: var(--background-color-3);
   padding: 0 !important;
-  top: top;
-  right: 0;
-  width: 49%;
-  height: 21%;
-  overflow-y: auto;
-}
-
-#panel-overview-graph span {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 2;
-  font-size: large;
-  color: var(--color-2);
-}
-
-#panel-overview-graph-chart {
-  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 2;
 }
 
-#panel-overview-graph-chart div {
+#panel .maximized {
+  max-width: 98% !important;
+  max-height: 45% !important;
+}
+
+.panel-overview-graph-window {
+  background-color: #333333;
+  z-index: 2;
   border-radius: 6px;
+  margin: 1%;
 }
 
-#panel-overview-graph-chart canvas {
+.panel-overview-graph-caption {
+  background-color: var(--color-2);
   border-radius: 6px;
 }
 
@@ -287,44 +279,61 @@ body .error-toast {
   overflow-y: auto;
 }
 
+#dashboard-map {
+  position: absolute;
+  background-color: "#FAFAFC";
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  z-index: 2;
+}
+
 #dashboard-overview {
   position: absolute;
   background-color: "#FAFAFC";
   top: 0;
   left: 0;
-  width: 100%;
-  height: 30%;
-  z-index: 2;
-}
-
-#dashboard-structure {
-  position: absolute;
-  background-color: "#FAFAFC";
-  top: 30%;
-  right: 0;
-  width: 25%;
-  height: 70%;
-  z-index: 2;
-}
-
-#dashboard-map {
-  position: absolute;
-  background-color: "#FAFAFC";
-  top: 30%;
-  right: 25%;
   width: 50%;
-  height: 70%;
+  height: 50%;
   z-index: 2;
 }
 
 #dashboard-detail {
   position: absolute;
-  background-color: lightpink;
-  top: 30%;
-  left: 0;
+  background-color: "#FAFAFC";
+  top: 55%;
+  left: 25%;
   width: 25%;
-  height: 70%;
+  height: 45%;
   z-index: 2;
+}
+
+#panel-structure {
+  position: absolute;
+  background-color: "#FAFAFC";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+#panel-dashboard .maximized {
+  max-width: 50% !important;
+  max-height: 95% !important;
+  top: 5% !important;
+}
+
+.panel-structure-window {
+  background-color: var(--background-color-3);
+  z-index: 3;
+  border-radius: 6px;
+}
+
+.panel-structure-caption {
+  background-color: var(--color-2);
+  border-radius: 6px;
 }
 
 #panel-legal {

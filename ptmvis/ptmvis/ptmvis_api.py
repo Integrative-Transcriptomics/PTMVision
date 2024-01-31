@@ -250,6 +250,7 @@ def get_modifications_graph():
                         "itemStyle": {"shadowColor": "#dc5754", "shadowBlur": 10},
                     },
                     "label": {
+                        
                         "show": True,
                         "color": "#333333",
                         "fontWeight": "lighter",

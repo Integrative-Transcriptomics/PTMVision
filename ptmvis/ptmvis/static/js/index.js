@@ -93,7 +93,7 @@ function init() {
       }
     }
   );
-  _MODIFICATIONS_GRAPH = echarts.init($("#panel-overview-graph-chart")[0], {
+  _MODIFICATIONS_GRAPH = echarts.init($("#panel-overview-graph")[0], {
     devicePixelRatio: 2,
     renderer: "canvas",
     width: "auto",
@@ -105,14 +105,14 @@ function init() {
       height: entries[0].height,
     });
   });
-  _MODIFICATIONS_GRAPH_SIZE_OBSERVER.observe(
-    $("#panel-overview-graph-chart")[0]
-  );
-  _DASHBOARD_STRUCTURE_VIEW = $3Dmol.createViewer($("#dashboard-structure"), {
+  _MODIFICATIONS_GRAPH_SIZE_OBSERVER.observe($("#panel-overview-graph")[0]);
+  _DASHBOARD_STRUCTURE_VIEW = $3Dmol.createViewer($("#panel-structure"), {
     backgroundColor: "#FAFAFC",
     antialias: true,
     cartoonQuality: 6,
   });
+  toggleMOG();
+  toggleStructure();
 }
 
 function _set_table_filters(_) {
@@ -241,6 +241,32 @@ function toggleInfo() {
 }
 
 /**
+ * Toggles the visibility of the PTMVision modifications overview graph panel.
+ */
+function toggleMOG() {
+  let node = $("#panel-overview-graph")[0].parentNode.parentNode;
+  let id = node.id;
+  if ($("#" + id).is(":visible")) {
+    $("#" + id).hide();
+  } else {
+    $("#" + id).show();
+  }
+}
+
+/**
+ * Toggles the visibility of the PTMVision structure panel.
+ */
+function toggleStructure() {
+  let node = $("#panel-structure")[0].parentNode.parentNode;
+  let id = node.id;
+  if ($("#" + id).is(":visible")) {
+    $("#" + id).hide();
+  } else {
+    $("#" + id).show();
+  }
+}
+
+/**
  * Sends the specified search enginge output data to the PTMVision backend and loads the results in the overview table.
  */
 async function uploadData() {
@@ -361,6 +387,7 @@ async function uploadData() {
         };
         _MODIFICATIONS_GRAPH.setOption(opt);
         toggleInfo();
+        toggleMOG();
       });
     })
     .catch((error) => {
@@ -399,7 +426,7 @@ function getDashboard(cutoff_value, pdb_text_value) {
         // Initialize single components.
         _DASHBOARD_STRUCTURE_VIEW = _getStructureView(
           response.data.content.structure,
-          $("#dashboard-structure")
+          $("#panel-structure")
         );
         _DASHBOARD_OVERVIEW_OPTION = _getOverviewOption(response.data.content);
         [_DASHBOARD_OVERVIEW_CHART, _DASHBOARD_OVERVIEW_OBSERVER] =
@@ -512,6 +539,10 @@ function getDashboard(cutoff_value, pdb_text_value) {
           }
           _DASHBOARD_STRUCTURE_VIEW.render();
         });
+        $("#panel-dashboard")
+          .get(0)
+          .scrollIntoView({ behavior: "smooth", block: "end" });
+        toggleStructure();
       }
     })
     .catch((error) => {
