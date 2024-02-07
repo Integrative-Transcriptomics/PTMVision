@@ -29,8 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   --color-1: #5497a7;
   --color-2: #50858b;
   --color-3: #62a8ac;
-  --color-4: #a1d2ce;
-  --color-4-70: rgb(161, 210, 206, 0.7);
+  --color-4: #f2f3f2;
+  --color-5: #fdfefd;
   --highlight-1: #ff6663;
   --highlight-2: #dc5754;
   --highlight-3: #dd9ac2;
@@ -43,12 +43,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 ::-webkit-scrollbar-track {
   background: var(--background-color-2);
-  border-radius: 2px;
+  border-radius: 4px;
   margin: 0.1vw;
 }
 ::-webkit-scrollbar-thumb {
   background: dimgray;
-  border-radius: 2px;
+  border-radius: 4px;
   margin: 0.2vw;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -82,7 +82,7 @@ body .error-toast {
 }
 
 #menu {
-  background-color: var(--color-1);
+  background-color: var(--color-3);
   color: var(--background-color-1);
   height: 5vh;
   display: none;
@@ -94,15 +94,13 @@ body .error-toast {
 }
 
 .menu-button {
-  color: var(--background-color-2);
-  margin: 2px;
-  border-radius: 2px;
+  color: var(--background-color-1);
+  border-radius: 4px;
   height: 100%;
 }
 
 .menu-button:hover {
-  color: var(--background-color-2);
-  background-color: var(--color-3);
+  background-color: var(--color-2);
   transition: 0.2s;
 }
 
@@ -110,7 +108,6 @@ body .error-toast {
   background-color: transparent;
   border: none;
   cursor: pointer;
-  margin: 2px;
 }
 
 .process-active {
@@ -122,7 +119,7 @@ body .error-toast {
   background-color: var(--color-2);
   opacity: 0.9;
   color: var(--background-color-2);
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 .citation {
@@ -131,18 +128,34 @@ body .error-toast {
 }
 
 .logo {
-  height: 5vh;
+  margin-top: 0.5vh;
+  height: 4vh;
 }
 
 .logo img {
-  height: 90%;
+  height: 100%;
+}
+
+.toolbox-button {
+  background-color: var(--color-1);
+  color: var(--background-color-1);
+  border: none;
+  border-radius: 4px;
+  font-size: small;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.toolbox-button:hover {
+  background-color: var(--color-2);
+  transition: 0.2s;
 }
 
 .proceed-button {
   background-color: var(--highlight-1);
   color: var(--background-color-1);
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   font-size: small;
   padding: 4px;
   cursor: pointer;
@@ -158,23 +171,25 @@ body .error-toast {
 }
 
 #main {
-  background-color: var(--color-1);
+  background-color: var(--color-5);
   position: absolute;
   top: 5vh;
   right: 0;
   bottom: 0;
   left: 0;
-  height: 200%;
+  height: fit-content;
 }
 
 .panel-container {
-  border-width: 1px;
-  border-radius: 6px;
+  border-radius: 4px;
   border-color: var(--color-3);
-  background-color: var(--color-4-70);
+  background-color: var(--color-4);
   color: var(--text-color);
   padding: 10px;
-  margin: 1%;
+}
+
+.panel-container .fa-duotone {
+  color: var(--color-2) !important;
 }
 
 #panel {
@@ -183,80 +198,76 @@ body .error-toast {
   display: none;
 }
 
-#panel-inputs {
+#vline {
   position: absolute;
-  top: top;
-  left: 0;
-  width: 48.5%;
-  height: 21%;
+  height: 200vh;
+  left: calc(5% + 16px);
+  border-left: 3px solid var(--color-3);
+}
+
+#panel-info {
+  margin-top: 5vh;
+  left: 5%;
+  width: 90%;
+  height: auto;
+  overflow-y: auto;
+}
+
+#panel-inputs {
+  margin-top: 5vh;
+  left: 5%;
+  width: 90%;
+  height: auto;
   overflow-y: auto;
 }
 
 #panel-inputs i {
   font-size: large;
-  color: var(--background-color-3);
 }
 
-#panel-info {
-  position: absolute;
-  background-color: var(--background-color-3);
-  top: top;
-  right: 0;
-  width: 48.5%;
-  height: 21%;
+#panel-overview {
+  margin-top: 5vh;
+  left: 5%;
+  width: 90%;
+  height: auto;
+  min-height: 42vh;
   overflow-y: auto;
-  z-index: 3;
+  resize: vertical;
 }
 
-#panel-overview-graph {
+#panel-overview-chart {
   position: absolute;
-  background-color: var(--background-color-3);
-  padding: 0 !important;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
+  top: 4vh;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+  background-color: var(--background-color-1);
+  border-radius: 4px;
 }
 
-#panel .maximized {
-  max-width: 98% !important;
-  max-height: 45% !important;
-}
-
-.panel-overview-graph-window {
-  background-color: #333333;
-  z-index: 2;
-  border-radius: 6px;
-  margin: 1%;
-}
-
-.panel-overview-graph-caption {
-  background-color: var(--color-2);
-  border-radius: 6px;
-}
-
-#panel-overview-table {
-  position: absolute;
-  top: 22%;
-  left: 0;
-  width: 98%;
-  height: 23%;
+#panel-table {
+  margin-top: 5vh;
+  left: 5%;
+  width: 90%;
+  height: auto;
   overflow-y: auto;
 }
 
-#panel-overview-table i {
+#panel-table i {
   font-size: large;
   color: var(--background-color-3);
 }
 
-#panel-overview-table-tabulator {
-  position: absolute;
-  bottom: 0;
-  left: 0;
+#panel-table-tabulator {
   width: 100%;
   background-color: var(--background-color-1);
   border-radius: 4px !important;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+  height: fit-content;
+  min-height: 2vh;
+  max-height: 30vh;
+  overflow-y: scroll;
 }
 
 .tabulator-col-title {
@@ -271,79 +282,63 @@ body .error-toast {
 }
 
 #panel-dashboard {
-  position: absolute;
-  background-color: var(--background-color-1);
-  top: 46%;
-  width: 98%;
-  height: 45%;
+  margin-top: 5vh;
+  width: 98vw;
+  margin: 1vw;
+  min-height: 84vh;
   overflow-y: auto;
+  resize: vertical;
 }
 
-#dashboard-map {
+#panel-dashboard-chart {
   position: absolute;
-  background-color: "#FAFAFC";
-  top: 0;
-  right: 0;
-  width: 50%;
-  height: 100%;
-  z-index: 2;
-}
-
-#dashboard-overview {
-  position: absolute;
-  background-color: "#FAFAFC";
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 50%;
-  z-index: 2;
-}
-
-#dashboard-detail {
-  position: absolute;
-  background-color: "#FAFAFC";
-  top: 55%;
-  left: 25%;
-  width: 25%;
-  height: 45%;
-  z-index: 2;
-}
-
-#panel-structure {
-  position: absolute;
-  background-color: "#FAFAFC";
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
+  top: 4vh;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+  background-color: var(--background-color-1);
+  border-radius: 4px;
 }
 
 #panel-dashboard .maximized {
   max-width: 50% !important;
-  max-height: 95% !important;
-  top: 5% !important;
+  max-height: 94% !important;
+  top: 3% !important;
+  bottom: 3% !important;
 }
 
-.panel-structure-window {
+#panel-dashboard-structure {
+  position: absolute;
+  background-color: "#FAFAFC";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+.panel-dashboard-structure-window {
   background-color: var(--background-color-3);
   z-index: 3;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
-.panel-structure-caption {
-  background-color: var(--color-2);
-  border-radius: 6px;
+.panel-dashboard-structure-caption {
+  color: var(--text-color);
+  font-size: small;
+  height: 5%;
+  background-color: var(--color-4);
+  border-radius: 4px;
 }
 
 #panel-legal {
   font-size: 0.7em;
-  padding: 13px;
-  position: absolute;
+  padding: 20px;
   bottom: 0;
   width: 100%;
+  min-height: 160px;
   background-color: var(--color-3);
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 #panel-legal th {

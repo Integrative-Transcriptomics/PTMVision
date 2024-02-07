@@ -121,9 +121,9 @@ def get_available_proteins():
     return protein_entries
 
 
-@app.route("/get_modifications_graph", methods=["GET"])
-def get_modifications_graph():
-    """Route to retrieve an ECharts graph definition representing all modifications of a dataset."""
+@app.route("/get_mog_data", methods=["GET"])
+def get_mog_data():
+    """Route to retrieve nodes and links data for modifications overview graph, representing all modifications of a dataset."""
     nodes = {}
     links = {}
     modification_occurrence = {}
@@ -142,138 +142,27 @@ def get_modifications_graph():
                     modification_name = modification["modification_unimod_name"]
                     per_position_modifications.append(modification_name)
                     if not modification_name in nodes:
-                        nodes[modification_name] = {
-                            "name": modification_name,
-                            "value": 1,
-                        }
+                        nodes[modification_name] = 1
                     else:
-                        nodes[modification_name]["value"] += 1
+                        nodes[modification_name] += 1
                     if not modification_name in modification_occurrence:
-                        modification_occurrence[modification_name] = {
-                            protein_identifier
-                        }
-                    else:
-                        modification_occurrence[modification_name].add(
-                            protein_identifier
-                        )
+                        modification_occurrence[modification_name] = set()
+                    modification_occurrence[modification_name].add(protein_identifier)
                 for pair in combinations(set(per_position_modifications), 2):
                     try:
-                        link_key = frozenset([pair[0], pair[1]])
+                        link_key = str( pair[0] ) + "@" + str( pair[1] )
                         if not link_key in links:
-                            links[link_key] = {
-                                "source": list(link_key)[0],
-                                "target": list(link_key)[1],
-                                "value": 1,
-                            }
+                            links[link_key] = 1
                         else:
-                            links[link_key]["value"] += 1
+                            links[link_key] += 1
                     except IndexError as e:
                         print(pair)
-        # Filter modifications graph for top L and adjust layout settings.
-        # (i) Adjust nodes.
-        L = 45
-        nodes = dict( sorted( nodes.items(), key = lambda n: n[ 1 ][ "value" ], reverse = True )[ :L ] )
-        nodes_values = [node["value"] for node in nodes.values()]
-        nodes_values_min = min(nodes_values)
-        nodes_values_max = max(nodes_values)
-        for k, v in nodes.items():
-            v["symbolSize"] = max(
-                4,
-                20 if (nodes_values_max - nodes_values_min) == 0 else
-                ceil(
-                    (
-                        (v["value"] - nodes_values_min)
-                        / (nodes_values_max - nodes_values_min)
-                    )
-                    * 20
-                ),
-            )
-            v["count"] = v["value"]
-            v["value"] = round(
-                (len(modification_occurrence[k]) / len(protein_identifiers)) * 100
-            )
-        # (ii) Adjust links.
-        links = [
-            l for l in links.values() if (l["source"] in nodes and l["target"] in nodes)
-        ]
-        if len( links ) > 0 :
-            links_values = sorted([link["value"] for link in links])
-            links_values_min = min(links_values)
-            links_values_max = max(links_values)
-            for link in links:
-                link["lineStyle"] = {
-                    "width": max(
-                        0.05,
-                        2 if (links_values_max - links_values_min) == 0 else
-                        (
-                            (link["value"] - links_values_min)
-                            / (links_values_max - links_values_min)
-                        )
-                        * 2,
-                    )
-                }
-        # Construct EChart option.
-        option = {
-            "backgroundColor": "#fbfbfb",
-            "animation": False,
-            "tooltip": {"backgroundColor": "rgba(51, 51, 51, 0.7)",
-                        "borderColor": "transparent",
-                        "textStyle": {
-                            "fontWeight": "lighter",
-                            "fontSize": 10,
-                            "color": "#f0f5f5",
-                        }
-            },
-            "toolbox": {
-                "feature": {
-                    "saveAsImage": {
-                    "pixelRatio": 4,
-                    },
-                },
-            },
-            "visualMap": {
-                "bottom": "bottom",
-                "left": "center",
-                "min": 0,
-                "max": 100,
-                "color": ["#F26430", "#4350A5"],
-                "orient": "horizontal",
-                "precision": 1,
-                "text": ["100% of Proteins", "Occurs in 0%"],
-            },
-            "series": [
-                {
-                    "name": "Modifications Graph",
-                    "emphasis": {
-                        "focus": "adjacency",
-                        "label": {"show": False},
-                        "itemStyle": {"shadowColor": "#dc5754", "shadowBlur": 10},
-                    },
-                    "label": {
-                        
-                        "show": True,
-                        "color": "#333333",
-                        "fontWeight": "lighter",
-                        "fontSize": 11,
-                        "backgroundColor": "rgba(240, 245, 245, 0.6)",
-                        "borderRadius": 4
-
-                    },
-                    "edgeLabel": {"show": False},
-                    "type": "graph",
-                    "layout": "circular",
-                    "circular": {
-                        "rotateLabel": True
-                    },
-                    "data": list(nodes.values()),
-                    "links": links,
-                    "roam": True,
-                    "lineStyle": {"color": "#333333", "curveness": 0.2},
-                    "itemStyle": {},
-                }
-            ],
-        }
-    return option
+        for modification_name, occurrence in nodes.items( ) :
+            nodes[ modification_name ] = [
+                occurrence,
+                round( len( modification_occurrence[ modification_name ] ) / len( protein_identifiers ), 4 )
+            ]
+        return [ nodes, links ]
 
 
 @app.route("/get_protein_data", methods=["POST"])
@@ -323,6 +212,7 @@ def get_protein_data():
     with open('./ptmvis/session/dump.json', 'w+') as f:
         json.dump( session[MODIFICATIONS_DATA], f, indent = 3 )
     return response
+
 
 def _map_uniprot_identifiers(identifiers, target_db):
     job_id = submit_id_mapping(

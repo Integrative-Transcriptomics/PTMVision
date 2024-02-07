@@ -1,610 +1,54 @@
-_URL = "http://127.0.0.1:5000/";
-_PROTEINS_OVERVIEW_TABLE = null;
-// _DASHBOARD_SIZE_OBSERVER = null;
-_MODIFICATIONS_GRAPH = null;
-_MODIFICATIONS_GRAPH_SIZE_OBSERVER = null;
-
-_DASHBOARD_STRUCTURE_VIEW = null;
-
-_DASHBOARD_MAP_CHART = null;
-_DASHBOARD_MAP_OBSERVER = null;
-_DASHBOARD_CONTACT_MAP_OPTION = null;
-_DASHBOARD_PRESENCE_MAP_OPTION = null;
-
-_DASHBOARD_OVERVIEW_CHART = null;
-_DASHBOARD_OVERVIEW_OBSERVER = null;
-_DASHBOARD_OVERVIEW_OPTION = null;
-
-_CURRENT_PROTEIN_DATA = null;
+var __url = "http://127.0.0.1:5000/";
+var __proteinsOverviewTable = null;
+var __mogChart = null;
+var __mogOption = null;
+var __mogSizeObserver = null;
+var __structureView = null;
+var __dashboardChart = null;
+var __dashboardOption = null;
+var __dashboardSizeObserver = null;
+var __data = null;
+var __modifications = [];
 
 const COLORS = {
   M: {},
   i: 0,
   C: [
-    "#f44336",
-    "#673ab7",
-    "#2196f3",
-    "#4caf50",
-    "#ffeb3b",
-    "#ffc107",
-    "#ff5722",
-    "#3f51b5",
-    "#e81e63",
-    "#03a9f4",
-    "#009688",
-    "#cddc39",
-    "#ff9800",
-    "#00bcd4",
-    "#8bc34a",
+    "#d83034",
+    "#f9e858",
+    "#ff9d3a",
+    "#4ecb8d",
+    "#bdd373",
+    "#7e4794",
+    "#c701ff",
+    "#ff73b6",
+    "#008dff",
+    "#003a7d",
   ],
 };
-var MODIFICATIONS = [];
 
-/**
- * Inizializes all client side elements of the PTMVision application.
- */
-function init() {
-  _URL = API_PARAMETERS["URL"];
-  $("#menu")[0].style.display = "flex";
-  $("#panel")[0].style.display = "block";
-  _PROTEINS_OVERVIEW_TABLE = new Tabulator("#panel-overview-table-tabulator", {
-    height: "73%",
-    maxHeight: "73%",
-    selectable: 1,
-    columns: [
-      {
-        title: "ID",
-        field: "id",
-        sorter: "string",
-        width: "14%",
-      },
-      {
-        title: "Name",
-        field: "name",
-        sorter: "string",
-        width: "14%",
-      },
-      {
-        title: "# Positions with Modifications",
-        field: "modified_positions",
-        sorter: "number",
-        width: "35%",
-      },
-      {
-        title: "# Distinct Modifications",
-        field: "unique_modifications",
-        sorter: "number",
-        width: "35%",
-      },
-      {
-        title: "Modifications",
-        field: "modifications",
-        visible: false,
-      },
-    ],
-  });
-  _PROTEINS_OVERVIEW_TABLE.on(
-    "rowSelectionChanged",
-    function (data, rows, selected, deselected) {
-      if (data.length > 0) {
-        $("#dashboard-display-button")[0].disabled = false;
-      } else {
-        $("#dashboard-display-button")[0].disabled = true;
-      }
-    }
-  );
-  _MODIFICATIONS_GRAPH = echarts.init($("#panel-overview-graph")[0], {
-    devicePixelRatio: 2,
-    renderer: "canvas",
-    width: "auto",
-    height: "auto",
-  });
-  _MODIFICATIONS_GRAPH_SIZE_OBSERVER = new ResizeObserver((entries) => {
-    _MODIFICATIONS_GRAPH.resize({
-      width: entries[0].width,
-      height: entries[0].height,
-    });
-  });
-  _MODIFICATIONS_GRAPH_SIZE_OBSERVER.observe($("#panel-overview-graph")[0]);
-  _DASHBOARD_STRUCTURE_VIEW = $3Dmol.createViewer($("#panel-structure"), {
-    backgroundColor: "#FAFAFC",
-    antialias: true,
-    cartoonQuality: 6,
-  });
-  toggleMOG();
-  toggleStructure();
-}
+const DASHBOARD_COMPONENTS = {
+  positionCountsIndex: 0,
+  ptmCountsIndex: 1,
+  annotationsIndex: 2,
+  presenceMapIndex: 3,
+  contactMapIndex: 3,
+  positions: null,
+  modifications: null,
+  positionCountsSeries: null,
+  ptmCountsSeries: null,
+  presenceMapSeries: null,
+  contactMapSeries: null,
+  annotationSeries: null,
+  annotationsLabels: null,
+};
 
-function _set_table_filters(_) {
-  const id_values = Metro.getPlugin(
-    "#panel-overview-table-filter-id",
-    "select"
-  ).val();
-  const mod_values = Metro.getPlugin(
-    "#panel-overview-table-filter-modification",
-    "select"
-  ).val();
-  _PROTEINS_OVERVIEW_TABLE.clearFilter(true);
-  const filters = [];
-  for (let mod_value of mod_values) {
-    filters.push({
-      field: "modifications",
-      type: "like",
-      value: mod_value,
-    });
-  }
-  for (let id_value of id_values) {
-    let id_value_fields = id_value.split("$");
-    filters.push({
-      field: id_value_fields[0] == "id" ? "id" : "name",
-      type: "like",
-      value: id_value_fields[1],
-    });
-  }
-  _PROTEINS_OVERVIEW_TABLE.setFilter(filters);
-}
-
-/**
- * Downloads the content of a blob to a client file.
- *
- * @param {Blob} blob File-like blob data to download.
- * @param {String} name The file name to save the downloaded content to.
- */
-function downloadBlob(blob, name) {
-  var download_link = document.createElement("a");
-  download_link.href = window.URL.createObjectURL(new Blob([blob]));
-  download_link.download = name;
-  download_link.click();
-  download_link.remove();
-}
-
-/**
- * Downloads an example dataset to the client.
- */
-function downloadExampleData() {
-  axios
-    .get(_URL + "/example_data", { responseType: "blob" })
-    .then((response) => {
-      downloadBlob(response.data, "example_data.csv");
-    });
-}
-
-/**
- * Reads a file-like blob object to its String content.
- *
- * @param {Blob} file File-like blob data to read.
- * @returns String content of the file-like input blob.
- */
-function readFile(file) {
-  return new Promise((resolve, reject) => {
-    var fileReader = new FileReader();
-    fileReader.onload = (event) => {
-      resolve(event.target.result);
-    };
-    fileReader.onerror = (error) => reject(error);
-    fileReader.readAsText(file);
-  });
-}
-
-/**
- * Displays a toast element with a custom error message to the user.
- *
- * @param {String} msg The error message to display.
- */
-function handleError(msg) {
-  Metro.toast.create("Fatal Error: " + msg, null, 6000, "error-toast");
-}
-
-/**
- * Redirects the browser to the GitHub repository of this project.
- */
-function redirectSource() {
-  window.open(
-    "https://github.com/Integrative-Transcriptomics/PTMVision",
-    "_blank"
-  );
-}
-
-/**
- * Displays a {@link sweetalert2} container yielding legal notice information.
- */
-function redirectHelp() {
-  Swal.fire({
-    title: "Legal Notice",
-    html: _redirect_help_html,
-    width: "100%",
-    position: "bottom",
-    showCloseButton: true,
-    showCancelButton: false,
-    showConfirmButton: false,
-    grow: true,
-    heightAuto: true,
-    color: "#333333",
-    background: "#fafafcd9",
-    backdrop: `
-      rgba(239, 240, 248, 0.1)
-      left top
-      no-repeat
-    `,
-  });
-}
-
-/**
- * Toggles the visibility of the PTMVision info panel.
- */
-function toggleInfo() {
-  if ($("#panel-info").is(":visible")) {
-    $("#panel-info").hide();
-  } else {
-    $("#panel-info").show();
-  }
-}
-
-/**
- * Toggles the visibility of the PTMVision modifications overview graph panel.
- */
-function toggleMOG() {
-  let node = $("#panel-overview-graph")[0].parentNode.parentNode;
-  let id = node.id;
-  if ($("#" + id).is(":visible")) {
-    $("#" + id).hide();
-  } else {
-    $("#" + id).show();
-  }
-}
-
-/**
- * Toggles the visibility of the PTMVision structure panel.
- */
-function toggleStructure() {
-  let node = $("#panel-structure")[0].parentNode.parentNode;
-  let id = node.id;
-  if ($("#" + id).is(":visible")) {
-    $("#" + id).hide();
-  } else {
-    $("#" + id).show();
-  }
-}
-
-/**
- * Sends the specified search enginge output data to the PTMVision backend and loads the results in the overview table.
- */
-async function uploadData() {
-  $("body").css("cursor", "wait");
-  request = {
-    contentType: null,
-    content: null,
-  };
-  if ($("#data-input-form")[0].files.length == 0) {
-    handleError("No search engine output data was supplied.");
-    return;
-  }
-  await readFile($("#data-input-form")[0].files[0]).then((response) => {
-    request.content = response;
-  });
-  request.contentType = $("#data-type-form")[0].value;
-  axios
-    .post(
-      _URL + "/process_search_engine_output",
-      pako.deflate(JSON.stringify(request)),
-      {
-        headers: {
-          "Content-Type": "application/octet-stream",
-          "Content-Encoding": "zlib",
-        },
-      }
-    )
-    .then((_) => {
-      Metro.toast.create(
-        "Your data has been uploaded successfully.",
-        null,
-        5000
-      );
-      // Init. table.
-      axios.get(_URL + "/get_available_proteins").then((response) => {
-        _PROTEINS_OVERVIEW_TABLE.setData(response.data);
-        modifications = new Set();
-        identifiers = new Set();
-        for (let entry of response.data) {
-          entry.modifications.split("$").forEach((m) => modifications.add(m));
-          identifiers.add(entry.id + "$" + entry.name);
-        }
-        modifications = [...modifications];
-        modifications_data_string = "";
-        modifications.forEach((m) => {
-          modifications_data_string +=
-            `<option value="` + m + `">` + m + `</option>`;
-        });
-        Metro.getPlugin(
-          "#panel-overview-table-filter-modification",
-          "select"
-        ).data(modifications_data_string);
-        identifiers = [...identifiers];
-        identifiers_data_string = "";
-        identifiers.forEach((i) => {
-          let entry = i.split("$");
-          identifiers_data_string +=
-            `<option value="id$` +
-            entry[0] +
-            `">` +
-            entry[0] +
-            `</option><option value="name$` +
-            entry[1] +
-            `">` +
-            entry[1] +
-            `</option>`;
-        });
-        Metro.getPlugin("#panel-overview-table-filter-id", "select").data(
-          identifiers_data_string
-        );
-      });
-      // Init. graph.
-      axios.get(_URL + "/get_modifications_graph").then((response) => {
-        const opt = response.data;
-        opt["tooltip"]["formatter"] = (params, ticket, callback) => {
-          if (params.dataType == "edge") {
-            return (
-              `<b><u>` +
-              params.data.source +
-              `</u> and ` +
-              `<u>` +
-              params.data.target +
-              `</u></b>
-            <br>` +
-              params.data.value +
-              ` joint occurrences.`
-            );
-          } else if (params.dataType == "node") {
-            return (
-              `<b>Modification <u>` +
-              params.data.name +
-              `</u></b>
-            <br>` +
-              params.data.count +
-              ` occurrences. Occurs<br>in ` +
-              params.data.value +
-              `% of proteins at least once.`
-            );
-          }
-        };
-        opt["series"][0]["itemStyle"]["color"] = (params) => {
-          let R = 0; // to 255
-          let G = 190; // to 60
-          let B = 210; // to 0
-          let Rs = 2.55;
-          let Gs = 1.3;
-          let Bs = 2.1;
-          let frequency = params.data.frequency;
-          return (
-            "rgb(" +
-            (R + Rs * frequency) +
-            "," +
-            (G - Gs * frequency) +
-            "," +
-            (B - Bs * frequency) +
-            ")"
-          );
-        };
-        _MODIFICATIONS_GRAPH.setOption(opt);
-        toggleInfo();
-        toggleMOG();
-      });
-    })
-    .catch((error) => {
-      handleError(error.message);
-    })
-    .finally(() => {
-      $("body").css("cursor", "auto");
-    });
-}
-
-function getDashboard(cutoff_value, pdb_text_value) {
-  $("body").css("cursor", "wait");
-  if (cutoff_value == null) {
-    cutoff_value = 4.69;
-  }
-  if (pdb_text_value == null) {
-    pdb_text_value = null;
-  }
-  request = {
-    uniprot_id: _PROTEINS_OVERVIEW_TABLE.getSelectedData()[0].id,
-    pdb_text: pdb_text_value,
-    cutoff: cutoff_value,
-  };
-  axios
-    .post(_URL + "/get_protein_data", pako.deflate(JSON.stringify(request)), {
-      headers: {
-        "Content-Type": "application/octet-stream",
-        "Content-Encoding": "zlib",
-      },
-    })
-    .then((response) => {
-      if (response.data.status == "Failed: No protein structure available.") {
-        _requestPdb();
-      } else {
-        _CURRENT_PROTEIN_DATA = response.data.content;
-        // Initialize single components.
-        _DASHBOARD_STRUCTURE_VIEW = _getStructureView(
-          response.data.content.structure,
-          $("#panel-structure")
-        );
-        _DASHBOARD_OVERVIEW_OPTION = _getOverviewOption(response.data.content);
-        [_DASHBOARD_OVERVIEW_CHART, _DASHBOARD_OVERVIEW_OBSERVER] =
-          _constructEChartInstance(
-            $("#dashboard-overview")[0],
-            _DASHBOARD_OVERVIEW_OPTION
-          );
-        _DASHBOARD_CONTACT_MAP_OPTION = _getContactMapOption(
-          response.data.content
-        );
-        _DASHBOARD_PRESENCE_MAP_OPTION = _getPresenceMapOption(
-          response.data.content
-        );
-        [_DASHBOARD_MAP_CHART, _DASHBOARD_MAP_OBSERVER] =
-          _constructEChartInstance(
-            $("#dashboard-map")[0],
-            _DASHBOARD_PRESENCE_MAP_OPTION
-          );
-        _DASHBOARD_MAP_CHART.on("click", "series", (params) => {
-          _DASHBOARD_STRUCTURE_VIEW.removeAllLabels();
-          _DASHBOARD_STRUCTURE_VIEW.removeAllShapes();
-          _GLViewerSetDefaultStyle(_DASHBOARD_STRUCTURE_VIEW);
-          let selectedResidue = params.data[0];
-          let selectedResidueCA = _DASHBOARD_STRUCTURE_VIEW.getAtomsFromSel({
-            resi: [selectedResidue],
-            atom: "CA",
-          })[0];
-          _DASHBOARD_STRUCTURE_VIEW.addStyle(
-            {
-              resi: [selectedResidue],
-            },
-            {
-              stick: {
-                color: "#763bff",
-                radius: 0.9,
-              },
-            }
-          );
-          _DASHBOARD_STRUCTURE_VIEW.addResLabels(
-            {
-              resi: [selectedResidue],
-            },
-            {
-              backgroundColor: "rgb(51, 51, 51)",
-              backgroundOpacity: 0.7,
-              fontColor: "#f0f5f5",
-              fontSize: 11,
-            }
-          );
-          if (_CURRENT_PROTEIN_DATA.contacts.hasOwnProperty(selectedResidue)) {
-            for (let contactEntry of _CURRENT_PROTEIN_DATA.contacts[
-              selectedResidue
-            ]) {
-              _DASHBOARD_STRUCTURE_VIEW.addStyle(
-                {
-                  resi: [contactEntry[0]],
-                },
-                {
-                  stick: {
-                    color: "#ff963b",
-                    radius: 0.3,
-                  },
-                }
-              );
-              _DASHBOARD_STRUCTURE_VIEW.addResLabels(
-                {
-                  resi: [contactEntry[0]],
-                },
-                {
-                  backgroundColor: "rgb(51, 51, 51)",
-                  backgroundOpacity: 0.7,
-                  fontColor: "#f0f5f5",
-                  fontSize: 11,
-                }
-              );
-              let contactEntryCA = _DASHBOARD_STRUCTURE_VIEW.getAtomsFromSel({
-                resi: [contactEntry[0]],
-                atom: "CA",
-              })[0];
-              _DASHBOARD_STRUCTURE_VIEW.addLine({
-                color: "#000000",
-                hidden: false,
-                dashed: false,
-                start: {
-                  x: selectedResidueCA.x,
-                  y: selectedResidueCA.y,
-                  z: selectedResidueCA.z,
-                },
-                end: {
-                  x: contactEntryCA.x,
-                  y: contactEntryCA.y,
-                  z: contactEntryCA.z,
-                },
-              });
-              _DASHBOARD_STRUCTURE_VIEW.addLabel(
-                contactEntry[1].toFixed(2) + " Å",
-                {
-                  backgroundColor: "rgb(51, 51, 51)",
-                  backgroundOpacity: 0.4,
-                  fontColor: "#f0f5f5",
-                  fontSize: 10,
-                  position: {
-                    x: (selectedResidueCA.x + contactEntryCA.x) / 2,
-                    y: (selectedResidueCA.y + contactEntryCA.y) / 2,
-                    z: (selectedResidueCA.z + contactEntryCA.z) / 2,
-                  },
-                }
-              );
-            }
-          }
-          _DASHBOARD_STRUCTURE_VIEW.render();
-        });
-        $("#panel-dashboard")
-          .get(0)
-          .scrollIntoView({ behavior: "smooth", block: "end" });
-        toggleStructure();
-      }
-    })
-    .catch((error) => {
-      handleError(error.message);
-    })
-    .finally(() => {
-      $("body").css("cursor", "auto");
-    });
-}
-
-function _requestPdb() {
-  Swal.fire({
-    title: "Failed to fetch Protein Structure!",
-    html: _upload_pdb_html,
-    width: "1000%",
-    position: "bottom",
-    showCloseButton: false,
-    showCancelButton: true,
-    cancelButtonColor: "#dc5754",
-    showConfirmButton: true,
-    confirmButtonColor: "#62a8ac",
-    confirmButtonText: "Continue",
-    grow: true,
-    heightAuto: true,
-    color: "#333333",
-    background: "#fafafcd9",
-    backdrop: `
-      rgba(239, 240, 248, 0.1)
-      left top
-      no-repeat
-    `,
-  }).then((result) => {
-    if (result.isConfirmed) {
-      getDashboard(null, readFile($("#optional-pdb-input")[0].files[0]));
-    }
-  });
-}
-
-function _constructEChartInstance(html_container, echart_option) {
-  var chart = echarts.init(html_container, {
-    devicePixelRatio: 4,
-    renderer: "canvas",
-    width: "auto",
-    height: "auto",
-  });
-  var observer = new ResizeObserver((entries) => {
-    chart.resize({
-      width: entries[0].width,
-      height: entries[0].height,
-    });
-  });
-  observer.observe(html_container);
-  chart.setOption(echart_option, true);
-  return [chart, observer];
-}
-
-var _upload_pdb_html = `
+const UPLOAD_PDB_HTML = `
     <p>You can provide a structure in .pdb format to continue.</p>
     <br>
     <input id="optional-pdb-input" type="file" data-role="file" data-mode="drop">`;
 
-var _redirect_help_html = `
+const LEGAL_HTML = `
     <div>
       <div class="remark m-4">
         <h2 class="p-2 text-center">
@@ -728,7 +172,1004 @@ var _redirect_help_html = `
       </div>
     </div>`;
 
-function _getStructureView(pdb_text, html_container) {
+/**
+ * Inizializes all client side elements of the PTMVision application.
+ */
+function init() {
+  __url = API_PARAMETERS["URL"];
+  $("#menu")[0].style.display = "flex";
+  $("#panel")[0].style.display = "block";
+  __proteinsOverviewTable = new Tabulator("#panel-table-tabulator", {
+    selectable: 1,
+    columns: [
+      {
+        title: "ID",
+        field: "id",
+        sorter: "string",
+        width: "10%",
+      },
+      {
+        title: "Name",
+        field: "name",
+        sorter: "string",
+        width: "40%",
+      },
+      {
+        title: "No. modified positions",
+        field: "modified_positions",
+        sorter: "number",
+        width: "25%",
+      },
+      {
+        title: "No. distinct modifications",
+        field: "unique_modifications",
+        sorter: "number",
+        width: "25%",
+      },
+      {
+        title: "Modifications",
+        field: "modifications",
+        visible: false,
+      },
+    ],
+  });
+  __proteinsOverviewTable.on(
+    "rowSelectionChanged",
+    function (data, rows, selected, deselected) {
+      if (data.length > 0) {
+        $("#dashboard-display-button")[0].disabled = false;
+      } else {
+        $("#dashboard-display-button")[0].disabled = true;
+      }
+    }
+  );
+  __mogChart = echarts.init($("#panel-overview-chart")[0], {
+    devicePixelRatio: 2,
+    renderer: "canvas",
+    width: "auto",
+    height: "auto",
+  });
+  __mogSizeObserver = new ResizeObserver((entries) => {
+    __mogChart.resize({
+      width: entries[0].width,
+      height: entries[0].height,
+    });
+  });
+  __mogSizeObserver.observe($("#panel-overview-chart")[0]);
+  __structureView = $3Dmol.createViewer($("#panel-dashboard-structure"), {
+    backgroundColor: "#FAFAFC",
+    antialias: true,
+    cartoonQuality: 6,
+  });
+  toggleStructure(false);
+}
+
+/**
+ * Downloads the content of a blob to a client file.
+ *
+ * @param {Blob} blob File-like blob data to download.
+ * @param {String} name The file name to save the downloaded content to.
+ */
+function downloadBlob(blob, name) {
+  var download_link = document.createElement("a");
+  download_link.href = window.URL.createObjectURL(new Blob([blob]));
+  download_link.download = name;
+  download_link.click();
+  download_link.remove();
+}
+
+/**
+ * Downloads an example dataset to the client.
+ */
+function _downloadExampleData() {
+  axios
+    .get(__url + "/example_data", { responseType: "blob" })
+    .then((response) => {
+      downloadBlob(response.data, "example_data.csv");
+    });
+}
+
+/**
+ * Reads a file-like blob object to its String content.
+ *
+ * @param {Blob} file File-like blob data to read.
+ * @returns String content of the file-like input blob.
+ */
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    var fileReader = new FileReader();
+    fileReader.onload = (event) => {
+      resolve(event.target.result);
+    };
+    fileReader.onerror = (error) => reject(error);
+    fileReader.readAsText(file);
+  });
+}
+
+/**
+ * Displays a toast element with a custom error message to the user.
+ *
+ * @param {String} msg The error message to display.
+ */
+function handleError(msg) {
+  Metro.toast.create("Fatal Error: " + msg, null, 6000, "error-toast");
+}
+
+/**
+ * Redirects the browser to the GitHub repository of this project.
+ */
+function redirectSource() {
+  window.open(
+    "https://github.com/Integrative-Transcriptomics/PTMVision",
+    "_blank"
+  );
+}
+
+/**
+ * Displays a {@link sweetalert2} container yielding legal notice information.
+ */
+function redirectHelp() {
+  Swal.fire({
+    title: "Legal Notice",
+    html: LEGAL_HTML,
+    width: "100%",
+    position: "bottom",
+    showCloseButton: true,
+    showCancelButton: false,
+    showConfirmButton: false,
+    grow: true,
+    heightAuto: true,
+    color: "#333333",
+    background: "#fafafcd9",
+    backdrop: `
+      rgba(239, 240, 248, 0.1)
+      left top
+      no-repeat
+    `,
+  });
+}
+
+/**
+ * Toggles the visibility of the PTMVision structure panel.
+ */
+function toggleStructure() {
+  let node = $("#panel-dashboard-structure")[0].parentNode.parentNode;
+  let id = node.id;
+  if ($("#" + id).is(":visible")) {
+    $("#panel-dashboard-toggle-structure-button").html(
+      "Show Protein Structure"
+    );
+    $("#" + id).hide();
+  } else {
+    $("#panel-dashboard-toggle-structure-button").html(
+      "Hide Protein Structure"
+    );
+    $("#" + id).show();
+  }
+}
+
+function setTableFilters(_) {
+  const id_values = Metro.getPlugin("#panel-table-filter-id", "select").val();
+  const mod_values = Metro.getPlugin(
+    "#panel-table-filter-modification",
+    "select"
+  ).val();
+  __proteinsOverviewTable.clearFilter(true);
+  const filters = [];
+  for (let mod_value of mod_values) {
+    filters.push({
+      field: "modifications",
+      type: "like",
+      value: mod_value,
+    });
+  }
+  for (let id_value of id_values) {
+    let id_value_fields = id_value.split("$");
+    filters.push({
+      field: id_value_fields[0] == "id" ? "id" : "name",
+      type: "like",
+      value: id_value_fields[1],
+    });
+  }
+  __proteinsOverviewTable.setFilter(filters);
+}
+
+/**
+ * Sends the specified search enginge output data to the PTMVision backend and loads the results in the overview table.
+ */
+async function uploadData() {
+  $("body").css("cursor", "wait");
+  request = {
+    contentType: null,
+    content: null,
+  };
+  if ($("#data-input-form")[0].files.length == 0) {
+    handleError("No search engine output data was supplied.");
+    return;
+  }
+  await readFile($("#data-input-form")[0].files[0]).then((response) => {
+    request.content = response;
+  });
+  request.contentType = $("#data-type-form")[0].value;
+  axios
+    .post(
+      __url + "/process_search_engine_output",
+      pako.deflate(JSON.stringify(request)),
+      {
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Content-Encoding": "zlib",
+        },
+      }
+    )
+    .then((_) => {
+      Metro.toast.create(
+        "Your data has been uploaded successfully.",
+        null,
+        5000
+      );
+      // Init. table.
+      axios.get(__url + "/get_available_proteins").then((response) => {
+        __proteinsOverviewTable.setData(response.data);
+        modifications = new Set();
+        identifiers = new Set();
+        for (let entry of response.data) {
+          entry.modifications.split("$").forEach((m) => modifications.add(m));
+          identifiers.add(entry.id + "$" + entry.name);
+        }
+        modifications = [...modifications];
+        modifications_data_string = "";
+        modifications.forEach((m) => {
+          modifications_data_string +=
+            `<option value="` + m + `">` + m + `</option>`;
+        });
+        Metro.getPlugin("#panel-table-filter-modification", "select").data(
+          modifications_data_string
+        );
+        identifiers = [...identifiers];
+        identifiers_data_string = "";
+        identifiers.forEach((i) => {
+          let entry = i.split("$");
+          identifiers_data_string +=
+            `<option value="id$` +
+            entry[0] +
+            `">` +
+            entry[0] +
+            `</option><option value="name$` +
+            entry[1] +
+            `">` +
+            entry[1] +
+            `</option>`;
+        });
+        Metro.getPlugin("#panel-table-filter-id", "select").data(
+          identifiers_data_string
+        );
+      });
+      // Init. mod. overview graph.
+      axios.get(__url + "/get_mog_data").then((response) => {
+        __mogOption = getMogOption(response.data);
+        __mogChart.setOption(__mogOption);
+        $("#panel-overview h6 button").attr("disabled", false);
+        window.scrollTo({
+          top: $("#panel-overview").get(0).offsetTop + 40,
+          behavior: "smooth",
+        });
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      handleError(error.message);
+    })
+    .finally(() => {
+      $("body").css("cursor", "auto");
+    });
+}
+
+function getDashboard(cutoff_value, pdb_text_value) {
+  $("body").css("cursor", "wait");
+  if (cutoff_value == null) {
+    cutoff_value = 4.69;
+  }
+  if (pdb_text_value == null) {
+    pdb_text_value = null;
+  }
+  request = {
+    uniprot_id: __proteinsOverviewTable.getSelectedData()[0].id,
+    pdb_text: pdb_text_value,
+    cutoff: cutoff_value,
+  };
+  axios
+    .post(__url + "/get_protein_data", pako.deflate(JSON.stringify(request)), {
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "Content-Encoding": "zlib",
+      },
+    })
+    .then((response) => {
+      if (response.data.status == "Failed: No protein structure available.") {
+        _requestPdb();
+      } else {
+        __data = response.data.content;
+        __structureView = getStructureView(
+          __data.structure,
+          $("#panel-dashboard-structure")
+        );
+        // Initialize dashboard components.
+        [__dashboardChart, __dashboardSizeObserver] = constructChartInstance(
+          $("#panel-dashboard-chart")[0],
+          {}
+        );
+        [
+          DASHBOARD_COMPONENTS.positionCountsSeries,
+          DASHBOARD_COMPONENTS.positions,
+          DASHBOARD_COMPONENTS.ptmCountsSeries,
+          DASHBOARD_COMPONENTS.modifications,
+        ] = getDashboardCountsComponents(
+          DASHBOARD_COMPONENTS.positionCountsIndex,
+          DASHBOARD_COMPONENTS.ptmCountsIndex
+        );
+        [
+          DASHBOARD_COMPONENTS.presenceMapSeries,
+          DASHBOARD_COMPONENTS.annotationSeries,
+          DASHBOARD_COMPONENTS.annotationsLabels,
+        ] = getPresenceMapComponents(
+          DASHBOARD_COMPONENTS.presenceMapIndex,
+          DASHBOARD_COMPONENTS.annotationsIndex
+        );
+        DASHBOARD_COMPONENTS.contactMapSeries = getContactMapComponents(
+          DASHBOARD_COMPONENTS.contactMapIndex
+        );
+
+        setDashboardPresenceMap();
+        //setDashboardContactMap();
+
+        $("#panel-dashboard h6 button").attr("disabled", false);
+
+        structureViewSetDefaultStyle();
+        toggleStructure();
+
+        window.scrollTo({
+          top: $("#panel-dashboard").get(0).offsetTop + 40,
+          behavior: "smooth",
+        });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      handleError(error.message);
+    })
+    .finally(() => {
+      $("body").css("cursor", "auto");
+    });
+}
+
+function setDashboardPresenceMap() {
+  $("#panel-dashboard").attr("map_content", "presence");
+  const axisProperties = {
+    nameGap: 25,
+    nameLocation: "center",
+    nameTextStyle: {
+      fontWeight: "bold",
+      fontSize: 11,
+    },
+    axisTick: {
+      alignWithLabel: true,
+    },
+  };
+  var option = {
+    grid: [
+      {
+        id: "grid_position_counts",
+        top: "5%",
+        left: "2%",
+        height: "19%",
+        width: "46%",
+        containLabel: true,
+        zlevel: 0,
+      },
+      {
+        id: "grid_ptms_counts",
+        top: "29%",
+        left: "2%",
+        height: "19%",
+        width: "46%",
+        containLabel: true,
+        zlevel: 0,
+      },
+      {
+        id: "grid_annotations",
+        top: "5%",
+        right: "2%",
+        height: "19%",
+        width: "39%",
+        containLabel: false,
+        zlevel: 1,
+      },
+      {
+        id: "grid_presence_map",
+        top: "25%",
+        right: "2%",
+        height: "69%",
+        width: "39%",
+        containLabel: false,
+        zlevel: 1,
+      },
+    ],
+    xAxis: [
+      {
+        data: [],
+        name: "Protein Position",
+        ...axisProperties,
+        gridIndex: DASHBOARD_COMPONENTS.positionCountsIndex,
+      },
+      {
+        data: [],
+        name: "Modification",
+        ...axisProperties,
+        axisLabel: {
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: DASHBOARD_COMPONENTS.ptmCountsIndex,
+      },
+      {
+        data: [],
+        axisLabel: {
+          show: false,
+        },
+        gridIndex: DASHBOARD_COMPONENTS.annotationsIndex,
+      },
+      {
+        data: [],
+        name: "Protein Position",
+        ...axisProperties,
+        gridIndex: DASHBOARD_COMPONENTS.presenceMapIndex,
+      },
+    ],
+    yAxis: [
+      {
+        type: "value",
+        name: "No. PTMs",
+        ...axisProperties,
+        axisLabel: {
+          formatter: (p) => {
+            return parseInt(p) + 1;
+          },
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: DASHBOARD_COMPONENTS.positionCountsIndex,
+      },
+      {
+        type: "value",
+        name: "No. PTMs",
+        ...axisProperties,
+        axisLabel: {
+          formatter: (p) => {
+            return parseInt(p) + 1;
+          },
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: DASHBOARD_COMPONENTS.ptmCountsIndex,
+      },
+      {
+        data: [],
+        inverse: false,
+        name: "Annotations",
+        ...axisProperties,
+        nameGap: 140,
+        axisLabel: {
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: DASHBOARD_COMPONENTS.annotationsIndex,
+      },
+      {
+        data: [],
+        name: "Modification",
+        ...axisProperties,
+        nameGap: 140,
+        axisLabel: {
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        interval: 0,
+        gridIndex: DASHBOARD_COMPONENTS.presenceMapIndex,
+      },
+    ],
+    dataZoom: [
+      {
+        type: "inside",
+        xAxisIndex: [
+          DASHBOARD_COMPONENTS.positionCountsIndex,
+          DASHBOARD_COMPONENTS.annotationsIndex,
+          DASHBOARD_COMPONENTS.presenceMapIndex,
+        ],
+        throttle: 0,
+      },
+      {
+        type: "inside",
+        xAxisIndex: [DASHBOARD_COMPONENTS.ptmCountsIndex],
+        yAxisIndex: [DASHBOARD_COMPONENTS.presenceMapIndex],
+        throttle: 0,
+      },
+    ],
+    legend: [
+      {
+        id: "legend",
+        bottom: "bottom",
+        left: "center",
+        zlevel: 2,
+        icon: "circle",
+        itemWidth: 10,
+        itemHeight: 10,
+        orient: "horizontal",
+        textStyle: {
+          fontSize: 10,
+          fontWeight: "lighter",
+        },
+        data: [],
+        selector: true,
+      },
+    ],
+    axisPointer: [
+      {
+        show: true,
+        triggerTooltip: false,
+        link: [
+          {
+            xAxisIndex: [
+              DASHBOARD_COMPONENTS.presenceMapIndex,
+              DASHBOARD_COMPONENTS.annotationsIndex,
+            ],
+          },
+        ],
+        label: { backgroundColor: "rgba(51, 51, 51, 0.7)" },
+      },
+    ],
+    tooltip: [
+      {
+        trigger: "axis",
+        backgroundColor: "rgba(51, 51, 51, 0.7)",
+        borderColor: "transparent",
+        textStyle: {
+          fontWeight: "lighter",
+          fontSize: 10,
+          color: "#f0f5f5",
+        },
+      },
+    ],
+  };
+  option.xAxis[DASHBOARD_COMPONENTS.positionCountsIndex].data =
+    DASHBOARD_COMPONENTS.positions;
+  option.xAxis[DASHBOARD_COMPONENTS.ptmCountsIndex].data =
+    DASHBOARD_COMPONENTS.modifications;
+  option.xAxis[DASHBOARD_COMPONENTS.presenceMapIndex].data =
+    DASHBOARD_COMPONENTS.positions;
+  option.xAxis[DASHBOARD_COMPONENTS.annotationsIndex].data =
+    DASHBOARD_COMPONENTS.positions;
+  option.yAxis[DASHBOARD_COMPONENTS.presenceMapIndex].data =
+    DASHBOARD_COMPONENTS.modifications;
+  option.yAxis[DASHBOARD_COMPONENTS.annotationsIndex].data =
+    DASHBOARD_COMPONENTS.annotationsLabels;
+  option.series = [
+    ...DASHBOARD_COMPONENTS.positionCountsSeries,
+    ...DASHBOARD_COMPONENTS.ptmCountsSeries,
+    ...DASHBOARD_COMPONENTS.presenceMapSeries,
+    ...DASHBOARD_COMPONENTS.annotationSeries,
+  ];
+  option.tooltip[0].formatter = (params, ticket, callback) => {
+    let content = ``;
+    let axisIndex = params[0].axisIndex;
+    if (
+      axisIndex == DASHBOARD_COMPONENTS.positionCountsIndex ||
+      axisIndex == DASHBOARD_COMPONENTS.presenceMapIndex ||
+      axisIndex == DASHBOARD_COMPONENTS.annotationsIndex
+    ) {
+      content +=
+        "<b>Position " +
+        parseInt(params[0].name) +
+        "</b> (" +
+        __data.sequence[params[0].name - 1] +
+        ")</br>";
+    } else if (axisIndex == DASHBOARD_COMPONENTS.ptmCountsIndex) {
+      content += "<b>Modification " + params[0].name + "</b></br>";
+    }
+    for (let entry of params) {
+      if (
+        axisIndex == DASHBOARD_COMPONENTS.positionCountsIndex ||
+        axisIndex == DASHBOARD_COMPONENTS.ptmCountsIndex
+      ) {
+        content += entry.seriesName + " " + entry.data[1] + "</br>";
+      } else if (
+        axisIndex == DASHBOARD_COMPONENTS.presenceMapIndex ||
+        axisIndex == DASHBOARD_COMPONENTS.annotationsIndex
+      ) {
+        if (entry.seriesId.startsWith("annotation@")) {
+          content += "&#8226; " + entry.seriesName + "</br>";
+          for (let _ of entry.value[3]) {
+            content +=
+              _[0] +
+              " (Pos. " +
+              _[1] +
+              " to " +
+              _[2] +
+              ") <small>" +
+              _[3] +
+              "</small></br>";
+          }
+        }
+      }
+    }
+    return content;
+  };
+  legend_data = new Set();
+  option.series.forEach((_) => {
+    if (!_.id.startsWith("annotation")) {
+      legend_data.add({ name: _.name });
+    }
+  });
+  option.legend[0].data = Array.from(legend_data);
+  __dashboardChart.setOption(option, { notMerge: true });
+  __dashboardChart.on("click", (params) => {
+    if (
+      params.seriesId.startsWith("position_counts") ||
+      params.seriesId.startsWith("presence_map") ||
+      params.seriesId.startsWith("annotation")
+    ) {
+      structureViewHighlightContacts(params.data[0] + 1, 4.69);
+    }
+  });
+}
+
+function setDashboardContactMap() {
+  $("#panel-dashboard").attr("map_content", "contact");
+  const axisProperties = {
+    nameGap: 25,
+    nameLocation: "center",
+    nameTextStyle: {
+      fontWeight: "bold",
+      fontSize: 11,
+    },
+    axisTick: {
+      alignWithLabel: true,
+    },
+  };
+  var option = {
+    grid: [
+      {
+        id: "grid_position_counts",
+        top: "5%",
+        left: "2%",
+        height: "19%",
+        width: "46%",
+        containLabel: true,
+        zlevel: 0,
+      },
+      {
+        id: "grid_ptms_counts",
+        top: "29%",
+        left: "2%",
+        height: "19%",
+        width: "46%",
+        containLabel: true,
+        zlevel: 0,
+      },
+      {
+        id: "grid_annotations",
+        top: "5%",
+        right: "2%",
+        height: "19%",
+        width: "39%",
+        containLabel: false,
+        zlevel: 1,
+      },
+      {
+        id: "grid_contact_map",
+        top: "25%",
+        right: "2%",
+        height: "69%",
+        width: "39%",
+        containLabel: false,
+        zlevel: 1,
+      },
+    ],
+    xAxis: [
+      {
+        data: [],
+        name: "Protein Position",
+        ...axisProperties,
+        gridIndex: DASHBOARD_COMPONENTS.positionCountsIndex,
+      },
+      {
+        data: [],
+        name: "Modification",
+        ...axisProperties,
+        axisLabel: {
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: DASHBOARD_COMPONENTS.ptmCountsIndex,
+      },
+      {
+        data: [],
+        axisLabel: {
+          show: false,
+        },
+        gridIndex: DASHBOARD_COMPONENTS.annotationsIndex,
+      },
+      {
+        data: [],
+        name: "Protein Position",
+        ...axisProperties,
+        gridIndex: DASHBOARD_COMPONENTS.contactMapIndex,
+      },
+    ],
+    yAxis: [
+      {
+        type: "value",
+        name: "No. PTMs",
+        ...axisProperties,
+        axisLabel: {
+          formatter: (p) => {
+            return parseInt(p) + 1;
+          },
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: DASHBOARD_COMPONENTS.positionCountsIndex,
+      },
+      {
+        type: "value",
+        name: "No. PTMs",
+        ...axisProperties,
+        axisLabel: {
+          formatter: (p) => {
+            return parseInt(p) + 1;
+          },
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: DASHBOARD_COMPONENTS.ptmCountsIndex,
+      },
+      {
+        data: [],
+        inverse: false,
+        name: "Annotations",
+        ...axisProperties,
+        nameGap: 140,
+        axisLabel: {
+          fontWeight: "lighter",
+          fontSize: 10,
+        },
+        gridIndex: DASHBOARD_COMPONENTS.annotationsIndex,
+      },
+      {
+        data: [],
+        name: "Protein Position",
+        ...axisProperties,
+        nameGap: 40,
+        gridIndex: DASHBOARD_COMPONENTS.contactMapIndex,
+      },
+    ],
+    dataZoom: [
+      {
+        type: "inside",
+        xAxisIndex: [
+          DASHBOARD_COMPONENTS.positionCountsIndex,
+          DASHBOARD_COMPONENTS.annotationsIndex,
+          DASHBOARD_COMPONENTS.contactMapIndex,
+        ],
+        throttle: 0,
+      },
+      {
+        type: "inside",
+        yAxisIndex: [DASHBOARD_COMPONENTS.contactMapIndex],
+        throttle: 0,
+      },
+      {
+        type: "inside",
+        xAxisIndex: [DASHBOARD_COMPONENTS.ptmCountsIndex],
+        throttle: 0,
+      },
+    ],
+    legend: [
+      {
+        id: "legend",
+        bottom: "bottom",
+        left: "center",
+        zlevel: 2,
+        icon: "circle",
+        itemWidth: 10,
+        itemHeight: 10,
+        orient: "horizontal",
+        textStyle: {
+          fontSize: 10,
+          fontWeight: "lighter",
+        },
+        data: [],
+        selector: true,
+      },
+    ],
+    axisPointer: [
+      {
+        show: true,
+        triggerTooltip: false,
+        link: [
+          {
+            xAxisIndex: [
+              DASHBOARD_COMPONENTS.contactMapIndex,
+              DASHBOARD_COMPONENTS.annotationsIndex,
+            ],
+          },
+        ],
+        label: { backgroundColor: "rgba(51, 51, 51, 0.7)" },
+      },
+    ],
+    tooltip: [
+      {
+        trigger: "axis",
+        backgroundColor: "rgba(51, 51, 51, 0.7)",
+        borderColor: "transparent",
+        appendToBody: true,
+        className: "panel-dashboard-tooltip",
+        textStyle: {
+          fontWeight: "lighter",
+          fontSize: 10,
+          color: "#f0f5f5",
+        },
+      },
+    ],
+  };
+  option.xAxis[DASHBOARD_COMPONENTS.positionCountsIndex].data =
+    DASHBOARD_COMPONENTS.positions;
+  option.xAxis[DASHBOARD_COMPONENTS.ptmCountsIndex].data =
+    DASHBOARD_COMPONENTS.modifications;
+  option.xAxis[DASHBOARD_COMPONENTS.annotationsIndex].data =
+    DASHBOARD_COMPONENTS.positions;
+  option.xAxis[DASHBOARD_COMPONENTS.contactMapIndex].data =
+    DASHBOARD_COMPONENTS.positions;
+  option.yAxis[DASHBOARD_COMPONENTS.annotationsIndex].data =
+    DASHBOARD_COMPONENTS.annotationsLabels;
+  option.yAxis[DASHBOARD_COMPONENTS.contactMapIndex].data =
+    DASHBOARD_COMPONENTS.positions;
+  option.series = [
+    ...DASHBOARD_COMPONENTS.positionCountsSeries,
+    ...DASHBOARD_COMPONENTS.ptmCountsSeries,
+    ...DASHBOARD_COMPONENTS.annotationSeries,
+    ...DASHBOARD_COMPONENTS.contactMapSeries,
+  ];
+  option.tooltip[0].formatter = (params, ticket, callback) => {
+    let content = ``;
+    let axisIndex = params[0].axisIndex;
+    if (
+      axisIndex == DASHBOARD_COMPONENTS.positionCountsIndex ||
+      axisIndex == DASHBOARD_COMPONENTS.contactMapIndex ||
+      axisIndex == DASHBOARD_COMPONENTS.annotationsIndex
+    ) {
+      content +=
+        "<b>Position " +
+        parseInt(params[0].name) +
+        "</b> (" +
+        __data.sequence[params[0].name - 1] +
+        ")</br>";
+    } else if (axisIndex == DASHBOARD_COMPONENTS.ptmCountsIndex) {
+      content += "<b>Modification " + params[0].name + "</b></br>";
+    }
+    for (let entry of params) {
+      if (
+        axisIndex == DASHBOARD_COMPONENTS.positionCountsIndex ||
+        axisIndex == DASHBOARD_COMPONENTS.ptmCountsIndex
+      ) {
+        content += entry.seriesName + " " + entry.data[1] + "</br>";
+      } else if (
+        axisIndex == DASHBOARD_COMPONENTS.contactMapIndex ||
+        axisIndex == DASHBOARD_COMPONENTS.annotationsIndex
+      ) {
+        if (entry.seriesId.startsWith("annotation@")) {
+          content += "&#8226; " + entry.seriesName + "</br>";
+          for (let _ of entry.value[3]) {
+            content +=
+              _[0] +
+              " (Pos. " +
+              _[1] +
+              " to " +
+              _[2] +
+              ") <small>" +
+              _[3] +
+              "</small></br>";
+          }
+        }
+      }
+    }
+    return content;
+  };
+  legend_data = new Set();
+  option.series.forEach((_) => {
+    if (!_.id.startsWith("annotation") && !_.id.startsWith("contact_map")) {
+      legend_data.add({ name: _.name });
+    }
+  });
+  option.legend[0].data = Array.from(legend_data);
+  __dashboardChart.setOption(option, { notMerge: true });
+  __dashboardChart.on("click", (params) => {
+    if (
+      params.seriesId.startsWith("position_counts") ||
+      params.seriesId.startsWith("contact_map") ||
+      params.seriesId.startsWith("annotation")
+    ) {
+      structureViewHighlightContacts(params.data[0] + 1, 4.69);
+    }
+    if (
+      params.seriesId.startsWith("contact_map") &&
+      params.seriesId == "contact_map@upper"
+    ) {
+      // TODO
+      $(".panel-dashboard-tooltip").get(0).append(params.data[4]);
+      $(".panel-dashboard-tooltip").get(0).append("\n");
+      $(".panel-dashboard-tooltip").get(0).append(params.data[5]);
+    }
+  });
+}
+
+function switchDashboardMap() {
+  if ($("#panel-dashboard").attr("map_content") == "presence") {
+    $("#panel-dashboard-switch-map-button").html("Show Presence Map");
+    setDashboardContactMap();
+  } else if ($("#panel-dashboard").attr("map_content") == "contact") {
+    $("#panel-dashboard-switch-map-button").html("Show Contact Map");
+    setDashboardPresenceMap();
+  }
+}
+
+function _requestPdb() {
+  Swal.fire({
+    title: "Failed to fetch Protein Structure!",
+    html: UPLOAD_PDB_HTML,
+    width: "1000%",
+    position: "bottom",
+    showCloseButton: false,
+    showCancelButton: true,
+    cancelButtonColor: "#dc5754",
+    showConfirmButton: true,
+    confirmButtonColor: "#62a8ac",
+    confirmButtonText: "Continue",
+    grow: true,
+    heightAuto: true,
+    color: "#333333",
+    background: "#fafafcd9",
+    backdrop: `
+      rgba(239, 240, 248, 0.1)
+      left top
+      no-repeat
+    `,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      getDashboard(null, readFile($("#optional-pdb-input")[0].files[0]));
+    }
+  });
+}
+
+function constructChartInstance(html_container, echart_option) {
+  var chart = echarts.init(html_container, {
+    devicePixelRatio: 4,
+    renderer: "canvas",
+    width: "auto",
+    height: "auto",
+  });
+  var observer = new ResizeObserver((entries) => {
+    chart.resize({
+      width: entries[0].width,
+      height: entries[0].height,
+    });
+  });
+  observer.observe(html_container);
+  chart.setOption(echart_option, true);
+  return [chart, observer];
+}
+
+function getStructureView(pdb_text, html_container) {
   let view = $3Dmol.createViewer(html_container, {
     backgroundColor: "#FAFAFC",
     antialias: true,
@@ -745,215 +1186,364 @@ function _getStructureView(pdb_text, html_container) {
     },
     {}
   );
-  _GLViewerSetDefaultStyle(view);
+  structureViewSetDefaultStyle();
   view.render();
   return view;
 }
 
-function _GLViewerSetDefaultStyle(viewer) {
-  viewer.setStyle(
-    {},
+function structureViewHighlightContacts(position, cutoff) {
+  __structureView.removeAllLabels();
+  __structureView.removeAllShapes();
+  structureViewSetDefaultStyle();
+  let selectedResidue = position;
+  let selectedResidueCA = __structureView.getAtomsFromSel({
+    resi: [selectedResidue],
+    atom: "CA",
+  })[0];
+  __structureView.addStyle(
     {
-      cartoon: {
-        color: "#d4d4d4",
+      resi: [selectedResidue],
+    },
+    {
+      stick: {
+        color: "#dc5754",
+        radius: 0.7,
       },
     }
   );
-}
-
-function _getContactMapOption(_data) {
-  let lower_data = [];
-  let upper_data = [];
-  for (let [residue_index_i, contacts_data] of Object.entries(_data.contacts)) {
-    let x = parseInt(residue_index_i);
-    for (let contact_data of contacts_data) {
-      let y = contact_data[0];
-      if (x > y) {
-        upper_data.push([x, y, contact_data[1]]);
-      } else {
-        lower_data.push([x, y, contact_data[1]]);
-      }
+  __structureView.addResLabels(
+    {
+      resi: [selectedResidue],
+    },
+    {
+      backgroundColor: "rgb(51, 51, 51)",
+      backgroundOpacity: 0.7,
+      fontColor: "#f0f5f5",
+      fontSize: 11,
+    }
+  );
+  if (__data.contacts.hasOwnProperty(selectedResidue - 1)) {
+    for (let entry of __data.contacts[selectedResidue - 1]) {
+      let contactResidue = entry[0] + 1;
+      __structureView.addStyle(
+        {
+          resi: [contactResidue],
+        },
+        {
+          stick: {
+            color: "#dd9ac2",
+            radius: 0.4,
+          },
+        }
+      );
+      __structureView.addResLabels(
+        {
+          resi: [contactResidue],
+        },
+        {
+          backgroundColor: "rgb(51, 51, 51)",
+          backgroundOpacity: 0.7,
+          fontColor: "#f0f5f5",
+          fontSize: 11,
+        }
+      );
+      let contactEntryCA = __structureView.getAtomsFromSel({
+        resi: [contactResidue],
+        atom: "CA",
+      })[0];
+      __structureView.addLine({
+        color: "#000000",
+        hidden: false,
+        dashed: false,
+        start: {
+          x: selectedResidueCA.x,
+          y: selectedResidueCA.y,
+          z: selectedResidueCA.z,
+        },
+        end: {
+          x: contactEntryCA.x,
+          y: contactEntryCA.y,
+          z: contactEntryCA.z,
+        },
+      });
+      __structureView.addLabel(entry[1].toFixed(2) + " Å", {
+        backgroundColor: "rgb(51, 51, 51)",
+        backgroundOpacity: 0.4,
+        fontColor: "#f0f5f5",
+        fontSize: 10,
+        position: {
+          x: (selectedResidueCA.x + contactEntryCA.x) / 2,
+          y: (selectedResidueCA.y + contactEntryCA.y) / 2,
+          z: (selectedResidueCA.z + contactEntryCA.z) / 2,
+        },
+      });
     }
   }
+  __structureView.render();
+}
+
+function structureViewSetDefaultStyle(selection) {
+  if (selection == undefined) {
+    selection = {};
+  }
+  __structureView.setStyle(selection, {
+    cartoon: {
+      color: "#d4d4d4",
+    },
+  });
+}
+
+function getMogOption(_data) {
+  // Filter data for top L modifications (wrt. frequency) and adjust layout settings.
+  // (i) Init. list of node objects.
+  nodes_data = Object.entries(_data[0]);
+  nodes_data.sort((a, b) => {
+    return b[1][0] - a[1][0];
+  });
+  nodes_values = Object.values(_data[0]).map((_) => {
+    return _[0];
+  });
+  nodes_value_min = Math.min(...nodes_values);
+  nodes_value_max = Math.max(...nodes_values);
+  nodes = [];
+  nodes_keys = new Set();
+  L = 45;
+  for (let entry of nodes_data.slice(0, L - 1)) {
+    nodes.push({
+      name: entry[0],
+      value: entry[1][0],
+      frequency: entry[1][1],
+      symbolSize: 10,
+    });
+    nodes_keys.add(entry[0]);
+  }
+  // (ii) Init. list of link objects.
+  links_data = Object.entries(_data[1]);
+  links_value_max = Math.max(...Object.values(_data[1]));
+  links = [];
+  for (let entry of links_data) {
+    let [s, t] = entry[0].split("@");
+    if (!(nodes_keys.has(s) && nodes_keys.has(t))) {
+      continue;
+    }
+    let v = entry[1];
+    links.push({
+      source: s,
+      target: t,
+      value: v,
+      lineStyle: {
+        width: v / links_value_max,
+      },
+    });
+  }
   return {
-    title: {
-      text: "Cβ Contact Map",
-      textStyle: {
-        fontSize: 12,
-      },
-    },
-    legend: {
-      bottom: 0,
-      left: "center",
-      orient: "horizontal",
-      itemWidth: 10,
-      itemHeight: 10,
-      data: [],
-      textStyle: {
-        fontWeight: "lighter",
-        fontSize: 10,
-      },
-      pageTextStyle: {
-        fontWeight: "lighter",
-        fontSize: 10,
-      },
-      pageIcons: {
-        horizontal: [
-          "M18.3 250.3c-3.1 3.1-3.1 8.2 0 11.3l216 216c3.1 3.1 8.2 3.1 11.3 0s3.1-8.2 0-11.3L35.3 256 245.7 45.7c3.1-3.1 3.1-8.2 0-11.3s-8.2-3.1-11.3 0l-216 216z",
-          "M301.7 250.3c3.1 3.1 3.1 8.2 0 11.3l-216 216c-3.1 3.1-8.2 3.1-11.3 0s-3.1-8.2 0-11.3L284.7 256 74.3 45.7c-3.1-3.1-3.1-8.2 0-11.3s8.2-3.1 11.3 0l216 216z",
-        ],
-      },
-      width: "100%",
-      backgroundColor: "#f0f5f5",
-    },
-    dataZoom: [
-      {
-        type: "inside",
-        xAxisIndex: [0, 1],
-        yAxisIndex: 0,
-        throttle: 0,
-      },
-    ],
-    toolbox: {
-      feature: {
-        saveAsImage: {
-          pixelRatio: 4,
-        },
-        myTool1: {
-          show: true,
-          title: "Switch to presence map.",
-          icon: "M0 224c0 17.7 14.3 32 32 32s32-14.3 32-32c0-53 43-96 96-96H320v32c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l64-64c12.5-12.5 12.5-32.8 0-45.3l-64-64c-9.2-9.2-22.9-11.9-34.9-6.9S320 19.1 320 32V64H160C71.6 64 0 135.6 0 224zm512 64c0-17.7-14.3-32-32-32s-32 14.3-32 32c0 53-43 96-96 96H192V352c0-12.9-7.8-24.6-19.8-29.6s-25.7-2.2-34.9 6.9l-64 64c-12.5 12.5-12.5 32.8 0 45.3l64 64c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6V448H352c88.4 0 160-71.6 160-160z",
-          onclick: function () {
-            [_DASHBOARD_MAP_CHART, _DASHBOARD_MAP_OBSERVER] =
-              _constructEChartInstance(
-                $("#dashboard-map")[0],
-                _DASHBOARD_PRESENCE_MAP_OPTION
-              );
-          },
-        },
-      },
-    },
-    grid: {
-      top: "10%",
-      left: "10%",
-      height: "80%",
-      width: "80%",
-    },
-    xAxis: [
-      {
-        data: [...Array(_data.sequence.length).keys()].map((v) => v + 1),
-        name: "Protein Position",
-        nameGap: 25,
-        nameLocation: "center",
-        nameTextStyle: {
-          fontWeight: "bold",
-          fontSize: 11,
-        },
-        axisLabel: {
-          formatter: (p) => {
-            return parseInt(p) + 1;
-          },
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
-      },
-    ],
-    yAxis: [
-      {
-        data: [...Array(_data.sequence.length).keys()].map((v) => v + 1),
-        inverse: true,
-        name: "Protein Position",
-        nameGap: 25,
-        nameLocation: "center",
-        nameTextStyle: {
-          fontWeight: "bold",
-          fontSize: 11,
-        },
-        axisLabel: {
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
-      },
-    ],
-    axisPointer: {
-      show: true,
-      label: {
-        backgroundColor: "rgba(51, 51, 51, 0.7)",
-        fontWeight: "lighter",
-        fontSize: 10,
-        color: "#f0f5f5",
-      },
-      link: {
-        xAxisIndex: [0, 1],
-      },
-      triggerTooltip: false,
-    },
+    animation: false,
     tooltip: {
-      formatter: (params, ticket, callback) => {
-        return (
-          `Residues ` +
-          params.data[0] +
-          ` and ` +
-          params.data[1] +
-          ` in contact (` +
-          parseFloat(params.data[2]).toFixed(2) +
-          `Å).`
-        );
-      },
       backgroundColor: "rgba(51, 51, 51, 0.7)",
       borderColor: "transparent",
       textStyle: {
         fontWeight: "lighter",
-        fontSize: 10,
+        fontSize: 11,
         color: "#f0f5f5",
       },
+      formatter: (params, ticket, callback) => {
+        if (params.dataType == "edge") {
+          return (
+            `<b><u>` +
+            params.data.source +
+            `</u> and ` +
+            `<u>` +
+            params.data.target +
+            `</u></b> have ` +
+            params.data.value +
+            ` joint occurrences.`
+          );
+        } else if (params.dataType == "node") {
+          return (
+            `<b>Modification <u>` +
+            params.data.name +
+            `</u></b> has ` +
+            params.data.value +
+            ` occurrences.<br>Occurs at least once in ` +
+            params.data.frequency * 100 +
+            `% of proteins in the dataset.`
+          );
+        }
+      },
+    },
+    visualMap: {
+      bottom: "bottom",
+      left: "left",
+      color: ["#FF5D73", "#77C8FA"],
+      orient: "horizontal",
+      precision: 0,
+      text: [nodes_value_max, "Total PTM Occurrence " + nodes_value_min],
     },
     series: [
       {
-        type: "heatmap",
-        name: "Contacts (Lower Triangle)",
-        data: lower_data,
-        itemStyle: {
-          color: "#333333",
-          borderColor: "#FAFAFC",
-          borderWidth: 0.1,
-          borderRadius: 5,
+        name: "Modifications Graph",
+        emphasis: {
+          focus: "adjacency",
+          label: { show: false },
+          itemStyle: { shadowColor: "#dc5754", shadowBlur: 10 },
         },
+        label: {
+          show: true,
+          color: "#333333",
+          fontWeight: "lighter",
+          fontSize: 11,
+          backgroundColor: "rgba(240, 245, 245, 0.6)",
+          borderRadius: 4,
+        },
+        edgeLabel: { show: false },
+        type: "graph",
+        layout: "circular",
+        circular: {
+          rotateLabel: true,
+        },
+        data: nodes,
+        links: links,
+        roam: true,
+        lineStyle: { color: "#333333", curveness: 0.2 },
+        itemStyle: {},
       },
     ],
   };
 }
 
-function _getPresenceMapOption(_data) {
-  let data_series = {};
-  for (let [position, position_data] of Object.entries(_data.positions)) {
+function getDashboardCountsComponents(
+  axisIndexPositionCounts,
+  axisIndexPTMCounts
+) {
+  let modifications = [];
+  for (let position_data of Object.values(__data.positions)) {
     for (let modification of Object.values(position_data.modifications)) {
-      if (
-        !data_series.hasOwnProperty(modification.modification_classification)
-      ) {
-        data_series[modification.modification_classification] = {
-          type: "heatmap",
-          name: modification.modification_classification,
+      modifications.push(modification.modification_unimod_name);
+    }
+  }
+  __modifications = [...new Set(modifications)].sort();
+  let position_counts_series = {};
+  let ptm_counts_series = {};
+  let ptms_counts = {};
+  for (let i of [...Array(__data.sequence.length).keys()]) {
+    let position = i + 1;
+    let position_counts = {};
+    if (__data.positions.hasOwnProperty(position)) {
+      for (let modification of __data.positions[position].modifications) {
+        if (
+          position_counts.hasOwnProperty(
+            modification.modification_classification
+          )
+        ) {
+          position_counts[modification.modification_classification] += 1;
+        } else {
+          position_counts[modification.modification_classification] = 1;
+        }
+        if (
+          !ptms_counts.hasOwnProperty(modification.modification_unimod_name)
+        ) {
+          ptms_counts[modification.modification_unimod_name] = {};
+        }
+        if (
+          !ptms_counts[modification.modification_unimod_name].hasOwnProperty(
+            modification.modification_classification
+          )
+        ) {
+          ptms_counts[modification.modification_unimod_name][
+            modification.modification_classification
+          ] = 0;
+        }
+        ptms_counts[modification.modification_unimod_name][
+          modification.modification_classification
+        ] += 1;
+      }
+      for (const [name, count] of Object.entries(position_counts)) {
+        if (!position_counts_series.hasOwnProperty(name)) {
+          position_counts_series[name] = {
+            id: "position_counts@" + name,
+            name: name,
+            type: "bar",
+            stack: "total",
+            emphasis: {
+              focus: "series",
+            },
+            data: [],
+            itemStyle: {
+              color: getColor(name),
+            },
+            xAxisIndex: axisIndexPositionCounts,
+            yAxisIndex: axisIndexPositionCounts,
+          };
+        }
+        position_counts_series[name].data.push([i, count]);
+      }
+    }
+  }
+  for (const [modification_name, _] of Object.entries(ptms_counts)) {
+    for (const [modification_class, count] of Object.entries(_)) {
+      if (!ptm_counts_series.hasOwnProperty(modification_class)) {
+        ptm_counts_series[modification_class] = {
+          id: "ptm_counts@" + modification_class,
+          name: modification_class,
+          stack: "total2",
+          type: "bar",
+          emphasis: {
+            focus: "series",
+          },
           data: [],
           itemStyle: {
-            color: _getColor(modification.modification_classification),
+            color: getColor(modification_class),
           },
-          xAxisIndex: 0,
-          yAxisIndex: 0,
+          xAxisIndex: axisIndexPTMCounts,
+          yAxisIndex: axisIndexPTMCounts,
         };
       }
-      let residue_index = parseInt(position);
-      data_series[modification.modification_classification].data.push([
-        residue_index,
-        MODIFICATIONS.indexOf(modification.modification_unimod_name),
-        1,
-        modification.modification_unimod_name,
-        modification.modification_classification,
-        _data.sequence[residue_index],
+      ptm_counts_series[modification_class].data.push([
+        __modifications.indexOf(modification_name),
+        count,
       ]);
     }
   }
+  return [
+    Object.values(position_counts_series),
+    [...Array(__data.sequence.length).keys()].map((x) => x + 1),
+    Object.values(ptm_counts_series),
+    __modifications,
+  ];
+}
 
+function getPresenceMapComponents(axisIndexPresenceMap, axisIndexAnnotations) {
+  let presence_map_series = {};
+  for (let [position, position_data] of Object.entries(__data.positions)) {
+    for (let modification of Object.values(position_data.modifications)) {
+      if (
+        !presence_map_series.hasOwnProperty(
+          modification.modification_classification
+        )
+      ) {
+        presence_map_series[modification.modification_classification] = {
+          id: "presence_map@" + modification.modification_classification,
+          name: modification.modification_classification,
+          type: "heatmap",
+          data: [],
+          itemStyle: {
+            color: getColor(modification.modification_classification),
+          },
+          xAxisIndex: axisIndexPresenceMap,
+          yAxisIndex: axisIndexPresenceMap,
+        };
+      }
+      let i = parseInt(position) - 1;
+      presence_map_series[modification.modification_classification].data.push([
+        i,
+        __modifications.indexOf(modification.modification_unimod_name),
+        1,
+        modification.modification_unimod_name,
+        modification.modification_classification,
+        __data.sequence[i],
+      ]);
+    }
+  }
   let annotation_types = {
     "Initiator methionine": "Molecule processing",
     Signal: "Molecule processing",
@@ -994,88 +1584,87 @@ function _getPresenceMapOption(_data) {
   };
   let annotation_series = {
     "Molecule processing": {
+      id: "annotation@molecule_processing",
+      name: "Molecule processing",
       type: "heatmap",
       data: {},
-      xAxisIndex: 1,
-      yAxisIndex: 1,
-      name: "Molecule processing",
-      id: "ann_molecule_processing",
+      xAxisIndex: axisIndexAnnotations,
+      yAxisIndex: axisIndexAnnotations,
       itemStyle: {
-        color: "#211A1D",
+        color: "#262626",
       },
     },
     Region: {
+      id: "annotation@region",
+      name: "Region",
       type: "heatmap",
       data: {},
-      xAxisIndex: 1,
-      yAxisIndex: 1,
-      name: "Region",
-      id: "ann_region",
+      xAxisIndex: axisIndexAnnotations,
+      yAxisIndex: axisIndexAnnotations,
       itemStyle: {
-        color: "#e0af80",
+        color: "#082a54",
       },
     },
     Site: {
+      id: "annotation@site",
+      name: "Site",
       type: "heatmap",
       data: {},
-      xAxisIndex: 1,
-      yAxisIndex: 1,
-      name: "Site",
-      id: "ann_site",
+      xAxisIndex: axisIndexAnnotations,
+      yAxisIndex: axisIndexAnnotations,
       itemStyle: {
-        color: "#27d3f5",
+        color: "#e02b35",
       },
     },
     "Amino acid modifications": {
+      id: "annotation@amino_acid_modifications",
+      name: "Amino acid modifications",
       type: "heatmap",
       data: {},
-      xAxisIndex: 1,
-      yAxisIndex: 1,
-      name: "Amino acid modifications",
-
-      id: "ann_amino_acid_modifications",
+      xAxisIndex: axisIndexAnnotations,
+      yAxisIndex: axisIndexAnnotations,
       itemStyle: {
-        color: "#f01381",
+        color: "#f0c571",
       },
     },
     "Natural variations": {
+      id: "annotation@natural_variations",
+      name: "Natural variations",
       type: "heatmap",
       data: {},
-      xAxisIndex: 1,
-      yAxisIndex: 1,
-      name: "Natural variations",
-      id: "ann_natural_variations",
+      xAxisIndex: axisIndexAnnotations,
+      yAxisIndex: axisIndexAnnotations,
       itemStyle: {
-        color: "#9e9e9e",
+        color: "#59a89c",
       },
     },
     "Experimental info": {
+      id: "annotation@experimental_info",
+      name: "Experimental info",
       type: "heatmap",
       data: {},
-      xAxisIndex: 1,
-      yAxisIndex: 1,
-      name: "Experimental info",
-      id: "ann_experimental_info",
+      xAxisIndex: axisIndexAnnotations,
+      yAxisIndex: axisIndexAnnotations,
       itemStyle: {
-        color: "#795548",
+        color: "#a559aa",
       },
     },
     "Secondary structure": {
+      id: "annotation@secondary_structure",
+      name: "Secondary structure",
       type: "heatmap",
       data: {},
-      xAxisIndex: 1,
-      yAxisIndex: 1,
-      name: "Secondary structure",
-      id: "ann_secondary_structure",
+      xAxisIndex: axisIndexAnnotations,
+      yAxisIndex: axisIndexAnnotations,
     },
   };
   let annotation_secondary_structure_colors = {
-    Helix: "#F45B69",
-    Turn: "#A5C793",
-    "Beta strand": "#A1CDF4",
+    Helix: "#c31e23",
+    Turn: "#c99b38",
+    "Beta strand": "#3594cc",
   };
   let annotation_labels = [...Object.keys(annotation_series)];
-  for (let annotation_entry of Object.values(_data.annotation.features)) {
+  for (let annotation_entry of Object.values(__data.annotation.features)) {
     if (annotation_entry.type == "Chain") {
       continue;
     }
@@ -1096,9 +1685,12 @@ function _getPresenceMapOption(_data) {
             y_index,
             1,
             [
-              annotation_entry.type,
-              annotation_entry.location.start.value,
-              annotation_entry.location.end.value,
+              [
+                annotation_entry.type,
+                annotation_entry.location.start.value,
+                annotation_entry.location.end.value,
+                "",
+              ],
             ],
           ],
           itemStyle: {
@@ -1145,469 +1737,80 @@ function _getPresenceMapOption(_data) {
     annotation_series_list.push(value);
   }
 
-  return {
-    title: {
-      text: "Modifications Presence Map",
-      textStyle: {
-        fontSize: 12,
-      },
-    },
-    legend: {
-      bottom: 0,
-      left: "center",
-      orient: "horizontal",
-      itemWidth: 10,
-      itemHeight: 10,
-      data: Object.values(data_series).map((S) => {
-        return { name: S.name, icon: "roundRect" };
-      }),
-      textStyle: {
-        fontWeight: "lighter",
-        fontSize: 10,
-      },
-      pageTextStyle: {
-        fontWeight: "lighter",
-        fontSize: 10,
-      },
-      pageIcons: {
-        horizontal: [
-          "M18.3 250.3c-3.1 3.1-3.1 8.2 0 11.3l216 216c3.1 3.1 8.2 3.1 11.3 0s3.1-8.2 0-11.3L35.3 256 245.7 45.7c3.1-3.1 3.1-8.2 0-11.3s-8.2-3.1-11.3 0l-216 216z",
-          "M301.7 250.3c3.1 3.1 3.1 8.2 0 11.3l-216 216c-3.1 3.1-8.2 3.1-11.3 0s-3.1-8.2 0-11.3L284.7 256 74.3 45.7c-3.1-3.1-3.1-8.2 0-11.3s8.2-3.1 11.3 0l216 216z",
-        ],
-      },
-      width: "100%",
-      backgroundColor: "#f0f5f5",
-    },
-    dataZoom: [
-      {
-        type: "inside",
-        xAxisIndex: [0, 1],
-        yAxisIndex: 0,
-        throttle: 0,
-      },
-    ],
-    toolbox: {
-      feature: {
-        saveAsImage: {
-          pixelRatio: 4,
-        },
-        myTool1: {
-          show: true,
-          title: "Switch to contact map.",
-          icon: "M0 224c0 17.7 14.3 32 32 32s32-14.3 32-32c0-53 43-96 96-96H320v32c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l64-64c12.5-12.5 12.5-32.8 0-45.3l-64-64c-9.2-9.2-22.9-11.9-34.9-6.9S320 19.1 320 32V64H160C71.6 64 0 135.6 0 224zm512 64c0-17.7-14.3-32-32-32s-32 14.3-32 32c0 53-43 96-96 96H192V352c0-12.9-7.8-24.6-19.8-29.6s-25.7-2.2-34.9 6.9l-64 64c-12.5 12.5-12.5 32.8 0 45.3l64 64c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6V448H352c88.4 0 160-71.6 160-160z",
-          onclick: function () {
-            [_DASHBOARD_MAP_CHART, _DASHBOARD_MAP_OBSERVER] =
-              _constructEChartInstance(
-                $("#dashboard-map")[0],
-                _DASHBOARD_CONTACT_MAP_OPTION
-              );
-          },
-        },
-      },
-    },
-    grid: [
-      {
-        top: "22%",
-        left: "18%",
-        height: "66%",
-        width: "80%",
-      },
-      {
-        top: "5%",
-        left: "18%",
-        height: "15%",
-        width: "80%",
-        backgroundColor: "#769213",
-      },
-    ],
-    xAxis: [
-      {
-        data: [...Array(_data.sequence.length).keys()],
-        name: "Protein Position",
-        nameGap: 25,
-        nameLocation: "center",
-        nameTextStyle: {
-          fontWeight: "bold",
-          fontSize: 11,
-        },
-        axisLabel: {
-          formatter: (p) => {
-            return parseInt(p) + 1;
-          },
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
-        gridIndex: 0,
-      },
-      {
-        data: [...Array(_data.sequence.length).keys()],
-        axisLabel: {
-          show: false,
-        },
-        gridIndex: 1,
-      },
-    ],
-    yAxis: [
-      {
-        data: MODIFICATIONS,
-        inverse: true,
-        name: "Modification",
-        nameGap: 140,
-        nameLocation: "center",
-        nameTextStyle: {
-          fontWeight: "bold",
-          fontSize: 11,
-        },
-        axisLabel: {
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
-        gridIndex: 0,
-      },
-      {
-        data: annotation_labels,
-        name: "Annotations",
-        nameGap: 140,
-        nameLocation: "center",
-        nameTextStyle: {
-          fontWeight: "bold",
-          fontSize: 11,
-        },
-        axisLabel: {
-          fontWeight: "lighter",
-          fontSize: 9,
-        },
-        interval: 0,
-        gridIndex: 1,
-      },
-    ],
-    axisPointer: {
-      show: true,
-      label: {
-        backgroundColor: "rgba(51, 51, 51, 0.7)",
-        fontWeight: "lighter",
-        fontSize: 10,
-        color: "#f0f5f5",
-      },
-      link: {
-        xAxisIndex: [0, 1],
-      },
-      triggerTooltip: false,
-    },
-    tooltip: {
-      formatter: (params, ticket, callback) => {
-        let content;
-        if (params.seriesId.startsWith("ann_")) {
-          if (params.seriesId == "ann_secondary_structure") {
-            content =
-              `Secondary structure <b>` +
-              params.data.value[3][0] +
-              `</b>, Positions ` +
-              params.data.value[3][1] +
-              ` to ` +
-              params.data.value[3][2];
-          } else {
-            content = params.seriesName + ` annotation`;
-            for (let entry of params.data[3]) {
-              content +=
-                `<hr><br>` +
-                entry[0] +
-                ` (` +
-                (entry[3] == "" ? "no description" : entry[3]) +
-                `), Positions ` +
-                entry[1] +
-                ` to ` +
-                entry[2];
-            }
-          }
-        } else {
-          content =
-            `<b>Position: ` +
-            params.data[0] +
-            `<br>Aminoacid: ` +
-            params.data[5] +
-            `</b><br>Modification: ` +
-            params.data[3] +
-            ` [` +
-            params.data[4] +
-            `]`;
-        }
-        return content;
-      },
-      backgroundColor: "rgba(51, 51, 51, 0.7)",
-      borderColor: "transparent",
-      textStyle: {
-        fontWeight: "lighter",
-        fontSize: 10,
-        color: "#f0f5f5",
-      },
-    },
-    series: Object.values(data_series).concat(annotation_series_list),
-  };
+  return [
+    Object.values(presence_map_series),
+    annotation_series_list,
+    annotation_labels,
+  ];
 }
 
-function _getOverviewOption(_data) {
-  let modifications = [];
-  for (let position_data of Object.values(_data.positions)) {
-    for (let modification of Object.values(position_data.modifications)) {
-      modifications.push(modification.modification_unimod_name);
-    }
-  }
-  MODIFICATIONS = [...new Set(modifications)].sort();
-
-  let per_position_series = {};
-  let per_modification_series = {};
-  let ptms_counts = {};
-  for (let position of [...Array(_data.sequence.length).keys()]) {
-    let position_counts = {};
-    if (_data.positions.hasOwnProperty(position)) {
-      for (let modification of _data.positions[position].modifications) {
-        if (
-          position_counts.hasOwnProperty(
-            modification.modification_classification
-          )
-        ) {
-          position_counts[modification.modification_classification] += 1;
-        } else {
-          position_counts[modification.modification_classification] = 1;
-        }
-        if (
-          !ptms_counts.hasOwnProperty(modification.modification_unimod_name)
-        ) {
-          ptms_counts[modification.modification_unimod_name] = {};
-        }
-        if (
-          !ptms_counts[modification.modification_unimod_name].hasOwnProperty(
-            modification.modification_classification
-          )
-        ) {
-          ptms_counts[modification.modification_unimod_name][
-            modification.modification_classification
-          ] = 0;
-        }
-        ptms_counts[modification.modification_unimod_name][
-          modification.modification_classification
-        ] += 1;
-      }
-      for (const [name, count] of Object.entries(position_counts)) {
-        if (!per_position_series.hasOwnProperty(name)) {
-          per_position_series[name] = {
-            name: name,
-            type: "bar",
-            stack: "total",
-            emphasis: {
-              focus: "series",
-            },
-            data: [],
-            itemStyle: {
-              color: _getColor(name),
-            },
-            xAxisIndex: 0,
-            yAxisIndex: 0,
-          };
-        }
-        per_position_series[name].data.push([position, count]);
-      }
-    }
-  }
-  for (const [modification_name, _] of Object.entries(ptms_counts)) {
-    for (const [modification_class, count] of Object.entries(_)) {
-      if (!per_modification_series.hasOwnProperty(modification_class)) {
-        per_modification_series[modification_class] = {
-          name: modification_class,
-          stack: "total2",
-          type: "bar",
-          emphasis: {
-            focus: "series",
-          },
-          data: [],
-          itemStyle: {
-            color: _getColor(modification_class),
-          },
-          xAxisIndex: 1,
-          yAxisIndex: 1,
-        };
-      }
-      per_modification_series[modification_class].data.push([
-        MODIFICATIONS.indexOf(modification_name),
-        count,
-      ]);
-    }
-  }
-
-  return {
-    title: [
-      {
-        text: "No. PTMs per Position",
-        left: "10%",
-        textStyle: {
-          fontSize: 12,
-        },
-      },
-      {
-        text: "Occurence per PTM",
-        left: "55%",
-        textStyle: {
-          fontSize: 12,
-        },
-      },
-      {
-        text: [
-          _data.annotation.proteinDescription.recommendedName.fullName.value,
-          "Length: " + Object.keys(_data.positions).length + " aa",
-          "Contacts: " +
-            Object.values(_data.contacts)
-              .map((v) => {
-                return v.length;
-              })
-              .reduce((a, z) => a + z, 0),
-          "Modifications: " +
-            Object.values(_data.positions)
-              .map((v) => {
-                return v.modifications.length;
-              })
-              .reduce((a, z) => a + z, 0),
-        ].join("\n"),
-        left: 2,
-        textStyle: {
-          fontSize: 11,
-          fontWeight: "lighter",
-        },
-      },
-    ],
-    dataZoom: [
-      {
-        type: "inside",
-        xAxisIndex: 0,
-        throttle: 0,
-      },
-      {
-        type: "inside",
-        xAxisIndex: 1,
-        throttle: 0,
-      },
-    ],
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "cross",
-        label: {
-          backgroundColor: "rgba(51, 51, 51, 0.7)",
-          fontWeight: "lighter",
-          fontSize: 10,
-          color: "#f0f5f5",
-        },
-      },
-      backgroundColor: "rgba(51, 51, 51, 0.7)",
-      borderColor: "transparent",
-      textStyle: {
-        fontWeight: "lighter",
-        fontSize: 10,
-        color: "#f0f5f5",
+function getContactMapComponents(axisIndexContactMap) {
+  let contact_map_series = [
+    {
+      id: "contact_map@upper",
+      name: "contact_map_upper",
+      type: "heatmap",
+      data: [],
+      xAxisIndex: axisIndexContactMap,
+      yAxisIndex: axisIndexContactMap,
+      itemStyle: {
+        color: "#dc5754",
       },
     },
-    toolbox: {
-      feature: {
-        saveAsImage: {},
+    {
+      id: "contact_map@lower",
+      type: "heatmap",
+      name: "contact_map_lower",
+      data: [],
+      xAxisIndex: axisIndexContactMap,
+      yAxisIndex: axisIndexContactMap,
+      itemStyle: {
+        color: "#333333",
       },
     },
-    grid: [
-      {
-        top: "12%",
-        left: "10%",
-        height: "80%",
-        width: "40%",
-        containLabel: true,
-      },
-      {
-        top: "10%",
-        left: "55%",
-        height: "80%",
-        width: "40%",
-        containLabel: true,
-      },
-    ],
-    xAxis: [
-      {
-        data: [...Array(_data.sequence.length).keys()],
-        name: "Protein Position",
-        nameGap: 25,
-        nameLocation: "center",
-        nameTextStyle: {
-          fontWeight: "bold",
-          fontSize: 11,
-        },
-        axisLabel: {
-          formatter: (p) => {
-            return parseInt(p) + 1;
-          },
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
-        gridIndex: 0,
-      },
-      {
-        data: MODIFICATIONS,
-        name: "Modification",
-        nameGap: 25,
-        nameLocation: "center",
-        nameTextStyle: {
-          fontWeight: "bold",
-          fontSize: 11,
-        },
-        axisLabel: {
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
-        gridIndex: 1,
-      },
-    ],
-    yAxis: [
-      {
-        type: "value",
-        name: "No. PTMs",
-        nameGap: 25,
-        nameLocation: "center",
-        nameTextStyle: {
-          fontWeight: "bold",
-          fontSize: 11,
-        },
-        axisLabel: {
-          formatter: (p) => {
-            return parseInt(p) + 1;
-          },
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
-        gridIndex: 0,
-      },
-      {
-        type: "value",
-        name: "No. PTMs",
-        nameGap: 25,
-        nameLocation: "center",
-        nameTextStyle: {
-          fontWeight: "bold",
-          fontSize: 11,
-        },
-        axisLabel: {
-          formatter: (p) => {
-            return parseInt(p) + 1;
-          },
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
-        gridIndex: 1,
-      },
-    ],
-    series: [
-      ...Object.values(per_position_series),
-      ...Object.values(per_modification_series),
-    ],
-  };
+  ];
+  for (let [residue_index_i, contacts_data] of Object.entries(
+    __data.contacts
+  )) {
+    let x = parseInt(residue_index_i);
+    for (let contact_data of contacts_data) {
+      let y = contact_data[0];
+      if (x > y) {
+        var xModifications = new Set();
+        var yModifications = new Set();
+        if (__data.positions.hasOwnProperty(x + 1)) {
+          __data.positions[x + 1].modifications.forEach((_) =>
+            xModifications.add(_.modification_unimod_name)
+          );
+        }
+        if (__data.positions.hasOwnProperty(y + 1)) {
+          __data.positions[y + 1].modifications.forEach((_) =>
+            yModifications.add(_.modification_unimod_name)
+          );
+        }
+        xModifications = Array.from(xModifications);
+        yModifications = Array.from(yModifications);
+        var modificationsCount = new Set([...xModifications, ...yModifications])
+          .size;
+        if (xModifications.length > 0 || yModifications.length > 0) {
+          contact_map_series[0].data.push([
+            x,
+            y,
+            contact_data[1],
+            modificationsCount,
+            xModifications,
+            yModifications,
+          ]);
+        }
+      } else {
+        contact_map_series[1].data.push([x, y, contact_data[1]]);
+      }
+    }
+  }
+  return contact_map_series;
 }
 
-function _getColor(key) {
+function getColor(key) {
   if (!COLORS.M.hasOwnProperty(key)) {
     COLORS.M[key] = COLORS.i;
     COLORS.i += 1;
