@@ -194,7 +194,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <div id="vline"></div>
 
         <div id="panel-info" class="panel-container">
-          <h6 class="secondary">PTMVision Usage</h6>
+          <h6 class="secondary">
+            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+            erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
+            et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est
+            Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur
+            sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore
+            et dolore magna aliquyam erat, sed diam voluptua. At vero eos et
+            accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
+            no sea takimata sanctus est Lorem ipsum dolor sit amet.
+          </h6>
         </div>
 
         <div id="panel-inputs" class="panel-container">
@@ -205,7 +215,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               search</strong
             >
           </h6>
-          <h7 class="secondary">Specify Pipeline:</h7>
+          <h7 class="secondary">Select Input Format:</h7>
           <select data-role="select" id="data-type-form">
             <optgroup label="Pipeline">
               <option value="ionbot">Ionbot</option>
@@ -235,7 +245,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <i class="fa-duotone fa-circle-arrow-up-right"></i>
             <strong>Restart previous PTMVision session</strong>
           </h6>
-          <h7 class="secondary">Select Data:</h7>
+          <h7 class="secondary">Select Session:</h7>
           <input
             id="session-input-form"
             type="file"
@@ -249,12 +259,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <div id="panel-overview" class="panel-container">
           <h6 class="secondary">
             <i class="fa-duotone fa-circle-2"></i>
-            <strong>Inspect properties of the full data set</strong>
-            <button class="toolbox-button float-right ml-2" disabled>
-              Info
+            <strong
+              >Inspect modification (co-)occurrences wrt. all proteins</strong
+            >
+            <button
+              onclick="toggleElement('panel-overview-info')"
+              class="toolbox-button float-right ml-2"
+              disabled
+            >
+              &#8505;
             </button>
           </h6>
           <div id="panel-overview-chart"></div>
+          <div id="panel-overview-info">
+            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+            erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
+            et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est
+            Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur
+            sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore
+            et dolore magna aliquyam erat, sed diam voluptua. At vero eos et
+            accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
+            no sea takimata sanctus est Lorem ipsum dolor sit amet.
+          </div>
         </div>
 
         <div id="panel-table" class="panel-container">
@@ -312,9 +339,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <div id="panel-dashboard" class="panel-container">
           <h6 class="secondary">
             <i class="fa-duotone fa-circle-4"></i>
-            <strong>Explore PTMs of one protein in detail</strong>
-            <button class="toolbox-button float-right ml-2" disabled>
-              Info
+            <strong>Explore modifications of one protein in detail</strong>
+            <button
+              onclick="toggleElement('panel-dashboard-info')"
+              class="toolbox-button float-right ml-2"
+              disabled
+            >
+              &#8505;
             </button>
             <button
               id="panel-dashboard-switch-map-button"
@@ -337,10 +368,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <div
             id="panel-dashboard-structure"
             data-role="window"
-            data-width="25%"
-            data-height="42%"
-            data-top="54%"
-            data-left="1%"
+            data-width="24%"
+            data-height="34%"
+            data-top="62%"
+            data-left="3%"
             data-draggable="true"
             data-resizable="true"
             data-title="Protein Structure"
@@ -350,6 +381,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-cls-window="panel-dashboard-structure-window"
             data-cls-caption="panel-dashboard-structure-caption"
           ></div>
+          <div id="panel-dashboard-info">
+            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+            erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
+            et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est
+            Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur
+            sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore
+            et dolore magna aliquyam erat, sed diam voluptua. At vero eos et
+            accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
+            no sea takimata sanctus est Lorem ipsum dolor sit amet.
+          </div>
         </div>
 
         <div id="panel-legal">

@@ -23,7 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 :root {
   font-family: Arial, Helvetica, sans-serif;
-  --background-color-1: #fbfbfb;
+  --background-color-1: rgb(251, 251, 251);
+  --background-color-1-o-90: rgba(251, 251, 251, 0.9);
   --background-color-2: #d4d4d4;
   --background-color-3: #f0f5f5;
   --color-1: #5497a7;
@@ -245,6 +246,19 @@ body .error-toast {
   border-radius: 4px;
 }
 
+#panel-overview-info {
+  position: absolute;
+  top: 4vh;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+  background-color: var(--background-color-1-o-90);
+  border-radius: 4px;
+  z-index: 10;
+  padding: 10px;
+  font-weight: lighter;
+}
+
 #panel-table {
   margin-top: 5vh;
   left: 5%;
@@ -300,11 +314,17 @@ body .error-toast {
   border-radius: 4px;
 }
 
-#panel-dashboard .maximized {
-  max-width: 50% !important;
-  max-height: 94% !important;
-  top: 3% !important;
-  bottom: 3% !important;
+#panel-dashboard-info {
+  position: absolute;
+  top: 4vh;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+  background-color: var(--background-color-1-o-90);
+  border-radius: 4px;
+  z-index: 10;
+  padding: 10px;
+  font-weight: lighter;
 }
 
 #panel-dashboard-structure {

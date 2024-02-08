@@ -33,15 +33,40 @@ const DASHBOARD_COMPONENTS = {
   annotationsIndex: 2,
   presenceMapIndex: 3,
   contactMapIndex: 3,
+  aaCountsIndex: 4,
   positions: null,
   modifications: null,
   positionCountsSeries: null,
   ptmCountsSeries: null,
+  aaCountsSeries: null,
   presenceMapSeries: null,
   contactMapSeries: null,
   annotationSeries: null,
   annotationsLabels: null,
 };
+
+const AMINO_ACIDS = [
+  "ALA",
+  "CYS",
+  "ASP",
+  "GLU",
+  "PHE",
+  "GLY",
+  "HIS",
+  "ILE",
+  "LYS",
+  "LEU",
+  "MET",
+  "ASN",
+  "PRO",
+  "GLN",
+  "ARG",
+  "SER",
+  "THR",
+  "VAL",
+  "TRP",
+  "TYR",
+];
 
 const UPLOAD_PDB_HTML = `
     <p>You can provide a structure in .pdb format to continue.</p>
@@ -241,7 +266,9 @@ function init() {
     antialias: true,
     cartoonQuality: 6,
   });
-  toggleStructure(false);
+  hideStructure();
+  toggleElement("panel-overview-info");
+  toggleElement("panel-dashboard-info");
 }
 
 /**
@@ -329,23 +356,36 @@ function redirectHelp() {
   });
 }
 
+function toggleElement(id) {
+  if ($("#" + id).is(":visible")) {
+    $("#" + id).hide();
+  } else {
+    $("#" + id).show();
+  }
+}
+
 /**
  * Toggles the visibility of the PTMVision structure panel.
  */
 function toggleStructure() {
-  let node = $("#panel-dashboard-structure")[0].parentNode.parentNode;
-  let id = node.id;
+  let id = $("#panel-dashboard-structure")[0].parentNode.parentNode.id;
   if ($("#" + id).is(":visible")) {
-    $("#panel-dashboard-toggle-structure-button").html(
-      "Show Protein Structure"
-    );
-    $("#" + id).hide();
+    hideStructure();
   } else {
-    $("#panel-dashboard-toggle-structure-button").html(
-      "Hide Protein Structure"
-    );
-    $("#" + id).show();
+    showStructure();
   }
+}
+
+function showStructure() {
+  let id = $("#panel-dashboard-structure")[0].parentNode.parentNode.id;
+  $("#panel-dashboard-toggle-structure-button").html("Hide Protein Structure");
+  $("#" + id).show();
+}
+
+function hideStructure() {
+  let id = $("#panel-dashboard-structure")[0].parentNode.parentNode.id;
+  $("#panel-dashboard-toggle-structure-button").html("Show Protein Structure");
+  $("#" + id).hide();
 }
 
 function setTableFilters(_) {
@@ -385,6 +425,7 @@ async function uploadData() {
   };
   if ($("#data-input-form")[0].files.length == 0) {
     handleError("No search engine output data was supplied.");
+    $("body").css("cursor", "auto");
     return;
   }
   await readFile($("#data-input-form")[0].files[0]).then((response) => {
@@ -446,15 +487,20 @@ async function uploadData() {
         );
       });
       // Init. mod. overview graph.
-      axios.get(__url + "/get_mog_data").then((response) => {
-        __mogOption = getMogOption(response.data);
-        __mogChart.setOption(__mogOption);
-        $("#panel-overview h6 button").attr("disabled", false);
-        window.scrollTo({
-          top: $("#panel-overview").get(0).offsetTop + 40,
-          behavior: "smooth",
+      axios
+        .get(__url + "/get_mog_data")
+        .then((response) => {
+          __mogOption = getMogOption(response.data);
+          __mogChart.setOption(__mogOption);
+          $("#panel-overview h6 button").attr("disabled", false);
+          window.scrollTo({
+            top: $("#panel-overview").get(0).offsetTop + 40,
+            behavior: "smooth",
+          });
+        })
+        .catch((error) => {
+          throw error;
         });
-      });
     })
     .catch((error) => {
       console.error(error);
@@ -504,9 +550,11 @@ function getDashboard(cutoff_value, pdb_text_value) {
           DASHBOARD_COMPONENTS.positions,
           DASHBOARD_COMPONENTS.ptmCountsSeries,
           DASHBOARD_COMPONENTS.modifications,
+          DASHBOARD_COMPONENTS.aaCountsSeries,
         ] = getDashboardCountsComponents(
           DASHBOARD_COMPONENTS.positionCountsIndex,
-          DASHBOARD_COMPONENTS.ptmCountsIndex
+          DASHBOARD_COMPONENTS.ptmCountsIndex,
+          DASHBOARD_COMPONENTS.aaCountsIndex
         );
         [
           DASHBOARD_COMPONENTS.presenceMapSeries,
@@ -519,15 +567,9 @@ function getDashboard(cutoff_value, pdb_text_value) {
         DASHBOARD_COMPONENTS.contactMapSeries = getContactMapComponents(
           DASHBOARD_COMPONENTS.contactMapIndex
         );
-
         setDashboardPresenceMap();
-        //setDashboardContactMap();
-
         $("#panel-dashboard h6 button").attr("disabled", false);
-
         structureViewSetDefaultStyle();
-        toggleStructure();
-
         window.scrollTo({
           top: $("#panel-dashboard").get(0).offsetTop + 40,
           behavior: "smooth",
@@ -545,8 +587,9 @@ function getDashboard(cutoff_value, pdb_text_value) {
 
 function setDashboardPresenceMap() {
   $("#panel-dashboard").attr("map_content", "presence");
+  hideStructure();
   const axisProperties = {
-    nameGap: 25,
+    nameGap: 35,
     nameLocation: "center",
     nameTextStyle: {
       fontWeight: "bold",
@@ -555,25 +598,56 @@ function setDashboardPresenceMap() {
     axisTick: {
       alignWithLabel: true,
     },
+    axisLabel: {
+      fontWeight: "lighter",
+      fontSize: 10,
+    },
+  };
+  const titleProperties = {
+    textStyle: {
+      fontSize: 12,
+    },
+    borderRadius: 4,
+    backgroundColor: "#f2f3f2",
   };
   var option = {
+    title: [
+      {
+        text: "PTM Counts per Position",
+        ...titleProperties,
+        top: "1%",
+        left: "3%",
+      },
+      {
+        text: "PTM Occurrence per Class and Amino Acid",
+        ...titleProperties,
+        top: "29%",
+        left: "3%",
+      },
+      {
+        text: "Modifications Presence Map and Position Annotation",
+        ...titleProperties,
+        top: "2%",
+        left: "59%",
+      },
+    ],
     grid: [
       {
         id: "grid_position_counts",
-        top: "5%",
-        left: "2%",
-        height: "19%",
+        top: "6%",
+        left: "4%",
+        height: "20%",
         width: "46%",
-        containLabel: true,
+        containLabel: false,
         zlevel: 0,
       },
       {
         id: "grid_ptms_counts",
-        top: "29%",
-        left: "2%",
-        height: "19%",
+        top: "34%",
+        left: "4%",
+        height: "20%",
         width: "46%",
-        containLabel: true,
+        containLabel: false,
         zlevel: 0,
       },
       {
@@ -594,6 +668,15 @@ function setDashboardPresenceMap() {
         containLabel: false,
         zlevel: 1,
       },
+      {
+        id: "grid_aa_counts",
+        top: "55%",
+        left: "4%",
+        height: "34%",
+        width: "46%",
+        containLabel: false,
+        zlevel: 0,
+      },
     ],
     xAxis: [
       {
@@ -604,17 +687,20 @@ function setDashboardPresenceMap() {
       },
       {
         data: [],
-        name: "Modification",
-        ...axisProperties,
         axisLabel: {
-          fontWeight: "lighter",
-          fontSize: 10,
+          show: false,
+        },
+        axisTick: {
+          show: false,
         },
         gridIndex: DASHBOARD_COMPONENTS.ptmCountsIndex,
       },
       {
         data: [],
         axisLabel: {
+          show: false,
+        },
+        axisTick: {
           show: false,
         },
         gridIndex: DASHBOARD_COMPONENTS.annotationsIndex,
@@ -625,32 +711,24 @@ function setDashboardPresenceMap() {
         ...axisProperties,
         gridIndex: DASHBOARD_COMPONENTS.presenceMapIndex,
       },
+      {
+        data: [],
+        name: "Modification",
+        ...axisProperties,
+        gridIndex: DASHBOARD_COMPONENTS.aaCountsIndex,
+      },
     ],
     yAxis: [
       {
         type: "value",
         name: "No. PTMs",
         ...axisProperties,
-        axisLabel: {
-          formatter: (p) => {
-            return parseInt(p) + 1;
-          },
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
         gridIndex: DASHBOARD_COMPONENTS.positionCountsIndex,
       },
       {
         type: "value",
-        name: "No. PTMs",
+        name: "Count",
         ...axisProperties,
-        axisLabel: {
-          formatter: (p) => {
-            return parseInt(p) + 1;
-          },
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
         gridIndex: DASHBOARD_COMPONENTS.ptmCountsIndex,
       },
       {
@@ -659,10 +737,6 @@ function setDashboardPresenceMap() {
         name: "Annotations",
         ...axisProperties,
         nameGap: 140,
-        axisLabel: {
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
         gridIndex: DASHBOARD_COMPONENTS.annotationsIndex,
       },
       {
@@ -670,12 +744,14 @@ function setDashboardPresenceMap() {
         name: "Modification",
         ...axisProperties,
         nameGap: 140,
-        axisLabel: {
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
         interval: 0,
         gridIndex: DASHBOARD_COMPONENTS.presenceMapIndex,
+      },
+      {
+        data: AMINO_ACIDS,
+        name: "Amino Acid",
+        ...axisProperties,
+        gridIndex: DASHBOARD_COMPONENTS.aaCountsIndex,
       },
     ],
     dataZoom: [
@@ -690,8 +766,16 @@ function setDashboardPresenceMap() {
       },
       {
         type: "inside",
-        xAxisIndex: [DASHBOARD_COMPONENTS.ptmCountsIndex],
+        xAxisIndex: [
+          DASHBOARD_COMPONENTS.ptmCountsIndex,
+          DASHBOARD_COMPONENTS.aaCountsIndex,
+        ],
         yAxisIndex: [DASHBOARD_COMPONENTS.presenceMapIndex],
+        throttle: 0,
+      },
+      {
+        type: "inside",
+        yAxisIndex: [DASHBOARD_COMPONENTS.aaCountsIndex],
         throttle: 0,
       },
     ],
@@ -724,6 +808,12 @@ function setDashboardPresenceMap() {
               DASHBOARD_COMPONENTS.annotationsIndex,
             ],
           },
+          {
+            xAxisIndex: [
+              DASHBOARD_COMPONENTS.ptmCountsIndex,
+              DASHBOARD_COMPONENTS.aaCountsIndex,
+            ],
+          },
         ],
         label: { backgroundColor: "rgba(51, 51, 51, 0.7)" },
       },
@@ -740,15 +830,32 @@ function setDashboardPresenceMap() {
         },
       },
     ],
+    visualMap: [
+      {
+        bottom: "5%",
+        left: "10%",
+        color: ["#111111", "#d1d1d1"],
+        orient: "horizontal",
+        itemWidth: 10,
+        itemHeight: 100,
+        precision: 0,
+        textStyle: {
+          fontSize: 10,
+          fontWeight: "lighter",
+        },
+      },
+    ],
   };
   option.xAxis[DASHBOARD_COMPONENTS.positionCountsIndex].data =
     DASHBOARD_COMPONENTS.positions;
-  option.xAxis[DASHBOARD_COMPONENTS.ptmCountsIndex].data =
-    DASHBOARD_COMPONENTS.modifications;
   option.xAxis[DASHBOARD_COMPONENTS.presenceMapIndex].data =
     DASHBOARD_COMPONENTS.positions;
   option.xAxis[DASHBOARD_COMPONENTS.annotationsIndex].data =
     DASHBOARD_COMPONENTS.positions;
+  option.xAxis[DASHBOARD_COMPONENTS.aaCountsIndex].data =
+    DASHBOARD_COMPONENTS.modifications;
+  option.xAxis[DASHBOARD_COMPONENTS.ptmCountsIndex].data =
+    DASHBOARD_COMPONENTS.modifications;
   option.yAxis[DASHBOARD_COMPONENTS.presenceMapIndex].data =
     DASHBOARD_COMPONENTS.modifications;
   option.yAxis[DASHBOARD_COMPONENTS.annotationsIndex].data =
@@ -758,6 +865,7 @@ function setDashboardPresenceMap() {
     ...DASHBOARD_COMPONENTS.ptmCountsSeries,
     ...DASHBOARD_COMPONENTS.presenceMapSeries,
     ...DASHBOARD_COMPONENTS.annotationSeries,
+    ...DASHBOARD_COMPONENTS.aaCountsSeries,
   ];
   option.tooltip[0].formatter = (params, ticket, callback) => {
     let content = ``;
@@ -773,18 +881,23 @@ function setDashboardPresenceMap() {
         "</b> (" +
         __data.sequence[params[0].name - 1] +
         ")</br>";
-    } else if (axisIndex == DASHBOARD_COMPONENTS.ptmCountsIndex) {
+    } else if (
+      axisIndex == DASHBOARD_COMPONENTS.ptmCountsIndex ||
+      axisIndex == DASHBOARD_COMPONENTS.aaCountsIndex
+    ) {
       content += "<b>Modification " + params[0].name + "</b></br>";
     }
     for (let entry of params) {
       if (
-        axisIndex == DASHBOARD_COMPONENTS.positionCountsIndex ||
-        axisIndex == DASHBOARD_COMPONENTS.ptmCountsIndex
+        entry.axisIndex == DASHBOARD_COMPONENTS.positionCountsIndex ||
+        entry.axisIndex == DASHBOARD_COMPONENTS.ptmCountsIndex
       ) {
         content += entry.seriesName + " " + entry.data[1] + "</br>";
+      } else if (entry.axisIndex == DASHBOARD_COMPONENTS.aaCountsIndex) {
+        continue;
       } else if (
-        axisIndex == DASHBOARD_COMPONENTS.presenceMapIndex ||
-        axisIndex == DASHBOARD_COMPONENTS.annotationsIndex
+        entry.axisIndex == DASHBOARD_COMPONENTS.presenceMapIndex ||
+        entry.axisIndex == DASHBOARD_COMPONENTS.annotationsIndex
       ) {
         if (entry.seriesId.startsWith("annotation@")) {
           content += "&#8226; " + entry.seriesName + "</br>";
@@ -804,13 +917,26 @@ function setDashboardPresenceMap() {
     }
     return content;
   };
-  legend_data = new Set();
-  option.series.forEach((_) => {
-    if (!_.id.startsWith("annotation")) {
-      legend_data.add({ name: _.name });
-    }
-  });
-  option.legend[0].data = Array.from(legend_data);
+  option.visualMap[0].seriesIndex = option.series.length - 1;
+  option.visualMap[0].min = 1;
+  option.visualMap[0].max = Math.max(
+    ...option.series[option.series.length - 1].data.map((_) => _[2])
+  );
+  option.visualMap[0].text = [
+    option.visualMap[0].max,
+    "Modification Occurrence " + option.visualMap[0].min,
+  ];
+  option.legend[0].data = Array.from(
+    new Set(
+      option.series
+        .filter(
+          (_) => !_.id.startsWith("annotation") && !_.id.startsWith("aa_counts")
+        )
+        .map((_) => {
+          return { name: _.name };
+        })
+    )
+  );
   __dashboardChart.setOption(option, { notMerge: true });
   __dashboardChart.on("click", (params) => {
     if (
@@ -825,8 +951,9 @@ function setDashboardPresenceMap() {
 
 function setDashboardContactMap() {
   $("#panel-dashboard").attr("map_content", "contact");
+  showStructure();
   const axisProperties = {
-    nameGap: 25,
+    nameGap: 35,
     nameLocation: "center",
     nameTextStyle: {
       fontWeight: "bold",
@@ -835,25 +962,63 @@ function setDashboardContactMap() {
     axisTick: {
       alignWithLabel: true,
     },
+    axisLabel: {
+      fontWeight: "lighter",
+      fontSize: 10,
+    },
+  };
+  const titleProperties = {
+    textStyle: {
+      fontSize: 12,
+    },
+    borderRadius: 4,
+    backgroundColor: "#f2f3f2",
   };
   var option = {
+    title: [
+      {
+        text: "PTM Counts per Position",
+        ...titleProperties,
+        top: "1%",
+        left: "3%",
+      },
+      {
+        text: "PTM Occurrence per Class and Amino Acid",
+        ...titleProperties,
+        top: "29%",
+        left: "3%",
+      },
+      {
+        text: "Modifications Presence Map and Position Annotation",
+        ...titleProperties,
+        top: "2%",
+        left: "59%",
+      },
+      {
+        id: "title_contact_detail",
+        ...titleProperties,
+        text: "Contact Modifications",
+        top: "60%",
+        left: "28%",
+      },
+    ],
     grid: [
       {
         id: "grid_position_counts",
-        top: "5%",
-        left: "2%",
-        height: "19%",
+        top: "6%",
+        left: "4%",
+        height: "20%",
         width: "46%",
-        containLabel: true,
+        containLabel: false,
         zlevel: 0,
       },
       {
         id: "grid_ptms_counts",
-        top: "29%",
-        left: "2%",
-        height: "19%",
+        top: "34%",
+        left: "4%",
+        height: "20%",
         width: "46%",
-        containLabel: true,
+        containLabel: false,
         zlevel: 0,
       },
       {
@@ -874,6 +1039,17 @@ function setDashboardContactMap() {
         containLabel: false,
         zlevel: 1,
       },
+      {
+        id: "grid_contact_detail",
+        top: "63%",
+        left: "28%",
+        height: "33%",
+        width: "22%",
+        containLabel: false,
+        show: true,
+        backgroundColor: "#fdfefd",
+        zlevel: 0,
+      },
     ],
     xAxis: [
       {
@@ -886,15 +1062,14 @@ function setDashboardContactMap() {
         data: [],
         name: "Modification",
         ...axisProperties,
-        axisLabel: {
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
         gridIndex: DASHBOARD_COMPONENTS.ptmCountsIndex,
       },
       {
         data: [],
         axisLabel: {
+          show: false,
+        },
+        axisTick: {
           show: false,
         },
         gridIndex: DASHBOARD_COMPONENTS.annotationsIndex,
@@ -911,26 +1086,12 @@ function setDashboardContactMap() {
         type: "value",
         name: "No. PTMs",
         ...axisProperties,
-        axisLabel: {
-          formatter: (p) => {
-            return parseInt(p) + 1;
-          },
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
         gridIndex: DASHBOARD_COMPONENTS.positionCountsIndex,
       },
       {
         type: "value",
-        name: "No. PTMs",
+        name: "Count",
         ...axisProperties,
-        axisLabel: {
-          formatter: (p) => {
-            return parseInt(p) + 1;
-          },
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
         gridIndex: DASHBOARD_COMPONENTS.ptmCountsIndex,
       },
       {
@@ -939,10 +1100,6 @@ function setDashboardContactMap() {
         name: "Annotations",
         ...axisProperties,
         nameGap: 140,
-        axisLabel: {
-          fontWeight: "lighter",
-          fontSize: 10,
-        },
         gridIndex: DASHBOARD_COMPONENTS.annotationsIndex,
       },
       {
@@ -1059,13 +1216,13 @@ function setDashboardContactMap() {
     }
     for (let entry of params) {
       if (
-        axisIndex == DASHBOARD_COMPONENTS.positionCountsIndex ||
-        axisIndex == DASHBOARD_COMPONENTS.ptmCountsIndex
+        entry.axisIndex == DASHBOARD_COMPONENTS.positionCountsIndex ||
+        entry.axisIndex == DASHBOARD_COMPONENTS.ptmCountsIndex
       ) {
         content += entry.seriesName + " " + entry.data[1] + "</br>";
       } else if (
-        axisIndex == DASHBOARD_COMPONENTS.contactMapIndex ||
-        axisIndex == DASHBOARD_COMPONENTS.annotationsIndex
+        entry.axisIndex == DASHBOARD_COMPONENTS.contactMapIndex ||
+        entry.axisIndex == DASHBOARD_COMPONENTS.annotationsIndex
       ) {
         if (entry.seriesId.startsWith("annotation@")) {
           content += "&#8226; " + entry.seriesName + "</br>";
@@ -1085,13 +1242,18 @@ function setDashboardContactMap() {
     }
     return content;
   };
-  legend_data = new Set();
-  option.series.forEach((_) => {
-    if (!_.id.startsWith("annotation") && !_.id.startsWith("contact_map")) {
-      legend_data.add({ name: _.name });
-    }
-  });
-  option.legend[0].data = Array.from(legend_data);
+  option.legend[0].data = Array.from(
+    new Set(
+      option.series
+        .filter(
+          (_) =>
+            !_.id.startsWith("annotation") && !_.id.startsWith("contact_map")
+        )
+        .map((_) => {
+          return { name: _.name };
+        })
+    )
+  );
   __dashboardChart.setOption(option, { notMerge: true });
   __dashboardChart.on("click", (params) => {
     if (
@@ -1105,10 +1267,27 @@ function setDashboardContactMap() {
       params.seriesId.startsWith("contact_map") &&
       params.seriesId == "contact_map@upper"
     ) {
-      // TODO
-      $(".panel-dashboard-tooltip").get(0).append(params.data[4]);
-      $(".panel-dashboard-tooltip").get(0).append("\n");
-      $(".panel-dashboard-tooltip").get(0).append(params.data[5]);
+      let option = getContactDetail(params.data[0], params.data[1]);
+      __dashboardChart.setOption({ title: [option[0]], series: [option[1]] });
+    } else {
+      __dashboardChart.setOption({
+        title: [
+          {
+            id: "title_contact_detail",
+            ...titleProperties,
+            text: "Contact Modifications",
+            top: "60%",
+            left: "28%",
+          },
+        ],
+        series: [
+          {
+            id: "detail@contact",
+            data: [],
+            links: [],
+          },
+        ],
+      });
     }
   });
 }
@@ -1356,7 +1535,7 @@ function getMogOption(_data) {
             params.data.target +
             `</u></b> have ` +
             params.data.value +
-            ` joint occurrences.`
+            ` co-occurrences.`
           );
         } else if (params.dataType == "node") {
           return (
@@ -1374,10 +1553,11 @@ function getMogOption(_data) {
     visualMap: {
       bottom: "bottom",
       left: "left",
-      color: ["#FF5D73", "#77C8FA"],
+      color: ["#111111", "#d1d1d1"],
       orient: "horizontal",
       precision: 0,
-      text: [nodes_value_max, "Total PTM Occurrence " + nodes_value_min],
+      itemWidth: 10,
+      text: [nodes_value_max, "Modification Occurrence " + nodes_value_min],
     },
     series: [
       {
@@ -1413,70 +1593,70 @@ function getMogOption(_data) {
 
 function getDashboardCountsComponents(
   axisIndexPositionCounts,
-  axisIndexPTMCounts
+  axisIndexPTMCounts,
+  axisIndexAACounts
 ) {
   let modifications = [];
-  for (let position_data of Object.values(__data.positions)) {
-    for (let modification of Object.values(position_data.modifications)) {
-      modifications.push(modification.modification_unimod_name);
+  let aa_counts = {};
+  let ptms_counts = {};
+  let position_counts = {};
+  let aa_counts_series = {
+    id: "aa_counts",
+    name: "amino_acid_counts",
+    type: "heatmap",
+    data: [],
+    xAxisIndex: axisIndexAACounts,
+    yAxisIndex: axisIndexAACounts,
+  };
+  let ptm_counts_series = {};
+  let position_counts_series = {};
+  for (const [position, position_data] of Object.entries(__data.positions)) {
+    const aa = __data.sequence[position - 1];
+    if (!aa_counts.hasOwnProperty(aa)) {
+      aa_counts[aa] = {};
+    }
+    if (!position_counts.hasOwnProperty(position)) {
+      position_counts[position] = {};
+    }
+    for (const modification of Object.values(position_data.modifications)) {
+      const modification_name = modification.modification_unimod_name;
+      const modification_classification =
+        modification.modification_classification;
+      modifications.push(modification_name);
+      if (!aa_counts[aa].hasOwnProperty(modification_name)) {
+        aa_counts[aa][modification_name] = 1;
+      } else {
+        aa_counts[aa][modification_name] += 1;
+      }
+      if (!ptms_counts.hasOwnProperty(modification_name)) {
+        ptms_counts[modification_name] = {};
+      }
+      if (
+        !ptms_counts[modification_name].hasOwnProperty(
+          modification_classification
+        )
+      ) {
+        ptms_counts[modification_name][modification_classification] = 1;
+      } else {
+        ptms_counts[modification_name][modification_classification] += 1;
+      }
+      if (
+        !position_counts[position].hasOwnProperty(modification_classification)
+      ) {
+        position_counts[position][modification_classification] = 1;
+      } else {
+        position_counts[position][modification_classification] += 1;
+      }
     }
   }
   __modifications = [...new Set(modifications)].sort();
-  let position_counts_series = {};
-  let ptm_counts_series = {};
-  let ptms_counts = {};
-  for (let i of [...Array(__data.sequence.length).keys()]) {
-    let position = i + 1;
-    let position_counts = {};
-    if (__data.positions.hasOwnProperty(position)) {
-      for (let modification of __data.positions[position].modifications) {
-        if (
-          position_counts.hasOwnProperty(
-            modification.modification_classification
-          )
-        ) {
-          position_counts[modification.modification_classification] += 1;
-        } else {
-          position_counts[modification.modification_classification] = 1;
-        }
-        if (
-          !ptms_counts.hasOwnProperty(modification.modification_unimod_name)
-        ) {
-          ptms_counts[modification.modification_unimod_name] = {};
-        }
-        if (
-          !ptms_counts[modification.modification_unimod_name].hasOwnProperty(
-            modification.modification_classification
-          )
-        ) {
-          ptms_counts[modification.modification_unimod_name][
-            modification.modification_classification
-          ] = 0;
-        }
-        ptms_counts[modification.modification_unimod_name][
-          modification.modification_classification
-        ] += 1;
-      }
-      for (const [name, count] of Object.entries(position_counts)) {
-        if (!position_counts_series.hasOwnProperty(name)) {
-          position_counts_series[name] = {
-            id: "position_counts@" + name,
-            name: name,
-            type: "bar",
-            stack: "total",
-            emphasis: {
-              focus: "series",
-            },
-            data: [],
-            itemStyle: {
-              color: getColor(name),
-            },
-            xAxisIndex: axisIndexPositionCounts,
-            yAxisIndex: axisIndexPositionCounts,
-          };
-        }
-        position_counts_series[name].data.push([i, count]);
-      }
+  for (const [amino_acid, _] of Object.entries(aa_counts)) {
+    for (const [modification_name, count] of Object.entries(_)) {
+      aa_counts_series.data.push([
+        __modifications.indexOf(modification_name),
+        AMINO_ACIDS.indexOf(amino_acid),
+        count,
+      ]);
     }
   }
   for (const [modification_name, _] of Object.entries(ptms_counts)) {
@@ -1504,11 +1684,37 @@ function getDashboardCountsComponents(
       ]);
     }
   }
+  for (const [position, _] of Object.entries(position_counts)) {
+    for (const [modification_class, count] of Object.entries(_)) {
+      if (!position_counts_series.hasOwnProperty(modification_class)) {
+        position_counts_series[modification_class] = {
+          id: "position_counts@" + modification_class,
+          name: modification_class,
+          type: "bar",
+          stack: "total",
+          emphasis: {
+            focus: "series",
+          },
+          data: [],
+          itemStyle: {
+            color: getColor(modification_class),
+          },
+          xAxisIndex: axisIndexPositionCounts,
+          yAxisIndex: axisIndexPositionCounts,
+        };
+      }
+      position_counts_series[modification_class].data.push([
+        position - 1,
+        count,
+      ]);
+    }
+  }
   return [
     Object.values(position_counts_series),
     [...Array(__data.sequence.length).keys()].map((x) => x + 1),
     Object.values(ptm_counts_series),
     __modifications,
+    [aa_counts_series],
   ];
 }
 
@@ -1736,7 +1942,6 @@ function getPresenceMapComponents(axisIndexPresenceMap, axisIndexAnnotations) {
     value.data = [...Object.values(value.data)];
     annotation_series_list.push(value);
   }
-
   return [
     Object.values(presence_map_series),
     annotation_series_list,
@@ -1808,6 +2013,107 @@ function getContactMapComponents(axisIndexContactMap) {
     }
   }
   return contact_map_series;
+}
+
+function getContactDetail(index_i, index_j) {
+  let position_i = index_i + 1;
+  let position_j = index_j + 1;
+  let residue_i = __data.sequence[index_i];
+  let residue_j = __data.sequence[index_j];
+  let modifications = {};
+  if (__data.positions.hasOwnProperty(position_i)) {
+    for (let modification of __data.positions[position_i].modifications) {
+      if (
+        !modifications.hasOwnProperty(modification.modification_unimod_name)
+      ) {
+        modifications[modification.modification_unimod_name] = {};
+      }
+      modifications[modification.modification_unimod_name][position_i] =
+        modification.modification_classification;
+    }
+  }
+  if (__data.positions.hasOwnProperty(position_j)) {
+    for (let modification of __data.positions[position_j].modifications) {
+      if (
+        !modifications.hasOwnProperty(modification.modification_unimod_name)
+      ) {
+        modifications[modification.modification_unimod_name] = {};
+      }
+      modifications[modification.modification_unimod_name][position_j] =
+        modification.modification_classification;
+    }
+  }
+  let series = {
+    type: "sankey",
+    id: "detail@contact",
+    top: "63.5%",
+    left: "28.5%",
+    height: "31.5%",
+    width: "21%",
+    draggable: false,
+    levels: [
+      { depth: 0, label: { position: "right", fontSize: 10 } },
+      { depth: 1, label: { position: "left", fontSize: 10 } },
+    ],
+    data: [],
+    links: [],
+  };
+  for (let modification_name of Object.keys(modifications)) {
+    let in_i = false;
+    let in_j = false;
+    if (modifications[modification_name].hasOwnProperty(position_i)) {
+      series.data.push({
+        name: position_i + " " + modification_name,
+        value: 1,
+        depth: 0,
+        itemStyle: {
+          color: getColor(modifications[modification_name][position_i]),
+        },
+      });
+      in_i = true;
+    }
+    if (modifications[modification_name].hasOwnProperty(position_j)) {
+      series.data.push({
+        name: position_j + " " + modification_name,
+        value: 1,
+        depth: 1,
+        itemStyle: {
+          color: getColor(modifications[modification_name][position_j]),
+        },
+      });
+      in_j = true;
+    }
+    if (in_i && in_j) {
+      series.links.push({
+        source: position_i + " " + modification_name,
+        target: position_j + " " + modification_name,
+        value: 1,
+      });
+    }
+  }
+  return [
+    {
+      id: "title_contact_detail",
+      text:
+        "Contact Modifications: " +
+        "Positions " +
+        position_i +
+        " " +
+        residue_i +
+        " and " +
+        position_j +
+        " " +
+        residue_j,
+      textStyle: {
+        fontSize: 12,
+      },
+      borderRadius: 4,
+      backgroundColor: "#f2f3f2",
+      top: "60%",
+      left: "28%",
+    },
+    series,
+  ];
 }
 
 function getColor(key) {
