@@ -80,40 +80,33 @@ const LEGAL_HTML = `
           <small>3rd Party Libraries and Resources</small>
         </h2>
         <p class="text-left">
-          <i class="fa-solid fa-circle-chevron-right"></i> We use
-          <a href="https://sweetalert2.github.io/">sweetalert2.js</a> for popups.
+          <i class="fa-solid fa-circle-small fa-2xs"></i> <strong>Component Frameworks</strong>
+          <a href="https://metroui.org.ua/">Metro4</a>
+          <a href="https://sweetalert2.github.io/">SweetAlert2</a>
+          <a href="https://fontawesome.com/">Font Awesome</a>
+          <a href="https://tabulator.info/">Tabulator</a>
+          <a href="https://github.com/normanzb/resize-sensor#readme">ResizeSensor</a>
+          <a href="https://3dmol.csb.pitt.edu/doc/index.html">3Dmol</a>
         </p>
         <p class="text-left">
-          <i class="fa-solid fa-circle-chevron-right"></i> The styling of our
-          platform is based on <a href="https://metroui.org.ua/">Metro 4</a> and we
-          use
-          <a href="https://github.com/normanzb/resize-sensor#readme"
-            >Element Sensor</a
-          >
-          for our layout. Many of the used icons are from
-          <a href="https://fontawesome.com/">fontawesome</a>.
+          <i class="fa-solid fa-circle-small fa-2xs"></i> <strong>Visualization</strong>
+          <a href="https://echarts.apache.org/en/index.html">Apache ECharts</a>
         </p>
         <p class="text-left">
-          <i class="fa-solid fa-circle-chevron-right"></i>
-          <a href="https://axios-http.com/docs/intro">Axios</a> is used for HTTP
-          requests and communication with our server.
+          <i class="fa-solid fa-circle-small fa-2xs"></i> <strong>DOM Navigation and Syntax Improvement</strong>
+          <a href="https://jquery.com/">jQuery</a>
+          <a href="https://lodash.com/">Lodash</a>
         </p>
         <p class="text-left">
-          <i class="fa-solid fa-circle-chevron-right"></i> We utilize
-          <a href="https://jquery.com/">jQuery.js</a> in our scripts and use
-          <a href="https://github.com/foliojs/brotli.js">brotli.js</a> and
-          <a href="https://github.com/nodeca/pako">pako.js</a> for data compression.
+          <i class="fa-solid fa-circle-small fa-2xs"></i> <strong>Data Processing</strong>
+          <a href="https://www.papaparse.com/">Papa Parse</a>
+          <a href="https://github.com/nodeca/pako">pako</a>
         </p>
         <p class="text-left">
-          <i class="fa-solid fa-circle-chevron-right"></i> We utilize
-          <a href="https://echarts.apache.org/en/index.html">Apache ECharts</a> for
-          our visualization.
-        </p>
-        <p class="text-left">
-          <i class="fa-solid fa-circle-chevron-right"></i> Our backend is based on
-          <a href="https://flask.palletsprojects.com/en/2.2.x/">Flask</a> and
-          <a href="https://flask-session.readthedocs.io/en/latest/">Flask-Session</a
-          >.
+          <i class="fa-solid fa-circle-small fa-2xs"></i> <strong>Backend and Communication</strong>
+          <a href="https://axios-http.com/docs/intro">Axios</a>
+          <a href="https://flask.palletsprojects.com/en/2.2.x/">Flask</a>
+          <a href="https://flask-session.readthedocs.io/en/latest/">Flask-Session</a>
         </p>
       </div>
       <div class="remark m-4">
@@ -285,14 +278,168 @@ function downloadBlob(blob, name) {
   download_link.remove();
 }
 
-/**
- * Downloads an example dataset to the client.
- */
-function _downloadExampleData() {
+function downloadSessionData() {
+  axios.get(__url + "/download_session").then((response) => {
+    console.log(response.data);
+    const D = new Date();
+    downloadBlob(
+      response.data,
+      "ptmvis-" +
+        [D.getFullYear(), D.getMonth() + 1, Date.now()].join("-") +
+        ".zlib"
+    );
+  });
+}
+
+function startExampleSession() {
+  $("body").css("cursor", "wait");
   axios
-    .get(__url + "/example_data", { responseType: "blob" })
-    .then((response) => {
-      downloadBlob(response.data, "example_data.csv");
+    .get(__url + "/example_session")
+    .then((_) => {
+      // Init. table.
+      axios.get(__url + "/get_available_proteins").then((response) => {
+        __proteinsOverviewTable.setData(response.data);
+        __modifications = new Set();
+        var identifiers = new Set();
+        for (let entry of response.data) {
+          entry.modifications.split("$").forEach((m) => __modifications.add(m));
+          identifiers.add(entry.id + "$" + entry.name);
+        }
+        __modifications = [...__modifications];
+        modifications_data_string = "";
+        __modifications.forEach((m) => {
+          modifications_data_string +=
+            `<option value="` + m + `">` + m + `</option>`;
+        });
+        Metro.getPlugin("#panel-table-filter-modification", "select").data(
+          modifications_data_string
+        );
+        identifiers = [...identifiers];
+        identifiers_data_string = "";
+        identifiers.forEach((i) => {
+          let entry = i.split("$");
+          identifiers_data_string +=
+            `<option value="id$` +
+            entry[0] +
+            `">` +
+            entry[0] +
+            `</option><option value="name$` +
+            entry[1] +
+            `">` +
+            entry[1] +
+            `</option>`;
+        });
+        Metro.getPlugin("#panel-table-filter-id", "select").data(
+          identifiers_data_string
+        );
+      });
+      // Init. mod. overview graph.
+      axios
+        .get(__url + "/get_mog_data")
+        .then((response) => {
+          __mogOption = getMogOption(response.data);
+          __mogChart.setOption(__mogOption);
+          $("#panel-overview h6 button").attr("disabled", false);
+          window.scrollTo({
+            top: $("#panel-overview").get(0).offsetTop + 40,
+            behavior: "smooth",
+          });
+        })
+        .catch((error) => {
+          throw error;
+        });
+    })
+    .catch((error) => {
+      console.error(error);
+      handleError(error.message);
+    })
+    .finally(() => {
+      $("body").css("cursor", "auto");
+    });
+}
+
+async function restartSession() {
+  $("body").css("cursor", "wait");
+  request = null;
+  if ($("#session-input-form")[0].files.length == 0) {
+    handleError("No session data was supplied.");
+    $("body").css("cursor", "auto");
+    return;
+  }
+  await readFile($("#session-input-form")[0].files[0]).then((response) => {
+    request = response;
+  });
+  axios
+    .post(__url + "/restart_session", request, {
+      headers: {
+        "Content-Type": "text",
+      },
+    })
+    .then((_) => {
+      Metro.toast.create(
+        "Your data has been uploaded successfully.",
+        null,
+        5000
+      );
+      // Init. table.
+      axios.get(__url + "/get_available_proteins").then((response) => {
+        __proteinsOverviewTable.setData(response.data);
+        __modifications = new Set();
+        identifiers = new Set();
+        for (let entry of response.data) {
+          entry.modifications.split("$").forEach((m) => __modifications.add(m));
+          identifiers.add(entry.id + "$" + entry.name);
+        }
+        __modifications = [...__modifications];
+        modifications_data_string = "";
+        __modifications.forEach((m) => {
+          modifications_data_string +=
+            `<option value="` + m + `">` + m + `</option>`;
+        });
+        Metro.getPlugin("#panel-table-filter-modification", "select").data(
+          modifications_data_string
+        );
+        identifiers = [...identifiers];
+        identifiers_data_string = "";
+        identifiers.forEach((i) => {
+          let entry = i.split("$");
+          identifiers_data_string +=
+            `<option value="id$` +
+            entry[0] +
+            `">` +
+            entry[0] +
+            `</option><option value="name$` +
+            entry[1] +
+            `">` +
+            entry[1] +
+            `</option>`;
+        });
+        Metro.getPlugin("#panel-table-filter-id", "select").data(
+          identifiers_data_string
+        );
+      });
+      // Init. mod. overview graph.
+      axios
+        .get(__url + "/get_mog_data")
+        .then((response) => {
+          __mogOption = getMogOption(response.data);
+          __mogChart.setOption(__mogOption);
+          $("#panel-overview h6 button").attr("disabled", false);
+          window.scrollTo({
+            top: $("#panel-overview").get(0).offsetTop + 40,
+            behavior: "smooth",
+          });
+        })
+        .catch((error) => {
+          throw error;
+        });
+    })
+    .catch((error) => {
+      console.error(error);
+      handleError(error.message);
+    })
+    .finally(() => {
+      $("body").css("cursor", "auto");
     });
 }
 
@@ -452,15 +599,15 @@ async function uploadData() {
       // Init. table.
       axios.get(__url + "/get_available_proteins").then((response) => {
         __proteinsOverviewTable.setData(response.data);
-        modifications = new Set();
+        __modifications = new Set();
         identifiers = new Set();
         for (let entry of response.data) {
-          entry.modifications.split("$").forEach((m) => modifications.add(m));
+          entry.modifications.split("$").forEach((m) => __modifications.add(m));
           identifiers.add(entry.id + "$" + entry.name);
         }
-        modifications = [...modifications];
+        __modifications = [...__modifications];
         modifications_data_string = "";
-        modifications.forEach((m) => {
+        __modifications.forEach((m) => {
           modifications_data_string +=
             `<option value="` + m + `">` + m + `</option>`;
         });
@@ -989,7 +1136,7 @@ function setDashboardContactMap() {
         left: "3%",
       },
       {
-        text: "Modifications Presence Map and Position Annotation",
+        text: "Contact Map and Position Annotation",
         ...titleProperties,
         top: "2%",
         left: "59%",

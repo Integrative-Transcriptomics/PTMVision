@@ -257,6 +257,7 @@ body .error-toast {
   z-index: 10;
   padding: 10px;
   font-weight: lighter;
+  overflow-y: scroll;
 }
 
 #panel-table {
@@ -325,6 +326,7 @@ body .error-toast {
   z-index: 10;
   padding: 10px;
   font-weight: lighter;
+  overflow-y: scroll;
 }
 
 #panel-dashboard-structure {

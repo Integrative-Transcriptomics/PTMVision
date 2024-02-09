@@ -45,16 +45,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <link
       rel="stylesheet"
       type="text/css"
-      href="{{url_for('static', filename='css/contextual.css')}}"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{url_for('static', filename='css/contextual.theme.css')}}"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
       href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css"
     />
     <link
@@ -125,10 +115,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ></script>
     <script
       type="text/javascript"
-      src="{{url_for('static', filename='js/contextual.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
       src="{{url_for('static', filename='js/dashboard.js')}}"
     ></script>
     <script>
@@ -161,8 +147,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               onclick="redirectSource()"
               class="button-no-decoration menu-button float-left ml-2"
               data-role="hint"
-              data-hint-text="Source Code<br>(GitHub)"
-              data-hint-position="bottom"
+              data-hint-text="Redirect to Source<br>Repository(GitHub)"
+              data-hint-position="right"
             >
               Source
             </button>
@@ -170,19 +156,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               onclick="redirectHelp()"
               class="button-no-decoration menu-button float-left ml-2"
               data-role="hint"
-              data-hint-text="Legal<br>Information"
-              data-hint-position="bottom"
+              data-hint-text="Display Legal<br>Information"
+              data-hint-position="right"
             >
               Legal
             </button>
             <button
+              onclick="downloadSessionData()"
               class="button-no-decoration menu-button float-left ml-2"
               data-role="hint"
-              data-hint-text="Download<br>Session (Binary)"
-              data-hint-position="bottom"
-              disabled
+              data-hint-text="Download Session<br>Data (Binary)"
+              data-hint-position="right"
             >
               Save Session
+            </button>
+            <button
+              onclick="startExampleSession()"
+              class="button-no-decoration menu-button float-left ml-2"
+              data-role="hint"
+              data-hint-text="Start Example Session"
+              data-hint-position="right"
+            >
+              Load Example
             </button>
           </div>
         </div>
@@ -194,24 +189,100 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <div id="vline"></div>
 
         <div id="panel-info" class="panel-container">
-          <h6 class="secondary">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
-            et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est
-            Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur
-            sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore
-            et dolore magna aliquyam erat, sed diam voluptua. At vero eos et
-            accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
-            no sea takimata sanctus est Lorem ipsum dolor sit amet.
-          </h6>
+          <h5>
+            PTMVision: Interactive Visualization of Post Translational
+            Modifications
+          </h5>
+          <p class="text-just text-light">
+            Understanding the intricate landscape of PTMs is crucial for
+            unraveling the complex mechanisms underlying cellular processes and
+            diseases. With PTMVision, researchers can effortlessly analyze and
+            explore PTM data derived from various sources, including open or
+            closed PTM search engines such as Ionbot, MSFragger, Sage, or from a
+            plain CSV table format processed from mass spectrometry (MS) data.
+          </p>
+          <dl>
+            <dt>
+              <h4><i class="fa-solid fa-star-shooting"></i> Key Features</h4>
+            </dt>
+            <small>
+              <dt>Highly Interactive Interface:</dt>
+              <dd>
+                PTMVision offers a responsive and intuitive interface, allowing
+                users toeffortlessly navigate through their data.
+              </dd>
+
+              <dt>Cross-Connected Figures:</dt>
+              <dd>
+                Visual representations are dynamically linked, enabling users to
+                seamlessly explore relationships in their data.
+              </dd>
+
+              <dt>Integration with Protein Structures:</dt>
+              <dd>
+                PTMVision integrates protein structure data, providing users
+                with a multidimensional view of PTMs within the context of
+                protein folding and function..
+              </dd>
+
+              <dt>Various Overview Plots:</dt>
+              <dd>
+                PTMVision provides a variety of overview plots, facilitating the
+                identification of patterns and trends in PTM data.
+              </dd>
+              <dt>Annotations from UniProt:</dt>
+              <dd>
+                Leveraging the vast repository of information available in
+                UniProt, PTMVision enriches protein visualizations with detailed
+                annotations, enhancing the interpretability of the data.
+              </dd>
+              <dt>Focus on Interactions:</dt>
+              <dd>
+                PTMVision places a special emphasis on protein interactions,
+                highlighting residues in close contact and their associated
+                modifications. This feature enables researchers to explore the
+                dynamic interplay between PTMs.
+              </dd>
+            </small>
+            <br />
+            <dt>
+              <h4>
+                <i class="fa-solid fa-person-chalkboard"></i> Usage Instruction
+              </h4>
+            </dt>
+            <small>
+              <dt><i class="fa-duotone fa-circle-1"></i> Upload Data</dt>
+              <dd>
+                Begin by uploading your data or re-uploading session data.
+                Alternatively, you can initiate an example session via the
+                header menu. Downloading existing session data is also available
+                via the header menu.
+              </dd>
+              <dt><i class="fa-duotone fa-circle-2"></i> Browse Proteins</dt>
+              <dd>
+                Once your data is uploaded, the interface will auto-scroll to
+                the overview panel. Here, you can browse proteins in the table
+                and filter them by Name, UniProt ID, or modifications. Select a
+                protein of interest and click on "Display" to proceed.
+              </dd>
+              <dt><i class="fa-duotone fa-circle-3"></i> Explore Dashboard</dt>
+              <dd>
+                Upon selecting a protein, the interface will auto-scroll to the
+                dashboard. Here, you can toggle protein structure visibility and
+                switch between the modifications presence map and contact map.
+                To access information on interactions and interpretation of
+                individual figures, simply click the info button located in the
+                upper right corner.
+              </dd>
+            </small>
+          </dl>
         </div>
 
         <div id="panel-inputs" class="panel-container">
           <h6 class="secondary">
             <i class="fa-duotone fa-circle-1"></i>
             <strong
-              >Upload post-translation modification data from open or closed
+              >Upload post-translational modification data from open or closed
               search</strong
             >
           </h6>
@@ -231,13 +302,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-role="file"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
-          <h7 class="secondary">Select Meta-Information (Optional):</h7>
+          <!--<h7 class="secondary">Select Meta-Information (Optional):</h7>
           <input
             id="meta-input-form"
             type="file"
             data-role="file"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
-          />
+          />-->
           <button class="proceed-button mt-2" onclick="uploadData()">
             Submit
           </button>
@@ -251,9 +322,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             type="file"
             data-role="file"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
-            disabled
           />
-          <button class="proceed-button mt-2" disabled>Submit</button>
+          <button class="proceed-button mt-2" onclick="restartSession()">
+            Submit
+          </button>
         </div>
 
         <div id="panel-overview" class="panel-container">
@@ -272,15 +344,46 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </h6>
           <div id="panel-overview-chart"></div>
           <div id="panel-overview-info">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
-            et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est
-            Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur
-            sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore
-            et dolore magna aliquyam erat, sed diam voluptua. At vero eos et
-            accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
-            no sea takimata sanctus est Lorem ipsum dolor sit amet.
+            <h6>Modification Co-Occurrence Graph</h6>
+            <ul>
+              <li>
+                <strong>Nodes</strong> represent post translational
+                modifications (PTMs) occurring in the uploaded data. Nodes are
+                colored in grayscale based on total occurrence count (sum over
+                all proteins). Hovering over a node displays total occurrence
+                count and percentage of proteins with the PTM (at least once at
+                any position).
+              </li>
+              <li>
+                <strong>Edges</strong> represent the co-occurrence of PTMs at
+                the same position of one protein (sum over all proteins). Edge
+                width reflects co-occurrence count normalized by the dataset's
+                maximum. Hovering over edges displays co-occurrence count.
+              </li>
+              <li>
+                Only the top 50 modifications, ranked by total count, are
+                displayed in the graph.
+              </li>
+              <li>
+                The size of the figure can be adjusted by dragging the
+                interaction element in the bottom right-hand corner.
+              </li>
+            </ul>
+            <h6 class="text-light">User Tasks</h6>
+            <ul>
+              <li>
+                <strong>Identify most frequent PTMs</strong>
+              </li>
+              <li>
+                <strong>Identify co-occurrence patterns of PTMs:</strong
+                ><small
+                  >These may reveal biases in your data, for example due to too
+                  similar mass-shifts of the PTMs, or reveal functional
+                  interactions. Statistically, very frequent PTMs should
+                  co-occur with most other frequent PTMs.</small
+                >
+              </li>
+            </ul>
           </div>
         </div>
 
@@ -382,15 +485,172 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-cls-caption="panel-dashboard-structure-caption"
           ></div>
           <div id="panel-dashboard-info">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
-            et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est
-            Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur
-            sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore
-            et dolore magna aliquyam erat, sed diam voluptua. At vero eos et
-            accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
-            no sea takimata sanctus est Lorem ipsum dolor sit amet.
+            <!-- General Information -->
+            <h6>General Information</h6>
+            <ul>
+              <li>
+                The dashboard presents overview figures for post translational
+                modifications (PTMs) of the selected protein from the previous
+                step.
+              </li>
+              <li>
+                <strong>Default View:</strong> By default, the dashboard starts
+                with a PTM presence map.
+              </li>
+              <li>
+                <strong>Dashboard Features:</strong>
+                <ul>
+                  <li>
+                    Users can toggle the protein structure view and switch
+                    between PTM presence map and contact map.
+                  </li>
+                  <li>
+                    The left side displays overview figures, while the right
+                    side displays the map component.
+                  </li>
+                  <li>
+                    Most data is split into series representing the unimod
+                    modification classification. The legend at the bottom can be
+                    used to toggle modifications of certain classes. This does
+                    not apply to the contact map and PTM occurrence per Amino
+                    Acid component.
+                  </li>
+                  <li>
+                    The size of the figure can be adjusted by dragging the
+                    interaction element in the bottom right-hand corner.
+                  </li>
+                </ul>
+              </li>
+            </ul>
+
+            <!-- Cross-Connections and Interactions -->
+            <h6>Cross-Connections and Interactions</h6>
+            <ul>
+              <li>
+                <strong>Zoom and Drag:</strong> Zoom interactions are
+                implemented for all axes and are cross-connected between Protein
+                Positions and Modification axis. After zooming in, users can
+                drag components.
+              </li>
+              <li>
+                <strong>Highlighting Residues:</strong> Clicking on a Protein
+                Position axis will highlight the residue in the structure view.
+              </li>
+              <li>
+                <strong>Sankey Diagram:</strong> Clicking on a lower-right
+                triangle cell of the contact map will display a Sankey diagram
+                of modifications of the two residues.
+              </li>
+            </ul>
+
+            <!-- PTM Counts per Position -->
+            <h6>PTM Counts per Position</h6>
+            <ul>
+              <li>
+                Displays the number of PTMs per protein position as a stacked
+                bar chart.
+              </li>
+              <li>
+                <strong>User Tasks:</strong> Find positions with many or fewer
+                modifications.
+              </li>
+            </ul>
+
+            <!-- PTM Occurrence per Class -->
+            <h6>PTM Occurrence per Class</h6>
+            <ul>
+              <li>
+                Displays the total occurrence of modifications as a stacked bar
+                chart.
+              </li>
+              <li>
+                <strong>User Tasks:</strong> Find modifications that occur
+                often/less for the protein.
+              </li>
+            </ul>
+
+            <!-- PTM Occurrence per Amino Acid (only for presence map view) -->
+            <h6>PTM Occurrence per Amino Acid</h6>
+            <ul>
+              <li>
+                Displays the occurrence of modifications per amino acid as a
+                heatmap; count is indicated by grayscale.
+              </li>
+              <li>
+                <strong>User Tasks:</strong> Spot amino acids with high/low
+                modification count; quality control - some modifications can
+                only occur for certain amino acids.
+              </li>
+            </ul>
+
+            <!-- Position Annotation -->
+            <h6>Position Annotation</h6>
+            <ul>
+              <li>
+                UniProt annotations classified into Secondary Structure,
+                Experimental Info, Natural Variations, Amino acid modifications,
+                site, region, and molecule processing are displayed. Detailed
+                information is displayed in tooltip when hovering map component.
+              </li>
+              <li>
+                <strong>User Tasks:</strong> Extract known information for
+                positions of interest.
+              </li>
+            </ul>
+
+            <!-- Modifications Presence Map -->
+            <h6>Modifications Presence Map</h6>
+            <ul>
+              <li>
+                Displays which modifications occur on which protein position in
+                detail.
+              </li>
+              <li>
+                <strong>User Tasks:</strong> Spot patterns of modifications
+                across the protein or per position; detail investigation of
+                modifications of interest; comparison of putative effects based
+                on annotations and modifications.
+              </li>
+            </ul>
+
+            <!-- Contact Map -->
+            <h6>Contact Map</h6>
+            <ul>
+              <li>
+                <strong>Upper-Left Triangle:</strong> Displays all residue pairs
+                with a distance below 4.69 angstrom based on information from
+                the protein structure.
+              </li>
+              <li>
+                <strong>Lower-Right Triangle:</strong> Displays all such
+                residues for which at least one residue has a modification.
+              </li>
+              <li>
+                <strong>User Tasks:</strong> Spot putative sites at which
+                modifications may affect protein stability or function. Clicking
+                on a cell in the lower-right triangle will fill the Contact
+                Modifications component.
+              </li>
+            </ul>
+
+            <!-- Contact Modifications Component (only for contact map view) -->
+            <h6>Contact Modifications Component</h6>
+            <ul>
+              <li>
+                Lists details on modifications of residues in contact and
+                highlights common modifications.
+              </li>
+              <li>
+                <strong>User Tasks:</strong> Detailed investigation of
+                modifications of residues in contact.
+              </li>
+            </ul>
+
+            <!-- Protein Structure -->
+            <h6>Protein Structure</h6>
+            <ul>
+              <li>Displays the protein structure by surface and cartoon.</li>
+            </ul>
           </div>
         </div>
 

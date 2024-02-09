@@ -13,7 +13,7 @@ from io import StringIO
 from itertools import combinations
 from math import ceil
 from copy import deepcopy
-import json, zlib, os
+import json, zlib, os, base64
 
 """ Load variables from local file system. """
 load_dotenv()
@@ -58,11 +58,26 @@ def request_to_json(request_content: any) -> object:
     return json.loads(json_string_request_data)
 
 
-@app.route("/example_data", methods=["GET"])
-def example_data():
-    """Route to download example CSV format data."""
-    return send_file("./static/resources/example_data.csv", as_attachment=True)
+@app.route("/example_session", methods=["GET"])
+def example_session():
+    session.clear( )
+    with open( "./ptmvis/static/resources/example_dump.json", "r" ) as example_dump :
+        session[MODIFICATIONS_DATA] = json.load( example_dump )
+    return "Ok"
 
+@app.route("/download_session", methods=["GET"])
+def download_session():
+    zlib_compress = zlib.compressobj( 6, zlib.DEFLATED, zlib.MAX_WBITS )
+    compressed_session_bytes = zlib_compress.compress( bytes(json.dumps(session[MODIFICATIONS_DATA]), "utf-8") ) + zlib_compress.flush( )
+    encoded_session = base64.b64encode( compressed_session_bytes ).decode("ascii")
+    print( encoded_session )
+    return encoded_session
+
+@app.route("/restart_session", methods=["POST"])
+def restart_session():
+    session_data = zlib.decompress( base64.b64decode( request.data ) ).decode( )
+    session[MODIFICATIONS_DATA] = json.loads(session_data)
+    return "Ok"
 
 @app.route("/process_search_engine_output", methods=["POST"])
 def process_search_engine_output():
@@ -209,8 +224,6 @@ def get_protein_data():
         response[ "content" ][ "structure" ] = utils._brotli_decompress( response[ "content" ][ "structure" ] )
     else :
         response = {"status": "Failed: No protein structure available.", "content": None}
-    with open('./ptmvis/session/dump.json', 'w+') as f:
-        json.dump( session[MODIFICATIONS_DATA], f, indent = 3 )
     return response
 
 
