@@ -67,8 +67,10 @@ def parse_structure(structure_string):
         return structure, structure_string
 
 
-def get_fasta(uniprot_ids):
-
+def query_uniprot_for_fasta(uniprot_ids):
+    """
+    request sequences from uniprot via REST interface from uniprot IDs
+    """
     url = "https://rest.uniprot.org/uniprotkb/stream?format=fasta&query=%28"
     url_separator = "%20OR%20"
     id_list = ["%28id%3A{}".format(uniprot_id + "%29") for uniprot_id in uniprot_ids]
@@ -254,7 +256,7 @@ def read_mod_csv(file):
     return df
 
 
-def read_sage_csv(file):
+def read_sage_old(file):
     df = pd.read_table(file)
     df.columns = [
         x.lower() for x in df.columns
@@ -325,17 +327,34 @@ def read_sage_csv(file):
     return df
 
 
-def read_file(file, flag):
-    if flag == "ionbot":
-        df = read_ionbot(file)
-    elif flag == "msfragger":
-        df = read_msfragger(file)
-    elif flag == "csv":
-        df = read_mod_csv(file)
-    elif flag == "sage":
-        df = read_sage_csv(file)
-    df = df.fillna("null")
-    return parse_df_to_json_schema(df)
+def check_fasta_coverage(uniprot_ids, fasta_dict):
+    # check how many proteins were found in uniprot, let the user decide if they want to provide their own fasta
+    found = len(fasta_dict)
+    total = len(uniprot_ids)
+    not_found = total - found
+    if not_found > 50:
+        raise Exception(
+            "Not able to retrieve protein sequences for {} protein IDs. Please provide the fasta used for database search.".format(
+                not_found
+            )
+        )
+    return 
+
+
+def read_sage(file):
+    psm_list = read_file(file, filetype="sage")
+    psm_list = psm_list[psm_list["qvalue"] >= 0.01]
+    psm_list = [x for x in psm_list if not x.is_decoy]
+    psm_list = [x for x in psm_list if x.peptidoform.is_modified]
+    psm_list = [x for x in psm_list if len(x.protein_list) == 1]
+
+    uniprot_ids = [] #TODO: get uniprot IDs from psm list 
+    fasta = query_uniprot_for_fasta(uniprot_ids)
+    check_fasta_coverage(uniprot_ids, fasta)
+
+    return psm_list.to_dataframe()
+
+
 
 
 def parse_df_to_json_schema(dataframe):
@@ -382,6 +401,22 @@ def parse_df_to_json_schema(dataframe):
                 "modifications"
             ].append(construct_modifications_entry(row))
     return protein_dict
+
+
+def read_file(file, flag):
+    if flag == "ionbot":
+        df = read_ionbot(file)
+    elif flag == "msfragger":
+        df = read_msfragger(file)
+    elif flag == "csv":
+        df = read_mod_csv(file)
+    elif flag == "sage":
+        df = read_sage(file)
+    #elif flag == 'maxquant':
+    #    df = read_maxquant(file)
+    #elif flag == ''
+    df = df.fillna("null")
+    return parse_df_to_json_schema(df)
 
 
 def parse_user_input(user_file, user_flag):
