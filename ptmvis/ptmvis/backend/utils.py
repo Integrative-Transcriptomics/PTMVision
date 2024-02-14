@@ -13,6 +13,20 @@ from tempfile import NamedTemporaryFile
 mapper = UnimodMapper()
 pdbparser = PDBParser(PERMISSIVE=False)
 
+def check_fasta_coverage(uniprot_ids, fasta_dict):
+    # check how many proteins were found in uniprot, let the user decide if they want to provide their own fasta
+    found = len(fasta_dict)
+    total = len(uniprot_ids)
+    not_found = total - found
+    if not_found > 50:
+        raise Exception(
+            "Not able to retrieve protein sequences for {} protein IDs. Please provide the fasta used for database search.".format(
+                not_found
+            )
+        )
+    return 
+
+
 def get_distance_matrix(structure):
     residue_count = 0
     for residue in enumerate(structure.get_residues()):
@@ -74,7 +88,7 @@ def query_uniprot_for_fasta(uniprot_ids):
     """
     url = "https://rest.uniprot.org/uniprotkb/stream?format=fasta&query=%28"
     url_separator = "%20OR%20"
-    id_list = ["%28id%3A{}".format(uniprot_id + "%29") for uniprot_id in uniprot_ids]
+    id_list = ["%28accession%3A{}".format(uniprot_id + "%29") for uniprot_id in uniprot_ids]
 
     fasta_text = ""
 
@@ -294,14 +308,19 @@ def PSMList_to_mod_df(psm_list):
         df.explode("modification")
     )
 
+    print(df)
+
     df["uniprot_id"] = df["protein"].apply(lambda x: parse_protein_string(x))
 
     # query uniprot for protein sequence
     fasta = query_uniprot_for_fasta(df["uniprot_id"].tolist())    
+    print(fasta)
 
     df["protein_sequence"] = df["uniprot_id"].apply(
         lambda x: get_protein_sequence(fasta, x)
         )
+    
+    print(df)
     df = df[df["protein_sequence"] != ""]
 
     df["mass_shift"] = df["modification"].apply(lambda x: x[1])
@@ -362,22 +381,7 @@ def read_ionbot(file):
 
 def read_mod_csv(file):
     df = pd.read_csv(file)
-    json = parse_df_to_json_schema(df)
     return df
-
-
-def check_fasta_coverage(uniprot_ids, fasta_dict):
-    # check how many proteins were found in uniprot, let the user decide if they want to provide their own fasta
-    found = len(fasta_dict)
-    total = len(uniprot_ids)
-    not_found = total - found
-    if not_found > 50:
-        raise Exception(
-            "Not able to retrieve protein sequences for {} protein IDs. Please provide the fasta used for database search.".format(
-                not_found
-            )
-        )
-    return 
 
 
 def read_sage(file):
@@ -398,6 +402,9 @@ def read_sage(file):
 
     return df
 
+
+def read_maxquant(file):
+    return None
 
 def parse_df_to_json_schema(dataframe):
     # Init. dictionary to store results in JSON schema.
@@ -454,8 +461,8 @@ def read_userinput(file, flag):
         df = read_mod_csv(file)
     elif flag == "sage":
         df = read_sage(file)
-    #elif flag == 'maxquant':
-    #    df = read_maxquant(file)
+    elif flag == 'maxquant':
+        df = read_maxquant(file)
     #elif flag == ''
     df = df.fillna("null")
     return parse_df_to_json_schema(df)
