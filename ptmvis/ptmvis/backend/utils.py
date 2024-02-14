@@ -308,19 +308,15 @@ def PSMList_to_mod_df(psm_list):
         df.explode("modification")
     )
 
-    print(df)
-
     df["uniprot_id"] = df["protein"].apply(lambda x: parse_protein_string(x))
 
     # query uniprot for protein sequence
     fasta = query_uniprot_for_fasta(df["uniprot_id"].tolist())    
-    print(fasta)
 
     df["protein_sequence"] = df["uniprot_id"].apply(
         lambda x: get_protein_sequence(fasta, x)
         )
     
-    print(df)
     df = df[df["protein_sequence"] != ""]
 
     df["mass_shift"] = df["modification"].apply(lambda x: x[1])
