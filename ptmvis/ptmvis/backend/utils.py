@@ -152,7 +152,7 @@ def sage_peptide_to_msfragger_mod(sage_peptide):
     return ",".join(assigned_modifications)
 
 
-def map_mass_to_unimod(mods):
+def map_mass_to_unimod_msfragger(mods):
     modstr = ""
     for mod in mods.split(","):
         pos_aa = mod.split("(")[0]
@@ -168,6 +168,30 @@ def map_mass_to_unimod(mods):
             modstr += pos_aa + "[" + mapped_names + "]"
 
     return modstr
+
+
+def map_mass_to_unimod_name(mass_shift):
+    mapped = mapper.mass_to_names(
+    mass_shift, decimals=4
+    ) 
+    if len(mapped) > 1: # mass shift could not be uniquely mapped to unimod 
+        return " or ".join(list(mapped))
+    elif len(mapped) == 0: # mass shift couldnt bet mapped at all
+        return None
+    else:
+        return mapped[0]
+    
+
+def map_mass_to_unimod_id(mass_shift):
+    mapped = mapper.mass_to_ids(
+    mass_shift, decimals=4
+    ) 
+    if len(mapped) > 1: # mass shift could not be uniquely mapped to unimod 
+        return " or ".join(list(mapped))
+    elif len(mapped) == 0: # mass shift couldnt bet mapped at all
+        return None
+    else:
+        return mapped[0]
 
 
 def id_from_name(name):
@@ -208,6 +232,82 @@ def from_psm_to_protein(df):
     return protein_df
 
 
+def extract_mods_from_proforma(peptidoform):
+    """
+    ENYC[+57.0215]NNVMM[+15.994915]K/2	-> ((3, 57.0215), (8, 15.993915)) (zero indexed!), try to map to unimod names
+    """
+    mods = []
+    while(peptidoform.count("[") > 0):
+        # get first match 
+        match = re.search(r'\[.+?\]', peptidoform)
+        if match:
+            # get modified residue index, append index and mass shift to list
+            modified_residue_index = int(match.start()) - 1
+            # has to be adapted to take already annotated unimods 
+            mass_shift = float(match.group(0).replace("[", "").replace("]", ""))
+            peptidoform = peptidoform[:match.start()] + peptidoform[match.end():]
+            mods.append((modified_residue_index, mass_shift))
+        else:
+            return None 
+    return mods
+
+
+def parse_protein_string(x):
+    """
+    Try to parse uniprot ID from protein_list entry in PSMList 
+    """
+    if "|" in x:
+        return x.split("|")[-1]
+    else:
+        return None
+    
+
+def get_display_name(row):
+    if row["modification_unimod_name"]:
+        return row["modification_unimod_name"]
+    else:
+        return "unannotated mass shift {}".format(row["mass_shift"])
+
+
+def PSMList_to_mod_df(psm_list):
+    """
+    parse list of PSMs and return pandas dataframe with [protein, position, modification_unimod_id, modification_unimod_name]
+    """
+    peptidoforms = []
+    proteins = []
+    peptide_sequences = []
+    for psm in psm_list:
+        peptidoforms.append(psm["peptidoform"].proforma)
+        proteins.append(psm.protein_list[0])
+        peptide_sequences.append(psm["peptidoform"].sequence)
+
+    df = pd.DataFrame(zip(peptidoforms, proteins, peptide_sequences), columns=["peptidoform", "protein", "peptide"])
+    df["modification"] = df["peptidoform"].apply(lambda x: extract_mods_from_proforma(x))
+
+    #one mod per line 
+    df = (
+        df.explode("modification")
+    )
+
+    df["protein"] = df["protein"].apply(lambda x: parse_protein_string(x))
+    fasta = query_uniprot_for_fasta(df["protein"].tolist())    
+    df["protein_sequence"] = df["protein"].apply(
+        lambda x: get_protein_sequence(fasta, x)
+        )
+    df = df[df["protein_sequence"] != ""]
+
+    df["mass_shift"] = df["modification"].apply(lambda x: x[1])
+    df["mod_position_in_peptide"] = df["modification"].apply(lambda x: x[0])
+    df["modification_unimod_name"] = df["mass_shift"].apply(lambda x: map_mass_to_unimod_name(x))
+    df["modification_unimod_id"] = df["mass_shift"].apply(lambda x: map_mass_to_unimod_id(x))
+    df["display_name"] = df.apply(lambda x: get_display_name(x), axis = 1) # Unimod Name if available, otherwise "unannotated mass shift: (mass shift)"
+    df["peptide_position"] = df.apply(lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]), axis = 1)
+    df["position"] = df["mod_position_in_peptide"] + df["peptide_position"]
+    df = df[["protein", "mass_shift", "modification_unimod_name", "modification_unimod_id", "display_name", "position"]]
+
+    return df
+
+
 def read_msfragger(file):
     # read file and pick relevant rows and columns
     print("Reading MSFragger file...")
@@ -228,7 +328,7 @@ def read_msfragger(file):
     print("Assigning modifications to mass shifts...")
     pept_mods["Assigned Modifications parsed"] = pept_mods[
         "Assigned Modifications"
-    ].apply(lambda x: map_mass_to_unimod(x))
+    ].apply(lambda x: map_mass_to_unimod_msfragger(x))
 
     # rewrite to protein level modifications
     print("Mapping modification sites onto proteins...")
@@ -317,7 +417,7 @@ def read_sage_old(file):
     # try to assign modifications to mass shifts
     print("Assigning modifications to mass shifts...")
     df["Assigned Modifications parsed"] = df["Assigned Modifications"].apply(
-        lambda x: map_mass_to_unimod(x)
+        lambda x: map_mass_to_unimod_msfragger(x)
     )
 
     # rewrite to protein level modifications
@@ -344,17 +444,13 @@ def check_fasta_coverage(uniprot_ids, fasta_dict):
 def read_sage(file):
     psm_list = read_file(file, filetype="sage")
     psm_list = psm_list[psm_list["qvalue"] >= 0.01]
-    psm_list = [x for x in psm_list if not x.is_decoy]
-    psm_list = [x for x in psm_list if x.peptidoform.is_modified]
-    psm_list = [x for x in psm_list if len(x.protein_list) == 1]
+    psm_list = [x for x in psm_list if not x.is_decoy] # remove decoys
+    psm_list = [x for x in psm_list if x.peptidoform.is_modified] # filter for modified peptidoforms
+    psm_list = [x for x in psm_list if len(x.protein_list) == 1] # filter nonunique peptidoforms
 
-    uniprot_ids = [] #TODO: get uniprot IDs from psm list 
-    fasta = query_uniprot_for_fasta(uniprot_ids)
-    check_fasta_coverage(uniprot_ids, fasta)
+    df = PSMList_to_mod_df(psm_list) # [protein, mass_shift, modification_unimod_id, modification_unimod_name, display_name, position]
 
-    return psm_list.to_dataframe()
-
-
+    return df
 
 
 def parse_df_to_json_schema(dataframe):
