@@ -5,12 +5,13 @@ from unimod_mapper import UnimodMapper
 import pandas as pd
 import numpy as np
 import scipy as sc
+from pathlib import Path
 import re, warnings, urllib.request, requests, brotli, base64
-
+from psm_utils.io import read_file
+from tempfile import NamedTemporaryFile
 
 mapper = UnimodMapper()
 pdbparser = PDBParser(PERMISSIVE=False)
-
 
 def get_distance_matrix(structure):
     residue_count = 0
@@ -91,7 +92,7 @@ def query_uniprot_for_fasta(uniprot_ids):
     fasta = SeqIO.parse(StringIO(fasta_text), "fasta")
     fasta_dict = {}
     for rec in fasta:
-        fasta_dict[rec.id.split("|")[-1]] = str(rec.seq)
+        fasta_dict[rec.id.split("|")[1]] = str(rec.seq)
     return fasta_dict
 
 
@@ -257,7 +258,10 @@ def parse_protein_string(x):
     Try to parse uniprot ID from protein_list entry in PSMList 
     """
     if "|" in x:
-        return x.split("|")[-1]
+        if x.count("|") == 2:
+            return x.split("|")[1]
+        else:
+            return x.split("|")[-1]
     else:
         return None
     
@@ -284,14 +288,18 @@ def PSMList_to_mod_df(psm_list):
     df = pd.DataFrame(zip(peptidoforms, proteins, peptide_sequences), columns=["peptidoform", "protein", "peptide"])
     df["modification"] = df["peptidoform"].apply(lambda x: extract_mods_from_proforma(x))
 
+
     #one mod per line 
     df = (
         df.explode("modification")
     )
 
-    df["protein"] = df["protein"].apply(lambda x: parse_protein_string(x))
-    fasta = query_uniprot_for_fasta(df["protein"].tolist())    
-    df["protein_sequence"] = df["protein"].apply(
+    df["uniprot_id"] = df["protein"].apply(lambda x: parse_protein_string(x))
+
+    # query uniprot for protein sequence
+    fasta = query_uniprot_for_fasta(df["uniprot_id"].tolist())    
+
+    df["protein_sequence"] = df["uniprot_id"].apply(
         lambda x: get_protein_sequence(fasta, x)
         )
     df = df[df["protein_sequence"] != ""]
@@ -303,7 +311,9 @@ def PSMList_to_mod_df(psm_list):
     df["display_name"] = df.apply(lambda x: get_display_name(x), axis = 1) # Unimod Name if available, otherwise "unannotated mass shift: (mass shift)"
     df["peptide_position"] = df.apply(lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]), axis = 1)
     df["position"] = df["mod_position_in_peptide"] + df["peptide_position"]
-    df = df[["protein", "mass_shift", "modification_unimod_name", "modification_unimod_id", "display_name", "position"]]
+
+    df = df[["uniprot_id", "mass_shift", "modification_unimod_name", "modification_unimod_id", "display_name", "position"]]
+    df = df.drop_duplicates()
 
     return df
 
@@ -356,77 +366,6 @@ def read_mod_csv(file):
     return df
 
 
-def read_sage_old(file):
-    df = pd.read_table(file)
-    df.columns = [
-        x.lower() for x in df.columns
-    ]  # sometimes its upper, sometimes its lower case (version specific?)
-
-    df = df[["peptide", "proteins", "label"]]
-
-    # drop decoy matches
-    df = df.loc[df["label"] == 1]
-    df = df.drop(columns=["label"])
-
-    # drop PSMs without modification
-    df = df.loc[df["peptide"].str.contains("\[")]
-
-    # one protein per line
-    df = (
-        df.set_index(["peptide"])
-        .apply(lambda x: x.str.split(";").explode())
-        .reset_index()
-    )
-
-    # parse uniprot Accession IDs (but use IDs for uniprot mapping)
-    df["Protein ID"] = df["proteins"].apply(lambda x: x.split("|")[-2])
-
-    # get protein sequences (first: try uniprot, if it fails, let user upload fasta)
-    uniprot_ids = df["proteins"].unique().tolist()
-    uniprot_ids = [x.split("|")[-1] for x in uniprot_ids]
-    fasta_dict = get_fasta(uniprot_ids)
-
-    # check how many proteins were found in uniprot, let the user decide if they want to provide their own fasta
-    found = len(fasta_dict)
-    total = len(uniprot_ids)
-    not_found = total - found
-    if not_found > 50:
-        raise Exception(
-            "Not able to retrieve protein sequences for {} protein IDs. Please provide the fasta used for database search.".format(
-                not_found
-            )
-        )
-
-    # add protein sequences to df
-    df["protein_sequence"] = df["proteins"].apply(
-        lambda x: get_protein_sequence(fasta_dict, x.split("|")[-1])
-    )
-    df = df.loc[df["protein_sequence"] != ""]
-
-    # find Protein Start index of peptide
-    df["Protein Start"] = df.apply(
-        lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]),
-        axis=1,
-    )
-
-    # convert to MSFragger Assigned Modifications Format (10S(79.9663), 8M(15.9949)) so we can reuse functions
-    df["Assigned Modifications"] = df["peptide"].apply(
-        lambda x: sage_peptide_to_msfragger_mod(x)
-    )
-
-    # try to assign modifications to mass shifts
-    print("Assigning modifications to mass shifts...")
-    df["Assigned Modifications parsed"] = df["Assigned Modifications"].apply(
-        lambda x: map_mass_to_unimod_msfragger(x)
-    )
-
-    # rewrite to protein level modifications
-    print("Mapping modification sites onto proteins...")
-    df = from_psm_to_protein(df)
-
-    return df
-
-
 def check_fasta_coverage(uniprot_ids, fasta_dict):
     # check how many proteins were found in uniprot, let the user decide if they want to provide their own fasta
     found = len(fasta_dict)
@@ -442,8 +381,15 @@ def check_fasta_coverage(uniprot_ids, fasta_dict):
 
 
 def read_sage(file):
-    psm_list = read_file(file, filetype="sage")
-    psm_list = psm_list[psm_list["qvalue"] >= 0.01]
+    # write sage to temporary file and then give filepath to psm utils
+    with NamedTemporaryFile(mode = "wt", delete=False) as f:
+        f.write(file.getvalue())
+        f.close()
+
+    psm_list = read_file(f.name, filetype="sage") #file is a StringIO object!
+    Path(f.name).unlink()
+
+    psm_list = psm_list[psm_list["qvalue"] <= 0.01] #filter at 1% FDR
     psm_list = [x for x in psm_list if not x.is_decoy] # remove decoys
     psm_list = [x for x in psm_list if x.peptidoform.is_modified] # filter for modified peptidoforms
     psm_list = [x for x in psm_list if len(x.protein_list) == 1] # filter nonunique peptidoforms
@@ -499,7 +445,7 @@ def parse_df_to_json_schema(dataframe):
     return protein_dict
 
 
-def read_file(file, flag):
+def read_userinput(file, flag):
     if flag == "ionbot":
         df = read_ionbot(file)
     elif flag == "msfragger":
@@ -517,7 +463,7 @@ def read_file(file, flag):
 
 def parse_user_input(user_file, user_flag):
     try:
-        json = read_file(user_file, user_flag)
+        json = read_userinput(user_file, user_flag)
     except TypeError:
         raise TypeError(
             "Your file could not be parsed. Have you selected the right format?"
@@ -533,4 +479,6 @@ def _brotly_compress(content: str) -> str:
     return base64.urlsafe_b64encode( brotli.compress( content.encode( ) ) ).decode( )
 
 if __name__ == "__main__":
-    parse_user_input("example_data/example_data.csv", "csv")
+    json = parse_user_input("example_data/K12_sage.tsv", "sage")
+    #json = parse_user_input("example_data/sulfolobus_acidocaldarius_UP000060043_with_crap.sage_default_config.results.sage.tsv", "sage")
+    print(json)
