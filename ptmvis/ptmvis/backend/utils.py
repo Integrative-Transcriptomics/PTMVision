@@ -228,7 +228,7 @@ def id_from_name(name):
 
 
 def from_psm_to_protein(df):
-    # for each psm in msfragger, get protein sequence via uniprot ID and map PTM position onto it
+    # for each psm in msfragger, map PTM position onto protein
     uniprot_ids = []
     modifications = []
     positions = []
@@ -375,14 +375,16 @@ def read_msfragger(file):
             "Peptide",
             "Protein ID",
             "Assigned Modifications",
+            "Observed Modifications",
+            "MSFragger Localization"
             "Protein Start",
         ]
     ]
-    pept_mods = pept_mods.dropna(subset=["Modified Peptide"])
     pept_mods = pept_mods.drop_duplicates()
 
+    pept_mods = pept_mods[~(pept_mods["Assigned Modifications"].isna()) | (pept_mods["MSFragger Localization"].isna())]
+
     # try to assign modifications to mass shifts
-    print("Assigning modifications to mass shifts...")
     pept_mods["Assigned Modifications parsed"] = pept_mods[
         "Assigned Modifications"
     ].apply(lambda x: map_mass_to_unimod_msfragger(x))
@@ -440,19 +442,14 @@ def read_maxquant(file):
     psm_list = read_file(f.name, filetype="msms") #file is a StringIO object!
     Path(f.name).unlink()
 
-    mapper = pd.read_csv("static/resources/map_mq_file.csv", index_col=0)["value"].to_dict()
-    psm_list.rename_modifications(mapper)
+    maxquant_mapper = pd.read_csv("static/resources/map_mq_file.csv", index_col=0)["value"].to_dict()
+    psm_list.rename_modifications(maxquant_mapper)
 
-    psm_list.calculate_qvalues()
-
-    psm_list = psm_list[psm_list["qvalue"] <= 0.01] #filter at 1% FDR
-    psm_list = [x for x in psm_list if not x.is_decoy] # remove decoys
     psm_list = [x for x in psm_list if x.peptidoform.is_modified] # filter for modified peptidoforms
     psm_list = [x for x in psm_list if len(x.protein_list) == 1] # filter nonunique peptidoforms
 
     df = PSMList_to_mod_df(psm_list)
 
-    print(df)
     return df
 
 
@@ -503,6 +500,7 @@ def parse_df_to_json_schema(dataframe):
 
 
 def read_userinput(file, flag):
+    # psm-utils based parsing (sage, msms) might not work for any other encoding than UTF-8, see psm-utils issue #68
     if flag == "ionbot":
         df = read_ionbot(file)
     elif flag == "msfragger":
