@@ -453,6 +453,25 @@ def read_maxquant(file):
     return df
 
 
+def read_any(file):
+   # write to temporary file and then give filepath to psm utils
+    with NamedTemporaryFile(mode = "wt", delete=False) as f:
+        f.write(file.getvalue())
+        f.close()
+
+    psm_list = read_file(f.name, filetype="infer") #file is a StringIO object!
+    Path(f.name).unlink()
+
+    psm_list = psm_list[psm_list["qvalue"] <= 0.01] #filter at 1% FDR
+    psm_list = [x for x in psm_list if not x.is_decoy] # remove decoys
+    psm_list = [x for x in psm_list if x.peptidoform.is_modified] # filter for modified peptidoforms
+    psm_list = [x for x in psm_list if len(x.protein_list) == 1] # filter nonunique peptidoforms
+
+    df = PSMList_to_mod_df(psm_list) # [protein, mass_shift, modification_unimod_id, modification_unimod_name, display_name, position]
+
+    return df
+
+
 def parse_df_to_json_schema(dataframe):
     # Init. dictionary to store results in JSON schema.
     protein_dict = {"proteins": {}, "meta_data": {}}
@@ -511,7 +530,8 @@ def read_userinput(file, flag):
         df = read_sage(file)
     elif flag == 'msms':
         df = read_maxquant(file)
-    #elif flag == ''
+    elif flag == 'infer':
+        df = read_any(file)
     df = df.fillna("null")
     return parse_df_to_json_schema(df)
 
