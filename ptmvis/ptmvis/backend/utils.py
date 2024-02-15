@@ -6,12 +6,17 @@ import pandas as pd
 import numpy as np
 import scipy as sc
 from pathlib import Path
-import re, warnings, urllib.request, requests, brotli, base64
+import re
+import urllib.request
+import requests
+import brotli
+import base64
 from psm_utils.io import read_file
 from tempfile import NamedTemporaryFile
 
 mapper = UnimodMapper()
 pdbparser = PDBParser(PERMISSIVE=False)
+
 
 def check_fasta_coverage(uniprot_ids, fasta_dict):
     # check how many proteins were found in uniprot, let the user decide if they want to provide their own fasta
@@ -24,7 +29,6 @@ def check_fasta_coverage(uniprot_ids, fasta_dict):
                 not_found
             )
         )
-    return 
 
 
 def get_distance_matrix(structure):
@@ -36,7 +40,7 @@ def get_distance_matrix(structure):
     for i, residue in enumerate(structure.get_residues()):
         if residue.get_resname() == "GLY":
             _ = "CA"
-        else :
+        else:
             _ = "CB"
         for atom in residue:
             if atom.get_name() == _:
@@ -73,9 +77,7 @@ def parse_structure(structure_string):
     structure = None
     # with warnings.filterwarnings("error"):
     try:
-        structure = pdbparser.get_structure(
-            "custom_pdb", StringIO(structure_string)
-        )
+        structure = pdbparser.get_structure("custom_pdb", StringIO(structure_string))
     except Exception as e:
         raise Exception("Failed to parse provided .pdb structure: " + str(e))
     finally:
@@ -88,7 +90,9 @@ def query_uniprot_for_fasta(uniprot_ids):
     """
     url = "https://rest.uniprot.org/uniprotkb/stream?format=fasta&query=%28"
     url_separator = "%20OR%20"
-    id_list = ["%28accession%3A{}".format(uniprot_id + "%29") for uniprot_id in uniprot_ids]
+    id_list = [
+        "%28accession%3A{}".format(uniprot_id + "%29") for uniprot_id in uniprot_ids
+    ]
 
     fasta_text = ""
 
@@ -186,34 +190,28 @@ def map_mass_to_unimod_msfragger(mods):
 
 
 def map_mass_to_unimod_name(mass_shift):
-    mapped = mapper.mass_to_names(
-    mass_shift, decimals=4
-    ) 
-    if len(mapped) > 1: # mass shift could not be uniquely mapped to unimod 
+    mapped = mapper.mass_to_names(mass_shift, decimals=4)
+    if len(mapped) > 1:  # mass shift could not be uniquely mapped to unimod
         return " or ".join(list(mapped))
-    elif len(mapped) == 0: # mass shift couldnt bet mapped at all
+    elif len(mapped) == 0:  # mass shift couldnt bet mapped at all
         return None
     else:
         return mapped[0]
-    
+
 
 def map_unimod_name_to_mass(unimod_name):
-    mapped = mapper.name_to_mass(
-            unimod_name
-        ) 
+    mapped = mapper.name_to_mass(unimod_name)
     if len(mapped) == 0:
         return None
-    else: 
+    else:
         return mapped[0]
 
 
 def map_mass_to_unimod_id(mass_shift):
-    mapped = mapper.mass_to_ids(
-    mass_shift, decimals=4
-    ) 
-    if len(mapped) > 1: # mass shift could not be uniquely mapped to unimod 
+    mapped = mapper.mass_to_ids(mass_shift, decimals=4)
+    if len(mapped) > 1:  # mass shift could not be uniquely mapped to unimod
         return " or ".join(list(mapped))
-    elif len(mapped) == 0: # mass shift couldnt bet mapped at all
+    elif len(mapped) == 0:  # mass shift couldnt bet mapped at all
         return None
     else:
         return mapped[0]
@@ -263,25 +261,27 @@ def extract_mods_from_proforma(peptidoform):
     AADM[Oxidation]TGADIEAMTR/2 -> ((3, Oxidation))
     """
     mods = []
-    while(peptidoform.count("[") > 0):
-        # get first match 
-        match = re.search(r'\[.+?\]', peptidoform)
+    while peptidoform.count("[") > 0:
+        # get first match
+        match = re.search(r"\[.+?\]", peptidoform)
         if match:
             # get modified residue index, append index and mass shift to list
             modified_residue_index = int(match.start()) - 1
             mod = match.group(0).replace("[", "").replace("]", "")
-            peptidoform = peptidoform[:match.start()] + peptidoform[match.end():]
+            peptidoform = peptidoform[: match.start()] + peptidoform[match.end() :]
             mods.append((modified_residue_index, mod))
         else:
-            return None 
+            return None
     return mods
 
 
 def parse_protein_string(x):
     """
-    Try to parse uniprot ID from protein_list entry in PSMList 
+    Try to parse uniprot ID from protein_list entry in PSMList
     """
-    uniprot_accession_pattern = re.compile("[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}")
+    uniprot_accession_pattern = re.compile(
+        "[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}"
+    )
     accession_candidates = [x]
     if "|" in x:
         if x.count("|") == 2:
@@ -290,9 +290,9 @@ def parse_protein_string(x):
             return accession_candidates.append(x.split("|")[-1])
     for x in accession_candidates:
         if uniprot_accession_pattern.match(x):
-            return x #probably accession number
+            return x  # probably accession number
     return None
-    
+
 
 def get_display_name(row):
     if row["modification_unimod_name"]:
@@ -324,42 +324,56 @@ def PSMList_to_mod_df(psm_list):
         peptide_sequences.append(psm["peptidoform"].sequence)
 
     df = pd.DataFrame(
-        zip(
-            peptidoforms, proteins, peptide_sequences
-            ), 
-            columns=["peptidoform", "protein", "peptide"]
-        )
-    df["modification"] = df["peptidoform"].apply(lambda x: extract_mods_from_proforma(x))
-
-    #one mod per line 
-    df = (
-        df.explode("modification")
+        zip(peptidoforms, proteins, peptide_sequences),
+        columns=["peptidoform", "protein", "peptide"],
     )
+    df["modification"] = df["peptidoform"].apply(
+        lambda x: extract_mods_from_proforma(x)
+    )
+
+    # one mod per line
+    df = df.explode("modification")
 
     df["uniprot_id"] = df["protein"].apply(lambda x: parse_protein_string(x))
 
     # query uniprot for protein sequence
-    fasta = query_uniprot_for_fasta(df["uniprot_id"].tolist())    
+    fasta = query_uniprot_for_fasta(df["uniprot_id"].tolist())
 
     df["protein_sequence"] = df["uniprot_id"].apply(
         lambda x: get_protein_sequence(fasta, x)
-        )
-    
+    )
+
     df = df[df["protein_sequence"] != ""]
 
     df["mass_shift"] = df["modification"].apply(lambda x: get_mass_shift(x[1]))
     df["mod_position_in_peptide"] = df["modification"].apply(lambda x: x[0])
 
-    print(df)
-
-    #TODO: in case of already annotated mass shift, parse unimod name and id from modification col directly
-    df["modification_unimod_name"] = df["mass_shift"].apply(lambda x: map_mass_to_unimod_name(x))
-    df["modification_unimod_id"] = df["mass_shift"].apply(lambda x: map_mass_to_unimod_id(x))
-    df["display_name"] = df.apply(lambda x: get_display_name(x), axis = 1) # Unimod Name if available, otherwise "unannotated mass shift: (mass shift)"
-    df["peptide_position"] = df.apply(lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]), axis = 1)
+    # TODO: in case of already annotated mass shift, parse unimod name and id from modification col directly
+    df["modification_unimod_name"] = df["mass_shift"].apply(
+        lambda x: map_mass_to_unimod_name(x)
+    )
+    df["modification_unimod_id"] = df["mass_shift"].apply(
+        lambda x: map_mass_to_unimod_id(x)
+    )
+    df["display_name"] = df.apply(
+        lambda x: get_display_name(x), axis=1
+    )  # Unimod Name if available, otherwise "unannotated mass shift: (mass shift)"
+    df["peptide_position"] = df.apply(
+        lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]),
+        axis=1,
+    )
     df["position"] = df["mod_position_in_peptide"] + df["peptide_position"]
 
-    df = df[["uniprot_id", "mass_shift", "modification_unimod_name", "modification_unimod_id", "display_name", "position"]]
+    df = df[
+        [
+            "uniprot_id",
+            "mass_shift",
+            "modification_unimod_name",
+            "modification_unimod_id",
+            "display_name",
+            "position",
+        ]
+    ]
     df = df.drop_duplicates()
 
     return df
@@ -376,13 +390,16 @@ def read_msfragger(file):
             "Protein ID",
             "Assigned Modifications",
             "Observed Modifications",
-            "MSFragger Localization"
+            "MSFragger Localization",
             "Protein Start",
         ]
     ]
     pept_mods = pept_mods.drop_duplicates()
 
-    pept_mods = pept_mods[~(pept_mods["Assigned Modifications"].isna()) | (pept_mods["MSFragger Localization"].isna())]
+    pept_mods = pept_mods[
+        ~(pept_mods["Assigned Modifications"].isna())
+        | (pept_mods["MSFragger Localization"].isna())
+    ]
 
     # try to assign modifications to mass shifts
     pept_mods["Assigned Modifications parsed"] = pept_mods[
@@ -416,37 +433,49 @@ def read_mod_csv(file):
 
 def read_sage(file):
     # write sage to temporary file and then give filepath to psm utils
-    with NamedTemporaryFile(mode = "wt", delete=False) as f:
+    with NamedTemporaryFile(mode="wt", delete=False) as f:
         f.write(file.getvalue())
         f.close()
 
-    psm_list = read_file(f.name, filetype="sage") #file is a StringIO object!
+    psm_list = read_file(f.name, filetype="sage")  # file is a StringIO object!
     Path(f.name).unlink()
 
-    psm_list = psm_list[psm_list["qvalue"] <= 0.01] #filter at 1% FDR
-    psm_list = [x for x in psm_list if not x.is_decoy] # remove decoys
-    psm_list = [x for x in psm_list if x.peptidoform.is_modified] # filter for modified peptidoforms
-    psm_list = [x for x in psm_list if len(x.protein_list) == 1] # filter nonunique peptidoforms
+    psm_list = psm_list[psm_list["qvalue"] <= 0.01]  # filter at 1% FDR
+    psm_list = [x for x in psm_list if not x.is_decoy]  # remove decoys
+    psm_list = [
+        x for x in psm_list if x.peptidoform.is_modified
+    ]  # filter for modified peptidoforms
+    psm_list = [
+        x for x in psm_list if len(x.protein_list) == 1
+    ]  # filter nonunique peptidoforms
 
-    df = PSMList_to_mod_df(psm_list) # [protein, mass_shift, modification_unimod_id, modification_unimod_name, display_name, position]
+    df = PSMList_to_mod_df(
+        psm_list
+    )  # [protein, mass_shift, modification_unimod_id, modification_unimod_name, display_name, position]
 
     return df
 
 
 def read_maxquant(file):
     # write msms to temporary file and then give filepath to psm utils
-    with NamedTemporaryFile(mode = "wt", delete=False) as f:
+    with NamedTemporaryFile(mode="wt", delete=False) as f:
         f.write(file.getvalue())
         f.close()
 
-    psm_list = read_file(f.name, filetype="msms") #file is a StringIO object!
+    psm_list = read_file(f.name, filetype="msms")  # file is a StringIO object!
     Path(f.name).unlink()
 
-    maxquant_mapper = pd.read_csv("static/resources/map_mq_file.csv", index_col=0)["value"].to_dict()
+    maxquant_mapper = pd.read_csv("static/resources/map_mq_file.csv", index_col=0)[
+        "value"
+    ].to_dict()
     psm_list.rename_modifications(maxquant_mapper)
 
-    psm_list = [x for x in psm_list if x.peptidoform.is_modified] # filter for modified peptidoforms
-    psm_list = [x for x in psm_list if len(x.protein_list) == 1] # filter nonunique peptidoforms
+    psm_list = [
+        x for x in psm_list if x.peptidoform.is_modified
+    ]  # filter for modified peptidoforms
+    psm_list = [
+        x for x in psm_list if len(x.protein_list) == 1
+    ]  # filter nonunique peptidoforms
 
     df = PSMList_to_mod_df(psm_list)
 
@@ -454,20 +483,26 @@ def read_maxquant(file):
 
 
 def read_any(file):
-   # write to temporary file and then give filepath to psm utils
-    with NamedTemporaryFile(mode = "wt", delete=False) as f:
+    # write to temporary file and then give filepath to psm utils
+    with NamedTemporaryFile(mode="wt", delete=False) as f:
         f.write(file.getvalue())
         f.close()
 
-    psm_list = read_file(f.name, filetype="infer") #file is a StringIO object!
+    psm_list = read_file(f.name, filetype="infer")  # file is a StringIO object!
     Path(f.name).unlink()
 
-    psm_list = psm_list[psm_list["qvalue"] <= 0.01] #filter at 1% FDR
-    psm_list = [x for x in psm_list if not x.is_decoy] # remove decoys
-    psm_list = [x for x in psm_list if x.peptidoform.is_modified] # filter for modified peptidoforms
-    psm_list = [x for x in psm_list if len(x.protein_list) == 1] # filter nonunique peptidoforms
+    psm_list = psm_list[psm_list["qvalue"] <= 0.01]  # filter at 1% FDR
+    psm_list = [x for x in psm_list if not x.is_decoy]  # remove decoys
+    psm_list = [
+        x for x in psm_list if x.peptidoform.is_modified
+    ]  # filter for modified peptidoforms
+    psm_list = [
+        x for x in psm_list if len(x.protein_list) == 1
+    ]  # filter nonunique peptidoforms
 
-    df = PSMList_to_mod_df(psm_list) # [protein, mass_shift, modification_unimod_id, modification_unimod_name, display_name, position]
+    df = PSMList_to_mod_df(
+        psm_list
+    )  # [protein, mass_shift, modification_unimod_id, modification_unimod_name, display_name, position]
 
     return df
 
@@ -528,9 +563,9 @@ def read_userinput(file, flag):
         df = read_mod_csv(file)
     elif flag == "sage":
         df = read_sage(file)
-    elif flag == 'msms':
+    elif flag == "msms":
         df = read_maxquant(file)
-    elif flag == 'infer':
+    elif flag == "infer":
         df = read_any(file)
     df = df.fillna("null")
     return parse_df_to_json_schema(df)
@@ -547,13 +582,14 @@ def parse_user_input(user_file, user_flag):
 
 
 def _brotli_decompress(content: str) -> str:
-    return brotli.decompress( base64.urlsafe_b64decode( content ) ).decode( )
+    return brotli.decompress(base64.urlsafe_b64decode(content)).decode()
 
 
 def _brotly_compress(content: str) -> str:
-    return base64.urlsafe_b64encode( brotli.compress( content.encode( ) ) ).decode( )
+    return base64.urlsafe_b64encode(brotli.compress(content.encode())).decode()
+
 
 if __name__ == "__main__":
     json = parse_user_input("example_data/msms_maxquant_v24130.txt", "msms")
-    #json = parse_user_input("example_data/sulfolobus_acidocaldarius_UP000060043_with_crap.sage_default_config.results.sage.tsv", "sage")
+    # json = parse_user_input("example_data/sulfolobus_acidocaldarius_UP000060043_with_crap.sage_default_config.results.sage.tsv", "sage")
     print(json)
