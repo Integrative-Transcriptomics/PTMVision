@@ -206,6 +206,7 @@ def map_unimod_name_to_mass(unimod_name):
     else: 
         return mapped[0]
 
+
 def map_mass_to_unimod_id(mass_shift):
     mapped = mapper.mass_to_ids(
     mass_shift, decimals=4
@@ -299,14 +300,16 @@ def get_display_name(row):
     else:
         return "unannotated mass shift {}".format(row["mass_shift"])
 
+
 def get_mass_shift(mod):
     # gets with either name ("Oxidation") or string ("+57.") with mass shift
-    if mod[1] in ["+", "-"]:
+    if mod[0] in ["+", "-"]:
         mass_shift = float(mod)
     else:
         # try to get mass over unimod mapper
         mass_shift = map_unimod_name_to_mass(mod)
     return mass_shift
+
 
 def PSMList_to_mod_df(psm_list):
     """
@@ -346,6 +349,8 @@ def PSMList_to_mod_df(psm_list):
 
     df["mass_shift"] = df["modification"].apply(lambda x: get_mass_shift(x[1]))
     df["mod_position_in_peptide"] = df["modification"].apply(lambda x: x[0])
+
+    print(df)
 
     #TODO: in case of already annotated mass shift, parse unimod name and id from modification col directly
     df["modification_unimod_name"] = df["mass_shift"].apply(lambda x: map_mass_to_unimod_name(x))
