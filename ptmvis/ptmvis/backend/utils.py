@@ -149,6 +149,12 @@ def get_ptm_position_in_protein(mod, protein_start):
     return position_ptm_in_protein
 
 
+def get_amino_acid_from_protein(position, uniprot_id, fasta_dict):
+    for record in fasta_dict.keys():
+        if uniprot_id in record:
+            return fasta_dict[record][position-1] # positions are 1 indexed
+    return "N/A"
+
 def map_mass_to_unimod_msfragger(mods):
     modstr = ""
     for mod in mods.split(","):
@@ -199,16 +205,16 @@ def classification_from_id(unimod_id, amino_acid, unimod_db):
     """
     Get amino acid specific classification of modification from unimod ID
     """
-    classification = "N/A"
     try:
         mod = unimod_db.get(unimod_id)
     except KeyError: # deprecated unimod ID :(
-        return classification
+        return "N/A"
     for specification in mod.specificities:
         if specification.amino_acid == amino_acid:
             classification = specification.classification.classification
+            return classification
 
-    return classification
+    return "N/A"
 
 
 def mass_shift_from_id(unimod_id, unimod_db):
@@ -446,7 +452,34 @@ def read_ionbot(file):
 
 
 def read_mod_csv(file):
+    """
+    read plain csv.
+    minimum columns: uniprot_id, position, modification_unimod_id
+    optional: classification, mass_shift, annotation
+    if classification and mass_shift are not provided, they will be queried from unimod
+    """
     df = pd.read_csv(file)
+    if "classification" not in [x.lower() for x in df.columns]:
+        if "modified_residue" not in [x.lower() for x in df.columns]:
+            fasta = query_uniprot_for_fasta(df["uniprot_id"].tolist())
+            df["modified_residue"] = df.apply(
+                lambda x: get_amino_acid_from_protein(x["position"], x["uniprot_id"], fasta), axis=1 
+            )
+
+        unimod_db = Unimod()
+        df["classification"] = df.apply(
+            lambda x: classification_from_id(
+                x["modification_unimod_id"], x["modified_residue"], unimod_db), axis=1
+        )    
+        df.drop(columns=["modified_residue"], inplace=True)
+    if "mass_shift" not in [x.lower() for x in df.columns]:
+        unimod_db = Unimod()
+        df["mass_shift"] = df["modification_unimod_id"].apply(
+            lambda x: mass_shift_from_id(x, unimod_db)
+        )
+    if "display_name" not in [x.lower() for x in df.columns]:
+        df["display_name"] = df["modification_unimod_name"]
+    print(df)
     return df
 
 
