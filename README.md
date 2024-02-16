@@ -22,4 +22,4 @@ Can't find your favorite search engine? [Tell us!](https://github.com/Integrativ
 
 \* see https://psm-utils.readthedocs.io/en/v0.6.0/ for details
 
-An example file for the plain csv format can be found here.
+An example file for the plain csv format can be found [here](https://github.com/Integrative-Transcriptomics/PTMVision/tree/psm_utils_parsing/ptmvis/ptmvis/backend/example_data).
