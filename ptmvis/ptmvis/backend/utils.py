@@ -13,6 +13,7 @@ import brotli
 import base64
 from psm_utils.io import read_file
 from tempfile import NamedTemporaryFile
+from pyteomics.mass.unimod import Unimod
 
 mapper = UnimodMapper()
 pdbparser = PDBParser(PERMISSIVE=False)
@@ -148,29 +149,6 @@ def get_ptm_position_in_protein(mod, protein_start):
     return position_ptm_in_protein
 
 
-def sage_peptide_to_msfragger_mod(sage_peptide):
-    modified_sites = re.finditer("\[", sage_peptide)
-    indices = [index.start() for index in modified_sites]
-    assigned_modifications = []
-
-    for index in indices:
-        modified_aa = sage_peptide[index - 1]
-        weight = sage_peptide[index + 1 :].split("]")[0].replace("+", "")
-
-        # get index of modified peptide (not same as index bc modifications are in the string as well)
-        prefix = sage_peptide[:index]
-        prefix = (
-            re.sub(r"\[(.*?)\]", "", prefix)
-            .replace("[", "")
-            .replace("]", "")
-            .replace("-", "")
-        )
-        mod_index = len(prefix)
-        assigned_modifications.append(str(mod_index) + modified_aa + "(" + weight + ")")
-
-    return ",".join(assigned_modifications)
-
-
 def map_mass_to_unimod_msfragger(mods):
     modstr = ""
     for mod in mods.split(","):
@@ -217,6 +195,33 @@ def map_mass_to_unimod_id(mass_shift):
         return mapped[0]
 
 
+def classification_from_id(unimod_id, amino_acid, unimod_db):
+    """
+    Get amino acid specific classification of modification from unimod ID
+    """
+    classification = "N/A"
+    try:
+        mod = unimod_db.get(unimod_id)
+    except KeyError: # deprecated unimod ID :(
+        return classification
+    for specification in mod.specificities:
+        if specification.amino_acid == amino_acid:
+            classification = specification.classification.classification
+
+    return classification
+
+
+def mass_shift_from_id(unimod_id, unimod_db):
+    """
+    Get mass shift from unimod ID
+    """
+    try:
+        mod = unimod_db.get(unimod_id)
+    except KeyError: # deprecated unimod ID :(
+        return None
+    return mod.monoisotopic_mass
+
+
 def id_from_name(name):
     ids = []
     for mod_name in name.split(" or "):
@@ -257,8 +262,8 @@ def from_psm_to_protein(df):
 
 def extract_mods_from_proforma(peptidoform):
     """
-    ENYC[+57.0215]NNVMM[+15.994915]K/2	-> ((3, 57.0215), (8, 15.993915)) (zero indexed!), try to map to unimod names
-    AADM[Oxidation]TGADIEAMTR/2 -> ((3, Oxidation))
+    ENYC[+57.0215]NNVMM[+15.994915]K/2	-> [(3, 57.0215), (8, 15.993915)] (zero indexed!), try to map to unimod names
+    AADM[Oxidation]TGADIEAMTR/2 -> [(3, Oxidation)]
     """
     mods = []
     while peptidoform.count("[") > 0:
@@ -415,14 +420,28 @@ def read_msfragger(file):
 
 def read_ionbot(file):
     df = pd.read_csv(file)
-    df = df[["uniprot_id", "unexpected_modification", "position"]]
-    df["modification_unimod_name"] = df["unexpected_modification"].apply(
+    unimod_db = Unimod()
+
+    df = df[["uniprot_id", "modification", "position"]]
+    df["modification_unimod_name"] = df["modification"].apply(
         lambda x: x.split("]")[1].split("[")[0].lower()
     )
-    df["modification_unimod_id"] = df["unexpected_modification"].apply(
-        lambda x: x.split("]")[0][1:]
+    df["modification_unimod_id"] = df["modification"].apply(
+        lambda x: int(x.split("]")[0][1:])
     )
-    df.drop(columns=["unexpected_modification"], inplace=True)
+    df["modified_residue"] = df["modification"].apply(
+        lambda x: x.split("[")[2].split("]")[0]
+    )
+    df["classification"] = df.apply(
+        lambda x: classification_from_id(
+            x["modification_unimod_id"], x["modified_residue"], unimod_db), axis=1
+    )
+    df["mass_shift"] = df["modification_unimod_id"].apply(
+        lambda x: mass_shift_from_id(x, unimod_db)
+    )
+    df["display_name"] = df["modification_unimod_name"]
+
+    df.drop(columns=["modification", "modified_residue"], inplace=True)
     return df
 
 
