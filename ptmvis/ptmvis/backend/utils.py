@@ -476,6 +476,7 @@ def PSMList_to_mod_df(psm_list):
         zip(peptidoforms, proteins, peptide_sequences),
         columns=["peptidoform", "protein", "peptide"],
     )
+
     df["modification"] = df["peptidoform"].apply(
         lambda x: extract_mods_from_proforma(x)
     )
@@ -513,14 +514,24 @@ def PSMList_to_mod_df(psm_list):
     )
     df["position"] = df["mod_position_in_peptide"] + df["peptide_position"]
 
+
+    unimod_db = Unimod()
+    df["classification"] = df.apply(
+        lambda x: get_classification(
+            x["modification_unimod_id"], x["peptide"][x["mod_position_in_peptide"]], unimod_db
+        ),
+        axis=1,
+    )
+
     df = df[
         [
             "uniprot_id",
-            "mass_shift",
+            "position",
             "modification_unimod_name",
             "modification_unimod_id",
+            "classification",
+            "mass_shift",
             "display_name",
-            "position",
         ]
     ]
     df = df.drop_duplicates()
@@ -678,8 +689,6 @@ def read_msfragger(file):
         ]
     ]
 
-    print(pept_mods)
-
     return pept_mods
 
 
@@ -745,7 +754,7 @@ def read_mod_csv(file):
         )
     if "display_name" not in [x.lower() for x in df.columns]:
         df["display_name"] = df["modification_unimod_name"]
-    print(df)
+
     return df
 
 
@@ -886,6 +895,7 @@ def read_userinput(file, flag):
     elif flag == "infer":
         df = read_any(file)
     df = df.fillna("null")
+    print(df)
     return parse_df_to_json_schema(df)
 
 
@@ -908,6 +918,7 @@ def _brotly_compress(content: str) -> str:
 
 
 if __name__ == "__main__":
-    json = parse_user_input("example_data/msms_maxquant_v24130.txt", "msms")
+    json = parse_user_input("example_data/sage_results_v0131.tsv", "sage")
+    # json = parse_user_input("example_data/msms_maxquant_v24130.txt", "msms")
     # json = parse_user_input("example_data/sulfolobus_acidocaldarius_UP000060043_with_crap.sage_default_config.results.sage.tsv", "sage")
     print(json)
