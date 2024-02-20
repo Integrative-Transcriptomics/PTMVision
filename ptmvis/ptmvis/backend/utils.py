@@ -14,6 +14,7 @@ import base64
 from psm_utils.io import read_file
 from tempfile import NamedTemporaryFile
 from pyteomics.mass.unimod import Unimod
+import json
 
 mapper = UnimodMapper()
 pdbparser = PDBParser(PERMISSIVE=False)
@@ -514,11 +515,12 @@ def PSMList_to_mod_df(psm_list):
     )
     df["position"] = df["mod_position_in_peptide"] + df["peptide_position"]
 
-
     unimod_db = Unimod()
     df["classification"] = df.apply(
         lambda x: get_classification(
-            x["modification_unimod_id"], x["peptide"][x["mod_position_in_peptide"]], unimod_db
+            x["modification_unimod_id"],
+            x["peptide"][x["mod_position_in_peptide"]],
+            unimod_db,
         ),
         axis=1,
     )
@@ -834,17 +836,24 @@ def read_any(file):
     return df
 
 
-def parse_df_to_json_schema(dataframe):
-    # Init. dictionary to store results in JSON schema.
-    protein_dict = {"proteins": {}, "meta_data": {}}
-    # Internal function to add entries.
-    construct_modifications_entry = lambda row: {
+def construct_modifications_entry(row):
+    return {
         "modification_unimod_name": row["modification_unimod_name"],
         "modification_classification": row["classification"]
         if "classification" in row
         else "null",
         "modification_unimod_id": row["modification_unimod_id"],
+        "display_name": row["display_name"]
+        if "display_name" in row
+        else "null",
+        "mass_shift": row["mass_shift"] if "mass_shift" in row else "null"
     }
+
+
+def parse_df_to_json_schema(dataframe):
+    # Init. dictionary to store results in JSON schema.
+    protein_dict = {"proteins": {}, "meta_data": {}}
+    # Internal function to add entries.
     # For each row
     for _, row in dataframe.iterrows():
         # Add entire entry, if protein does not exist yet.
@@ -860,7 +869,7 @@ def parse_df_to_json_schema(dataframe):
                 }
             }
             protein_dict["proteins"].update(entry)
-        # Add position and modification identifier, name, class and annotations, if protein already exists but not the position.
+        # Add position and modification identifier, name, class, display name and annotations, if protein already exists but not the position.
         elif (
             row["position"]
             not in protein_dict["proteins"][row["uniprot_id"]]["positions"].keys()
@@ -895,7 +904,6 @@ def read_userinput(file, flag):
     elif flag == "infer":
         df = read_any(file)
     df = df.fillna("null")
-    print(df)
     return parse_df_to_json_schema(df)
 
 
