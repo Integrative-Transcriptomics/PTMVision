@@ -293,13 +293,13 @@ def classification_from_id(unimod_id, amino_acid, unimod_db):
     try:
         mod = unimod_db.get(int(unimod_id))
     except KeyError:  # deprecated unimod ID :(
-        return "N/A"
+        return 
     for specification in mod.specificities:
         if specification.amino_acid == amino_acid:
             classification = specification.classification.classification
             return classification
 
-    return "N/A"
+    return 
 
 
 def get_classification(unimod_id, residue, unimod_db):
@@ -448,7 +448,7 @@ def get_display_name(row):
     if row["modification_unimod_name"]:
         return row["modification_unimod_name"]
     else:
-        return "unannotated mass shift {}".format(row["mass_shift"])
+        return row["modification"][1]
 
 
 def get_mass_shift(mod):
@@ -542,7 +542,7 @@ def PSMList_to_mod_df(psm_list):
 
 
 def parse_assigned_mods_msfragger(mods):
-    "7M(15.9949) => (7, 15.9949), N-Term(42.0106) => (0, 42.0106)"
+    "7M(15.9949) => (7, 15.9949), N-Term(42.0106) => (0, Unannotated mass-shift 42.0106)"
     mod_list = []
     for mod in mods.split(","):
         if "N-term" in mod:
@@ -551,7 +551,7 @@ def parse_assigned_mods_msfragger(mods):
             pos = int(re.search("\d+", mod).group(0)) - 1
         mass = re.search(r"\(.*?\)", mod)[0]
         mass = float(mass.replace("(", "").replace(")", ""))
-        mod_list.append((pos, mass))
+        mod_list.append((pos, "Unannotated mass-shift " +str(mass)))
 
     return mod_list
 
@@ -566,7 +566,7 @@ def parse_observed_mods_msfragger(localisation, mod):
 
     mod_match = re.search(r"Mod1: (.*?)\(", mod)
     if mod_match:
-        mod = mod_match.group(1).strip()
+        mod = mod_match.group(1).strip().split(", Mod2")[0]
     else:
         return
     return [(position, mod)]
@@ -613,7 +613,7 @@ def read_msfragger(file):
     ]
     pept_mods = pept_mods.drop_duplicates()
 
-    # filter for modified peptidoforms
+    # filter out unmodified peptidoforms
     pept_mods = pept_mods[
         ~(
             pept_mods["Assigned Modifications"].isna()
@@ -621,7 +621,13 @@ def read_msfragger(file):
         )
     ]
 
-    # filter for unambiguously localized modifications
+    # filter out ambigously matched modifications
+    pept_mods = pept_mods[pept_mods["Observed Modifications"].str.count(";") == 0]
+
+    # filter out combinations of modifications
+    pept_mods = pept_mods[pept_mods["Observed Modifications"].str.count("Mod2") == 0]
+
+    # filter out ambiguously localized modifications
     pept_mods = pept_mods[
         (
             pept_mods["MSFragger Localization"].apply(
@@ -679,17 +685,19 @@ def read_msfragger(file):
     # get display name (unimod name if available, otherwise "unannotated mass shift: (mass shift)"
     pept_mods["display_name"] = pept_mods.apply(lambda x: get_display_name(x), axis=1)
 
-    pept_mods = pept_mods[
-        [
-            "uniprot_id",
-            "position",
-            "modification_unimod_name",
-            "modification_unimod_id",
-            "classification",
-            "mass_shift",
-            "display_name",
-        ]
-    ]
+    # pept_mods = pept_mods[
+    #    [
+    #        "uniprot_id",
+    #        "position",
+    #        "modification_unimod_name",
+    #        "modification_unimod_id",
+    #        "classification",
+    #        "mass_shift",
+    #        "display_name",
+    #    ]
+    # ]
+
+    pept_mods.to_csv("msfragger_mods.csv", index=False)
 
     return pept_mods
 
@@ -843,10 +851,8 @@ def construct_modifications_entry(row):
         if "classification" in row
         else "null",
         "modification_unimod_id": row["modification_unimod_id"],
-        "display_name": row["display_name"]
-        if "display_name" in row
-        else "null",
-        "mass_shift": row["mass_shift"] if "mass_shift" in row else "null"
+        "display_name": row["display_name"] if "display_name" in row else "null",
+        "mass_shift": row["mass_shift"] if "mass_shift" in row else "null",
     }
 
 
@@ -926,7 +932,11 @@ def _brotly_compress(content: str) -> str:
 
 
 if __name__ == "__main__":
-    json = parse_user_input("example_data/sage_results_v0131.tsv", "sage")
+    # json = parse_user_input("example_data/sage_results_v0131.tsv", "sage")
+    json = parse_user_input(
+        "example_data/msfragger_opensearch_ptmshepherdv206_msfraggerv40_psm.tsv",
+        "msfragger",
+    )
     # json = parse_user_input("example_data/msms_maxquant_v24130.txt", "msms")
     # json = parse_user_input("example_data/sulfolobus_acidocaldarius_UP000060043_with_crap.sage_default_config.results.sage.tsv", "sage")
-    print(json)
+    # print(json)
