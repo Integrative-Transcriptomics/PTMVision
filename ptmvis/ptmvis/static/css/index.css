@@ -376,3 +376,13 @@ body .error-toast {
 .citation {
   color: var(--background-color-1);
 }
+
+.infotext-small {
+  font-size: medium;
+
+}
+
+.infotext-header {
+  padding: 5px;  
+  font-size: large;
+}

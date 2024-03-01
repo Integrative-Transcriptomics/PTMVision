@@ -187,7 +187,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <div id="main">
       <div id="panel">
         <div id="vline"></div>
-
         <div id="panel-info" class="panel-container">
           <h5>
             PTMVision: Interactive Visualization of Post Translational
@@ -206,38 +205,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               <h4><i class="fa-solid fa-star-shooting"></i> Key Features</h4>
             </dt>
             <small>
-              <dt>Highly Interactive Interface:</dt>
-              <dd>
+              <dt class="infotext-header">Highly Interactive Interface:</dt>
+              <dd class="infotext-small">
                 PTMVision offers a responsive and intuitive interface, allowing
                 users toeffortlessly navigate through their data.
               </dd>
-
-              <dt>Cross-Connected Figures:</dt>
-              <dd>
+              <dt class="infotext-header">Cross-Connected Figures:</dt>
+              <dd class="infotext-small">
                 Visual representations are dynamically linked, enabling users to
                 seamlessly explore relationships in their data.
               </dd>
 
-              <dt>Integration with Protein Structures:</dt>
-              <dd>
+              <dt class="infotext-header">Integration with Protein Structures:</dt>
+              <dd class="infotext-small">
                 PTMVision integrates protein structure data, providing users
                 with a multidimensional view of PTMs within the context of
                 protein folding and function..
               </dd>
 
-              <dt>Various Overview Plots:</dt>
-              <dd>
+              <dt class="infotext-header">Various Overview Plots:</dt>
+              <dd class="infotext-small">
                 PTMVision provides a variety of overview plots, facilitating the
                 identification of patterns and trends in PTM data.
               </dd>
-              <dt>Annotations from UniProt:</dt>
-              <dd>
+              <dt class="infotext-header">Annotations from UniProt:</dt>
+              <dd class="infotext-small">
                 Leveraging the vast repository of information available in
                 UniProt, PTMVision enriches protein visualizations with detailed
                 annotations, enhancing the interpretability of the data.
               </dd>
-              <dt>Focus on Interactions:</dt>
-              <dd>
+              <dt class="infotext-header">Focus on Interactions:</dt>
+              <dd class="infotext-small">
                 PTMVision places a special emphasis on protein interactions,
                 highlighting residues in close contact and their associated
                 modifications. This feature enables researchers to explore the
@@ -251,22 +249,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               </h4>
             </dt>
             <small>
-              <dt><i class="fa-duotone fa-circle-1"></i> Upload Data</dt>
-              <dd>
+              <dt class="infotext-header"><i class="fa-duotone fa-circle-1"></i> Upload Data</dt>
+              <dd class="infotext-small">
                 Begin by uploading your data or re-uploading session data.
                 Alternatively, you can initiate an example session via the
                 header menu. Downloading existing session data is also available
                 via the header menu.
               </dd>
-              <dt><i class="fa-duotone fa-circle-2"></i> Browse Proteins</dt>
-              <dd>
+              <dt class="infotext-header"><i class="fa-duotone fa-circle-2"></i> Browse Proteins</dt>
+              <dd class="infotext-small">
                 Once your data is uploaded, the interface will auto-scroll to
                 the overview panel. Here, you can browse proteins in the table
                 and filter them by Name, UniProt ID, or modifications. Select a
                 protein of interest and click on "Display" to proceed.
               </dd>
-              <dt><i class="fa-duotone fa-circle-3"></i> Explore Dashboard</dt>
-              <dd>
+              <dt class="infotext-header"><i class="fa-duotone fa-circle-3"></i> Explore Dashboard</dt>
+              <dd class="infotext-small">
                 Upon selecting a protein, the interface will auto-scroll to the
                 dashboard. Here, you can toggle protein structure visibility and
                 switch between the modifications presence map and contact map.
@@ -280,7 +278,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               <h4><i class="fa-solid fa-triangle-exclamation"></i> Disclaimer </h4>
             </dt>
             <small>
-              <dd>
+              <dd class="infotext-small">
                 Please note that PTMVision serves solely to visualize the content 
                 provided in the input and does not conduct any further quality 
                 control. It's important to note that the localization of 
@@ -346,19 +344,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
 
         <div id="panel-overview" class="panel-container">
-          <h6 class="secondary">
-            <i class="fa-duotone fa-circle-2"></i>
-            <strong
-              >Inspect modification (co-)occurrences wrt. all proteins</strong
-            >
-            <button
-              onclick="toggleElement('panel-overview-info')"
-              class="toolbox-button float-right ml-2"
-              disabled
-            >
-              &#8505;
-            </button>
-          </h6>
+          <div class="panel-container-header">
+            <h6 class="secondary">
+              <i class="fa-duotone fa-circle-2"></i>
+              <strong
+                >Inspect modification (co-)occurrences wrt. all proteins</strong
+              >
+              <button
+                onclick="toggleElement('panel-overview-info')"
+                class="toolbox-button float-right ml-2"
+                disabled
+              >
+                &#8505;
+              </button>
+            </h6>
+
+          </div>
           <div id="panel-overview-chart"></div>
           <div id="panel-overview-info">
             <h6>Modification Co-Occurrence Graph</h6>
