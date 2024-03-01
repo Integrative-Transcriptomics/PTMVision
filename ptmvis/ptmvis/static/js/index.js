@@ -1,8 +1,8 @@
 var __url = "http://127.0.0.1:5000/";
 var __proteinsOverviewTable = null;
-var __mogChart = null;
-var __mogOption = null;
-var __mogSizeObserver = null;
+var __overviewChart = null;
+var __overviewOption = null;
+var __overviewSizeObserver = null;
 var __structureView = null;
 var __dashboardChart = null;
 var __dashboardOption = null;
@@ -73,123 +73,6 @@ const UPLOAD_PDB_HTML = `
     <br>
     <input id="optional-pdb-input" type="file" data-role="file" data-mode="drop">`;
 
-const LEGAL_HTML = `
-    <div>
-      <div class="remark m-4">
-        <h2 class="p-2 text-center">
-          <small>3rd Party Libraries and Resources</small>
-        </h2>
-        <p class="text-left">
-          <i class="fa-solid fa-circle-small fa-2xs"></i> <strong>Component Frameworks</strong>
-          <a href="https://metroui.org.ua/">Metro4</a>
-          <a href="https://sweetalert2.github.io/">SweetAlert2</a>
-          <a href="https://fontawesome.com/">Font Awesome</a>
-          <a href="https://tabulator.info/">Tabulator</a>
-          <a href="https://github.com/normanzb/resize-sensor#readme">ResizeSensor</a>
-          <a href="https://3dmol.csb.pitt.edu/doc/index.html">3Dmol</a>
-        </p>
-        <p class="text-left">
-          <i class="fa-solid fa-circle-small fa-2xs"></i> <strong>Visualization</strong>
-          <a href="https://echarts.apache.org/en/index.html">Apache ECharts</a>
-        </p>
-        <p class="text-left">
-          <i class="fa-solid fa-circle-small fa-2xs"></i> <strong>DOM Navigation and Syntax Improvement</strong>
-          <a href="https://jquery.com/">jQuery</a>
-          <a href="https://lodash.com/">Lodash</a>
-        </p>
-        <p class="text-left">
-          <i class="fa-solid fa-circle-small fa-2xs"></i> <strong>Data Processing</strong>
-          <a href="https://www.papaparse.com/">Papa Parse</a>
-          <a href="https://github.com/nodeca/pako">pako</a>
-        </p>
-        <p class="text-left">
-          <i class="fa-solid fa-circle-small fa-2xs"></i> <strong>Backend and Communication</strong>
-          <a href="https://axios-http.com/docs/intro">Axios</a>
-          <a href="https://flask.palletsprojects.com/en/2.2.x/">Flask</a>
-          <a href="https://flask-session.readthedocs.io/en/latest/">Flask-Session</a>
-        </p>
-      </div>
-      <div class="remark m-4">
-        <h2 class="p-2 text-center">
-          <small>Disclaimer</small>
-        </h2>
-        <p class="indent text-just">
-          <b>Content liability</b> The contents of our pages were created with the
-          utmost care. However, we cannot guarantee the accuracy, completeness and
-          actuality of the content. As a service provider, we are responsible for
-          our own content on these pages under the general laws according to § 7
-          TMG. According to §§ 8 to 10 TMG, however, we are not obligated as a
-          service provider to monitor transmitted or stored third-party information
-          or to investigate circumstances that indicate illegal activity.
-          Obligations to remove or block the use of information under the general
-          laws remain unaffected. However, liability in this regard is only possible
-          from the point in time at which a concrete infringement of the law becomes
-          known. If we become aware of such infringements, we will remove this
-          content immediately.
-        </p>
-        <p class="indent text-just">
-          <b>Link liability</b> This page may contain links to external websites of
-          third parties, on whose contents we have no influence. We cannot take any
-          liability for these external contents. The respective provider or operator
-          of the pages is always responsible for the content of the linked pages.
-          The linked pages were checked for possible legal violations at the time of
-          linking. Illegal contents were not recognizable at the time of linking.
-          However, a permanent control of the contents of the linked pages is not
-          reasonable without concrete evidence of a violation of the law. If we
-          become aware of any infringements, we will remove such links immediately.
-        </p>
-        <p class="indent text-just">
-          <b>Data privacy</b> The use of our website is possible without providing
-          personal data and no processed data is stored. If personal data (such as
-          name, address or e-mail addresses) is collected, this is on a voluntary
-          basis. This data will not be passed on to third parties without your
-          express consent. We point out that data transmission over the Internet
-          (e.g. communication by e-mail) may yield security gaps. Complete
-          protection of data against access by third parties is not possible. The
-          use of contact data published within the framework of the impressum by
-          third parties for the purpose of sending advertising and information
-          material is hereby expressly prohibited. The operators of the pages
-          expressly reserve the right to take legal action in the event of the
-          sending of advertising information, such as spam e-mails.
-        </p>
-        <p class="indent text-just">
-          <b>Copyright</b> This program is free software: you can redistribute it
-          and/or modify it under the terms of the GNU General Public License as
-          published by the Free Software Foundation, either version 3 of the
-          License, or (at your option) any later version. This program is
-          distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-          without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-          PARTICULAR PURPOSE. See the GNU General Public License for more details.
-          (<a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">www.gnu.org/licenses/gpl-3.0.en</a>)
-        </p>
-      </div>
-      <div class="remark m-4">
-        <h2 class="p-2 text-center">
-          <small>Cookie Usage</small>
-        </h2>
-        <p class="indent text-just">
-          <b>We use a strictly necessary (http-only non-tracking) session cookie so that you can access your data!</b>
-          (1) Your data will not be accessible to other people. (2) No personalized data is collected or shared with third parties and you will not be tracked by this cookie. (3) The cookie will expire after you close your tab.
-        </p>
-      </div>
-      <div class="remark m-4">
-        <h2 class="p-2 text-center">
-          <small>Contact Information</small>
-        </h2>
-        <address>
-          <b>Simon Hackl & Caroline Jachmann</b>
-          <br />
-          Sand 14<br />
-          72076 Tübingen, Germany<br />
-          <a href="mailto:simon.hackl@uni-tuebingen.de"
-            >simon.hackl@uni-tuebingen.de</a
-          > or <a href="mailto:caroline.jachmann@uni-tuebingen.de"
-            >caroline.jachmann@uni-tuebingen.de</a
-          >
-        </address>
-      </div>
-    </div>`;
-
 /**
  * Inizializes all client side elements of the PTMVision application.
  */
@@ -241,19 +124,19 @@ function init() {
       }
     }
   );
-  __mogChart = echarts.init($("#panel-overview-chart")[0], {
+  __overviewChart = echarts.init($("#panel-overview-chart")[0], {
     devicePixelRatio: 2,
     renderer: "canvas",
     width: "auto",
     height: "auto",
   });
-  __mogSizeObserver = new ResizeObserver((entries) => {
-    __mogChart.resize({
+  __overviewSizeObserver = new ResizeObserver((entries) => {
+    __overviewChart.resize({
       width: entries[0].width,
       height: entries[0].height,
     });
   });
-  __mogSizeObserver.observe($("#panel-overview-chart")[0]);
+  __overviewSizeObserver.observe($("#panel-overview-chart")[0]);
   __structureView = $3Dmol.createViewer($("#panel-dashboard-structure"), {
     backgroundColor: "#FAFAFC",
     antialias: true,
@@ -294,58 +177,8 @@ function startExampleSession() {
   axios
     .get(__url + "/example_session")
     .then((_) => {
-      // Init. table.
-      axios.get(__url + "/get_available_proteins").then((response) => {
-        __proteinsOverviewTable.setData(response.data);
-        __modifications = new Set();
-        var identifiers = new Set();
-        for (let entry of response.data) {
-          entry.modifications.split("$").forEach((m) => __modifications.add(m));
-          identifiers.add(entry.id + "$" + entry.name);
-        }
-        __modifications = [...__modifications];
-        modifications_data_string = "";
-        __modifications.forEach((m) => {
-          modifications_data_string +=
-            `<option value="` + m + `">` + m + `</option>`;
-        });
-        Metro.getPlugin("#panel-table-filter-modification", "select").data(
-          modifications_data_string
-        );
-        identifiers = [...identifiers];
-        identifiers_data_string = "";
-        identifiers.forEach((i) => {
-          let entry = i.split("$");
-          identifiers_data_string +=
-            `<option value="id$` +
-            entry[0] +
-            `">` +
-            entry[0] +
-            `</option><option value="name$` +
-            entry[1] +
-            `">` +
-            entry[1] +
-            `</option>`;
-        });
-        Metro.getPlugin("#panel-table-filter-id", "select").data(
-          identifiers_data_string
-        );
-      });
-      // Init. mod. overview graph.
-      axios
-        .get(__url + "/get_mog_data")
-        .then((response) => {
-          __mogOption = getMogOption(response.data);
-          __mogChart.setOption(__mogOption);
-          $("#panel-overview h6 button").attr("disabled", false);
-          window.scrollTo({
-            top: $("#panel-overview").get(0).offsetTop + 40,
-            behavior: "smooth",
-          });
-        })
-        .catch((error) => {
-          throw error;
-        });
+      initializeOverviewTable(); // Init. table.
+      initializeOverviewChart(); // Init.overview chart.
       togglePanel("panel-inputs");
     })
     .catch((error) => {
@@ -375,58 +208,8 @@ async function restartSession() {
       },
     })
     .then((_) => {
-      // Init. table.
-      axios.get(__url + "/get_available_proteins").then((response) => {
-        __proteinsOverviewTable.setData(response.data);
-        __modifications = new Set();
-        identifiers = new Set();
-        for (let entry of response.data) {
-          entry.modifications.split("$").forEach((m) => __modifications.add(m));
-          identifiers.add(entry.id + "$" + entry.name);
-        }
-        __modifications = [...__modifications];
-        modifications_data_string = "";
-        __modifications.forEach((m) => {
-          modifications_data_string +=
-            `<option value="` + m + `">` + m + `</option>`;
-        });
-        Metro.getPlugin("#panel-table-filter-modification", "select").data(
-          modifications_data_string
-        );
-        identifiers = [...identifiers];
-        identifiers_data_string = "";
-        identifiers.forEach((i) => {
-          let entry = i.split("$");
-          identifiers_data_string +=
-            `<option value="id$` +
-            entry[0] +
-            `">` +
-            entry[0] +
-            `</option><option value="name$` +
-            entry[1] +
-            `">` +
-            entry[1] +
-            `</option>`;
-        });
-        Metro.getPlugin("#panel-table-filter-id", "select").data(
-          identifiers_data_string
-        );
-      });
-      // Init. mod. overview graph.
-      axios
-        .get(__url + "/get_mog_data")
-        .then((response) => {
-          __mogOption = getMogOption(response.data);
-          __mogChart.setOption(__mogOption);
-          $("#panel-overview h6 button").attr("disabled", false);
-          window.scrollTo({
-            top: $("#panel-overview").get(0).offsetTop + 40,
-            behavior: "smooth",
-          });
-        })
-        .catch((error) => {
-          throw error;
-        });
+      initializeOverviewTable(); // Init. table.
+      initializeOverviewChart(); // Init.overview chart.
       togglePanel("panel-inputs");
     })
     .catch((error) => {
@@ -588,58 +371,8 @@ async function uploadData() {
       }
     )
     .then((_) => {
-      // Init. table.
-      axios.get(__url + "/get_available_proteins").then((response) => {
-        __proteinsOverviewTable.setData(response.data);
-        __modifications = new Set();
-        identifiers = new Set();
-        for (let entry of response.data) {
-          entry.modifications.split("$").forEach((m) => __modifications.add(m));
-          identifiers.add(entry.id + "$" + entry.name);
-        }
-        __modifications = [...__modifications];
-        modifications_data_string = "";
-        __modifications.forEach((m) => {
-          modifications_data_string +=
-            `<option value="` + m + `">` + m + `</option>`;
-        });
-        Metro.getPlugin("#panel-table-filter-modification", "select").data(
-          modifications_data_string
-        );
-        identifiers = [...identifiers];
-        identifiers_data_string = "";
-        identifiers.forEach((i) => {
-          let entry = i.split("$");
-          identifiers_data_string +=
-            `<option value="id$` +
-            entry[0] +
-            `">` +
-            entry[0] +
-            `</option><option value="name$` +
-            entry[1] +
-            `">` +
-            entry[1] +
-            `</option>`;
-        });
-        Metro.getPlugin("#panel-table-filter-id", "select").data(
-          identifiers_data_string
-        );
-      });
-      // Init. mod. overview graph.
-      axios
-        .get(__url + "/get_mog_data")
-        .then((response) => {
-          __mogOption = getMogOption(response.data);
-          __mogChart.setOption(__mogOption);
-          $("#panel-overview h6 button").attr("disabled", false);
-          window.scrollTo({
-            top: $("#panel-overview").get(0).offsetTop + 40,
-            behavior: "smooth",
-          });
-        })
-        .catch((error) => {
-          throw error;
-        });
+      initializeOverviewTable(); // Init. table.
+      initializeOverviewChart(); // Init.overview chart.
       togglePanel("panel-inputs");
     })
     .catch((error) => {
@@ -651,7 +384,68 @@ async function uploadData() {
     });
 }
 
-function getDashboard(cutoff_value, pdb_text_value) {
+function initializeOverviewTable() {
+  axios
+    .get(__url + "/get_available_proteins")
+    .then((response) => {
+      __proteinsOverviewTable.setData(response.data);
+      __modifications = new Set();
+      identifiers = new Set();
+      for (let entry of response.data) {
+        entry.modifications.split("$").forEach((m) => __modifications.add(m));
+        identifiers.add(entry.id + "$" + entry.name);
+      }
+      __modifications = [...__modifications];
+      modifications_data_string = "";
+      __modifications.forEach((m) => {
+        modifications_data_string +=
+          `<option value="` + m + `">` + m + `</option>`;
+      });
+      Metro.getPlugin("#panel-table-filter-modification", "select").data(
+        modifications_data_string
+      );
+      identifiers = [...identifiers];
+      identifiers_data_string = "";
+      identifiers.forEach((i) => {
+        let entry = i.split("$");
+        identifiers_data_string +=
+          `<option value="id$` +
+          entry[0] +
+          `">` +
+          entry[0] +
+          `</option><option value="name$` +
+          entry[1] +
+          `">` +
+          entry[1] +
+          `</option>`;
+      });
+      Metro.getPlugin("#panel-table-filter-id", "select").data(
+        identifiers_data_string
+      );
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+
+function initializeOverviewChart() {
+  axios
+    .get(__url + "/get_overview_data")
+    .then((response) => {
+      __overviewOption = getOverviewOption(response.data);
+      __overviewChart.setOption(__overviewOption);
+      $("#panel-overview h6 button").attr("disabled", false);
+      window.scrollTo({
+        top: $("#panel-overview").get(0).offsetTop + 40,
+        behavior: "smooth",
+      });
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+
+function initializeDashboard(cutoff_value, pdb_text_value) {
   displayNotification("Initializing dashboard.");
   if (cutoff_value == null) {
     cutoff_value = 4.69;
@@ -1467,7 +1261,7 @@ function _requestPdb() {
     `,
   }).then((result) => {
     if (result.isConfirmed) {
-      getDashboard(null, readFile($("#optional-pdb-input")[0].files[0]));
+      initializeDashboard(null, readFile($("#optional-pdb-input")[0].files[0]));
     }
   });
 }
@@ -1612,125 +1406,6 @@ function structureViewSetDefaultStyle(selection) {
       color: "#d4d4d4",
     },
   });
-}
-
-function getMogOption(_data) {
-  // Filter data for top L modifications (wrt. frequency) and adjust layout settings.
-  // (i) Init. list of node objects.
-  nodes_data = Object.entries(_data[0]);
-  nodes_data.sort((a, b) => {
-    return b[1][0] - a[1][0];
-  });
-  nodes_values = Object.values(_data[0]).map((_) => {
-    return _[0];
-  });
-  nodes_value_min = Math.min(...nodes_values);
-  nodes_value_max = Math.max(...nodes_values);
-  nodes = [];
-  nodes_keys = new Set();
-  L = 45;
-  for (let entry of nodes_data.slice(0, L - 1)) {
-    nodes.push({
-      name: entry[0],
-      value: entry[1][0],
-      frequency: entry[1][1],
-      symbolSize: 10,
-    });
-    nodes_keys.add(entry[0]);
-  }
-  // (ii) Init. list of link objects.
-  links_data = Object.entries(_data[1]);
-  links_value_max = Math.max(...Object.values(_data[1]));
-  links = [];
-  for (let entry of links_data) {
-    let [s, t] = entry[0].split("@");
-    if (!(nodes_keys.has(s) && nodes_keys.has(t))) {
-      continue;
-    }
-    let v = entry[1];
-    links.push({
-      source: s,
-      target: t,
-      value: v,
-      lineStyle: {
-        width: v / links_value_max,
-      },
-    });
-  }
-  return {
-    animation: false,
-    tooltip: {
-      backgroundColor: "rgba(51, 51, 51, 0.7)",
-      borderColor: "transparent",
-      textStyle: {
-        fontWeight: "lighter",
-        fontSize: 11,
-        color: "#f0f5f5",
-      },
-      formatter: (params, ticket, callback) => {
-        if (params.dataType == "edge") {
-          return (
-            `<b><u>` +
-            params.data.source +
-            `</u> and ` +
-            `<u>` +
-            params.data.target +
-            `</u></b> have ` +
-            params.data.value +
-            ` co-occurrences.`
-          );
-        } else if (params.dataType == "node") {
-          return (
-            `<b>Modification <u>` +
-            params.data.name +
-            `</u></b> has ` +
-            params.data.value +
-            ` occurrences.<br>Occurs at least once in ` +
-            params.data.frequency * 100 +
-            `% of proteins in the dataset.`
-          );
-        }
-      },
-    },
-    visualMap: {
-      bottom: "bottom",
-      left: "left",
-      color: ["#111111", "#d1d1d1"],
-      orient: "horizontal",
-      precision: 0,
-      itemWidth: 10,
-      text: [nodes_value_max, "Modification Occurrence " + nodes_value_min],
-    },
-    series: [
-      {
-        name: "Modifications Graph",
-        emphasis: {
-          focus: "adjacency",
-          label: { show: false },
-          itemStyle: { shadowColor: "#dc5754", shadowBlur: 10 },
-        },
-        label: {
-          show: true,
-          color: "#333333",
-          fontWeight: "lighter",
-          fontSize: 11,
-          backgroundColor: "rgba(240, 245, 245, 0.6)",
-          borderRadius: 4,
-        },
-        edgeLabel: { show: false },
-        type: "graph",
-        layout: "circular",
-        circular: {
-          rotateLabel: true,
-        },
-        data: nodes,
-        links: links,
-        roam: true,
-        lineStyle: { color: "#333333", curveness: 0.2 },
-        itemStyle: {},
-      },
-    ],
-  };
 }
 
 function getDashboardCountsComponents(
