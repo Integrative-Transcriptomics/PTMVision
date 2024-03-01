@@ -260,8 +260,6 @@ function init() {
     cartoonQuality: 6,
   });
   hideStructure();
-  toggleElement("panel-overview-info");
-  toggleElement("panel-dashboard-info");
 }
 
 /**
@@ -292,7 +290,7 @@ function downloadSessionData() {
 }
 
 function startExampleSession() {
-  $("body").css("cursor", "wait");
+  displayNotification("Initializing example session.");
   axios
     .get(__url + "/example_session")
     .then((_) => {
@@ -348,18 +346,19 @@ function startExampleSession() {
         .catch((error) => {
           throw error;
         });
+      togglePanel("panel-inputs");
     })
     .catch((error) => {
       console.error(error);
       handleError(error.message);
     })
     .finally(() => {
-      $("body").css("cursor", "auto");
+      removeNotification();
     });
 }
 
 async function restartSession() {
-  $("body").css("cursor", "wait");
+  displayNotification("Re-initializing session.");
   request = null;
   if ($("#session-input-form")[0].files.length == 0) {
     handleError("No session data was supplied.");
@@ -376,11 +375,6 @@ async function restartSession() {
       },
     })
     .then((_) => {
-      Metro.toast.create(
-        "Your data has been uploaded successfully.",
-        null,
-        5000
-      );
       // Init. table.
       axios.get(__url + "/get_available_proteins").then((response) => {
         __proteinsOverviewTable.setData(response.data);
@@ -433,13 +427,14 @@ async function restartSession() {
         .catch((error) => {
           throw error;
         });
+      togglePanel("panel-inputs");
     })
     .catch((error) => {
       console.error(error);
       handleError(error.message);
     })
     .finally(() => {
-      $("body").css("cursor", "auto");
+      removeNotification();
     });
 }
 
@@ -480,27 +475,10 @@ function redirectSource() {
 }
 
 /**
- * Displays a {@link sweetalert2} container yielding legal notice information.
+ * Redirects the browser to the about page of this project.
  */
-function redirectHelp() {
-  Swal.fire({
-    title: "Legal Notice",
-    html: LEGAL_HTML,
-    width: "100%",
-    position: "bottom",
-    showCloseButton: true,
-    showCancelButton: false,
-    showConfirmButton: false,
-    grow: true,
-    heightAuto: true,
-    color: "#333333",
-    background: "#fafafcd9",
-    backdrop: `
-      rgba(239, 240, 248, 0.1)
-      left top
-      no-repeat
-    `,
-  });
+function redirectAbout() {
+  window.open(__url + "/about", "_blank");
 }
 
 function toggleElement(id) {
@@ -521,6 +499,25 @@ function toggleStructure() {
   } else {
     showStructure();
   }
+}
+
+function togglePanel(id) {
+  $("#" + id).css("height", "4vh");
+  $("#" + id).css("overflow", "hidden");
+  $("#" + id).css("color", "#d4d4d4");
+  $("#" + id).css("cursor", "pointer");
+  var minH = $("#" + id).css("min-height");
+  $("#" + id).css("min-height", 0);
+  if (id == "panel-overview") $("#panel-overview-chart").css("display", "none");
+  document.getElementById(id).onclick = function () {
+    $("#" + id).css("height", "auto");
+    $("#" + id).css("overflow", "inherit");
+    $("#" + id).css("color", "#333333");
+    $("#" + id).css("cursor", "default");
+    $("#" + id).css("min-height", minH);
+    if (id == "panel-overview")
+      $("#panel-overview-chart").css("display", "inherit");
+  };
 }
 
 function showStructure() {
@@ -565,7 +562,7 @@ function setTableFilters(_) {
  * Sends the specified search enginge output data to the PTMVision backend and loads the results in the overview table.
  */
 async function uploadData() {
-  $("body").css("cursor", "wait");
+  displayNotification("Transfer and process entered data.");
   request = {
     contentType: null,
     content: null,
@@ -591,11 +588,6 @@ async function uploadData() {
       }
     )
     .then((_) => {
-      Metro.toast.create(
-        "Your data has been uploaded successfully.",
-        null,
-        5000
-      );
       // Init. table.
       axios.get(__url + "/get_available_proteins").then((response) => {
         __proteinsOverviewTable.setData(response.data);
@@ -648,18 +640,19 @@ async function uploadData() {
         .catch((error) => {
           throw error;
         });
+      togglePanel("panel-inputs");
     })
     .catch((error) => {
       console.error(error);
       handleError(error.message);
     })
     .finally(() => {
-      $("body").css("cursor", "auto");
+      removeNotification();
     });
 }
 
 function getDashboard(cutoff_value, pdb_text_value) {
-  $("body").css("cursor", "wait");
+  displayNotification("Initializing dashboard.");
   if (cutoff_value == null) {
     cutoff_value = 4.69;
   }
@@ -722,13 +715,15 @@ function getDashboard(cutoff_value, pdb_text_value) {
           behavior: "smooth",
         });
       }
+      togglePanel("panel-overview");
+      togglePanel("panel-table");
     })
     .catch((error) => {
       console.error(error);
       handleError(error.message);
     })
     .finally(() => {
-      $("body").css("cursor", "auto");
+      removeNotification();
     });
 }
 
@@ -2272,4 +2267,16 @@ function getColor(key) {
     }
   }
   return COLORS.C[COLORS.M[key]];
+}
+
+function displayNotification(text) {
+  $("#menu").append(
+    `<div class='notification'><i class="fa-duotone fa-spinner-third fa-spin fa-2xl"></i> ` +
+      text +
+      `</div>`
+  );
+}
+
+function removeNotification() {
+  $(".notification").remove();
 }

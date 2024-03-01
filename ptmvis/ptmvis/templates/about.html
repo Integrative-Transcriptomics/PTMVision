@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<!--
+PTMVision WEB APPLICATION
+AUTHOR: Caroline Jachmann, Simon Hackl
+CONTACT: caroline.jachmann@uni-tuebingen.de, simon.hackl@uni-tuebingen.de
+VERSION: 1.0
+
+LICENSE
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+  <head>
+    <title>About - PTMVision</title>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='resources/logo.png') }}"
+    />
+    <!--
+      Provide meta information about the application.
+      -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="PTMVision: Interactive Visualization of Post Translational Modifications | Understanding the intricate landscape of PTMs is crucial for unraveling the complex mechanisms underlying cellular processes and diseases. With PTMVision, researchers can effortlessly analyze and explore PTM data derived from various sources, including search engines such as ionbot, MSFragger, Sage, MaxQuant, or from a plain CSV table format processed from mass spectrometry (MS) data."
+    />
+    <meta name="author" content="Caroline Jachmann, Simon Hackl" />
+    <!--
+      Definition of stylesheets to use in the application.
+      -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.korzh.com/metroui/v4/css/metro-all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{url_for('static', filename='css/index.css')}}"
+    />
+    <!--
+      Definition of java script files to use in the application.
+      -->
+    <script
+      type="text/javascript"
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.korzh.com/metroui/v4/js/metro.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://kit.fontawesome.com/df04f22e3d.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body onload='$("#menu")[0].style.display = "flex";'>
+    <!-- App menu -->
+    <header
+      id="menu"
+      class="app-bar app-bar-expand"
+      data-role="appbar"
+      data-expand="true"
+      data-role-appbar="true"
+    >
+      <div id="menu-grid" class="grid w-100">
+        <div class="row">
+          <div class="cell text-left ml-4 w-100">
+            <div class="logo no-hover">
+              <img
+                src="{{ url_for('static', filename='resources/logo.png') }}"
+                alt="PTMVision Logo"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div id="main">
+      <div
+        class="p-8"
+        data-role="accordion"
+        data-one-frame="true"
+        data-show-active="true"
+      >
+        <div class="frame active">
+          <div class="heading">About PTMVision</div>
+          <div class="content">
+            <dl>
+              <dt>
+                <h4><i class="fa-solid fa-star-shooting"></i> Key Features</h4>
+              </dt>
+              <small>
+                <dt class="infotext-header">Highly Interactive Interface:</dt>
+                <dd class="infotext-small">
+                  PTMVision offers a responsive and intuitive interface,
+                  allowing users toeffortlessly navigate through their data.
+                </dd>
+                <dt class="infotext-header">Cross-Connected Figures:</dt>
+                <dd class="infotext-small">
+                  Visual representations are dynamically linked, enabling users
+                  to seamlessly explore relationships in their data.
+                </dd>
+
+                <dt class="infotext-header">
+                  Integration with Protein Structures:
+                </dt>
+                <dd class="infotext-small">
+                  PTMVision integrates protein structure data, providing users
+                  with a multidimensional view of PTMs within the context of
+                  protein folding and function..
+                </dd>
+
+                <dt class="infotext-header">Various Overview Plots:</dt>
+                <dd class="infotext-small">
+                  PTMVision provides a variety of overview plots, facilitating
+                  the identification of patterns and trends in PTM data.
+                </dd>
+                <dt class="infotext-header">Annotations from UniProt:</dt>
+                <dd class="infotext-small">
+                  Leveraging the vast repository of information available in
+                  UniProt, PTMVision enriches protein visualizations with
+                  detailed annotations, enhancing the interpretability of the
+                  data.
+                </dd>
+                <dt class="infotext-header">Focus on Interactions:</dt>
+                <dd class="infotext-small">
+                  PTMVision places a special emphasis on protein interactions,
+                  highlighting residues in close contact and their associated
+                  modifications. This feature enables researchers to explore the
+                  dynamic interplay between PTMs.
+                </dd>
+              </small>
+            </dl>
+          </div>
+        </div>
+
+        <div class="frame">
+          <div class="heading">Interpretation of PTMVision Charts</div>
+          <div class="content">
+            <div class="p-2">
+              Wildly open a starship. Belay, ye small wench- set...
+            </div>
+          </div>
+        </div>
+
+        <div class="frame">
+          <div class="heading">Source Code Access</div>
+          <div class="content">
+            <div class="p-2">
+              Wildly open a starship. Belay, ye small wench- set...
+            </div>
+          </div>
+        </div>
+
+        <div class="frame">
+          <div class="heading">Legal Information</div>
+          <div class="content">
+            <div class="remark m-4">
+              <h2 class="p-2 text-center">
+                <small>3rd Party Libraries and Resources</small>
+              </h2>
+              <p class="text-left">
+                <i class="fa-solid fa-circle-small fa-2xs"></i>
+                <strong>Component Frameworks</strong>
+                <a href="https://metroui.org.ua/">Metro4</a>
+                <a href="https://sweetalert2.github.io/">SweetAlert2</a>
+                <a href="https://fontawesome.com/">Font Awesome</a>
+                <a href="https://tabulator.info/">Tabulator</a>
+                <a href="https://github.com/normanzb/resize-sensor#readme"
+                  >ResizeSensor</a
+                >
+                <a href="https://3dmol.csb.pitt.edu/doc/index.html">3Dmol</a>
+              </p>
+              <p class="text-left">
+                <i class="fa-solid fa-circle-small fa-2xs"></i>
+                <strong>Visualization</strong>
+                <a href="https://echarts.apache.org/en/index.html"
+                  >Apache ECharts</a
+                >
+              </p>
+              <p class="text-left">
+                <i class="fa-solid fa-circle-small fa-2xs"></i>
+                <strong>DOM Navigation and Syntax Improvement</strong>
+                <a href="https://jquery.com/">jQuery</a>
+                <a href="https://lodash.com/">Lodash</a>
+              </p>
+              <p class="text-left">
+                <i class="fa-solid fa-circle-small fa-2xs"></i>
+                <strong>Data Processing</strong>
+                <a href="https://www.papaparse.com/">Papa Parse</a>
+                <a href="https://github.com/nodeca/pako">pako</a>
+              </p>
+              <p class="text-left">
+                <i class="fa-solid fa-circle-small fa-2xs"></i>
+                <strong>Backend and Communication</strong>
+                <a href="https://axios-http.com/docs/intro">Axios</a>
+                <a href="https://flask.palletsprojects.com/en/2.2.x/">Flask</a>
+                <a href="https://flask-session.readthedocs.io/en/latest/"
+                  >Flask-Session</a
+                >
+              </p>
+            </div>
+            <div class="remark m-4">
+              <h2 class="p-2 text-center">
+                <small>Disclaimer</small>
+              </h2>
+              <p class="indent text-just">
+                <b>Content liability</b> The contents of our pages were created
+                with the utmost care. However, we cannot guarantee the accuracy,
+                completeness and actuality of the content. As a service
+                provider, we are responsible for our own content on these pages
+                under the general laws according to § 7 TMG. According to §§ 8
+                to 10 TMG, however, we are not obligated as a service provider
+                to monitor transmitted or stored third-party information or to
+                investigate circumstances that indicate illegal activity.
+                Obligations to remove or block the use of information under the
+                general laws remain unaffected. However, liability in this
+                regard is only possible from the point in time at which a
+                concrete infringement of the law becomes known. If we become
+                aware of such infringements, we will remove this content
+                immediately.
+              </p>
+              <p class="indent text-just">
+                <b>Link liability</b> This page may contain links to external
+                websites of third parties, on whose contents we have no
+                influence. We cannot take any liability for these external
+                contents. The respective provider or operator of the pages is
+                always responsible for the content of the linked pages. The
+                linked pages were checked for possible legal violations at the
+                time of linking. Illegal contents were not recognizable at the
+                time of linking. However, a permanent control of the contents of
+                the linked pages is not reasonable without concrete evidence of
+                a violation of the law. If we become aware of any infringements,
+                we will remove such links immediately.
+              </p>
+              <p class="indent text-just">
+                <b>Data privacy</b> The use of our website is possible without
+                providing personal data and no processed data is stored. If
+                personal data (such as name, address or e-mail addresses) is
+                collected, this is on a voluntary basis. This data will not be
+                passed on to third parties without your express consent. We
+                point out that data transmission over the Internet (e.g.
+                communication by e-mail) may yield security gaps. Complete
+                protection of data against access by third parties is not
+                possible. The use of contact data published within the framework
+                of the impressum by third parties for the purpose of sending
+                advertising and information material is hereby expressly
+                prohibited. The operators of the pages expressly reserve the
+                right to take legal action in the event of the sending of
+                advertising information, such as spam e-mails.
+              </p>
+              <p class="indent text-just">
+                <b>Copyright</b> This program is free software: you can
+                redistribute it and/or modify it under the terms of the GNU
+                General Public License as published by the Free Software
+                Foundation, either version 3 of the License, or (at your option)
+                any later version. This program is distributed in the hope that
+                it will be useful, but WITHOUT ANY WARRANTY; without even the
+                implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+                PURPOSE. See the GNU General Public License for more details.
+                (<a
+                  href="https://www.gnu.org/licenses/gpl-3.0.en.html"
+                  target="_blank"
+                  >www.gnu.org/licenses/gpl-3.0.en</a
+                >)
+              </p>
+            </div>
+            <div class="remark m-4">
+              <h2 class="p-2 text-center">
+                <small>Cookie Usage</small>
+              </h2>
+              <p class="indent text-just">
+                <b
+                  >We use a strictly necessary (http-only non-tracking) session
+                  cookie so that you can access your data!</b
+                >
+                (1) Your data will not be accessible to other people. (2) No
+                personalized data is collected or shared with third parties and
+                you will not be tracked by this cookie. (3) The cookie will
+                expire after you close your tab.
+              </p>
+            </div>
+            <div class="remark m-4">
+              <h2 class="p-2 text-center">
+                <small>Contact Information</small>
+              </h2>
+              <address>
+                <b>Simon Hackl & Caroline Jachmann</b>
+                <br />
+                Sand 14<br />
+                72076 Tübingen, Germany<br />
+                <a href="mailto:simon.hackl@uni-tuebingen.de"
+                  >simon.hackl@uni-tuebingen.de</a
+                >
+                or
+                <a href="mailto:caroline.jachmann@uni-tuebingen.de"
+                  >caroline.jachmann@uni-tuebingen.de</a
+                >
+              </address>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

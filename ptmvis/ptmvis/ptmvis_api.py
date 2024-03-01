@@ -61,8 +61,8 @@ def request_to_json(request_content: any) -> object:
 @app.route("/example_session", methods=["GET"])
 def example_session():
     session.clear( )
-    with open( "./ptmvis/static/resources/example_dump.json", "r" ) as example_dump :
-        session[MODIFICATIONS_DATA] = json.load( example_dump )
+    with open( "./ptmvis/static/resources/example_modifications_data.json", "r" ) as example_modifications_data :
+        session[MODIFICATIONS_DATA] = json.load( example_modifications_data )
     return "Ok"
 
 @app.route("/download_session", methods=["GET"])
@@ -90,6 +90,9 @@ def process_search_engine_output():
             StringIO(json_request_data["content"]), content_type
         )
         session[MODIFICATIONS_DATA] = json_user_data
+        if api_parameters["DEBUG"] :
+            with open( "./dump.json", "w+" ) as dumpfile :
+                dumpfile.write( json.dumps( session[MODIFICATIONS_DATA], indent = 3 ) )
     except TypeError as e:
         response = "Failed: " + str(e)
     finally:

@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 :root {
   font-family: Arial, Helvetica, sans-serif;
-  --background-color-1: rgb(251, 251, 251);
+  --background-color-1: #fbfbfb;
   --background-color-1-o-90: rgba(251, 251, 251, 0.9);
   --background-color-2: #d4d4d4;
   --background-color-3: #f0f5f5;
@@ -57,9 +57,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 body {
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow-y: visible;
+  overflow-x: scroll;
   text-overflow: none;
+  height: auto !important;
 }
 
 body.swal2-shown > [aria-hidden="true"] {
@@ -97,7 +98,7 @@ body .error-toast {
 .menu-button {
   color: var(--background-color-1);
   border-radius: 4px;
-  height: 100%;
+  height: calc(5vh + 5px);
 }
 
 .menu-button:hover {
@@ -108,6 +109,14 @@ body .error-toast {
 .button-no-decoration {
   background-color: transparent;
   border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button-collapse {
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
 }
 
@@ -117,9 +126,9 @@ body .error-toast {
 
 .hint {
   text-align: center;
-  background-color: var(--color-2);
-  opacity: 0.9;
-  color: var(--background-color-2);
+  background-color: var(--color-4);
+  opacity: 0.8;
+  color: var(--text-color);
   border-radius: 4px;
 }
 
@@ -201,7 +210,8 @@ body .error-toast {
 
 #vline {
   position: absolute;
-  height: 200vh;
+  top: 0;
+  bottom: 0;
   left: calc(5% + 16px);
   border-left: 3px solid var(--color-3);
 }
@@ -219,7 +229,7 @@ body .error-toast {
   left: 5%;
   width: 90%;
   height: auto;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 #panel-inputs i {
@@ -233,7 +243,6 @@ body .error-toast {
   height: auto;
   min-height: 42vh;
   overflow-y: auto;
-  resize: vertical;
 }
 
 #panel-overview-chart {
@@ -244,20 +253,7 @@ body .error-toast {
   left: 4px;
   background-color: var(--background-color-1);
   border-radius: 4px;
-}
-
-#panel-overview-info {
-  position: absolute;
-  top: 4vh;
-  right: 4px;
-  bottom: 4px;
-  left: 4px;
-  background-color: var(--background-color-1-o-90);
-  border-radius: 4px;
-  z-index: 10;
-  padding: 10px;
-  font-weight: lighter;
-  overflow-y: scroll;
+  height: auto;
 }
 
 #panel-table {
@@ -265,6 +261,7 @@ body .error-toast {
   left: 5%;
   width: 90%;
   height: auto;
+  max-height: 50vh;
   overflow-y: auto;
 }
 
@@ -313,20 +310,6 @@ body .error-toast {
   left: 4px;
   background-color: var(--background-color-1);
   border-radius: 4px;
-}
-
-#panel-dashboard-info {
-  position: absolute;
-  top: 4vh;
-  right: 4px;
-  bottom: 4px;
-  left: 4px;
-  background-color: var(--background-color-1-o-90);
-  border-radius: 4px;
-  z-index: 10;
-  padding: 10px;
-  font-weight: lighter;
-  overflow-y: scroll;
 }
 
 #panel-dashboard-structure {
@@ -379,10 +362,25 @@ body .error-toast {
 
 .infotext-small {
   font-size: medium;
-
 }
 
 .infotext-header {
-  padding: 5px;  
+  padding: 5px;
   font-size: large;
+}
+
+.notification {
+  position: absolute;
+  top: 6.5vh;
+  left: 0.5vw;
+  width: 16vw;
+  height: auto;
+  padding: 10px;
+  z-index: 5;
+  border-radius: 5px;
+  background-color: var(--color-1);
+  opacity: 0.7;
+  font-size: small;
+  font-family: monospace;
+  color: var(--background-color-1);
 }
