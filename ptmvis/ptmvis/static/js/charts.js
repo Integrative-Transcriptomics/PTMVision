@@ -237,11 +237,15 @@ function getOverviewOption(modifications, coOccurrenceData, classCounts) {
             "Modification <code>" +
             modifications[params.data[1]].display_name +
             "</code> (" +
-            modifications[params.data[1]].mass_shift.toFixed(2) +
+            parseFloat(
+              String(modifications[params.data[1]].mass_shift)
+            ).toFixed(2) +
             " Da) and <code>" +
             modifications[params.data[0]].display_name +
             "</code> (" +
-            modifications[params.data[0]].mass_shift.toFixed(2) +
+            parseFloat(
+              String(modifications[params.data[0]].mass_shift)
+            ).toFixed(2) +
             " Da) have <code>" +
             params.data[2] +
             "</code> co-occurrences."
