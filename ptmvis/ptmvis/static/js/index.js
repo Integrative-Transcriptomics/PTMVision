@@ -432,9 +432,8 @@ function initializeOverviewChart() {
   axios
     .get(__url + "/get_overview_data")
     .then((response) => {
-      __overviewOption = getOverviewOption(response.data);
+      __overviewOption = getOverviewOption(...response.data);
       __overviewChart.setOption(__overviewOption);
-      $("#panel-overview h6 button").attr("disabled", false);
       window.scrollTo({
         top: $("#panel-overview").get(0).offsetTop + 40,
         behavior: "smooth",

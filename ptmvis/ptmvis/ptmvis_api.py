@@ -139,48 +139,60 @@ def get_available_proteins():
     return protein_entries
 
 
-@app.route("/get_mog_data", methods=["GET"])
-def get_mog_data():
+@app.route("/get_overview_data", methods=["GET"])
+def get_overview_data():
     """Route to retrieve nodes and links data for modifications overview graph, representing all modifications of a dataset."""
-    nodes = {}
-    links = {}
-    modification_occurrence = {}
+    modifications =  { } # Stores all present modifications together with their count.
+    modification_co_occurrence = { } # Maps pairs of modification display names to their co-occurrence count.
+    modification_classification_counts = { }
     if MODIFICATIONS_DATA in session:
-        # Construct full modifications graph; Nodes represent modificiations, Links represent common occurrence.
         protein_identifiers = [_ for _ in session[MODIFICATIONS_DATA]["proteins"]]
         for protein_identifier in protein_identifiers:
-            position_modification_data = session[MODIFICATIONS_DATA]["proteins"][
+            modification_data = session[MODIFICATIONS_DATA]["proteins"][
                 protein_identifier
             ]["positions"]
-            for position in position_modification_data:
-                per_position_modifications = []
-                for modification in position_modification_data[position][
+            for position in modification_data:
+                modifications_at_position = []
+                for modification in modification_data[position][
                     "modifications"
                 ]:
-                    modification_name = modification["modification_unimod_name"]
-                    per_position_modifications.append(modification_name)
-                    if not modification_name in nodes:
-                        nodes[modification_name] = 1
-                    else:
-                        nodes[modification_name] += 1
-                    if not modification_name in modification_occurrence:
-                        modification_occurrence[modification_name] = set()
-                    modification_occurrence[modification_name].add(protein_identifier)
-                for pair in combinations(set(per_position_modifications), 2):
-                    try:
-                        link_key = str( pair[0] ) + "@" + str( pair[1] )
-                        if not link_key in links:
-                            links[link_key] = 1
-                        else:
-                            links[link_key] += 1
-                    except IndexError as e:
-                        print(pair)
-        for modification_name, occurrence in nodes.items( ) :
-            nodes[ modification_name ] = [
-                occurrence,
-                round( len( modification_occurrence[ modification_name ] ) / len( protein_identifiers ), 4 )
-            ]
-        return [ nodes, links ]
+                    modification_unimod_name = modification["modification_unimod_name"]
+                    modifications.setdefault( modification_unimod_name, modification )
+
+                    modifications[ modification_unimod_name ].setdefault( "count", 0 )
+                    modifications[ modification_unimod_name ][ "count" ] += 1
+
+                    modifications[ modification_unimod_name ].setdefault( "occurrence", [ ] )
+                    modifications[ modification_unimod_name ][ "occurrence" ].append( protein_identifier )
+
+                    modifications_at_position.append(modification_unimod_name)
+
+                    modification_classification = modification[ "modification_classification" ]
+                    modification_classification_counts.setdefault( modification_classification, 0 )
+                    modification_classification_counts[ modification_classification ] += 1
+
+                for modifications_pair_tuple in combinations(set(modifications_at_position), 2):
+                    modifications_pair = "@".join( sorted( list( modifications_pair_tuple ) ) )
+                    modification_co_occurrence.setdefault( modifications_pair, 0 )
+                    modification_co_occurrence[ modifications_pair ] += 1
+
+        for modification_unimod_name, modification in modifications.items( ) :
+            modification[ "frequency" ] = round( len( modification[ "occurrence" ] ) / len( protein_identifiers ), 4 )
+
+        # modifications_sorted_by_mass_shift = sorted( list( modifications.keys( ) ), key = lambda n : -modifications[ n ][ "mass_shift" ] if modifications[ n ][ "mass_shift" ] != "null" else 0.0 )
+        modifications_sorted = sorted( list( modifications.values( ) ), key = lambda m : -m[ "count" ] )
+
+        co_occurrence_data = [ ]
+        for i in range( len( modifications_sorted ) ) :
+            mod_i_name = modifications_sorted[ i ][ "modification_unimod_name" ]
+            for j in range( len( modifications_sorted ) ) :
+                if i > j :
+                    mod_j_name = modifications_sorted[ j ][ "modification_unimod_name" ]
+                    modifications_pair = "@".join( sorted( [ mod_i_name, mod_j_name ] ) )
+                    if modifications_pair in modification_co_occurrence :
+                        co_occurrence_data.append( [ i, j, modification_co_occurrence[ modifications_pair ] ] )
+
+        return [ modifications_sorted, co_occurrence_data, modification_classification_counts ]
 
 
 @app.route("/get_protein_data", methods=["POST"])
