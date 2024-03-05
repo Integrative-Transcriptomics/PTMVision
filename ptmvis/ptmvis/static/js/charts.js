@@ -16,6 +16,42 @@ function getOverviewOption(modifications, coOccurrenceData, classCounts) {
           fontWeight: "lighter",
         },
       },
+      {
+        text: "PTM Co-Occurrence",
+        top: 50,
+        left: "10%",
+        textStyle: {
+          fontSize: 12,
+          fontWeight: "bold",
+        },
+      },
+      {
+        text: "PTM Mass Shift",
+        top: 50,
+        left: "37%",
+        textStyle: {
+          fontSize: 12,
+          fontWeight: "bold",
+        },
+      },
+      {
+        text: "PTM Count",
+        top: 50,
+        left: "53%",
+        textStyle: {
+          fontSize: 12,
+          fontWeight: "bold",
+        },
+      },
+      {
+        text: "PTM Class Count",
+        top: 50,
+        left: "73%",
+        textStyle: {
+          fontSize: 12,
+          fontWeight: "bold",
+        },
+      },
     ],
     grid: [
       {
@@ -276,6 +312,11 @@ function getOverviewOption(modifications, coOccurrenceData, classCounts) {
           );
       },
     },
+    toolbox: [
+      {
+        features: {},
+      },
+    ],
     visualMap: [
       {
         type: "continuous",
@@ -297,7 +338,7 @@ function getOverviewOption(modifications, coOccurrenceData, classCounts) {
         min: 1,
         max: Math.max(...coOccurrenceData.map((_) => _[2])),
         orient: "horizontal",
-        top: 50,
+        bottom: "13%",
         left: "10%",
         itemHeight: 120,
         itemWidth: 12,

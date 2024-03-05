@@ -79,7 +79,18 @@ body .toast {
 }
 
 body .error-toast {
+  position: absolute;
+  top: 6.5vh;
+  left: 0.5vw;
+  width: 16vw;
+  height: auto;
+  padding: 10px;
+  z-index: 5;
+  border-radius: 5px;
   background-color: var(--highlight-2) !important;
+  opacity: 0.8;
+  font-size: small;
+  font-family: monospace;
   color: var(--background-color-2) !important;
 }
 
@@ -379,8 +390,28 @@ body .error-toast {
   z-index: 5;
   border-radius: 5px;
   background-color: var(--color-1);
-  opacity: 0.7;
+  opacity: 0.8;
   font-size: small;
   font-family: monospace;
+  color: var(--background-color-1);
+}
+
+.alert {
+  position: absolute;
+  top: 6.5vh;
+  left: 0.5vw;
+  width: 16vw;
+  height: auto;
+  padding: 10px;
+  z-index: 5;
+  border-radius: 5px;
+  background-color: var(--highlight-2);
+  opacity: 0.8;
+  font-size: small;
+  font-family: monospace;
+  color: var(--background-color-1);
+}
+
+.alert i {
   color: var(--background-color-1);
 }

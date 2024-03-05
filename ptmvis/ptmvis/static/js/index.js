@@ -145,6 +145,100 @@ function init() {
   hideStructure();
 }
 
+function startExampleSession() {
+  displayNotification("Initializing example session.");
+  axios
+    .get(__url + "/example_session")
+    .then((_) => {
+      initializeOverviewTable(); // Init. table.
+      initializeOverviewChart(); // Init.overview chart.
+      togglePanel("panel-inputs");
+    })
+    .catch((error) => {
+      console.error(error);
+      displayAlert(error.message);
+    })
+    .finally(() => {
+      removeNotification();
+    });
+}
+
+async function restartSession() {
+  displayNotification("Re-initializing session.");
+  request = null;
+  if ($("#session-input-form")[0].files.length == 0) {
+    displayAlert("No session data was supplied.");
+    $("body").css("cursor", "auto");
+    removeNotification();
+    return;
+  }
+  await readFile($("#session-input-form")[0].files[0]).then((response) => {
+    request = response;
+  });
+  axios
+    .post(__url + "/restart_session", request, {
+      headers: {
+        "Content-Type": "text",
+      },
+    })
+    .then((_) => {
+      initializeOverviewTable(); // Init. table.
+      initializeOverviewChart(); // Init.overview chart.
+      togglePanel("panel-inputs");
+    })
+    .catch((error) => {
+      console.error(error);
+      displayAlert(error.message);
+    })
+    .finally(() => {
+      removeNotification();
+    });
+}
+
+/**
+ * Sends the specified search enginge output data to the PTMVision backend and loads the results in the overview table.
+ */
+async function uploadData() {
+  displayNotification("Transfer and process entered data.");
+  request = {
+    contentType: null,
+    content: null,
+  };
+  if ($("#data-input-form")[0].files.length == 0) {
+    displayAlert("No search engine output data was supplied.");
+    $("body").css("cursor", "auto");
+    removeNotification();
+    return;
+  }
+  await readFile($("#data-input-form")[0].files[0]).then((response) => {
+    request.content = response;
+  });
+  request.contentType = $("#data-type-form")[0].value;
+  axios
+    .post(
+      __url + "/process_search_engine_output",
+      pako.deflate(JSON.stringify(request)),
+      {
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Content-Encoding": "zlib",
+        },
+      }
+    )
+    .then((_) => {
+      initializeOverviewTable(); // Init. table.
+      initializeOverviewChart(); // Init.overview chart.
+      togglePanel("panel-inputs");
+    })
+    .catch((error) => {
+      console.error(error);
+      displayAlert(error.message);
+    })
+    .finally(() => {
+      removeNotification();
+    });
+}
+
 /**
  * Downloads the content of a blob to a client file.
  *
@@ -172,55 +266,6 @@ function downloadSessionData() {
   });
 }
 
-function startExampleSession() {
-  displayNotification("Initializing example session.");
-  axios
-    .get(__url + "/example_session")
-    .then((_) => {
-      initializeOverviewTable(); // Init. table.
-      initializeOverviewChart(); // Init.overview chart.
-      togglePanel("panel-inputs");
-    })
-    .catch((error) => {
-      console.error(error);
-      handleError(error.message);
-    })
-    .finally(() => {
-      removeNotification();
-    });
-}
-
-async function restartSession() {
-  displayNotification("Re-initializing session.");
-  request = null;
-  if ($("#session-input-form")[0].files.length == 0) {
-    handleError("No session data was supplied.");
-    $("body").css("cursor", "auto");
-    return;
-  }
-  await readFile($("#session-input-form")[0].files[0]).then((response) => {
-    request = response;
-  });
-  axios
-    .post(__url + "/restart_session", request, {
-      headers: {
-        "Content-Type": "text",
-      },
-    })
-    .then((_) => {
-      initializeOverviewTable(); // Init. table.
-      initializeOverviewChart(); // Init.overview chart.
-      togglePanel("panel-inputs");
-    })
-    .catch((error) => {
-      console.error(error);
-      handleError(error.message);
-    })
-    .finally(() => {
-      removeNotification();
-    });
-}
-
 /**
  * Reads a file-like blob object to its String content.
  *
@@ -236,15 +281,6 @@ function readFile(file) {
     fileReader.onerror = (error) => reject(error);
     fileReader.readAsText(file);
   });
-}
-
-/**
- * Displays a toast element with a custom error message to the user.
- *
- * @param {String} msg The error message to display.
- */
-function handleError(msg) {
-  Metro.toast.create("Fatal Error: " + msg, null, 6000, "error-toast");
 }
 
 /**
@@ -339,49 +375,6 @@ function setTableFilters(_) {
     });
   }
   __proteinsOverviewTable.setFilter(filters);
-}
-
-/**
- * Sends the specified search enginge output data to the PTMVision backend and loads the results in the overview table.
- */
-async function uploadData() {
-  displayNotification("Transfer and process entered data.");
-  request = {
-    contentType: null,
-    content: null,
-  };
-  if ($("#data-input-form")[0].files.length == 0) {
-    handleError("No search engine output data was supplied.");
-    $("body").css("cursor", "auto");
-    return;
-  }
-  await readFile($("#data-input-form")[0].files[0]).then((response) => {
-    request.content = response;
-  });
-  request.contentType = $("#data-type-form")[0].value;
-  axios
-    .post(
-      __url + "/process_search_engine_output",
-      pako.deflate(JSON.stringify(request)),
-      {
-        headers: {
-          "Content-Type": "application/octet-stream",
-          "Content-Encoding": "zlib",
-        },
-      }
-    )
-    .then((_) => {
-      initializeOverviewTable(); // Init. table.
-      initializeOverviewChart(); // Init.overview chart.
-      togglePanel("panel-inputs");
-    })
-    .catch((error) => {
-      console.error(error);
-      handleError(error.message);
-    })
-    .finally(() => {
-      removeNotification();
-    });
 }
 
 function initializeOverviewTable() {
@@ -1953,4 +1946,17 @@ function displayNotification(text) {
 
 function removeNotification() {
   $(".notification").remove();
+}
+
+/**
+ * Displays a toast element with a custom error message to the user.
+ *
+ * @param {String} text The message to display.
+ */
+function displayAlert(text) {
+  $("#menu").append(
+    `<div class='alert'><i class="fa-duotone fa-circle-exclamation"></i> ` +
+      text +
+      `<button class='button-no-decoration float-right' onclick='$(".alert").remove()'><i class="fa-solid fa-x"></i></button></div>`
+  );
 }
