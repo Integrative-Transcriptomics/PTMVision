@@ -334,6 +334,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <strong>Overview modifications</strong>
           </h6>
           <div id="panel-overview-chart"></div>
+          <div id="panel-overview-controls">
+            <button
+              class="button-no-decoration w-25"
+              data-role="hint"
+              data-hint-text="Download image."
+              data-hint-position="left"
+              onclick="chartDownloadImage(__overviewChart, 'overview.png')"
+            >
+              <i class="fa-duotone fa-camera"></i>
+            </button>
+            <button
+              class="button-no-decoration"
+              data-role="hint"
+              data-hint-text="Restore zoom."
+              data-hint-position="left"
+              onclick="chartRestoreZoom(__overviewChart, [0,1])"
+            >
+              <i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+            </button>
+            <button
+              class="button-no-decoration"
+              data-role="hint"
+              data-hint-text="Highlight PTM."
+              data-hint-position="left"
+              onclick="chartOverviewHighlightPTM()"
+            >
+              <i class="fa-duotone fa-highlighter"></i>
+            </button>
+          </div>
         </div>
 
         <div id="panel-table" class="panel-container">

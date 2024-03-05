@@ -63,35 +63,10 @@ body {
   height: auto !important;
 }
 
-body.swal2-shown > [aria-hidden="true"] {
-  transition: 0.5s filter;
-  filter: blur(2px);
-}
-
-body .swal2-close :focus {
-  color: var(--highlight-1) !important;
-  border: none !important;
-}
-
-body .toast {
-  background-color: var(--text-color);
-  color: var(--background-color-3);
-}
-
-body .error-toast {
-  position: absolute;
-  top: 6.5vh;
-  left: 0.5vw;
-  width: 16vw;
-  height: auto;
-  padding: 10px;
-  z-index: 5;
-  border-radius: 5px;
-  background-color: var(--highlight-2) !important;
-  opacity: 0.8;
-  font-size: small;
-  font-family: monospace;
-  color: var(--background-color-2) !important;
+.swal2-html-container {
+  overflow: visible !important;
+  z-index: 2 !important;
+  display: block;
 }
 
 #menu {
@@ -265,6 +240,22 @@ body .error-toast {
   background-color: var(--background-color-1);
   border-radius: 4px;
   height: auto;
+}
+
+#panel-overview-controls {
+  position: absolute;
+  display: inline-block;
+  top: calc(1vh);
+  right: 8px;
+  height: 2vh;
+  width: auto;
+  background-color: transparent;
+  border-radius: 4px;
+}
+
+#panel-overview-controls button:hover i {
+  color: var(--highlight-4) !important;
+  transition: 0.2s;
 }
 
 #panel-table {

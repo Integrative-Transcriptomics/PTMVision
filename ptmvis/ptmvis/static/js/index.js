@@ -427,6 +427,7 @@ function initializeOverviewChart() {
     .then((response) => {
       __overviewOption = getOverviewOption(...response.data);
       __overviewChart.setOption(__overviewOption);
+      __overviewChart.__rawData = response.data[0];
       window.scrollTo({
         top: $("#panel-overview").get(0).offsetTop + 40,
         behavior: "smooth",
@@ -1959,4 +1960,86 @@ function displayAlert(text) {
       text +
       `<button class='button-no-decoration float-right' onclick='$(".alert").remove()'><i class="fa-solid fa-x"></i></button></div>`
   );
+}
+
+function chartDownloadImage(chart, n) {
+  const _ = document.createElement("a");
+  document.body.appendChild(_);
+  _.setAttribute("download", n);
+  _.href = chart.getDataURL({
+    pixelRatio: 8,
+    backgroundColor: "#fff",
+  });
+  _.click();
+  _.remove();
+}
+
+function chartRestoreZoom(chart, zi) {
+  zi.forEach((i) =>
+    chart.dispatchAction({
+      type: "dataZoom",
+      dataZoomIndex: i,
+      start: 0,
+      end: 100,
+    })
+  );
+}
+
+function chartOverviewHighlightPTM() {
+  let constructMarkLine = (indices) => {
+    return {
+      silent: true,
+      symbol: [null, null],
+      lineStyle: {
+        color: "#ff6663",
+      },
+      label: {
+        formatter: (params) => {
+          return __overviewChart.__rawData[params.data.value].display_name;
+        },
+        fontWeight: "lighter",
+        fontSize: 10,
+        position: "insideEndBottom",
+      },
+      data: indices.map((i) => {
+        return { yAxis: i };
+      }),
+    };
+  };
+  let selectOptions = [];
+  if (__overviewChart.__rawData != undefined) {
+    for (let i = 0; i < __overviewChart.__rawData.length; i++) {
+      selectOptions.push(
+        `<option value="` +
+          i +
+          `">` +
+          __overviewChart.__rawData[i].display_name +
+          `</option>`
+      );
+    }
+  }
+  Swal.fire({
+    backdrop: false,
+    confirmButtonColor: "#62a8ac",
+    width: "auto",
+    padding: "1em",
+    position: "center",
+    html:
+      `<h4><small>Select PTMs to highlight:</small></h4>
+    <select id="tmpSelect" data-role="select" class="input-small" multiple>` +
+      selectOptions.join("") +
+      `</select>`,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let option = __overviewChart.getOption();
+      if (option != undefined) {
+        var selection = Metro.getPlugin("#tmpSelect", "select").val();
+        var markLine = constructMarkLine(selection.map((_) => parseInt(_)));
+        option.series[0].markLine = markLine;
+        option.series[1].markLine = markLine;
+        option.series[2].markLine = markLine;
+        __overviewChart.setOption(option);
+      }
+    }
+  });
 }

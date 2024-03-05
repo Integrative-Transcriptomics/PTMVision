@@ -312,11 +312,6 @@ function getOverviewOption(modifications, coOccurrenceData, classCounts) {
           );
       },
     },
-    toolbox: [
-      {
-        features: {},
-      },
-    ],
     visualMap: [
       {
         type: "continuous",
@@ -367,8 +362,6 @@ function getOverviewOption(modifications, coOccurrenceData, classCounts) {
         type: "heatmap",
         xAxisIndex: 0,
         yAxisIndex: 0,
-        data: coOccurrenceData,
-        cursor: "default",
         large: true,
         animation: false,
         itemStyle: {
@@ -376,6 +369,9 @@ function getOverviewOption(modifications, coOccurrenceData, classCounts) {
           borderRadius: 2,
           borderColor: "#fbfbfb",
         },
+        data: coOccurrenceData,
+        cursor: "default",
+        markLine: {},
       },
       {
         type: "bar",
@@ -387,6 +383,7 @@ function getOverviewOption(modifications, coOccurrenceData, classCounts) {
         barWidth: "50%",
         data: modifications.map((m) => m["mass_shift"]),
         cursor: "default",
+        markLine: {},
       },
       {
         type: "bar",
@@ -398,6 +395,7 @@ function getOverviewOption(modifications, coOccurrenceData, classCounts) {
         barWidth: "50%",
         data: modifications.map((m) => m["count"]),
         cursor: "default",
+        markLine: {},
       },
       {
         type: "bar",
