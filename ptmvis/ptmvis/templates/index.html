@@ -308,7 +308,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-role="file"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
-          <button class="proceed-button mt-2" onclick="uploadData()">
+          <button class="proceed-button mt-2" onclick="startSession()">
             Submit
           </button>
           <hr />
@@ -323,7 +323,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             accept=".zlib"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
-          <button class="proceed-button mt-2" onclick="restartSession()">
+          <button class="proceed-button mt-2" onclick="startExistingSession()">
             Submit
           </button>
         </div>
@@ -336,32 +336,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <div id="panel-overview-chart"></div>
           <div id="panel-overview-controls">
             <button
+              id="panel-overview-control-download"
               class="button-no-decoration w-25"
               data-role="hint"
               data-hint-text="Download image."
               data-hint-position="left"
-              onclick="chartDownloadImage(__overviewChart, 'overview.png')"
+              onclick="overviewChartDownloadImage()"
             >
               <i class="fa-duotone fa-camera"></i>
             </button>
             <button
+              id="panel-overview-control-restore"
               class="button-no-decoration"
               data-role="hint"
               data-hint-text="Restore zoom."
               data-hint-position="left"
-              onclick="chartRestoreZoom(__overviewChart, [0,1])"
+              onclick="overviewChartRestoreZoom()"
             >
               <i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
             </button>
             <button
+              id="panel-overview-control-highlight"
               class="button-no-decoration"
               data-role="hint"
               data-hint-text="Highlight PTM."
               data-hint-position="left"
-              onclick="chartOverviewHighlightPTM()"
+              onclick="overviewChartHighlight()"
             >
               <i class="fa-duotone fa-highlighter"></i>
             </button>
+            <!-- <button
+              id="panel-overview-control-sort"
+              class="button-no-decoration"
+              data-role="hint"
+              data-hint-text="Sort by count/mass shift."
+              data-hint-position="left"
+              onclick="overviewChartSort()"
+            >
+              <i class="fa-duotone fa-arrow-up-arrow-down"></i>
+            </button> -->
           </div>
         </div>
 
@@ -386,7 +399,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   id="panel-table-filter-modification"
                   class="input-small"
                   data-role="select"
-                  data-on-change="setTableFilters"
+                  data-on-change="overviewTableSetFilters"
                   multiple
                 ></select>
               </div>
@@ -402,7 +415,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   id="panel-table-filter-id"
                   class="input-small"
                   data-role="select"
-                  data-on-change="setTableFilters"
+                  data-on-change="overviewTableSetFilters"
                   multiple
                 ></select>
               </div>
@@ -412,7 +425,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <button
             id="dashboard-display-button"
             class="proceed-button"
-            onclick="getDashboard( )"
+            onclick="dashboardChartInitialize( )"
             disabled
           >
             Display
@@ -420,43 +433,55 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
 
         <div id="panel-dashboard" class="panel-container">
-          <h6 class="secondary">
+          <h6 class="secondary w-50">
             <i class="fa-duotone fa-circle-4"></i>
             <strong>Explore detail</strong>
-            <button
-              id="panel-dashboard-switch-map-button"
-              onclick="switchDashboardMap()"
-              class="toolbox-button float-right ml-2"
-              disabled
-            >
-              Show Contact Map
-            </button>
-            <button
-              id="panel-dashboard-toggle-structure-button"
-              onclick="toggleStructure()"
-              class="toolbox-button float-right"
-              disabled
-            >
-              Hide Protein Structure
-            </button>
+            <code id="panel-dashboard-title"></code>
           </h6>
           <div id="panel-dashboard-chart"></div>
-          <div
-            id="panel-dashboard-structure"
-            data-role="window"
-            data-width="24%"
-            data-height="34%"
-            data-top="62%"
-            data-left="3%"
-            data-draggable="true"
-            data-resizable="true"
-            data-title="Protein Structure"
-            data-btn-close="false"
-            data-btn-min="false"
-            data-btn-max="false"
-            data-cls-window="panel-dashboard-structure-window"
-            data-cls-caption="panel-dashboard-structure-caption"
-          ></div>
+          <div id="panel-dashboard-structure"></div>
+          <div id="panel-dashboard-controls">
+            <button
+              id="panel-dashboard-control-download"
+              class="button-no-decoration"
+              data-role="hint"
+              data-hint-text="Download image."
+              data-hint-position="left"
+              onclick="dashboardChartDownloadImage()"
+            >
+              <i class="fa-duotone fa-camera"></i>
+            </button>
+            <button
+              id="panel-dashboard-control-restore"
+              class="button-no-decoration"
+              data-role="hint"
+              data-hint-text="Restore zoom."
+              data-hint-position="left"
+              onclick="dashboardChartRestoreZoom()"
+            >
+              <i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+            </button>
+            <button
+              id="panel-dashboard-control-highlight"
+              class="button-no-decoration"
+              data-role="hint"
+              data-hint-text="Highlight PTM."
+              data-hint-position="left"
+              onclick="dashboardChartHighlight()"
+            >
+              <i class="fa-duotone fa-highlighter"></i>
+            </button>
+            <button
+              id="panel-dashboard-control-switch"
+              class="button-no-decoration"
+              data-role="hint"
+              data-hint-text="Switch between modification/structure content."
+              data-hint-position="left"
+              onclick="dashboardChartSwitch()"
+            >
+              <i class="fa-duotone fa-repeat"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>

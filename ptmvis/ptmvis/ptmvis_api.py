@@ -179,14 +179,14 @@ def get_overview_data():
         for modification_unimod_name, modification in modifications.items( ) :
             modification[ "frequency" ] = round( len( modification[ "occurrence" ] ) / len( protein_identifiers ), 4 )
 
-        # modifications_sorted_by_mass_shift = sorted( list( modifications.keys( ) ), key = lambda n : -modifications[ n ][ "mass_shift" ] if modifications[ n ][ "mass_shift" ] != "null" else 0.0 )
+        #modifications_sorted = sorted( list( modifications.values( ) ), key = lambda m : -m[ "mass_shift" ] if m[ "mass_shift" ] != "null" else 0.0 )
         modifications_sorted = sorted( list( modifications.values( ) ), key = lambda m : -m[ "count" ] )
 
         co_occurrence_data = [ ]
         for i in range( len( modifications_sorted ) ) :
             mod_i_name = modifications_sorted[ i ][ "modification_unimod_name" ]
             for j in range( len( modifications_sorted ) ) :
-                if i > j :
+                if i != j :
                     mod_j_name = modifications_sorted[ j ][ "modification_unimod_name" ]
                     modifications_pair = "@".join( sorted( [ mod_i_name, mod_j_name ] ) )
                     if modifications_pair in modification_co_occurrence :

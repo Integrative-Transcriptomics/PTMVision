@@ -84,7 +84,7 @@ body {
 .menu-button {
   color: var(--background-color-1);
   border-radius: 4px;
-  height: calc(5vh + 5px);
+  height: calc(5vh);
 }
 
 .menu-button:hover {
@@ -97,17 +97,6 @@ body {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-}
-
-.button-collapse {
-  background-color: transparent;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.process-active {
-  color: var(--background-color-1);
 }
 
 .hint {
@@ -130,21 +119,6 @@ body {
 
 .logo img {
   height: 100%;
-}
-
-.toolbox-button {
-  background-color: var(--color-1);
-  color: var(--background-color-1);
-  border: none;
-  border-radius: 4px;
-  font-size: small;
-  padding: 4px;
-  cursor: pointer;
-}
-
-.toolbox-button:hover {
-  background-color: var(--color-2);
-  transition: 0.2s;
 }
 
 .proceed-button {
@@ -227,7 +201,7 @@ body {
   left: 5%;
   width: 90%;
   height: auto;
-  min-height: 42vh;
+  min-height: 60vh;
   overflow-y: auto;
 }
 
@@ -301,7 +275,6 @@ body {
   margin: 1vw;
   min-height: 84vh;
   overflow-y: auto;
-  resize: vertical;
 }
 
 #panel-dashboard-chart {
@@ -316,50 +289,31 @@ body {
 
 #panel-dashboard-structure {
   position: absolute;
-  background-color: "#FAFAFC";
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 8%;
+  left: 65%;
+  width: 30%;
+  height: 70%;
   z-index: 2;
 }
 
-.panel-dashboard-structure-window {
-  background-color: var(--background-color-3);
-  z-index: 3;
+#panel-dashboard-controls {
+  position: absolute;
+  display: inline-block;
+  top: calc(1vh);
+  right: 8px;
+  height: 2vh;
+  width: auto;
+  background-color: transparent;
   border-radius: 4px;
 }
 
-.panel-dashboard-structure-caption {
-  color: var(--text-color);
-  font-size: small;
-  height: 5%;
-  background-color: var(--color-4);
-  border-radius: 4px;
+#panel-dashboard-controls button:hover i {
+  color: var(--highlight-4) !important;
+  transition: 0.2s;
 }
 
-#panel-legal {
-  font-size: 0.7em;
-  padding: 20px;
-  bottom: 0;
-  width: 100%;
-  min-height: 160px;
-  background-color: var(--color-3);
-  border-radius: 4px;
-}
-
-#panel-legal th {
-  color: var(--background-color-2);
-}
-
-#panel-legal .text-just,
-.table {
-  color: var(--background-color-2);
-}
-
-#panel-legal .text-leader2,
-.citation {
-  color: var(--background-color-1);
+#panel-dashboard-controls button:disabled i {
+  color: var(--background-color-2) !important;
 }
 
 .infotext-small {
@@ -375,7 +329,7 @@ body {
   position: absolute;
   top: 6.5vh;
   left: 0.5vw;
-  width: 16vw;
+  width: auto;
   height: auto;
   padding: 10px;
   z-index: 5;
@@ -391,7 +345,7 @@ body {
   position: absolute;
   top: 6.5vh;
   left: 0.5vw;
-  width: 16vw;
+  width: auto;
   height: auto;
   padding: 10px;
   z-index: 5;
