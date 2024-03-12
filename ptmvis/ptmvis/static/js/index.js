@@ -821,7 +821,7 @@ class DashboardChart {
     if (this.#contentMode == 1) {
       I = [0, 1, 2];
     } else {
-      I = [0, 1];
+      I = [0, 1, 2];
       this.structure.glviewer.zoomTo();
     }
     I.forEach((_) =>
@@ -864,7 +864,6 @@ class DashboardChart {
           series.id.startsWith("modifications")
         ) {
           this.#option.series[i].markLine = _;
-          console.log(this.#option.series[i]);
         }
       }
       this.#updateOption(false);
@@ -1656,7 +1655,7 @@ class DashboardChart {
           height: "12%",
           containLabel: false,
           zlevel: 0,
-          show: true,
+          show: false,
         },
       ],
       xAxis: [
@@ -1710,7 +1709,7 @@ class DashboardChart {
         {
           // Contact detail.
           type: "value",
-          name: "Mass Shift",
+          name: "Mass Shift [Da]",
           nameGap: 30,
           ...this.#axisStyle,
           axisLabel: {
@@ -1775,9 +1774,6 @@ class DashboardChart {
             ...this.#axisLabelStyle,
           },
           gridIndex: 3,
-          splitLine: {
-            interval: 0,
-          },
         },
       ],
       dataZoom: [
@@ -1789,6 +1785,11 @@ class DashboardChart {
         {
           type: "inside",
           yAxisIndex: [1],
+          throttle: 0,
+        },
+        {
+          type: "inside",
+          xAxisIndex: [3],
           throttle: 0,
         },
       ],
@@ -1838,6 +1839,19 @@ class DashboardChart {
           cursor: "default",
           emphasis: {
             disabled: true,
+          },
+          markLine: {
+            silent: true,
+            label: {
+              show: false,
+            },
+            lineStyle: {
+              type: "solid",
+              color: "#333333",
+            },
+            animation: false,
+            symbol: [],
+            data: [{ yAxis: 0 }, { yAxis: 1 }],
           },
         },
       ],
@@ -2106,9 +2120,21 @@ class DashboardChart {
         if (yModifications.hasOwnProperty(name)) clr = "#dc5754";
         data.push({
           name: name,
-          value: [_.mass_shift, 0 + Math.random() / 2],
+          value: [_.mass_shift, 0],
           itemStyle: { color: clr },
-          symbolSize: 8,
+          symbol: "pin",
+          symbolSize: 12,
+          symbolRotate: 180,
+          label: {
+            show: true,
+            ...this.#axisLabelStyle,
+            position: [5, -5],
+            rotate: 45,
+            formatter: (params) => {
+              return params.name;
+            },
+            overflow: "truncate",
+          },
         });
       }
       for (const [name, _] of Object.entries(yModifications)) {
@@ -2118,7 +2144,18 @@ class DashboardChart {
           name: name,
           value: [_.mass_shift, 1],
           itemStyle: { color: clr },
-          symbolSize: 8,
+          symbol: "pin",
+          symbolSize: 12,
+          label: {
+            show: true,
+            ...this.#axisLabelStyle,
+            position: [5, -5],
+            rotate: 45,
+            formatter: (params) => {
+              return params.name;
+            },
+            overflow: "truncate",
+          },
         });
       }
       this.#option.series.filter((_) => _.id == "contact_detail")[0].data =
