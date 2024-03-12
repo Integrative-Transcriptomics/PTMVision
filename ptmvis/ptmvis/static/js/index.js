@@ -156,7 +156,7 @@ class OverviewChart {
       fontSize: 13,
     },
   };
-  #sortMode = "count";
+  #sortingIndex = 0;
 
   constructor(id) {
     this.chart = new Chart(id);
@@ -184,11 +184,22 @@ class OverviewChart {
       },
       label: {
         formatter: (params) => {
-          return this.#data.modifications[params.data.value].display_name;
+          let name =
+            this.#data.modificationNamesSorted[this.#sortingIndex][
+              params.data.value
+            ];
+          return this.#data.modifications[name].display_name;
         },
         fontWeight: "lighter",
         fontSize: 9,
         position: "insideEndBottom",
+      },
+    };
+    let markAreaOption = {
+      silent: true,
+      itemStyle: {
+        color: "#ff6663",
+        opacity: 0.5,
       },
     };
     this.#option.series[0].markLine = {
@@ -209,6 +220,17 @@ class OverviewChart {
         return { yAxis: i };
       }),
     };
+    this.#option.series[1].markArea = {
+      ...markAreaOption,
+      data: indices.map((i) => {
+        let name = this.#data.modificationNamesSorted[this.#sortingIndex][i];
+        let massShift = this.#data.modifications[name].mass_shift;
+        return [
+          { coord: [massShift - 20, 0] },
+          { coord: [massShift + 20, this.#option.yAxis[1].data.length - 1] },
+        ];
+      }),
+    };
     this.#option.series[2].markLine = {
       ...markLineOption,
       data: indices.map((i) => {
@@ -220,42 +242,18 @@ class OverviewChart {
 
   resort() {
     if (this.#option == undefined) return;
-    if (this.#sortMode == "count") {
-      alert("sort by mass shift");
-      this.#sortMode = "mass_shift";
-      this.#data.modifications = this.#data.modifications.sort((a, b) => {
-        let count_a = a.count;
-        let count_b = b.count;
-        if (count_a > count_b) {
-          return -1;
-        } else if (count_a < count_b) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
+    if (this.#sortingIndex == 1) {
+      this.#sortingIndex = 0;
       this.fill();
-    } else if (this.#sortMode == "mass_shift") {
-      alert("sort by count");
-      this.#sortMode = "count";
-      this.#data.modifications = this.#data.modifications.sort((a, b) => {
-        let mass_shift_a = a.mass_shift;
-        let mass_shift_b = b.mass_shift;
-        if (mass_shift_a > mass_shift_b) {
-          return -1;
-        } else if (mass_shift_a < mass_shift_b) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
+    } else if (this.#sortingIndex == 0) {
+      this.#sortingIndex = 1;
       this.fill();
     }
   }
 
   getDataNames() {
     if (this.#data != undefined)
-      return this.#data.modifications.map((_) => _.display_name);
+      return this.#data.modificationNamesSorted[this.#sortingIndex];
     else return [];
   }
 
@@ -271,10 +269,28 @@ class OverviewChart {
     if (data != undefined)
       this.#data = {
         modifications: data[0],
-        coOccurrence: data[1],
-        classCounts: data[2],
+        modificationNamesSorted: data[1],
+        coOccurrence: data[2],
+        classCounts: data[3],
       };
     let r = this.chart.instance.getWidth() / this.chart.instance.getHeight();
+    // Generate series data from data.
+    let dataAxis = this.#data.modificationNamesSorted[this.#sortingIndex];
+    let dataMassShift = dataAxis.map((name) => {
+      return this.#data.modifications[name]["mass_shift"];
+    });
+    let dataCount = dataAxis.map((name) => {
+      return this.#data.modifications[name]["count"];
+    });
+    let dataCoOccurrence = [];
+    for (let i = 0; i < dataAxis.length; i++) {
+      for (let j = 0; j < dataAxis.length; j++) {
+        if (i == j) continue;
+        let _ = [dataAxis[i], dataAxis[j]].sort().join("@");
+        dataCoOccurrence.push([i, j, this.#data.coOccurrence[_]]);
+      }
+    }
+    // Fill in option.
     this.#option = {
       title: [
         {
@@ -354,7 +370,7 @@ class OverviewChart {
           nameLocation: "center",
           ...this.#axisStyle,
           nameGap: 35,
-          data: Object.keys(this.#data.modifications),
+          data: dataAxis,
           axisTick: {
             alignWithLabel: true,
             interval: 0,
@@ -442,7 +458,7 @@ class OverviewChart {
           name: "Modification",
           ...this.#axisStyle,
           nameGap: 140,
-          data: Object.keys(this.#data.modifications),
+          data: dataAxis,
           inverse: true,
           axisTick: {
             alignWithLabel: true,
@@ -475,7 +491,7 @@ class OverviewChart {
         {
           gridIndex: 1,
           type: "category",
-          data: Object.keys(this.#data.modifications),
+          data: dataAxis,
           show: false,
           inverse: true,
           axisPointer: {
@@ -489,7 +505,7 @@ class OverviewChart {
         {
           gridIndex: 2,
           type: "category",
-          data: Object.keys(this.#data.modifications),
+          data: dataAxis,
           show: false,
           inverse: true,
           axisPointer: {
@@ -516,24 +532,33 @@ class OverviewChart {
         ...this.#tooltipStyle,
         formatter: (params) => {
           if (Array.isArray(params)) params = params[0];
-          if (params.seriesIndex == 0)
+          if (params.seriesIndex == 0) {
+            let yModName =
+              this.#data.modificationNamesSorted[this.#sortingIndex][
+                params.data[1]
+              ];
+            let xModName =
+              this.#data.modificationNamesSorted[this.#sortingIndex][
+                params.data[0]
+              ];
             return (
               "Modification <code>" +
-              this.#data.modifications[params.data[1]].display_name +
+              this.#data.modifications[yModName].display_name +
               "</code> (" +
               parseFloat(
-                String(this.#data.modifications[params.data[1]].mass_shift)
+                String(this.#data.modifications[yModName].mass_shift)
               ).toFixed(2) +
               " Da) and <code>" +
-              this.#data.modifications[params.data[0]].display_name +
+              this.#data.modifications[xModName].display_name +
               "</code> (" +
               parseFloat(
-                String(this.#data.modifications[params.data[0]].mass_shift)
+                String(this.#data.modifications[xModName].mass_shift)
               ).toFixed(2) +
               " Da) have <code>" +
               params.data[2] +
               "</code> co-occurrences."
             );
+          }
           if (params.seriesIndex == 1) {
             return (
               "Modification <code>" +
@@ -580,14 +605,14 @@ class OverviewChart {
             color: ["#444444"],
           },
           min: 1,
-          max: Math.max(...this.#data.coOccurrence.map((_) => _[2])),
+          max: Math.max(...Object.values(this.#data.coOccurrence)),
           orient: "horizontal",
           top: "84%",
           left: "10%",
           itemHeight: 100,
           itemWidth: 11,
           text: [
-            Math.max(...this.#data.coOccurrence.map((_) => _[2])),
+            Math.max(...Object.values(this.#data.coOccurrence)),
             "No. co-occurrences 1",
           ],
           textStyle: { fontWeight: "lighter", fontSize: 11 },
@@ -611,7 +636,7 @@ class OverviewChart {
           type: "heatmap",
           xAxisIndex: 0,
           yAxisIndex: 0,
-          progressive: 800,
+          progressive: 1000,
           progressiveThreshold: 1500,
           animation: false,
           itemStyle: {
@@ -619,7 +644,7 @@ class OverviewChart {
             borderRadius: 2,
             borderColor: "#fbfbfb",
           },
-          data: this.#data.coOccurrence,
+          data: dataCoOccurrence,
           emphasis: {
             itemStyle: {
               color: "inherit",
@@ -634,13 +659,15 @@ class OverviewChart {
           xAxisIndex: 1,
           yAxisIndex: 1,
           animation: false,
-          symbolSize: 3,
+          symbolSize: 8,
+          symbol: "diamond",
           itemStyle: {
             color: "#111111",
           },
-          data: this.#data.modifications.map((m) => m["mass_shift"]),
+          data: dataMassShift,
           cursor: "default",
           markLine: {},
+          markArea: {},
         },
         {
           type: "bar",
@@ -651,7 +678,7 @@ class OverviewChart {
             color: "#111111",
           },
           barWidth: "50%",
-          data: this.#data.modifications.map((m) => m["count"]),
+          data: dataCount,
           cursor: "default",
           markLine: {},
         },
@@ -2538,7 +2565,11 @@ function overviewChartHighlight() {
       `</select>`,
   }).then((result) => {
     if (result.isConfirmed) {
-      __overviewChart.highlight(Metro.getPlugin("#tmpSelect", "select").val());
+      __overviewChart.highlight(
+        Metro.getPlugin("#tmpSelect", "select")
+          .val()
+          .map((_) => parseInt(_))
+      );
     }
   });
 }
