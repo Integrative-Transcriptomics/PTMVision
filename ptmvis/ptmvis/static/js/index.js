@@ -2749,7 +2749,6 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
         _requestPdb();
       } else {
         var content = response.data.content;
-        console.log(content);
         let primaryAccession = content.annotation.primaryAccession;
         let proteinName = content.annotation.hasOwnProperty(
           "proteinDescription"
