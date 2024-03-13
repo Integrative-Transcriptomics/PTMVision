@@ -289,11 +289,30 @@ body {
 
 #panel-dashboard-structure {
   position: absolute;
-  top: 8%;
-  left: 65%;
-  width: 30%;
-  height: 70%;
+  top: 11%;
+  left: 50%;
+  width: 42%;
+  height: 64%;
   z-index: 2;
+}
+
+#panel-dashboard-structure-meta {
+  position: absolute;
+  top: 0.5%;
+  left: 0.5%;
+  width: 20%;
+  height: 20%;
+  padding: 4px;
+  overflow-y: auto;
+  z-index: 3;
+  font-size: small;
+  font-weight: lighter;
+  background-color: var(--background-color-1-o-90);
+  border-radius: 4px;
+}
+
+#panel-dashboard-structure-meta i {
+  color: #6694ff;
 }
 
 #panel-dashboard-controls {

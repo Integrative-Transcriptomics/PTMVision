@@ -2,6 +2,7 @@ var __url = "http://127.0.0.1:5000/";
 var __overviewTable;
 var __overviewChart = null;
 var __dashboardChart = null;
+var __dashboardContent = null;
 
 class OverviewTable {
   tabulator = null;
@@ -199,7 +200,7 @@ class OverviewChart {
       silent: true,
       itemStyle: {
         color: "#ff6663",
-        opacity: 0.5,
+        opacity: 1.0,
       },
     };
     this.#option.series[0].markLine = {
@@ -226,8 +227,8 @@ class OverviewChart {
         let name = this.#data.modificationNamesSorted[this.#sortingIndex][i];
         let massShift = this.#data.modifications[name].mass_shift;
         return [
-          { coord: [massShift - 20, 0] },
-          { coord: [massShift + 20, this.#option.yAxis[1].data.length - 1] },
+          { coord: [massShift - 0.02, 0] },
+          { coord: [massShift + 0.02, this.#option.yAxis[1].data.length - 1] },
         ];
       }),
     };
@@ -302,29 +303,29 @@ class OverviewChart {
             " | Modification Classes " +
             Object.keys(this.#data.classCounts).length,
           top: "top",
-          left: "left",
+          left: "center",
           ...this.#titleStyle,
         },
         {
-          text: "PTM Co-Occurrence",
+          text: "PTM Co-Occurrences",
           top: 30,
           left: "10%",
           ...this.#titleStyle,
         },
         {
-          text: "PTM Mass Shift",
+          text: "Per PTM Mass Shift",
           top: 30,
           left: 10 + 2 + 80 / r + "%",
           ...this.#titleStyle,
         },
         {
-          text: "PTM Count",
+          text: "Per PTM Count",
           top: 30,
           left: 10 + 2 * 2 + 12 + 80 / r + "%",
           ...this.#titleStyle,
         },
         {
-          text: "PTM Class Count",
+          text: "PTM Class Counts",
           top: 30,
           left: 10 + 4 * 2 + 2 * 12 + 80 / r + "%",
           ...this.#titleStyle,
@@ -748,7 +749,7 @@ class DashboardChart {
   };
   #titleStyle = {
     textStyle: {
-      fontSize: 12,
+      fontSize: 11,
       fontWeight: "bold",
     },
   };
@@ -805,6 +806,7 @@ class DashboardChart {
   constructor(id1, id2) {
     this.chart = new Chart(id1);
     this.structure = new StructureView(id2);
+    this.hideStructure();
   }
 
   showStructure() {
@@ -834,7 +836,7 @@ class DashboardChart {
     );
   }
 
-  highlightRows(indices) {
+  highlight(indices) {
     if (this.#option == undefined) return;
     if (this.#contentMode == 1) {
       let _ = {
@@ -867,18 +869,32 @@ class DashboardChart {
         }
       }
       this.#updateOption(false);
+    } else {
+      let modifications = indices.map((i) => this.#data.modifications.at(i));
+      let positions = [];
+      if (modifications.length > 0)
+        for (const [position, entry] of Object.entries(this.#data.positions)) {
+          if (
+            this.#contains(
+              modifications,
+              entry.modifications.map((_) => _.display_name)
+            )
+          )
+            positions.push(position);
+        }
+      this.structure.highlightPositions(positions, modifications);
+      this.setContactsOption(false, modifications);
+      this.#updateOption(true);
     }
   }
 
   switchContent() {
     if (this.#option == undefined) return;
     if (this.#contentMode == 1) {
-      $("#panel-dashboard-control-highlight").prop("disabled", true);
       this.showStructure();
-      this.setContactsOption();
+      this.setContactsOption(true, null);
       this.#contentMode = 2;
     } else {
-      $("#panel-dashboard-control-highlight").prop("disabled", false);
       this.hideStructure();
       this.setModificationsOption();
       this.#contentMode = 1;
@@ -1064,20 +1080,38 @@ class DashboardChart {
     this.#option = {
       title: [
         {
-          top: "1%",
-          left: "10%",
+          top: 4,
+          left: "left",
           text: "PTM Classes",
           textStyle: {
-            fontSize: 11,
+            fontSize: 10,
           },
+        },
+        {
+          text: "Per Position PTMs and Annotations",
+          top: "4%",
+          left: "8%",
+          ...this.#titleStyle,
+        },
+        {
+          text: "Per Aminoacid PTM Counts",
+          top: "14%",
+          left: "63%",
+          ...this.#titleStyle,
+        },
+        {
+          text: "Per PTM Class Counts",
+          top: "14%",
+          left: "83%",
+          ...this.#titleStyle,
         },
       ],
       grid: [
         {
           // Position counts.
           top: "7%",
-          left: "10%",
-          height: "10%",
+          left: "8%",
+          height: "11%",
           width: "55%",
           zlevel: 0,
           show: true,
@@ -1085,7 +1119,7 @@ class DashboardChart {
         {
           // Modifications map.
           top: "17%",
-          left: "10%",
+          left: "8%",
           height: "65%",
           width: "55%",
           containLabel: false,
@@ -1095,7 +1129,7 @@ class DashboardChart {
         {
           // Annotations.
           top: "82%",
-          left: "10%",
+          left: "8%",
           height: "10%",
           width: "55%",
           containLabel: false,
@@ -1105,7 +1139,7 @@ class DashboardChart {
         {
           // Amino-acid counts.
           top: "17%",
-          left: "65%",
+          left: "63%",
           height: "65%",
           width: "20%",
           containLabel: false,
@@ -1115,7 +1149,7 @@ class DashboardChart {
         {
           // PTM counts.
           top: "17%",
-          left: "85%",
+          left: "83%",
           height: "65%",
           width: "8%",
           containLabel: false,
@@ -1303,15 +1337,15 @@ class DashboardChart {
       legend: [
         {
           id: "legend",
-          top: "3%",
-          left: "10%",
+          top: "top",
+          left: 70,
           zlevel: 2,
           icon: "circle",
           itemWidth: 10,
           itemHeight: 10,
           orient: "horizontal",
           textStyle: {
-            fontSize: 9,
+            fontSize: 10,
             fontWeight: "lighter",
           },
           data: [],
@@ -1320,7 +1354,7 @@ class DashboardChart {
             { type: "inverse", title: "Invert selection." },
           ],
           selectorLabel: {
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: "lighter",
             borderRadius: 2,
           },
@@ -1413,7 +1447,7 @@ class DashboardChart {
           this.#data.modifications[modificationIndex] +
           "</code> ";
       if (component.seriesId.startsWith("modifications"))
-        contentHead += " as " + component.seriesName;
+        contentHead += " as <code>" + component.seriesName + "</code>";
       if (aminoacidIndex != undefined)
         contentHead +=
           "has " +
@@ -1478,7 +1512,7 @@ class DashboardChart {
     this.chart.instance.on("click", () => {});
   }
 
-  setContactsOption() {
+  setContactsOption(setStructure, highlightModifications) {
     // Populate per position counts series.
     let pscountSeries = {};
     for (const position of Object.keys(this.#data.positions)) {
@@ -1572,12 +1606,24 @@ class DashboardChart {
         if (unionSize == 0) {
           cls = "Unmodified";
           clr = "#d4d4d4";
-        } else if (unionSize > 0 && intersectionSize == 0) {
-          cls = "Modified (No intersecting PTM)";
-          clr = "#5e5e5e";
-        } else if (unionSize > 0 && intersectionSize > 0) {
-          cls = "Modified (Intersecting PTM)";
-          clr = "#dc5754";
+        } else if (unionSize > 0) {
+          if (intersectionSize == 0) {
+            cls = "Modified (No intersecting PTM)";
+            clr = "#5e5e5e";
+          } else {
+            cls = "Modified (Intersecting PTM)";
+            clr = "#dc5754";
+          }
+          if (
+            highlightModifications != undefined &&
+            highlightModifications.length > 0 &&
+            (this.#contains(highlightModifications, [...iModifications]) ||
+              this.#contains(highlightModifications, [...jModifications]))
+          ) {
+            cls =
+              "Modified (Includes " + highlightModifications.join(",") + ")";
+            clr = "#6694ff";
+          }
         } else {
           continue;
         }
@@ -1601,7 +1647,8 @@ class DashboardChart {
       }
     }
     // Initialize structure view.
-    this.structure.setStructure(this.#data.structure, this.#data.contacts);
+    if (setStructure)
+      this.structure.setStructure(this.#data.structure, this.#data.contacts);
     // Construct option object.
     let r = this.chart.instance.getWidth() / this.chart.instance.getHeight();
     $("#panel-dashboard-structure").css("left", 15 + 75 / r + "%");
@@ -1609,19 +1656,31 @@ class DashboardChart {
     this.#option = this.#option = {
       title: [
         {
-          top: "1%",
-          left: "10%",
+          top: 4,
+          left: "left",
           text: "Contact Classes",
           textStyle: {
-            fontSize: 11,
+            fontSize: 10,
           },
+        },
+        {
+          text: "Per Position PTM Counts, Spatial Contacts and Annotations",
+          top: "4%",
+          left: "8%",
+          ...this.#titleStyle,
+        },
+        {
+          text: "Protein Structure and Contact PTM Detail View",
+          top: "4%",
+          left: "49%",
+          ...this.#titleStyle,
         },
       ],
       grid: [
         {
           // Position counts.
           top: "7%",
-          left: "10%",
+          left: "8%",
           height: "6%",
           width: 75 / r + "%",
           zlevel: 0,
@@ -1630,7 +1689,7 @@ class DashboardChart {
         {
           // Contact map.
           top: "13%",
-          left: "10%",
+          left: "8%",
           height: "75%",
           width: 75 / r + "%",
           containLabel: false,
@@ -1640,7 +1699,7 @@ class DashboardChart {
         {
           // Annotations.
           top: "88%",
-          left: "10%",
+          left: "8%",
           height: "6%",
           width: 75 / r + "%",
           containLabel: false,
@@ -1649,10 +1708,10 @@ class DashboardChart {
         },
         {
           // Contact detail.
-          top: "82%",
+          top: "80%",
           left: 15 + 75 / r + "%",
           width: 100 - (20 + 75 / r) + "%",
-          height: "12%",
+          height: "13%",
           containLabel: false,
           zlevel: 0,
           show: false,
@@ -1676,8 +1735,8 @@ class DashboardChart {
         {
           // Contact map.
           data: Object.keys(this.#data.positions),
-          show: false,
           gridIndex: 1,
+          show: false,
           axisPointer: {
             show: true,
             label: {
@@ -1796,15 +1855,15 @@ class DashboardChart {
       legend: [
         {
           id: "legend",
-          top: "3%",
-          left: "10%",
+          top: "top",
+          left: 80,
           zlevel: 2,
           icon: "circle",
           itemWidth: 10,
           itemHeight: 10,
           orient: "horizontal",
           textStyle: {
-            fontSize: 9,
+            fontSize: 10,
             fontWeight: "lighter",
           },
           data: [],
@@ -1813,7 +1872,7 @@ class DashboardChart {
             { type: "inverse", title: "Invert selection." },
           ],
           selectorLabel: {
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: "lighter",
             borderRadius: 2,
           },
@@ -1947,7 +2006,6 @@ class DashboardChart {
   fill(data) {
     this.#data = data;
     this.#postprocess();
-    console.log(this.#data);
     this.setModificationsOption();
     this.hideStructure();
     this.#updateOption(true);
@@ -2164,23 +2222,34 @@ class DashboardChart {
       this.#updateOption();
     }
   }
+
+  #contains(listA, listB) {
+    const isContained = (entryA) => listB.includes(entryA);
+    return listA.every(isContained);
+  }
 }
 
 class StructureView {
   glviewer = null;
   domId = null;
   #contacts = null;
+  #highlightPositions;
+  #highlightModifications;
+  #highlightContacts;
 
   constructor(id) {
     this.domId = id;
     this.glviewer = $3Dmol.createViewer($("#" + id), {
-      backgroundColor: "#FAFAFC",
+      backgroundColor: "#fbfbfb",
       antialias: true,
       cartoonQuality: 6,
     });
   }
 
   setStructure(pdbString, contacts) {
+    this.#highlightPositions = null;
+    this.#highlightModifications = null;
+    this.#highlightContacts = null;
     this.glviewer.clear();
     this.glviewer.addModel(pdbString, "pdb");
     this.glviewer.zoomTo();
@@ -2192,108 +2261,144 @@ class StructureView {
       },
       {}
     );
-    this.setDefaultStyle();
+    this.style();
     this.glviewer.render();
     this.#contacts = contacts;
   }
 
-  setDefaultStyle(selection) {
-    if (selection == undefined) selection = {};
-    this.glviewer.setStyle(selection, {
-      cartoon: {
-        color: "#d4d4d4",
-      },
-    });
-  }
-
-  highlightContacts(targetIndex) {
+  style() {
     this.glviewer.removeAllLabels();
     this.glviewer.removeAllShapes();
-    this.setDefaultStyle();
-    let targetCaAtom = this.glviewer.getAtomsFromSel({
-      resi: [targetIndex],
-      atom: "CA",
-    })[0];
-    this.glviewer.addStyle(
+    this.glviewer.setStyle(
+      {},
       {
-        resi: [targetIndex],
-      },
-      {
-        stick: {
-          color: "#dc5754",
-          radius: 0.7,
+        cartoon: {
+          color: "#d4d4d4",
         },
       }
     );
-    this.glviewer.addResLabels(
-      {
+    // Add style for contact highlight, if set.
+    if (this.#highlightContacts != undefined) {
+      let targetIndex = this.#highlightContacts;
+      let targetCaAtom = this.glviewer.getAtomsFromSel({
         resi: [targetIndex],
-      },
-      {
-        backgroundColor: "rgb(51, 51, 51)",
-        backgroundOpacity: 0.7,
-        fontColor: "#f0f5f5",
-        fontSize: 11,
-      }
-    );
-    if (this.#contacts.hasOwnProperty(targetIndex)) {
-      for (let entry of this.#contacts[targetIndex]) {
-        let contactIndex = entry[0];
-        this.glviewer.addStyle(
-          {
-            resi: [contactIndex],
+        atom: "CA",
+      })[0];
+      this.glviewer.addStyle(
+        {
+          resi: [targetIndex],
+        },
+        {
+          stick: {
+            color: "#dc5754",
+            radius: 0.7,
           },
-          {
-            stick: {
-              color: "#dd9ac2",
-              radius: 0.4,
-            },
-          }
-        );
-        this.glviewer.addResLabels(
-          {
-            resi: [contactIndex],
-          },
-          {
-            backgroundColor: "rgb(51, 51, 51)",
-            backgroundOpacity: 0.7,
-            fontColor: "#f0f5f5",
-            fontSize: 11,
-          }
-        );
-        let contactCaAtom = this.glviewer.getAtomsFromSel({
-          resi: [contactIndex],
-          atom: "CA",
-        })[0];
-        this.glviewer.addLine({
-          color: "#000000",
-          hidden: false,
-          dashed: false,
-          start: {
-            x: targetCaAtom.x,
-            y: targetCaAtom.y,
-            z: targetCaAtom.z,
-          },
-          end: {
-            x: contactCaAtom.x,
-            y: contactCaAtom.y,
-            z: contactCaAtom.z,
-          },
-        });
-        this.glviewer.addLabel(entry[1].toFixed(2) + " Å", {
+        }
+      );
+      this.glviewer.addResLabels(
+        {
+          resi: [targetIndex],
+        },
+        {
           backgroundColor: "rgb(51, 51, 51)",
-          backgroundOpacity: 0.4,
+          backgroundOpacity: 0.7,
           fontColor: "#f0f5f5",
           fontSize: 10,
-          position: {
-            x: (targetCaAtom.x + contactCaAtom.x) / 2,
-            y: (targetCaAtom.y + contactCaAtom.y) / 2,
-            z: (targetCaAtom.z + contactCaAtom.z) / 2,
-          },
-        });
+        }
+      );
+      if (this.#contacts.hasOwnProperty(targetIndex)) {
+        for (let entry of this.#contacts[targetIndex]) {
+          let contactIndex = entry[0];
+          this.glviewer.addStyle(
+            {
+              resi: [contactIndex],
+            },
+            {
+              stick: {
+                color: "#dd9ac2",
+                radius: 0.4,
+              },
+            }
+          );
+          this.glviewer.addResLabels(
+            {
+              resi: [contactIndex],
+            },
+            {
+              backgroundColor: "rgb(51, 51, 51)",
+              backgroundOpacity: 0.7,
+              fontColor: "#f0f5f5",
+              fontSize: 10,
+            }
+          );
+          let contactCaAtom = this.glviewer.getAtomsFromSel({
+            resi: [contactIndex],
+            atom: "CA",
+          })[0];
+          this.glviewer.addLine({
+            color: "#000000",
+            hidden: false,
+            dashed: false,
+            start: {
+              x: targetCaAtom.x,
+              y: targetCaAtom.y,
+              z: targetCaAtom.z,
+            },
+            end: {
+              x: contactCaAtom.x,
+              y: contactCaAtom.y,
+              z: contactCaAtom.z,
+            },
+          });
+          this.glviewer.addLabel(entry[1].toFixed(2) + " Å", {
+            backgroundColor: "rgb(51, 51, 51)",
+            backgroundOpacity: 0.4,
+            fontColor: "#f0f5f5",
+            fontSize: 10,
+            position: {
+              x: (targetCaAtom.x + contactCaAtom.x) / 2,
+              y: (targetCaAtom.y + contactCaAtom.y) / 2,
+              z: (targetCaAtom.z + contactCaAtom.z) / 2,
+            },
+          });
+        }
       }
     }
+    // Add style fo r position highlight, if set.
+    if (
+      this.#highlightPositions != undefined &&
+      this.#highlightPositions.length > 0
+    ) {
+      this.glviewer.addStyle(
+        { resi: this.#highlightPositions },
+        {
+          cartoon: {
+            color: "#6694FF",
+          },
+        }
+      );
+      $("#panel-dashboard-structure-meta").html(
+        `<i class="fa-solid fa-circle fa-sm"></i> Highlight positions with modifications: ` +
+          this.#highlightModifications
+            .map((_) => "<code>" + _ + "</code>")
+            .join(", ")
+      );
+      $("#panel-dashboard-structure-meta").show();
+    } else {
+      $("#panel-dashboard-structure-meta").hide();
+    }
     this.glviewer.render();
+  }
+
+  highlightContacts(targetIndex) {
+    this.#highlightContacts = targetIndex;
+    this.style();
+  }
+
+  highlightPositions(indices, modifications) {
+    this.#highlightPositions = indices;
+    this.#highlightModifications = modifications;
+    this.style();
   }
 }
 
@@ -2643,7 +2748,7 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
       if (response.data.status == "Failed: No protein structure available.") {
         _requestPdb();
       } else {
-        $("#panel-dashboard-title").html(
+        $("#panel-dashboard-selection").html(
           [
             response.data.content.annotation.primaryAccession,
             response.data.content.annotation.proteinDescription.recommendedName
@@ -2651,8 +2756,8 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
             response.data.content.annotation.organism.scientificName,
           ].join(", ")
         );
-        $("#panel-dashboard-title").css("cursor", "pointer");
-        $("#panel-dashboard-title").on("click", () =>
+        $("#panel-dashboard-selection").css("cursor", "pointer");
+        $("#panel-dashboard-selection").on("click", () =>
           Swal.fire({
             html: response.data.content.annotation.comments
               .filter((_) => {
@@ -2673,6 +2778,8 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
           })
         );
         __dashboardChart.fill(response.data.content);
+        __dashboardContent = "modifications";
+        $("#panel-dashboard-title").html("Explore detail - Modifications view");
         window.scrollTo({
           top: $("#panel-dashboard").get(0).offsetTop + 40,
           behavior: "smooth",
@@ -2722,13 +2829,18 @@ function dashboardChartHighlight() {
       `</select>`,
   }).then((result) => {
     if (result.isConfirmed) {
-      __dashboardChart.highlightRows(
-        Metro.getPlugin("#tmpSelect", "select").val()
-      );
+      __dashboardChart.highlight(Metro.getPlugin("#tmpSelect", "select").val());
     }
   });
 }
 
 function dashboardChartSwitch() {
+  if (__dashboardContent == "modifications") {
+    __dashboardContent = "structure";
+    $("#panel-dashboard-title").html("Explore detail - Structure view");
+  } else if (__dashboardContent == "structure") {
+    __dashboardContent = "modifications";
+    $("#panel-dashboard-title").html("Explore detail - Modifications view");
+  }
   __dashboardChart.switchContent();
 }

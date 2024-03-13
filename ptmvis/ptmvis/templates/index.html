@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="PTMVision: Interactive Visualization of Post Translational Modifications | Understanding the intricate landscape of PTMs is crucial for unraveling the complex mechanisms underlying cellular processes and diseases. With PTMVision, researchers can effortlessly analyze and explore PTM data derived from various sources, including search engines such as ionbot, MSFragger, Sage, MaxQuant, or from a plain CSV table format processed from mass spectrometry (MS) data."
+      content="PTMVision: Interactive Visualization of Post Translational Modifications | Understanding the intricate landscape of PTMs is crucial for unraveling the complex mechanisms underlying cellular processes and diseases. With PTMVision, researchers can effortlessly analyze and explore PTM data derived from various sources, including search engines such as ionbot, MaxQuant, MSFragger, Sage, MaxQuant, or from a plain CSV table format processed from mass spectrometry (MS) data."
     />
     <meta name="author" content="Caroline Jachmann, Simon Hackl" />
     <!--
@@ -212,8 +212,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 >. Alternatively, you can
                 <a onclick="startExampleSession()" href="#"
                   >load an example session</a
-                >. Your current session data can be downloaded via the header
-                menu ( <i class="fa-duotone fa-file-arrow-down"></i> ).
+                >. Your current session data can be downloaded by clicking on
+                <i class="fa-duotone fa-file-arrow-down"></i> in the header menu
+                on the right.
               </dd>
               <br />
               <dt class="infotext-header">
@@ -221,17 +222,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               </dt>
               <dd class="infotext-small">
                 <span>&#8226;</span> After data transfer and successful
-                processing, you will receive an overview of all PTMs and their
-                co-occurrence (the localization of two PTMs at the same position
-                in a protein) in panel
-                <i class="fa-duotone fa-circle-2 fa-sm"></i>.
+                processing, you will receive an overview of all PTMs in your
+                data in panel <i class="fa-duotone fa-circle-2 fa-sm"></i>.
                 <br />
-                <span>&#8226;</span> A tabular overview of all proteins in the
-                uploaded data and a set of summarizing statistics is given in
-                panel <i class="fa-duotone fa-circle-3 fa-sm"></i>. The table
-                can be filtered for protein name, UniProt identifier and
-                modification names. Select a single protein from the table and
-                click
+                <span>&#8226;</span> A tabular overview of all proteins
+                available from your data is given in panel
+                <i class="fa-duotone fa-circle-3 fa-sm"></i>. The table can be
+                filtered for protein name, UniProt identifier and modification
+                names. Select a single protein from the table and click
                 <span
                   style="
                     background-color: #ff6663;
@@ -255,9 +253,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <i class="fa-duotone fa-circle-4 fa-sm"></i>. You can switch
                 between two display modes via the top-right button on the panel:
                 <br />
-                <span>&#8226;</span> Todo
+                <span>&#8226;</span> The <b>Modification View</b> focuses on the
+                occurrence of PTMs along the selected protein primary sequence
+                as well as per amino acid.
                 <br />
-                <span>&#8226;</span> Todo
+                <span>&#8226;</span> The <b>Structure View</b> focuses on the
+                occurrence of PTMs in the context of residues that are in close
+                spatial contact.
               </dd>
             </small>
             <br />
@@ -331,7 +333,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <div id="panel-overview" class="panel-container">
           <h6 class="secondary">
             <i class="fa-duotone fa-circle-2"></i>
-            <strong>Overview modifications</strong>
+            <strong>Overview PTMs</strong>
           </h6>
           <div id="panel-overview-chart"></div>
           <div id="panel-overview-controls">
@@ -349,7 +351,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               id="panel-overview-control-restore"
               class="button-no-decoration"
               data-role="hint"
-              data-hint-text="Restore zoom."
+              data-hint-text="Reset zoom."
               data-hint-position="left"
               onclick="overviewChartRestoreZoom()"
             >
@@ -435,17 +437,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <div id="panel-dashboard" class="panel-container">
           <h6 class="secondary w-50">
             <i class="fa-duotone fa-circle-4"></i>
-            <strong>Explore detail</strong>
-            <code id="panel-dashboard-title"></code>
+            <strong id="panel-dashboard-title">Explore detail</strong>
+            <code id="panel-dashboard-selection"></code>
           </h6>
           <div id="panel-dashboard-chart"></div>
-          <div id="panel-dashboard-structure"></div>
+          <div id="panel-dashboard-structure">
+            <div id="panel-dashboard-structure-meta"></div>
+          </div>
           <div id="panel-dashboard-controls">
             <button
               id="panel-dashboard-control-download"
               class="button-no-decoration"
               data-role="hint"
-              data-hint-text="Download image."
+              data-hint-text="Download image (no structure)."
               data-hint-position="left"
               onclick="dashboardChartDownloadImage()"
             >
@@ -455,7 +459,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               id="panel-dashboard-control-restore"
               class="button-no-decoration"
               data-role="hint"
-              data-hint-text="Restore zoom."
+              data-hint-text="Reset zoom."
               data-hint-position="left"
               onclick="dashboardChartRestoreZoom()"
             >
@@ -475,7 +479,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               id="panel-dashboard-control-switch"
               class="button-no-decoration"
               data-role="hint"
-              data-hint-text="Switch between modification/structure content."
+              data-hint-text="Switch between modifications/structure view."
               data-hint-position="left"
               onclick="dashboardChartSwitch()"
             >
