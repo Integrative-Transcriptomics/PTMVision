@@ -157,7 +157,7 @@ class OverviewChart {
       fontSize: 13,
     },
   };
-  #sortingIndex = 0;
+  #sortingIndex = 1;
 
   constructor(id) {
     this.chart = new Chart(id);
@@ -2748,18 +2748,30 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
       if (response.data.status == "Failed: No protein structure available.") {
         _requestPdb();
       } else {
+        var content = response.data.content;
+        console.log(content);
+        let primaryAccession = content.annotation.primaryAccession;
+        let proteinName = content.annotation.hasOwnProperty(
+          "proteinDescription"
+        )
+          ? content.annotation.proteinDescription.hasOwnProperty(
+              "recommendedName"
+            )
+            ? content.annotation.proteinDescription.recommendedName.fullName
+                .value
+            : Object.values(content.annotation.proteinDescription)[0][0]
+                .fullName.value
+          : "N/A";
+        let organismName = content.annotation.hasOwnProperty("organism")
+          ? "<em>" + content.annotation.organism.scientificName + "</em>"
+          : "N/A";
         $("#panel-dashboard-selection").html(
-          [
-            response.data.content.annotation.primaryAccession,
-            response.data.content.annotation.proteinDescription.recommendedName
-              .fullName.value,
-            response.data.content.annotation.organism.scientificName,
-          ].join(", ")
+          [primaryAccession, proteinName, organismName].join(", ")
         );
         $("#panel-dashboard-selection").css("cursor", "pointer");
         $("#panel-dashboard-selection").on("click", () =>
           Swal.fire({
-            html: response.data.content.annotation.comments
+            html: content.annotation.comments
               .filter((_) => {
                 return _.hasOwnProperty("texts");
               })
@@ -2777,7 +2789,7 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
             confirmButtonText: "Close Info",
           })
         );
-        __dashboardChart.fill(response.data.content);
+        __dashboardChart.fill(content);
         __dashboardContent = "modifications";
         $("#panel-dashboard-title").html("Explore detail - Modifications view");
         window.scrollTo({

@@ -70,7 +70,6 @@ def download_session():
     zlib_compress = zlib.compressobj( 6, zlib.DEFLATED, zlib.MAX_WBITS )
     compressed_session_bytes = zlib_compress.compress( bytes(json.dumps(session[MODIFICATIONS_DATA]), "utf-8") ) + zlib_compress.flush( )
     encoded_session = base64.b64encode( compressed_session_bytes ).decode("ascii")
-    print( encoded_session )
     return encoded_session
 
 @app.route("/restart_session", methods=["POST"])
@@ -179,7 +178,7 @@ def get_overview_data():
         for modification_unimod_name, modification in modifications.items( ) :
             modification[ "frequency" ] = round( len( modification[ "occurrence" ] ) / len( protein_identifiers ), 4 )
 
-        modifications_by_mass_shift = sorted( list( modifications.keys( ) ), key = lambda k : -modifications[k][ "mass_shift" ] if modifications[k][ "mass_shift" ] != "null" else 0.0 )
+        modifications_by_mass_shift = sorted( list( modifications.keys( ) ), key = lambda k : -modifications[k][ "mass_shift" ] if type( modifications[k][ "mass_shift" ] ) != str else 0.0 )
         modifications_by_count = sorted( list( modifications.keys( ) ), key = lambda k : -modifications[k][ "count" ] )
 
         return [

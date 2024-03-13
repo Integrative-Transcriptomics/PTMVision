@@ -922,7 +922,6 @@ def parse_user_input(user_file, user_flag):
         )
     return json
 
-
 def _brotli_decompress(content: str) -> str:
     return brotli.decompress(base64.urlsafe_b64decode(content)).decode()
 
