@@ -2728,8 +2728,8 @@ function overviewChartSort() {
 
 function dashboardChartInitialize(cutoff_value, pdb_text_value) {
   displayNotification("Initializing dashboard.");
-  if (cutoff_value == null) cutoff_value = 4.69;
-  if (pdb_text_value == null) pdb_text_value = null;
+  if (cutoff_value == undefined) cutoff_value = 4.69;
+  if (pdb_text_value == undefined) pdb_text_value = null;
   let sel_protein_id = __overviewTable.getSelection();
   if (sel_protein_id == null) {
     removeNotification();
@@ -2807,7 +2807,7 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
     })
     .catch((error) => {
       console.error(error);
-      handleError(error.message);
+      displayAlert(error.message);
     })
     .finally(() => {
       removeNotification();
