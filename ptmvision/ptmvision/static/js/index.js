@@ -196,6 +196,7 @@ class OverviewChart {
         position: "insideEndBottom",
       },
     };
+    /* Deprecated; Error level is very low and not well visualized.
     let markAreaOption = {
       silent: true,
       itemStyle: {
@@ -203,6 +204,7 @@ class OverviewChart {
         opacity: 1.0,
       },
     };
+    */
     this.#option.series[0].markLine = {
       ...markLineOption,
       data: indices
@@ -221,6 +223,8 @@ class OverviewChart {
         return { yAxis: i };
       }),
     };
+
+    /* Deprecated; Error level is very low and not well visualized.
     this.#option.series[1].markArea = {
       ...markAreaOption,
       data: indices.map((i) => {
@@ -232,6 +236,7 @@ class OverviewChart {
         ];
       }),
     };
+    */
     this.#option.series[2].markLine = {
       ...markLineOption,
       data: indices.map((i) => {
@@ -697,6 +702,46 @@ class OverviewChart {
         },
       ],
     };
+    // Highlight PTMs that fall within 0.02 Da mass shift tolerance, when sorting by mass shift.
+    if (this.#sortingIndex == 0) {
+      let segments = [];
+      let segment = new Set();
+      let areas = [];
+      let markAreaOption = {
+        silent: true,
+        animation: false,
+        itemStyle: {
+          color: "#ff6663",
+          opacity: 0.42,
+        },
+      };
+      for (let i = dataMassShift.length - 1; i >= 0; i--) {
+        let j = i - 1;
+        if (j < 0) break;
+        if (dataMassShift[i] == "null" || dataMassShift[j] == "null") continue;
+        if (dataMassShift[i] + 0.02 >= dataMassShift[j]) {
+          segment.add(i);
+          segment.add(j);
+        } else {
+          if (segment.size > 0) {
+            segments.push(segment);
+            segment = new Set();
+          }
+        }
+      }
+      if (segments.length > 0) {
+        for (let S of segments) {
+          let s = Array.from(S);
+          let l = s.slice(0)[0];
+          let u = s.slice(-1)[0];
+          areas.push([{ coord: ["min", u] }, { coord: ["max", l] }]);
+        }
+        this.#option.series[1].markArea = {
+          ...markAreaOption,
+          data: areas,
+        };
+      }
+    }
     this.#updateOption(true);
   }
 
@@ -2613,13 +2658,6 @@ function displayAlert(text) {
   );
 }
 
-function overviewTableSetFilters() {
-  __overviewTable.setFilters(
-    Metro.getPlugin("#panel-table-filter-id", "select").val(),
-    Metro.getPlugin("#panel-table-filter-modification", "select").val()
-  );
-}
-
 function overviewTableInitialize(afterResponse) {
   axios
     .get(__url + "/get_available_proteins")
@@ -2650,6 +2688,11 @@ function overviewTableInitialize(afterResponse) {
       Metro.getPlugin("#panel-table-filter-id", "select").data(
         identifiers_data_string
       );
+      $("#panel-table-title").html(
+        "Select single protein of interest (" +
+          response.data.length +
+          " avialable)"
+      );
       if (afterResponse != undefined) afterResponse();
     })
     .catch((error) => {
@@ -2657,6 +2700,13 @@ function overviewTableInitialize(afterResponse) {
       removeNotification();
       displayAlert(error.message);
     });
+}
+
+function overviewTableSetFilters() {
+  __overviewTable.setFilters(
+    Metro.getPlugin("#panel-table-filter-id", "select").val(),
+    Metro.getPlugin("#panel-table-filter-modification", "select").val()
+  );
 }
 
 function overviewChartInitialize(afterResponse) {
@@ -2751,24 +2801,24 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
       },
     })
     .then((response) => {
-      if (response.data.status == "Failed: No protein structure available.") {
-        _requestPdb();
+      if (response.status == 303) {
+        displayAlert("Failed to fetch protein structure.");
       } else {
-        var content = response.data.content;
-        let primaryAccession = content.annotation.primaryAccession;
-        let proteinName = content.annotation.hasOwnProperty(
+        var protein_data = response.data;
+        let primaryAccession = protein_data.annotation.primaryAccession;
+        let proteinName = protein_data.annotation.hasOwnProperty(
           "proteinDescription"
         )
-          ? content.annotation.proteinDescription.hasOwnProperty(
+          ? protein_data.annotation.proteinDescription.hasOwnProperty(
               "recommendedName"
             )
-            ? content.annotation.proteinDescription.recommendedName.fullName
-                .value
-            : Object.values(content.annotation.proteinDescription)[0][0]
+            ? protein_data.annotation.proteinDescription.recommendedName
+                .fullName.value
+            : Object.values(protein_data.annotation.proteinDescription)[0][0]
                 .fullName.value
           : "N/A";
-        let organismName = content.annotation.hasOwnProperty("organism")
-          ? "<em>" + content.annotation.organism.scientificName + "</em>"
+        let organismName = protein_data.annotation.hasOwnProperty("organism")
+          ? "<em>" + protein_data.annotation.organism.scientificName + "</em>"
           : "N/A";
         $("#panel-dashboard-selection").html(
           [primaryAccession, proteinName, organismName].join(", ")
@@ -2776,7 +2826,7 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
         $("#panel-dashboard-selection").css("cursor", "pointer");
         $("#panel-dashboard-selection").on("click", () =>
           Swal.fire({
-            html: content.annotation.comments
+            html: protein_data.annotation.comments
               .filter((_) => {
                 return _.hasOwnProperty("texts");
               })
@@ -2794,16 +2844,16 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
             confirmButtonText: "Close Info",
           })
         );
-        __dashboardChart.fill(content);
+        __dashboardChart.fill(protein_data);
         __dashboardContent = "modifications";
         $("#panel-dashboard-title").html("Explore detail - Modifications view");
         window.scrollTo({
           top: $("#panel-dashboard").get(0).offsetTop + 40,
           behavior: "smooth",
         });
+        togglePanel("panel-overview");
+        togglePanel("panel-table");
       }
-      togglePanel("panel-overview");
-      togglePanel("panel-table");
     })
     .catch((error) => {
       console.error(error);
