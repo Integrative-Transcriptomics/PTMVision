@@ -6,12 +6,11 @@ from ptmvision.backend.uniprot_id_mapping import (
     get_id_mapping_results_link,
     get_id_mapping_results_search,
 )
-from flask import request, session, send_file
+from flask import request, session
 from flask_session import Session
 from dotenv import load_dotenv
 from io import StringIO
 from itertools import combinations
-from math import ceil
 from copy import deepcopy
 import json, zlib, os, base64, traceback
 
@@ -35,7 +34,6 @@ Session(app)
 
 """ Definition of session keys """
 MODIFICATIONS_DATA = "modifications_data_frame"
-AVAILABLE_PROTEINS = "available_proteins"
 
 @app.route("/example_session", methods=["GET"])
 def example_session():
@@ -47,6 +45,7 @@ def example_session():
     except Exception as e :
         return "Failed request '" + api_parameters["URL"] + "/example_session': " + _format_exception(e), 500
 
+
 @app.route("/download_session", methods=["GET"])
 def download_session():
     try :
@@ -57,14 +56,17 @@ def download_session():
     except Exception as e :
         return "Failed request '" + api_parameters["URL"] + "/download_session': " + _format_exception(e), 500
 
+
 @app.route("/restart_session", methods=["POST"])
 def restart_session():
     try :
+        session.clear( )
         session_data = zlib.decompress( base64.b64decode( request.data ) ).decode( )
         session[MODIFICATIONS_DATA] = json.loads(session_data)
         return "Ok", 200
     except Exception as e :
         return "Failed request '" + api_parameters["URL"] + "/example_session': " + _format_exception(e), 500
+
 
 @app.route("/process_search_engine_output", methods=["POST"])
 def process_search_engine_output():
@@ -82,6 +84,7 @@ def process_search_engine_output():
         return "Ok", 200
     except Exception as e:
         return "Failed request '" + api_parameters["URL"] + "/process_search_engine_output': " + _format_exception(e), 500
+
 
 @app.route("/get_available_proteins", methods=["GET"])
 def get_available_proteins():
@@ -139,6 +142,7 @@ def get_available_proteins():
     except Exception as e:
         return "Failed request '" + api_parameters["URL"] + "/get_available_proteins': " + _format_exception(e), 500
 
+
 @app.route("/get_overview_data", methods=["GET"])
 def get_overview_data():
     try :
@@ -193,6 +197,7 @@ def get_overview_data():
     except Exception as e:
         return "Failed request '" + api_parameters["URL"] + "/get_overview_data': " + _format_exception(e), 500
 
+
 @app.route("/get_protein_data", methods=["POST"])
 def get_protein_data():
     try :
@@ -216,7 +221,6 @@ def get_protein_data():
             #    annotation = _map_uniprot_identifiers(
             #        [json_request_data["uniprot_pa"]], "UniProtKB"
             #    )
-            #    # TODO: Clean annotation.
             #    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ]["annotation"] = { }
             #    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ]["annotation"] = annotation[ "results" ][ 0 ][ "to" ]
             # Compute contacts from structure and store them in session data.
@@ -241,26 +245,35 @@ def get_protein_data():
     except Exception as e:
         return "Failed request '" + api_parameters["URL"] + "/get_protein_data': " + _format_exception(e), 500
 
-def _request_to_json(request_content: any) -> object:
-    """Decompress zlib encoded JSON request into Python object.
+
+def _request_to_json(request_content: bytes) -> object:
+    """
+    Decompress zlib encoded JSON request into Python object.
 
     Uses UTF-8 decoding.
 
-    Parameters
-    ----------
-    request_content : ReadableBuffer
-        zlib encoded JSON request content.
+    Parameters:
+        request_content (bytes): Zlib encoded JSON request content.
 
-    Returns
-    -------
-    object
-        Python object yielding the content of the JSON request.
+    Returns:
+        object: Python object representing the content of the JSON request.
     """
     inflated_request_data = zlib.decompress(request_content)
     json_string_request_data = inflated_request_data.decode("utf8")
     return json.loads(json_string_request_data)
 
-def _map_uniprot_identifiers(identifiers, target_db):
+
+def _map_uniprot_identifiers(identifiers: list, target_db: str) -> dict:
+    """
+    Map UniProt identifiers to a target database.
+
+    Parameters:
+        identifiers (list): List of UniProt identifiers.
+        target_db (str): Target database for mapping.
+
+    Returns:
+        dict: Results of the identifier mapping.
+    """
     job_id = submit_id_mapping(
         from_db="UniProtKB_AC-ID", to_db=target_db, ids=identifiers
     )
@@ -269,18 +282,36 @@ def _map_uniprot_identifiers(identifiers, target_db):
         results = get_id_mapping_results_search(link)
     return results
 
-def _rename_dictionary_entry( D, key_old, key_new ) :
-    if key_old != key_new:  
+
+def _rename_dictionary_entry(D: dict, key_old: str, key_new: str):
+    """
+    Rename a key in a dictionary.
+
+    Parameters:
+        D (dict): The dictionary containing the entry to be renamed.
+        key_old (str): The old key to be replaced.
+        key_new (str): The new key to replace the old key.
+    """
+    if key_old != key_new:
         D[key_new] = D[key_old]
         del D[key_old]
 
-def _add_annotation_to_protein( protein_identifier, annotation, failed = False ) :
-    if failed :
-        session[ MODIFICATIONS_DATA ][ "proteins" ][ protein_identifier ][ "annotation" ] = None
-    else :
-        if protein_identifier != annotation[ "primaryAccession" ] :
-            _rename_dictionary_entry( session[ MODIFICATIONS_DATA ][ "proteins" ], protein_identifier, annotation[ "primaryAccession" ] )
-            protein_identifier = annotation[ "primaryAccession" ]
+
+def _add_annotation_to_protein(protein_identifier: str, annotation: dict, failed: bool = False):
+    """
+    Add annotation to a protein entry.
+
+    Parameters:
+        protein_identifier (str): Identifier of the protein.
+        annotation (dict): Annotation information for the protein.
+        failed (bool, optional): Flag indicating if annotation failed. Defaults to False.
+    """
+    if failed:
+        session[MODIFICATIONS_DATA]["proteins"][protein_identifier]["annotation"] = None
+    else:
+        if protein_identifier != annotation["primaryAccession"]:
+            _rename_dictionary_entry(session[MODIFICATIONS_DATA]["proteins"], protein_identifier, annotation["primaryAccession"])
+            protein_identifier = annotation["primaryAccession"]
         # Adjust annotation.
         annotation.pop("entryType", None)
         annotation.pop("secondaryAccessions", None)
@@ -289,24 +320,51 @@ def _add_annotation_to_protein( protein_identifier, annotation, failed = False )
         annotation.pop("uniProtKBCrossReferences", None)
         annotation.pop("extraAttributes", None)
         # Set annotation to protein entry.
-        session[ MODIFICATIONS_DATA ][ "proteins" ][ protein_identifier ][ "annotation" ] = annotation
+        session[MODIFICATIONS_DATA]["proteins"][protein_identifier]["annotation"] = annotation
 
-def _get_protein_name( annotation ) :
+
+def _get_protein_name(annotation: dict) -> str:
+    """
+    Get the name of a protein from its annotation.
+
+    Parameters:
+        annotation (dict): Annotation information for the protein.
+
+    Returns:
+        str: The name of the protein.
+    """
     na = "N/A"
-    if annotation == None :
+    if annotation == None:
         return na
-    else :
-        if "proteinDescription" in annotation :
+    else:
+        if "proteinDescription" in annotation:
             if "recommendedName" in annotation["proteinDescription"]:
                 return annotation["proteinDescription"]["recommendedName"]["fullName"]["value"]
             elif "alternativeNames" in annotation["proteinDescription"]:
                 return annotation["proteinDescription"]["alternativeNames"][0]["fullName"]["value"]
             else:
                 return na
-        else :
+        else:
             return na
 
-def _format_exception( e ) :
-    if api_parameters["DEBUG"] :
+
+def _format_exception(e: str) -> str:
+    """
+    Formats the given exception into a string.
+
+    Args:
+        e (str): The exception to be formatted.
+
+    Returns:
+        str: The formatted exception as a string.
+
+    Note:
+        This function utilizes the global variable `api_parameters` to determine whether to print the exception traceback.
+        If `api_parameters["DEBUG"]` is True, the traceback will be printed with color highlighting; otherwise, only the exception message will be formatted.
+    """
+    if api_parameters["DEBUG"]:
+        # Print the exception traceback with color highlighting
         print("\u001b[31m" + "".join(traceback.format_exception(e)) + "\u001b[0m")
+    
+    # Format only the exception message
     return "".join(traceback.format_exception_only(e)).strip()
