@@ -234,7 +234,7 @@ def get_protein_data():
                         session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ][ source_position ].append( ( contact_position, distance_matrix[ source_position, contact_position ] ) )
             # Construct response.
             response = deepcopy( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ] )
-            response[ "structure" ] = utils._brotli_decompress( response[ "content" ][ "structure" ] )
+            response[ "structure" ] = utils._brotli_decompress( response[ "structure" ] )
             return response, 200
         else :
             return "Error in request '" + api_parameters["URL"] + "/get_protein_data': No protein structure available.", 303
@@ -307,4 +307,6 @@ def _get_protein_name( annotation ) :
             return na
 
 def _format_exception( e ) :
+    if api_parameters["DEBUG"] :
+        print("\u001b[31m" + "".join(traceback.format_exception(e)) + "\u001b[0m")
     return "".join(traceback.format_exception_only(e)).strip()
