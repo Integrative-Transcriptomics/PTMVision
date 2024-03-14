@@ -697,7 +697,7 @@ def read_msfragger(file):
     #    ]
     # ]
 
-    pept_mods.to_csv("msfragger_mods.csv", index=False)
+    pept_mods.to_csv("./ptmvision/static/resources/msfragger_mods.csv", index=False)
 
     return pept_mods
 
@@ -871,7 +871,6 @@ def parse_df_to_json_schema(dataframe):
                             "modifications": [construct_modifications_entry(row)]
                         }
                     },
-                    "pdb_structure": "null",
                 }
             }
             protein_dict["proteins"].update(entry)
@@ -921,6 +920,7 @@ def parse_user_input(user_file, user_flag):
             "Your file could not be parsed. Have you selected the right format?"
         )
     return json
+
 
 def _brotli_decompress(content: str) -> str:
     return brotli.decompress(base64.urlsafe_b64decode(content)).decode()

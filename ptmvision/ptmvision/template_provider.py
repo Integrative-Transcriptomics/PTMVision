@@ -1,5 +1,5 @@
-from ptmvis import app
-from ptmvis.ptmvis_api import api_parameters
+from ptmvision import app
+from ptmvision.api import api_parameters
 from flask import render_template
 
 

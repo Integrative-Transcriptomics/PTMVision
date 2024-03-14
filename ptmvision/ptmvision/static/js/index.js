@@ -2510,16 +2510,12 @@ async function startSession() {
       }
     )
     .then((_) => {
-      overviewTableInitialize(); // Init. table.
-      overviewChartInitialize(); // Init.overview chart.
-      togglePanel("panel-inputs");
+      overviewTableInitialize(overviewChartInitialize); // Init. table and chart.
     })
     .catch((error) => {
       console.error(error);
-      displayAlert(error.message);
-    })
-    .finally(() => {
       removeNotification();
+      displayAlert(error.message);
     });
 }
 
@@ -2624,7 +2620,7 @@ function overviewTableSetFilters() {
   );
 }
 
-function overviewTableInitialize() {
+function overviewTableInitialize(afterResponse) {
   axios
     .get(__url + "/get_available_proteins")
     .then((response) => {
@@ -2654,13 +2650,16 @@ function overviewTableInitialize() {
       Metro.getPlugin("#panel-table-filter-id", "select").data(
         identifiers_data_string
       );
+      if (afterResponse != undefined) afterResponse();
     })
     .catch((error) => {
-      throw error;
+      console.error(error);
+      removeNotification();
+      displayAlert(error.message);
     });
 }
 
-function overviewChartInitialize() {
+function overviewChartInitialize(afterResponse) {
   axios
     .get(__url + "/get_overview_data")
     .then((response) => {
@@ -2669,9 +2668,16 @@ function overviewChartInitialize() {
         top: $("#panel-overview").get(0).offsetTop + 40,
         behavior: "smooth",
       });
+      if (afterResponse != undefined) afterResponse();
     })
     .catch((error) => {
-      throw error;
+      console.error(error);
+      removeNotification();
+      displayAlert(error.message);
+    })
+    .finally(() => {
+      removeNotification();
+      togglePanel("panel-inputs");
     });
 }
 
@@ -2724,8 +2730,8 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
   displayNotification("Initializing dashboard.");
   if (cutoff_value == null) cutoff_value = 4.69;
   if (pdb_text_value == null) pdb_text_value = null;
-  let selectedProteinid = __overviewTable.getSelection();
-  if (selectedProteinid == null) {
+  let sel_protein_id = __overviewTable.getSelection();
+  if (sel_protein_id == null) {
     removeNotification();
     displayAlert(
       `No protein was selected from panel <i class="fa-duotone fa-circle-3"></i>`
@@ -2733,7 +2739,7 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
     return;
   }
   request = {
-    uniprot_id: selectedProteinid,
+    uniprot_pa: sel_protein_id,
     pdb_text: pdb_text_value,
     cutoff: cutoff_value,
   };
