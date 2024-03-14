@@ -7,6 +7,10 @@ from urllib.parse import urlparse, parse_qs, urlencode
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
+"""
+SOURCE: https://www.uniprot.org/help/id_mapping
+"""
+
 POLLING_INTERVAL = 3
 API_URL = "https://rest.uniprot.org"
 
