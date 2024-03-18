@@ -909,7 +909,7 @@ def read_userinput(file, flag):
     elif flag == "infer":
         df = read_any(file)
     df = df.fillna("null")
-    return parse_df_to_json_schema(df)
+    return parse_df_to_json_schema(df.drop_duplicates())
 
 
 def parse_user_input(user_file, user_flag):
