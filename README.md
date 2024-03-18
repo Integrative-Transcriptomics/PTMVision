@@ -4,7 +4,7 @@
 
 # About
 
-PTMVision (Interactive Visualization of Post Translational Modifications) is an interactive web platform for effortless exploratory visual analysis of post translational modifications (PTMs) obtained from mass spectrometry (MS) data using search engines such as [https://ionbot.cloud/](ionbot), [https://www.maxquant.org/](MaxQuant), [https://www.google.com/search?client=firefox-b-d&q=MsFragger](MSFragger), [https://sage-docs.vercel.app/docs](Sage). It enables researchers to comprehend the intricate landscape of PTMs in order to unravel possible mechanisms related to cellular processes and diseases.
+PTMVision (Interactive Visualization of Post Translational Modifications) is an interactive web platform for effortless exploratory visual analysis of post translational modifications (PTMs) obtained from mass spectrometry (MS) data. It enables researchers to comprehend the intricate landscape of PTMs in order to unravel possible mechanisms related to cellular processes and diseases.
 
 The webserver is available at [https://ptmvision-tuevis.cs.uni-tuebingen.de/](https://ptmvision-tuevis.cs.uni-tuebingen.de/).
 
@@ -50,4 +50,4 @@ Optional columns:
 
 Important note: Since UniMod classifications are amino acid specific, inferring the classification requires querying the protein sequence from UniProt. If the positions in the csv come from searches using old(er) fastas, it is possible that the amino acid sequence changed in the meantime, which could lead to modifications being misplaced.
 
-An example file for the plain csv format can be found [here](https://github.com/Integrative-Transcriptomics/PTMVision/tree/example_data).
+An example file for the plain csv format can be found [here](https://github.com/Integrative-Transcriptomics/PTMVision/tree/main/example_data).
