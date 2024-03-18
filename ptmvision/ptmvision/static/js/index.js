@@ -2686,7 +2686,7 @@ function overviewTableInitialize(afterResponse) {
       $("#panel-table-title").html(
         "Select single protein of interest (" +
           response.data.length +
-          " avialable)"
+          " available)"
       );
       if (afterResponse != undefined) afterResponse();
     })

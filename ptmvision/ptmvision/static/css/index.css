@@ -335,6 +335,15 @@ body {
   color: var(--background-color-2) !important;
 }
 
+#panel-dashboard-selection {
+  color: var(--color-2);
+}
+
+#panel-dashboard-selection:hover {
+  color: var(--color-3);
+  transition: 0.2s;
+}
+
 .infotext-small {
   font-size: medium;
 }
@@ -378,4 +387,8 @@ body {
 
 .alert i {
   color: var(--background-color-1);
+}
+
+.content {
+  padding: 1em;
 }
