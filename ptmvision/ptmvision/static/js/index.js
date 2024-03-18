@@ -580,7 +580,9 @@ class OverviewChart {
               this.#data.modifications[params.name].display_name +
               "</code> counted <code>" +
               params.data +
-              "</code> times."
+              "</code> times, occurs in <code>" +
+              this.#data.modifications[params.name].frequency +
+              "%</code> of proteins in data."
             );
           if (params.seriesIndex == 3)
             return (
