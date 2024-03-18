@@ -1109,9 +1109,7 @@ class DashboardChart {
         modificationsSeries[modification.modification_classification].data.push(
           [
             position - 1,
-            this.#data.modifications.indexOf(
-              modification.modification_unimod_name
-            ),
+            this.#data.modifications.indexOf(modification.display_name),
             0,
             modification.display_name,
             modification.mass_shift,
@@ -2093,7 +2091,7 @@ class DashboardChart {
     for (const [position, info] of Object.entries(this.#data.positions)) {
       const aa = this.#data.sequence[position - 1];
       for (const modification of Object.values(info.modifications)) {
-        const modificationName = modification.modification_unimod_name;
+        const modificationName = modification.display_name;
         const modificationClass = modification.modification_classification;
         _modifications.push(modificationName);
         if (!this.#data.aminoacidCounts[aa].hasOwnProperty(modificationName)) {

@@ -122,7 +122,7 @@ def get_available_proteins():
                     for modification in position_modification_data[modified_position][
                         "modifications"
                     ]:
-                        modifications.append(modification["modification_unimod_name"])
+                        modifications.append(modification["display_name"])
                 modified_positions = sorted(modified_positions)
                 modifications = list(set(modifications))
                 protein_entry = {
@@ -150,6 +150,7 @@ def get_overview_data():
         modification_co_occurrence = { } # Maps pairs of modification display names to their co-occurrence count.
         modification_classification_counts = { }
         if MODIFICATIONS_DATA in session:
+            dataset_size = len( session[MODIFICATIONS_DATA]["proteins"].keys( ) )
             protein_identifiers = [_ for _ in session[MODIFICATIONS_DATA]["proteins"]]
             for protein_identifier in protein_identifiers:
                 modification_data = session[MODIFICATIONS_DATA]["proteins"][
@@ -160,16 +161,16 @@ def get_overview_data():
                     for modification in modification_data[position][
                         "modifications"
                     ]:
-                        modification_unimod_name = modification["modification_unimod_name"]
-                        modifications.setdefault( modification_unimod_name, modification )
+                        modification_name = modification["display_name"]
+                        modifications.setdefault( modification_name, deepcopy( modification ) )
 
-                        modifications[ modification_unimod_name ].setdefault( "count", 0 )
-                        modifications[ modification_unimod_name ][ "count" ] += 1
+                        modifications[ modification_name ].setdefault( "count", 0 )
+                        modifications[ modification_name ][ "count" ] += 1
 
-                        modifications[ modification_unimod_name ].setdefault( "occurrence", [ ] )
-                        modifications[ modification_unimod_name ][ "occurrence" ].append( protein_identifier )
+                        modifications[ modification_name ].setdefault( "occurrence", [ ] )
+                        modifications[ modification_name ][ "occurrence" ].append( protein_identifier )
 
-                        modifications_at_position.append(modification_unimod_name)
+                        modifications_at_position.append(modification_name)
 
                         modification_classification = modification[ "modification_classification" ]
                         modification_classification_counts.setdefault( modification_classification, 0 )
@@ -180,8 +181,9 @@ def get_overview_data():
                         modification_co_occurrence.setdefault( modifications_pair, 0 )
                         modification_co_occurrence[ modifications_pair ] += 1
 
-            for modification_unimod_name, modification in modifications.items( ) :
-                modification[ "frequency" ] = round( len( modification[ "occurrence" ] ) / len( protein_identifiers ), 4 )
+            for modification_name, modification in modifications.items( ) :
+                modification[ "frequency" ] = round( len( set( protein_identifiers ) ) / dataset_size, 4 ) * 100
+            del modifications[ modification_name ][ "occurrence" ]
 
             modifications_by_mass_shift = sorted( list( modifications.keys( ) ), key = lambda k : -modifications[k][ "mass_shift" ] if type( modifications[k][ "mass_shift" ] ) != str else 0.0 )
             modifications_by_count = sorted( list( modifications.keys( ) ), key = lambda k : -modifications[k][ "count" ] )
