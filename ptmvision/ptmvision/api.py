@@ -24,7 +24,7 @@ app.config["SESSION_KEY_PREFIX"] = "ptmvision:"
 app.config["SESSION_USE_SIGNER"] = False
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_FILE_THRESHOLD"] = 1000
-app.config["MAX_CONTENT_LENGTH"] = 200 * 1024 * 1024  # Limit content lengths to 200 MB.
+app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # Limit content lengths to 50 MB.
 
 """ Set API parameters. """
 api_parameters = {"URL": os.getenv("URL"), "DEBUG": os.getenv("DEBUG")}
