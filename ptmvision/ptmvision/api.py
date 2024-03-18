@@ -150,8 +150,8 @@ def get_overview_data():
         modification_co_occurrence = { } # Maps pairs of modification display names to their co-occurrence count.
         modification_classification_counts = { }
         if MODIFICATIONS_DATA in session:
-            dataset_size = len( session[MODIFICATIONS_DATA]["proteins"].keys( ) )
             protein_identifiers = [_ for _ in session[MODIFICATIONS_DATA]["proteins"]]
+            dataset_size = len( protein_identifiers )
             for protein_identifier in protein_identifiers:
                 modification_data = session[MODIFICATIONS_DATA]["proteins"][
                     protein_identifier
@@ -182,7 +182,7 @@ def get_overview_data():
                         modification_co_occurrence[ modifications_pair ] += 1
 
             for modification_name, modification in modifications.items( ) :
-                modification[ "frequency" ] = round( len( set( protein_identifiers ) ) / dataset_size, 4 ) * 100
+                modification[ "frequency" ] = round( ( len( set( modifications[ modification_name ][ "occurrence" ] ) ) / dataset_size ) * 100, 2 )
             del modifications[ modification_name ][ "occurrence" ]
 
             modifications_by_mass_shift = sorted( list( modifications.keys( ) ), key = lambda k : -modifications[k][ "mass_shift" ] if type( modifications[k][ "mass_shift" ] ) != str else 0.0 )
