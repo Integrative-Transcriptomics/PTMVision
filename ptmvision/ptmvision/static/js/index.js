@@ -2447,11 +2447,6 @@ class StructureView {
   }
 }
 
-const UPLOAD_PDB_HTML = `
-    <p>You can provide a structure in .pdb format to continue.</p>
-    <br>
-    <input id="optional-pdb-input" type="file" data-role="file" data-mode="drop">`;
-
 /**
  * Inizializes all client side elements of the PTMVision application.
  */
