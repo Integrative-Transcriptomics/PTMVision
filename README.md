@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="256" height="128" src="https://github.com/Integrative-Transcriptomics/PTMVision/blob/main/ptmvision/ptmvision/static/resources/icon.png">
+  <img width="256" height="256" src="https://github.com/Integrative-Transcriptomics/PTMVision/blob/main/ptmvision/ptmvision/static/resources/icon.png">
 </p>
 
 # About
