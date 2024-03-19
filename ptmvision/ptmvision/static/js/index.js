@@ -773,10 +773,22 @@ class DashboardChart {
       "#ff9800",
       "#333333",
     ],
-    secondaryStructure: {
+    explicit: {
       Helix: "#ee858d",
       Turn: "#edc585",
       "Beta strand": "#85b2ed",
+      "Alternative sequence": "#210203",
+      "Topological domain": "#525354",
+      Transmembrane: "#697268",
+      Intramembrane: "#697268",
+      Domain: "#525354",
+      Repeat: "#090C08",
+      "Zinc finger": "#95A3A4",
+      "DNA binding": "#95A3A4",
+      Region: "#CC5A71",
+      "Coiled coil": "#95A3A4",
+      Motif: "#CC5A71",
+      "Compositional bias": "#34344A",
     },
   };
   #axisStyle = {
@@ -806,24 +818,6 @@ class DashboardChart {
     textStyle: {
       color: "#111111",
       fontSize: 13,
-    },
-  };
-  #dataZoomSliderStyle = {
-    showDataShadow: false,
-    showDetai: false,
-    backgroundColor: "transparent",
-    borderColor: "transparent",
-    fillerColor: "#fbfbfb48",
-    handleStyle: {
-      borderColor: "#333333",
-    },
-    moveHandleStyle: {
-      color: "#d4d4d4",
-    },
-    emphasis: {
-      moveHandleStyle: {
-        color: "#333333",
-      },
     },
   };
   #aminoAcids = [
@@ -1069,10 +1063,11 @@ class DashboardChart {
         annotationSeries[cls].data.push({
           value: [position - 1, annotationLabels.indexOf(cls), 1, entries],
           itemStyle: {
-            color:
-              cls == "Secondary structure"
-                ? this.#colors.secondaryStructure[entries[0][0]]
-                : "#483d3f",
+            borderColor: "transparent",
+            borderWidth: 0,
+            color: this.#colors.explicit.hasOwnProperty(entries[0][0])
+              ? this.#colors.explicit[entries[0][0]]
+              : "#40434E",
           },
         });
       }
@@ -1319,7 +1314,7 @@ class DashboardChart {
         },
         {
           // Annotations.
-          type: "category",
+          // type: "category",
           data: annotationLabels,
           name: "Annotation",
           nameGap: 120,
@@ -1367,6 +1362,7 @@ class DashboardChart {
           type: "inside",
           xAxisIndex: [0, 1, 2],
           throttle: 0,
+          filterMode: "none",
         },
         {
           type: "inside",
@@ -1608,10 +1604,11 @@ class DashboardChart {
         annotationSeries[cls].data.push({
           value: [position - 1, annotationLabels.indexOf(cls), 1, entries],
           itemStyle: {
-            color:
-              cls == "Secondary structure"
-                ? this.#colors.secondaryStructure[entries[0][0]]
-                : "#483d3f",
+            borderColor: "transparent",
+            borderWidth: 0,
+            color: this.#colors.explicit.hasOwnProperty(entries[0][0])
+              ? this.#colors.explicit[entries[0][0]]
+              : "#40434E",
           },
         });
       }
@@ -2905,4 +2902,27 @@ function dashboardChartSwitch() {
     $("#panel-dashboard-title").html("Explore detail - Modifications view");
   }
   __dashboardChart.switchContent();
+}
+
+function to(id) {
+  let e = $("#" + id).get(0);
+  let offset = Math.round(e.getBoundingClientRect().top) - 80;
+  window.scrollTo({
+    top: offset,
+    behavior: "smooth",
+  });
+}
+
+function stringToHash(string) {
+  let hash = 0;
+
+  if (string.length == 0) return hash;
+
+  for (i = 0; i < string.length; i++) {
+    let char = string.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+
+  return hash;
 }
