@@ -1,6 +1,6 @@
 from ptmvision import app
-from ptmvision.backend import utils
-from ptmvision.backend.uniprot_id_mapping import (
+from ptmvision import utils
+from ptmvision.uniprot_id_mapping import (
     submit_id_mapping,
     check_id_mapping_results_ready,
     get_id_mapping_results_link,
@@ -19,7 +19,7 @@ load_dotenv()
 
 """ Set session configuration parameters. """
 app.config["SESSION_TYPE"] = "filesystem"
-app.config["SESSION_FILE_DIR"] = "./ptmvision/session/"
+app.config["SESSION_FILE_DIR"] = "./session/"
 app.config["SESSION_KEY_PREFIX"] = "ptmvision:"
 app.config["SESSION_USE_SIGNER"] = False
 app.config["SESSION_PERMANENT"] = False
@@ -27,23 +27,23 @@ app.config["SESSION_FILE_THRESHOLD"] = 1000
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # Limit content lengths to 50 MB.
 
 """ Set API parameters. """
-api_parameters = {"URL": os.getenv("URL"), "DEBUG": os.getenv("DEBUG")}
+env_parameters = {"DEBUG": os.getenv("DEBUG")}
 
 """ Start session """
 Session(app)
 
 """ Definition of session keys """
-MODIFICATIONS_DATA = "modifications_data_frame"
+MODIFICATIONS_DATA = "bW9kaWZpY2F0aW9uc19kYXRhX2ZyYW1l"
 
 @app.route("/example_session", methods=["GET"])
 def example_session():
     try :
         session.clear( )
-        with open( "./ptmvision/static/resources/example_modifications_data.json", "r" ) as example_modifications_data :
+        with open( "/app/ptmvision/static/resources/example_modifications_data.json", "r" ) as example_modifications_data :
             session[MODIFICATIONS_DATA] = json.load( example_modifications_data )
         return "Ok", 200
     except Exception as e :
-        return "Failed request '" + api_parameters["URL"] + "/example_session': " + _format_exception(e), 500
+        return "Failed request '/example_session': " + _format_exception(e), 500
 
 
 @app.route("/download_session", methods=["GET"])
@@ -54,7 +54,7 @@ def download_session():
         encoded_session = base64.b64encode( compressed_session_bytes ).decode("ascii")
         return encoded_session, 200
     except Exception as e :
-        return "Failed request '" + api_parameters["URL"] + "/download_session': " + _format_exception(e), 500
+        return "Failed request '/download_session': " + _format_exception(e), 500
 
 
 @app.route("/restart_session", methods=["POST"])
@@ -65,7 +65,7 @@ def restart_session():
         session[MODIFICATIONS_DATA] = json.loads(session_data)
         return "Ok", 200
     except Exception as e :
-        return "Failed request '" + api_parameters["URL"] + "/example_session': " + _format_exception(e), 500
+        return "Failed request '/example_session': " + _format_exception(e), 500
 
 
 @app.route("/process_search_engine_output", methods=["POST"])
@@ -78,12 +78,12 @@ def process_search_engine_output():
             StringIO(json_request_data["content"]), content_type
         )
         session[MODIFICATIONS_DATA] = json_user_data
-        if api_parameters["DEBUG"] :
+        if env_parameters["DEBUG"] :
             with open( "./dump.json", "w+" ) as dumpfile :
                 dumpfile.write( json.dumps( session[MODIFICATIONS_DATA], indent = 3 ) )
         return "Ok", 200
     except Exception as e:
-        return "Failed request '" + api_parameters["URL"] + "/process_search_engine_output': " + _format_exception(e), 500
+        return "Failed request '/process_search_engine_output': " + _format_exception(e), 500
 
 
 @app.route("/get_available_proteins", methods=["GET"])
@@ -133,14 +133,14 @@ def get_available_proteins():
                     "modifications": "$".join(modifications),
                 }
                 protein_entries.append(protein_entry)
-            if api_parameters["DEBUG"] :
+            if env_parameters["DEBUG"] :
                     with open( "./dump.json", "w+" ) as dumpfile :
                         dumpfile.write( json.dumps( session[MODIFICATIONS_DATA], indent = 3 ) )
             return protein_entries, 200
         else :
             raise Exception("Faulty session data.")
     except Exception as e:
-        return "Failed request '" + api_parameters["URL"] + "/get_available_proteins': " + _format_exception(e), 500
+        return "Failed request '/get_available_proteins': " + _format_exception(e), 500
 
 
 @app.route("/get_overview_data", methods=["GET"])
@@ -197,7 +197,7 @@ def get_overview_data():
         else :
             raise Exception("Faulty session data.")
     except Exception as e:
-        return "Failed request '" + api_parameters["URL"] + "/get_overview_data': " + _format_exception(e), 500
+        return "Failed request '/get_overview_data': " + _format_exception(e), 500
 
 
 @app.route("/get_protein_data", methods=["POST"])
@@ -243,9 +243,9 @@ def get_protein_data():
             response[ "structure" ] = utils._brotli_decompress( response[ "structure" ] )
             return response, 200
         else :
-            return "Error in request '" + api_parameters["URL"] + "/get_protein_data': No protein structure available.", 303
+            return "Error in request '/get_protein_data': No protein structure available.", 303
     except Exception as e:
-        return "Failed request '" + api_parameters["URL"] + "/get_protein_data': " + _format_exception(e), 500
+        return "Failed request '/get_protein_data': " + _format_exception(e), 500
 
 
 def _request_to_json(request_content: bytes) -> object:
@@ -364,7 +364,7 @@ def _format_exception(e: str) -> str:
         This function utilizes the global variable `api_parameters` to determine whether to print the exception traceback.
         If `api_parameters["DEBUG"]` is True, the traceback will be printed with color highlighting; otherwise, only the exception message will be formatted.
     """
-    if api_parameters["DEBUG"]:
+    if env_parameters["DEBUG"]:
         # Print the exception traceback with color highlighting
         print("\u001b[31m" + "".join(traceback.format_exception(e)) + "\u001b[0m")
     

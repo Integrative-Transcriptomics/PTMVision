@@ -51,3 +51,7 @@ Optional columns:
 Important note: Since UniMod classifications are amino acid specific, inferring the classification requires querying the protein sequence from UniProt. If the positions in the csv come from searches using old(er) fastas, it is possible that the amino acid sequence changed in the meantime, which could lead to modifications being misplaced.
 
 An example file for the plain csv format can be found [here](https://github.com/Integrative-Transcriptomics/PTMVision/tree/main/example_data).
+
+## Run PTMVision Locally
+
+If required, PTMVision can be executed locally as a Docker container. After the repository has been cloned, simply run `docker build --tag ptmvision app` and `docker run -dp 127.0.0.1:5001:5001 ptmvision` in the root directory of the project. We currently do not provide a Docker image.

@@ -107,21 +107,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ></script>
     <script
       type="text/javascript"
-      src="{{url_for('static', filename='js/papaparse.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
       src="{{url_for('static', filename='js/index.js')}}"
     ></script>
     <script
       type="text/javascript"
       src="{{url_for('static', filename='js/charts.js')}}"
     ></script>
-    <script>
-      var API_PARAMETERS = JSON.parse(
-        "{{api_parameters|safe}}".replaceAll("'", '"')
-      );
-    </script>
   </head>
   <body onLoad="init();">
     <!-- App menu -->

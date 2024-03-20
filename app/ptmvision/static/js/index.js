@@ -1,5 +1,5 @@
-var __url = "http://127.0.0.1:5000/";
-var __overviewTable;
+var __url = null;
+var __overviewTable = null;
 var __overviewChart = null;
 var __dashboardChart = null;
 var __dashboardContent = null;
@@ -2448,7 +2448,7 @@ class StructureView {
  * Inizializes all client side elements of the PTMVision application.
  */
 function init() {
-  __url = API_PARAMETERS["URL"];
+  __url = window.location.origin;
   $("#menu")[0].style.display = "flex";
   $("#panel")[0].style.display = "block";
   __overviewTable = new OverviewTable("panel-table-tabulator");
