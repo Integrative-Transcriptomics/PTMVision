@@ -389,6 +389,23 @@ body {
   color: var(--background-color-1);
 }
 
+.frame {
+  padding: 1em 10em 1em 10em;
+}
+
 .content {
   padding: 1em;
+}
+
+.aboute-content-list li {
+  cursor: pointer;
+  color: var(--color-2);
+  padding: 3px;
+  margin: 1px;
+  border-radius: 4px;
+}
+
+.aboute-content-list li:hover {
+  background-color: var(--background-color-3);
+  transition: 0.1s;
 }

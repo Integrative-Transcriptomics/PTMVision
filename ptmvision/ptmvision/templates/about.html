@@ -63,6 +63,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       src="https://kit.fontawesome.com/df04f22e3d.js"
       crossorigin="anonymous"
     ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/index.js')}}"
+    ></script>
   </head>
   <body onload='$("#menu")[0].style.display = "flex";'>
     <!-- App menu -->
@@ -167,26 +171,423 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <div class="frame">
           <div class="heading">Usage Guide</div>
           <div class="content">
-            <dl>
-              <small>
-                <dt class="infotext-header">Usage and Workflow Description</dt>
-                <dd class="infotext-small">...</dd>
-                <dt class="infotext-header">Example Data Description</dt>
-                <dd class="infotext-small">...</dd>
-                <dt class="infotext-header">
-                  Overview Visualizations - Interpretation and User Taks
-                </dt>
-                <dd class="infotext-small">...</dd>
-                <dt class="infotext-header">
-                  Dashboard, Modifications View - Interpretation and User Taks
-                </dt>
-                <dd class="infotext-small">...</dd>
-                <dt class="infotext-header">
-                  Dashboard, Structure View - Interpretation and User Taks
-                </dt>
-                <dd class="infotext-small">...</dd>
-              </small>
-            </dl>
+            <h6>Content</h6>
+            <ul>
+              <li>Starting a PTMVision Session</li>
+              <ul class="aboute-content-list">
+                <li onclick="to('about-c1')">Uploading Data</li>
+                <li onclick="to('about-c2')">Retrieving Session Data</li>
+                <li onclick="to('about-c3')">Supported Data Formats</li>
+              </ul>
+              <li>Obtaining an Overview of Analysis Results</li>
+              <ul class="aboute-content-list">
+                <li onclick="to('about-c4')">Overview Visualizations</li>
+                <li onclick="to('about-c5')">PTM Co-Occurrence</li>
+                <li onclick="to('about-c6')">Per PTM Mass Shift</li>
+                <li onclick="to('about-c7')">Per PTM Count</li>
+                <li onclick="to('about-c8')">PTM Class Counts</li>
+                <li onclick="to('about-c9')">Overview Table</li>
+              </ul>
+              <li>Investigating the PTMs of one Protein in Detail</li>
+              <ul class="aboute-content-list">
+                <li onclick="to('about-c10')">Detail Visualizations</li>
+                <li onclick="to('about-c11')">Modifications View</li>
+                <li onclick="to('about-c12')">Structure View</li>
+              </ul>
+            </ul>
+            <hr />
+            <h6 id="about-c1"><strong>1 Uploading Data</strong></h6>
+            <small
+              >On the landing page at panel
+              <i class="fa-duotone fa-circle-1 fa-sm"></i> users have three
+              options to start a session with PTMVision.
+              <br />
+              <strong>(1)</strong> Start a novel analysis by entering data in
+              the required inputs
+              <em>Specify pipeline with which your data was generated</em>
+              and <em>Specify PTM data file</em> and clicking on the
+              <span
+                style="
+                  background-color: #ff6663;
+                  padding: 0.5px;
+                  margin: 1px;
+                  font-size: small;
+                  border-radius: 4px;
+                  color: #fbfbfb;
+                "
+                >Submit</span
+              >
+              button.
+              <br />
+              <strong>(2)</strong> Re-upload the data of a previous analysis by
+              filling in the form
+              <em
+                >Specify previously downloaded PTMVision session .zlib file</em
+              >
+              and clicking the corresponding
+              <span
+                style="
+                  background-color: #ff6663;
+                  padding: 0.5px;
+                  margin: 1px;
+                  font-size: small;
+                  border-radius: 4px;
+                  color: #fbfbfb;
+                "
+                >Submit</span
+              >
+              button. Please ensure, that the data provided is downloaded with
+              PTMVision. A description of how you can save your session data is
+              given in the next section.
+              <br />
+              <strong>(3)</strong> Load a small example dataset via the provided
+              link <em>load an example session</em> in the text to dive directly
+              into PTMVision.</small
+            >
+            <hr />
+            <h6 id="about-c2"><strong>2 Retrieving Session Data</strong></h6>
+            <small
+              >Once you have processed your data with PTMVision you can download
+              the results in a binary <em>zlib</em> compressed format by
+              clicking on <i class="fa-duotone fa-file-arrow-down"></i> in the
+              header menu on the right. The downloaded format is not human
+              readable, but contains all relevant information of your session.
+              The file can be re-uploaded to re-initialize a session and is also
+              intended to easily share results with fellow users.</small
+            >
+            <hr />
+            <h6 id="about-c3"><strong>3 Supported Data Formats</strong></h6>
+            <small>
+              We currently support the following input formats; If you can't
+              find your favorite search engine, feel free to
+              <a
+                href="https://github.com/Integrative-Transcriptomics/PTMVision/issues/new"
+                ,
+                target="_blank"
+                >open an issue</a
+              >.
+              <table class="table striped">
+                <thead>
+                  <tr>
+                    <th>Source</th>
+                    <th>Version Tested</th>
+                    <th>Columns Used</th>
+                    <th>Postprocessing</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>ionbot</td>
+                    <td><code>v0.10.0</code>, <code>v0.11.0</code></td>
+                    <td>uniprot_id, unexpected_modification, position</td>
+                    <td>N/A</td>
+                  </tr>
+                  <tr>
+                    <td>Sage</td>
+                    <td><code>v0.13.1</code></td>
+                    <td>*</td>
+                    <td>
+                      1% FDR Filtering (PSM level); Remove decoys; Remove
+                      peptides matching to more than one protein; Map mass
+                      shifts to UniMod IDs; Map PTM position onto protein; Mass
+                      shifts are not localised, only variable mods are used.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>FragPipe</td>
+                    <td>
+                      <code>MSFragger v4.0</code>,
+                      <code>PTMShepherd v2.0.6</code>
+                    </td>
+                    <td>
+                      Modified Peptide, Peptide, Protein ID, Assigned
+                      Modifications, Observed Modifications, MSFragger
+                      Localization, Protein Start
+                    </td>
+                    <td>
+                      Filter ambiguous localisations; Filter ambiguous
+                      modifications; Filter combinations of modifications; Map
+                      mass shifts and UniMod Descriptions to UniMod IDs; Map PTM
+                      position onto protein; Retrieve UniMod Classification; **.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>MaxQuant</td>
+                    <td>
+                      <code>v2.4.13.0</code>
+                    </td>
+                    <td>*</td>
+                    <td>
+                      Remove peptides matching to more than one protein; Map
+                      MaxQuant modification names to UniMod names; Map PTM
+                      position onto protein.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Plain CSV</td>
+                    <td>N/A</td>
+                    <td>***</td>
+                    <td>
+                      If no classification given: Retrieve protein sequence,
+                      extract modified amino acid, retrieve UniMod
+                      classification.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div>
+                * See
+                <a
+                  href="https://psm-utils.readthedocs.io/en/v0.6.0/"
+                  target="_blank"
+                  >psm-utils.readthedocs.io/en/v0.6.0/</a
+                >
+                for details
+                <br />
+                ** For FragPipe, localisations for unexpected modifications are
+                derived from the "MSFragger Localization" column. This
+                localisation might be only marginally better than the next best
+                site, so caution is advised. As soon as the next MSFragger
+                version is released, which reports localisation scores as well,
+                PTMVision will include a way to filter modifications based on
+                the scores.
+                <br />
+                *** <em>uniprot_id</em>: UniProt Accession of the protein;
+                <em>position</em>: Position of the modification in the protein
+                sequence (1 indexed); <em>modification_unimod_name</em>: UniMod
+                Name; <em>modification_unimod_id</em>: UniMod ID; (optional)
+                <em>mass_shift</em>: mass of the modification in Dalton (will be
+                inferred from unimod ID if not provided); (optional)
+                <em>classification</em>: unimod classification (will be inferred
+                from unimod ID and modified residue if not provided)
+              </div>
+            </small>
+            <hr />
+            <h6 id="about-c4"><strong>4 Overview Visualizations</strong></h6>
+            <small>
+              After successful data processing, you will be presented with a
+              variety of overview visualizations (described in detail in
+              sections five to eight) and a tabular overview of all proteins in
+              your data (described in detail in section nine). All overview
+              visualizations have zoom and pan operations, for which the y-axes
+              of those visualizations that display information per modification
+              are linked, and offer a range of user interactions accessible via
+              the buttons at the top right of panel
+              <i class="fa-duotone fa-circle-2"></i>:
+              <p>
+                <i class="fa-duotone fa-camera"></i> Screenshot of the current
+                view of the overview visualizations. The corresponding image
+                file is automatically downloaded in <code>png</code> format.
+              </p>
+              <p>
+                <i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+                Reset the zoom level of all overview visualizations to default
+                (zoomed out completely).
+              </p>
+              <p>
+                <i class="fa-duotone fa-highlighter"></i> Highlight a specific
+                PTM of interest. A pop-up window that supports search input
+                prompts you to select a number of modifications to be
+                highlighted. When you confirm the popup, lines are drawn at the
+                respective coordinates of the specified modifications. To remove
+                a highlight, the interaction must be performed without selecting
+                a modification.
+              </p>
+              <p>
+                <i class="fa-duotone fa-arrow-up-arrow-down"></i> Sort the
+                <em>PTM Co-Occurrences</em>, <em>Per PTM Mass Shift</em> and
+                <em>Per PTM Count</em> visualizations either by mass shift or
+                count. By default, the axes are sorted by count. If sorting by
+                mass shift is set, red areas in the
+                <em>Per Mass Shift</em> visualization will be highlighted to
+                indicate modifications whose mass shift difference is less than
+                <code>0.02 Da</code>.
+              </p>
+              <!--<div class="img-container rounded thumbnail mt-4 mb-4">
+                <img
+                  src="{{ url_for('static', filename='resources/usage_guide_images/overview_1.png') }}"
+                  alt="Default view of PTM overview visualizations, sorted by Per PTM Count, no highlight."
+                />
+                <span class="title"
+                  ><secondary
+                    >Default view of PTM overview visualizations, sorted by
+                    <em>Per PTM Count</em>, no highlight.</secondary
+                  ></span
+                >
+              </div>-->
+              <div class="img-container rounded thumbnail mt-4 mb-4">
+                <img
+                  src="{{ url_for('static', filename='resources/usage_guide_images/overview_2.png') }}"
+                  alt="View of PTM overview visualizations, sorted by Per PTM Mass Shift, PTM oxidation is highlighted."
+                />
+                <span class="title"
+                  ><secondary
+                    >View of PTM overview visualizations, sorted by
+                    <em>Per PTM Mass Shift</em>, PTM <em>oxidation</em> is
+                    highlighted.</secondary
+                  ></span
+                >
+              </div>
+            </small>
+            <hr />
+            <h6 id="about-c5"><strong>5 PTM Co-Occurrence</strong></h6>
+            <small>
+              <code
+                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
+                part of the usage guide is still under construction.</code
+              >
+            </small>
+            <hr />
+            <h6 id="about-c6"><strong>6 Per PTM Mass Shift</strong></h6>
+            <small>
+              <code
+                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
+                part of the usage guide is still under construction.</code
+              >
+            </small>
+            <hr />
+            <h6 id="about-c7"><strong>7 Per PTM Count</strong></h6>
+            <small>
+              <code
+                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
+                part of the usage guide is still under construction.</code
+              >
+            </small>
+            <hr />
+            <h6 id="about-c8"><strong>8 PTM Class Counts</strong></h6>
+            <small>
+              <code
+                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
+                part of the usage guide is still under construction.</code
+              >
+            </small>
+            <hr />
+            <h6 id="about-c9"><strong>9 Overview Table</strong></h6>
+            <small>
+              The overview table displays all proteins present in the data set
+              (one per row) after successful processing. In addition to the
+              UniProt primary accession identifier and name matched from
+              UniProt, the number of positions with at least one PTM and the
+              number of different PTMs are displayed. The table can be sorted by
+              all columns in ascending or descending order by clicking on them.
+              The two input fields at the top allow filtering for PTM and/or
+              protein name. For the former, only those proteins are displayed
+              for which the corresponding PTM was detected. The table allows the
+              selection of a single protein; this is indicated by red
+              highlighting. After selection, the
+              <em>Detail Visualizations</em> for the corresponding protein can
+              be loaded by clicking on the
+              <span
+                style="
+                  background-color: #ff6663;
+                  padding: 0.5px;
+                  margin: 1px;
+                  font-size: small;
+                  border-radius: 4px;
+                  color: #fbfbfb;
+                "
+                >Display</span
+              >
+              button.
+              <div class="img-container rounded thumbnail mt-4 mb-4">
+                <img
+                  src="{{ url_for('static', filename='resources/usage_guide_images/overview_table.png') }}"
+                  alt="Display of the protein overview table with the PTM filter applied to oxidation, dioxidation and trioxidation. The protein P0ABB8 is selected."
+                />
+                <span class="title"
+                  ><secondary
+                    >Display of the protein overview table with the PTM filter
+                    applied to <em>oxidation</em>, <em>dioxidation</em> and
+                    <em>trioxidation</em>. The protein <em>P0ABB8</em> is
+                    selected.</secondary
+                  ></span
+                >
+              </div>
+            </small>
+            <hr />
+            <h6 id="about-c10"><strong>10 Detail Visualizations</strong></h6>
+            <small>
+              PTMVision offers two distinct modes to display the PTM landscape
+              of a single protein; The
+              <em>Modifications View</em> (default, details are described in
+              section 11) and the <em>Structure View</em> (details are described
+              in section 12). Both are rendered in panel
+              <i class="fa-duotone fa-circle-4"></i> and are compiled as soon as
+              a single protein is selected for detailed reporting (see section
+              nine). The currently selected protein (primary accession, name and
+              source organism) is indicated in the header of panel
+              <i class="fa-duotone fa-circle-4"></i> and can be clicked to
+              retrieve UniProt comments for the protein. Furthermore, a range of
+              user interactions is accessible via the buttons at the top right
+              of panel <i class="fa-duotone fa-circle-4"></i>:
+              <p>
+                <i class="fa-duotone fa-camera"></i> Screenshot of the current
+                view of the detail visualizations. The corresponding image file
+                is automatically downloaded in <code>png</code> format.
+              </p>
+              <p>
+                <i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+                Reset the zoom level of all visualizations to default (zoomed
+                out completely).
+              </p>
+              <p>
+                <i class="fa-duotone fa-highlighter"></i> Highlight a specific
+                PTM of interest. A pop-up window that supports search input
+                prompts you to select a number of modifications to be
+                highlighted. To remove a highlight, the interaction must be
+                performed without selecting a modification. For the
+                <em>Modifications View</em>, highlighting is applied in the same
+                way as for the overview visualizations. For the
+                <em>Structure View</em>, highlighting is applied to the protein
+                structure model and those contacts, that comprise the respective
+                PTMs.
+              </p>
+              <p>
+                <i class="fa-duotone fa-repeat"></i> Switch between
+                <em>Modifications View</em> and <em>Structure View</em>.
+              </p>
+            </small>
+            <hr />
+            <h6 id="about-c11"><strong>11 Modifications View</strong></h6>
+            <small>
+              <div class="img-container rounded thumbnail mt-4 mb-4">
+                <img
+                  src="{{ url_for('static', filename='resources/usage_guide_images/dashboard_modifications.png') }}"
+                  alt="View of modifications dashboard for protein P0CE48, PTM oxidation is highlighted."
+                />
+                <span class="title"
+                  ><secondary
+                    >View of modifications dashboard for protein
+                    <em>P0CE48</em>, PTM <em>oxidation</em> is
+                    highlighted.</secondary
+                  ></span
+                >
+              </div>
+              <code
+                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
+                part of the usage guide is still under construction.</code
+              >
+            </small>
+            <hr />
+            <h6 id="about-c12"><strong>12 Structure View</strong></h6>
+            <small>
+              <div class="img-container rounded thumbnail mt-4 mb-4">
+                <img
+                  src="{{ url_for('static', filename='resources/usage_guide_images/dashboard_structure.png') }}"
+                  alt="View of structure dashboard for protein P0CE48, PTM dioxidation is highlighted."
+                />
+                <span class="title"
+                  ><secondary
+                    >View of structure dashboard for protein <em>P0CE48</em>,
+                    PTM <em>dioxidation</em> is highlighted.</secondary
+                  ></span
+                >
+              </div>
+              <code
+                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
+                part of the usage guide is still under construction.</code
+              >
+            </small>
           </div>
         </div>
 
