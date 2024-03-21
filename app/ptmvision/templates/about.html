@@ -182,9 +182,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               <li>Obtaining an Overview of Analysis Results</li>
               <ul class="aboute-content-list">
                 <li onclick="to('about-c4')">Overview Visualizations</li>
-                <li onclick="to('about-c5')">PTM Co-Occurrence</li>
-                <li onclick="to('about-c6')">Per PTM Mass Shift</li>
-                <li onclick="to('about-c7')">Per PTM Count</li>
+                <li onclick="to('about-c5')">Shared PTM sites between modification types</li>
+                <li onclick="to('about-c6')">Mass Shift</li>
+                <li onclick="to('about-c7')">Site Count</li>
                 <li onclick="to('about-c8')">PTM Class Counts</li>
                 <li onclick="to('about-c9')">Overview Table</li>
               </ul>
@@ -395,11 +395,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               </p>
               <p>
                 <i class="fa-duotone fa-arrow-up-arrow-down"></i> Sort the
-                <em>PTM Co-Occurrences</em>, <em>Per PTM Mass Shift</em> and
-                <em>Per PTM Count</em> visualizations either by mass shift or
+                <em>Shared PTM sites</em>, <em>Mass Shift</em> and
+                <em>Site Count</em> visualizations either by mass shift or
                 count. By default, the axes are sorted by count. If sorting by
                 mass shift is set, red areas in the
-                <em>Per Mass Shift</em> visualization will be highlighted to
+                <em>Mass Shift</em> visualization will be highlighted to
                 indicate modifications whose mass shift difference is less than
                 <code>0.02 Da</code>.
               </p>
@@ -415,51 +415,137 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   ></span
                 >
               </div>-->
-              <div class="img-container rounded thumbnail mt-4 mb-4">
-                <img
-                  src="{{ url_for('static', filename='resources/usage_guide_images/overview_2.png') }}"
-                  alt="View of PTM overview visualizations, sorted by Per PTM Mass Shift, PTM oxidation is highlighted."
-                />
+
+              <div class="img-container thumbnail">
+                <video controls="controls" style="width: 100%;" name="Video Name" poster="{{ url_for('static', filename='resources/usage_guide_images/overview_2.png') }}">
+                  <source src="{{ url_for('static', filename='resources/usage_guide_movies/Overview_PTMs.mov') }}"">
+                </video>
                 <span class="title"
                   ><secondary
-                    >View of PTM overview visualizations, sorted by
-                    <em>Per PTM Mass Shift</em>, PTM <em>oxidation</em> is
-                    highlighted.</secondary
+                    ><em>PTM Overview</em>: Tooltips, Highlighting, and Zooming </secondary
                   ></span
-                >
+                >  
               </div>
             </small>
             <hr />
-            <h6 id="about-c5"><strong>5 PTM Co-Occurrence</strong></h6>
-            <small>
-              <code
-                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
-                part of the usage guide is still under construction.</code
+            <h6 id="about-c5"><strong>5 Shared PTM sites between modification types</strong></h6>
+            <br>
+            <div class="img-container thumbnail" style="width: 30%;">
+              <video controls="controls" style="width: 100%;" name="Video Name" poster="{{ url_for('static', filename='resources/usage_guide_images/Shared_PTM_sites.png') }}">
+                <source src="{{ url_for('static', filename='resources/usage_guide_movies/shared_sites_zooming.mov') }}"">
+              </video>
+              <span class="title"
+                ><secondary
+                  ><em>Shared PTM sites between modification types</em>: Tooltips, Highlighting, and Zooming
+                  </secondary
+                ></span
               >
+            </div>            
+            <br>
+            <small>
+              For each pair of modification types, this visualisation shows if 
+              both types were found on common sites. If there are sites that were
+              modified by both modifications within the data set,
+              the number of sites is displayed with a color gradient, where 
+              brighter cells indicate lower numbers of shared sites. 
+              <br> 
+              Note that the absolute number of shared sites is given and therefore not 
+              normalized by the total number of sites for each modification type,
+              meaning that more frequently occuring modifications will have
+              more shared sites by chance.
+              <br>
+              Zooming in and out is possible by scrolling the mouse wheel. 
+              <br>
+              The visualisation can be panned by dragging the mouse. 
+              <br> 
+              The slider on the bottom left shows the range of the number of 
+              shared sites that are displayed. Hovering over the slider will 
+              highlight the corresponding cells in the visualisation.
+            </small>
+            <br>
+            <hr />
+            <h6 id="about-c6"><strong>6 Mass Shift</strong></h6>
+            <br>
+            <div class="img-container thumbnail" style="width: 30%;">
+              <video controls="controls" width="600" height="600" name="Video Name" poster="{{ url_for('static', filename='resources/usage_guide_images/Mass_shift.png') }}">
+                <source src="{{ url_for('static', filename='resources/usage_guide_movies/switch_sorting.mov') }}"">
+              </video>
+              <span class="title"
+                ><secondary
+                  ><em> Mass shift</em>: Tooltips, Highlighting, Zooming</secondary
+                ></span
+              >
+            </div>     
+            <br>
+            <small>
+              Mass shifts of each modification type are shown in the <em>Mass Shift</em>
+              Scatter plot. Hovering over a point will display the mass shift  
+              in Dalton. Depending on the input file, the mass shift is either 
+              parsed directly from the file or retrieved from the UniMod database 
+              (monoisotopic mass).
+              Using the <i class="fa-duotone fa-arrow-up-arrow-down"></i> button 
+              at the top right, the visualisation can be sorted by mass shift
+              instead of Site Count.
+              <br>
+              In this sorted view, red bars are displayed to indicate mass shifts
+              that are less than 0.02 Da apart to flag modifications that might 
+              not be resolvable due to the mass accuracy of the mass spectrometer.
+              Note that this is only a default value and the detectability
+              is dependent on the mass accuracy of the mass spectrometer used, 
+              as well as the precursor mass.
+              <br>
+              The mass shift scatter plot can be zoomed in and out by scrolling the mouse wheel. 
+              <br>
+              The visualisation can be panned by dragging the mouse. 
             </small>
             <hr />
-            <h6 id="about-c6"><strong>6 Per PTM Mass Shift</strong></h6>
+            <h6 id="about-c7"><strong>7 Site Count</strong></h6>
+            <br>
+                <div class="img-container thumbnail" style="width: 30%;"">
+                  <img
+                    src="{{ url_for('static', filename='resources/usage_guide_images/Site_Count.png') }}"
+                    alt="Example of the Site Count Histogram."
+                  />
+                  <span class="title"
+                    ><secondary
+                    >Example of the <em>Site Count Histogram</em>.</secondary
+                    ></span
+                  >
+                </div>    
+            <br>
             <small>
-              <code
-                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
-                part of the usage guide is still under construction.</code
-              >
-            </small>
-            <hr />
-            <h6 id="about-c7"><strong>7 Per PTM Count</strong></h6>
-            <small>
-              <code
-                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
-                part of the usage guide is still under construction.</code
-              >
+              The <em>Site Count</em> histogram shows the number of sites that 
+              were modified by each modification type.
+              Hovering over the bars will display the number of sites, 
+              and additionally show you across how many proteins these sites are spreaded.
+              <br>
+              The histogram can be zoomed in and out by scrolling the mouse wheel. 
+              <br>
+              The visualisation can be panned by dragging the mouse.
             </small>
             <hr />
             <h6 id="about-c8"><strong>8 PTM Class Counts</strong></h6>
-            <small>
-              <code
-                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
-                part of the usage guide is still under construction.</code
+            <br>
+            <div class="img-container thumbnail" style="width: 30%;"">
+              <img
+                src="{{ url_for('static', filename='resources/usage_guide_images/PTM_Class_counts.png') }}"
+                alt="Example of the PTM Class Count Barchart."
+              />
+              <span class="title"
+                ><secondary
+                >Example of the <em>PTM Class Count Barchart</em>, showing the modification class tooltip.</secondary
+                ></span
               >
+            </div>    
+            <br>
+            <small>
+              The <em>PTM Class Counts</em> barchart shows how many times
+              each of the UniMod Classes have been assigned to a 
+              modification + site pair.
+              Note that UniMod classifications are depending on the 
+              residue that is modified.
+              Hovering over the bars will display the exact number of 
+              modifications. 
             </small>
             <hr />
             <h6 id="about-c9"><strong>9 Overview Table</strong></h6>
@@ -551,42 +637,148 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <h6 id="about-c11"><strong>11 Modifications View</strong></h6>
             <small>
               <div class="img-container rounded thumbnail mt-4 mb-4">
-                <img
-                  src="{{ url_for('static', filename='resources/usage_guide_images/dashboard_modifications.png') }}"
-                  alt="View of modifications dashboard for protein P0CE48, PTM oxidation is highlighted."
-                />
-                <span class="title"
-                  ><secondary
-                    >View of modifications dashboard for protein
-                    <em>P0CE48</em>, PTM <em>oxidation</em> is
-                    highlighted.</secondary
-                  ></span
-                >
+                  <video controls="controls" style="width: 100%;" poster="{{ url_for('static', filename='resources/usage_guide_images/dashboard_modifications.png') }}" >
+                    <source src="{{ url_for('static', filename='resources/usage_guide_movies/modification_view.mov') }}"">
+                  </video>
+                  <span class="title"
+                    ><secondary
+                      >Clip showing how to navigate the <em>Modification dashboard</em>.
+                      </secondary
+                    ></span
+                  >
               </div>
-              <code
-                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
-                part of the usage guide is still under construction.</code
-              >
+              The <em>Modifications View</em> provides an overview over which modification types 
+              are found in the previously selected protein and where they are located on the 
+              primary sequence. The core visualisation is the 
+              presence/absence matrix, where each row represents a modification type and each column
+              a position in the protein sequence. A filled cell indicates that the modification type
+              was found at the respective position. The cells are colored by the UniMod classification,
+              the color legend is displayed on the top left side and can be used to filter for
+              specific classes. 
+              Filtering can be reset by clicking the "Select all" button, the current selection 
+              can be inverted via the "Invert selection" button.
+              <br>
+              The histogram above the presence/absence plot shows the total number of modifications per
+              position, the distribution of UniMod classes is encoded by colors. 
+              Hovering over a bar will show the exact PTM class counts.
+              This histogram can be used to navigate directly to a site of interest. 
+              The histogram to the far right shows the total number of modification sites per modification type,
+              the distribution of UniMod classes is encoded by colors as well. 
+              Hovering over a bar will show the exact PTM class counts.
+              This histogram can be used to navigate directly to a modification of interest. 
+
+              <br>
+              Tracks below the presence/absence plot show information that could be mapped via UniProt:
+              <ul>
+                <li>
+                  <a
+                    href="https://www.uniprot.org/help/disease_phenotypes_variants_section"
+                    target="_blank"
+                  >Experimental info: 
+                  </a>
+                  information on the disease(s), phenotype(s), and variants associated with the protein 
+                </li>
+                <li>
+                  <a
+                    href="https://www.uniprot.org/help/binding"
+                    target="_blank"
+                  >Sites: 
+                  </a>
+                  information on the interaction between protein residues and chemical entities (e.g. metals, cofactors)
+                </li>
+                <li>
+                  <a
+                    href="https://www.uniprot.org/help/family_and_domains_section"
+                    target="_blank"
+                  >Region: 
+                  </a>
+                  sequence similarities with other proteins and the domain(s) present in the protein
+                </li>
+                <li>
+                  <a
+                    href="https://www.uniprot.org/help/structure_section"
+                    target="_blank"
+                  >Secondary Structure: 
+                  </a>
+                  information on the secondary structure elements within the protein 
+                </li>
+                <li>
+                  <a
+                    href="https://www.uniprot.org/help/disease_phenotypes_variants_section"
+                    target="_blank"
+                  >Amino Acid Modifications: 
+                  </a>
+                  post-translational modifications (PTMs) and/or processing events
+                </li>
+                <li>
+                  <a
+                    href="https://www.uniprot.org/help/disease_phenotypes_variants_section"
+                    target="_blank"
+                  >Molecule Processing: 
+                  </a>
+                  information on the disease(s), phenotype(s), and variants associated with the protein 
+                </li>
+              </ul>                
+              The heatmap to the right shows the distribution of modification types across the different
+              amino acid residues. A colored cell indicates that the respective modification type was found
+              on the respective amino acid. The color legend is displayed on the bottom, where a darker color
+              indicates a higher number of sites with this modification-amino acid combination. 
+              Note that the absolute, non-normalized numbers of sites are given.
+
             </small>
             <hr />
             <h6 id="about-c12"><strong>12 Structure View</strong></h6>
             <small>
               <div class="img-container rounded thumbnail mt-4 mb-4">
-                <img
-                  src="{{ url_for('static', filename='resources/usage_guide_images/dashboard_structure.png') }}"
-                  alt="View of structure dashboard for protein P0CE48, PTM dioxidation is highlighted."
-                />
+                <video controls="controls" style="width: 100%;" poster="{{ url_for('static', filename='resources/usage_guide_images/dashboard_structure.png') }}">
+                  <source src="{{ url_for('static', filename='resources/usage_guide_movies/structure_view.mov') }}">
+                </video>
                 <span class="title"
                   ><secondary
-                    >View of structure dashboard for protein <em>P0CE48</em>,
-                    PTM <em>dioxidation</em> is highlighted.</secondary
+                    >Clip showing how to navigate the <em>Structure dashboard</em>.
+                    </secondary
                   ></span
-                >
+                >  
               </div>
-              <code
-                ><i class="fa-duotone fa-person-digging fa-fade fa-lg"></i> This
-                part of the usage guide is still under construction.</code
-              >
+              Clicking the <i class="fa-duotone fa-repeat"></i> switch button on the panel menu will open 
+              the structure dashboard. 
+              <br>
+              The left side shows the 3D structure in 2D via a contact map. The residues are plotted against 
+              each other, and a cell is colored if the respective residues are in close contact, 
+              meaning that their C-beta (Glycine: C-alpha) atoms are within x Angström. 
+              The cells are colored according to the modification state of the respective residue pair:
+              <ul>
+
+              <li>Light grey cells represent pairs of amino acids that are in contact, and both residues are unmodified </li>
+              <li>Dark grey cells represent pairs of amino acids that are in contact, and one or both residues are modified, 
+              but no modification type is shared between the residues </li>
+              <li>Red cells represent pairs of amino acids that are in contact, both residues are modified, and they 
+              share at least one modification type (e.g. both were found to be phosphorylated) </li>
+              <li>If a modification was highlighted via the <i class="fa-duotone fa-highlighter"></i> button in the
+              menu, residues that are in contact and where one or both carry the selected modification are 
+              colored in blue. </li>
+              </ul>
+              Via the color legend on the top, the classes can be filtered. The filtering can be reset 
+              via the "Select all" button, the current selection can be inverted via the "Invert selection" button.
+
+              The histogram on top and the tracks at the bottom are the same as in the <em>Modifications View</em>:
+              The first shows the total number of modifications per position, the second shows 
+              the annotations mapped via UniProt (see section 11).
+
+              <br>
+              Hovering over a cell in the contact map shows additional info on the two residues (PTM class counts,
+              UniProt Annotations). Clicking on a cell will highlight the respective residues in the structure
+              model on the right side, and show their distance in Angström. 
+
+              Highlighting a modification via the <i class="fa-duotone fa-highlighter"></i> button will color the
+              residues in the structure model that carry the selected modification in blue.
+              The structure model can be rotated by clicking and dragging the mouse, zoomed in and out by scrolling
+              the mouse wheel, and panned by dragging the mouse.
+              
+              <br>
+              Clicking on a cell will show a track at the bottom of the structure model that displays the
+              modifications of the respective residues, plotted according to their mass shift in Dalton. 
+
             </small>
           </div>
         </div>
