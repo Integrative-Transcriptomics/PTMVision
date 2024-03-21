@@ -301,9 +301,9 @@ class OverviewChart {
       title: [
         {
           text:
-            "Total Modifications " +
+            "Total Modifications (e.g. Phospho on Ser249) " +
             Object.values(this.#data.classCounts).reduce((a, b) => a + b, 0) +
-            " | Distinct Modifications " +
+            " | Modification Types (e.g. Phospho) " +
             Object.keys(this.#data.modifications).length +
             " | Modification Classes " +
             Object.keys(this.#data.classCounts).length,
@@ -312,19 +312,19 @@ class OverviewChart {
           ...this.#titleStyle,
         },
         {
-          text: "PTM Co-Occurrences",
+          text: "Shared PTM sites between modification types",
           top: 30,
           left: "10%",
           ...this.#titleStyle,
         },
         {
-          text: "Per PTM Mass Shift",
+          text: "Mass Shift",
           top: 30,
           left: 10 + 2 + 80 / r + "%",
           ...this.#titleStyle,
         },
         {
-          text: "Per PTM Count",
+          text: "Site Count",
           top: 30,
           left: 10 + 2 * 2 + 12 + 80 / r + "%",
           ...this.#titleStyle,
@@ -548,7 +548,9 @@ class OverviewChart {
                 params.data[0]
               ];
             return (
-              "Modification <code>" +
+              "<code>" +
+              params.data[2] +
+              "</code> sites have been modified by both <code>" +
               this.#data.modifications[yModName].display_name +
               "</code> (" +
               parseFloat(
@@ -560,9 +562,7 @@ class OverviewChart {
               parseFloat(
                 String(this.#data.modifications[xModName].mass_shift)
               ).toFixed(2) +
-              " Da) have <code>" +
-              params.data[2] +
-              "</code> co-occurrences."
+              " Da)."
             );
           }
           if (params.seriesIndex == 1) {
@@ -578,9 +578,9 @@ class OverviewChart {
             return (
               "Modification <code>" +
               this.#data.modifications[params.name].display_name +
-              "</code> counted <code>" +
+              "</code> observed on <code>" +
               params.data +
-              "</code> times, occurs in <code>" +
+              "</code> different sites, spread across <code>" +
               this.#data.modifications[params.name].frequency +
               "%</code> of proteins in data."
             );
@@ -621,7 +621,7 @@ class OverviewChart {
           itemWidth: 11,
           text: [
             Math.max(...Object.values(this.#data.coOccurrence)),
-            "No. co-occurrences 1",
+            "No. shared sites 1",
           ],
           textStyle: { fontWeight: "lighter", fontSize: 11 },
         },
