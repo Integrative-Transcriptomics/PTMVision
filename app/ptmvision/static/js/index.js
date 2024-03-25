@@ -2214,52 +2214,64 @@ class DashboardChart {
       this.#data.positions[y].modifications.forEach((o) => {
         yModifications[o.display_name] = o;
       });
-      var data = [];
+      var data = {};
       for (const [name, _] of Object.entries(xModifications)) {
         let clr = "#5e5e5e";
+        let ms = _.mass_shift == "null" ? 0.0 : _.mass_shift;
         if (yModifications.hasOwnProperty(name)) clr = "#dc5754";
-        data.push({
-          name: name,
-          value: [_.mass_shift, 0],
-          itemStyle: { color: clr },
-          symbol: "pin",
-          symbolSize: 12,
-          symbolRotate: 180,
-          label: {
-            show: true,
-            ...this.#axisLabelStyle,
-            position: [5, -5],
-            rotate: 45,
-            formatter: (params) => {
-              return params.name;
+        if (data.hasOwnProperty(ms)) {
+          data[ms].name += "\t" + name;
+          data[ms].itemStyle.clr = clr == "#dc5754" ? "#dc5754" : "#5e5e5e";
+        } else {
+          data[ms] = {
+            name: name,
+            value: [ms, 0],
+            itemStyle: { color: clr },
+            symbol: "pin",
+            symbolSize: 12,
+            symbolRotate: 180,
+            label: {
+              show: true,
+              ...this.#axisLabelStyle,
+              position: [5, -5],
+              rotate: 45,
+              formatter: (params) => {
+                return params.name;
+              },
+              overflow: "truncate",
             },
-            overflow: "truncate",
-          },
-        });
+          };
+        }
       }
       for (const [name, _] of Object.entries(yModifications)) {
         let clr = "#5e5e5e";
+        let ms = _.mass_shift == "null" ? 0.0 : _.mass_shift;
         if (xModifications.hasOwnProperty(name)) clr = "#dc5754";
-        data.push({
-          name: name,
-          value: [_.mass_shift, 1],
-          itemStyle: { color: clr },
-          symbol: "pin",
-          symbolSize: 12,
-          label: {
-            show: true,
-            ...this.#axisLabelStyle,
-            position: [5, -5],
-            rotate: 45,
-            formatter: (params) => {
-              return params.name;
+        if (data.hasOwnProperty(ms)) {
+          data[ms].name += "\t" + name;
+          data[ms].itemStyle.clr = clr == "#dc5754" ? "#dc5754" : "#5e5e5e";
+        } else {
+          data[ms] = {
+            name: name,
+            value: [ms, 1],
+            itemStyle: { color: clr },
+            symbol: "pin",
+            symbolSize: 12,
+            label: {
+              show: true,
+              ...this.#axisLabelStyle,
+              position: [5, -5],
+              rotate: 45,
+              formatter: (params) => {
+                return params.name;
+              },
+              overflow: "truncate",
             },
-            overflow: "truncate",
-          },
-        });
+          };
+        }
       }
       this.#option.series.filter((_) => _.id == "contact_detail")[0].data =
-        data;
+        Object.values(data);
       this.#option.yAxis[3].data = [x, y];
       this.#updateOption();
     }
