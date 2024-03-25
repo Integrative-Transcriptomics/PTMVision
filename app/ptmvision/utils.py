@@ -16,12 +16,13 @@ from tempfile import NamedTemporaryFile
 from pyteomics.mass.unimod import Unimod
 import json
 
-mapper = UnimodMapper()
-pdbparser = PDBParser(PERMISSIVE=False)
+MAPPER = UnimodMapper()
+PDBPARSER = PDBParser(PERMISSIVE=False)
+BASEPATH = "./app/ptmvision"
 
-
-# TODO: Refactor into Reader classes, one for each file format
-
+"""
+TODO: Refactor into reader classes, one for each file format.
+"""
 
 def check_fasta_coverage(uniprot_ids, fasta_dict):
     # check how many proteins were found in uniprot, let the user decide if they want to provide their own fasta
@@ -72,7 +73,7 @@ def get_structure(uniprot_id):
         response = urllib.request.urlopen(url)
         data = response.read()
         pdb_text = data.decode("utf-8")
-        structure = pdbparser.get_structure(uniprot_id, StringIO(pdb_text))
+        structure = PDBPARSER.get_structure(uniprot_id, StringIO(pdb_text))
     except:
         raise Exception("Alphafold structure not available.")
     return structure, pdb_text
@@ -82,7 +83,7 @@ def parse_structure(structure_string):
     structure = None
     # with warnings.filterwarnings("error"):
     try:
-        structure = pdbparser.get_structure("custom_pdb", StringIO(structure_string))
+        structure = PDBPARSER.get_structure("custom_pdb", StringIO(structure_string))
     except Exception as e:
         raise Exception("Failed to parse provided .pdb structure: " + str(e))
     finally:
@@ -200,7 +201,7 @@ def map_mass_to_unimod_msfragger(mods):
 
         mass = re.search(r"\(.*?\)", mod)[0]
         mass = float(mass.replace("(", "").replace(")", ""))
-        mapped = mapper.mass_to_names(
+        mapped = MAPPER.mass_to_names(
             mass, decimals=4
         )  # for unimod ID: mapper.mass_to_ids(mass, decimals = 4)
 
@@ -212,7 +213,7 @@ def map_mass_to_unimod_msfragger(mods):
 
 
 def map_mass_to_unimod_name(mass_shift):
-    mapped = mapper.mass_to_names(mass_shift, decimals=4)
+    mapped = MAPPER.mass_to_names(mass_shift, decimals=4)
     if len(mapped) > 1:  # mass shift could not be uniquely mapped to unimod
         return " or ".join(list(mapped))
     elif len(mapped) == 0:  # mass shift couldnt bet mapped at all
@@ -222,7 +223,7 @@ def map_mass_to_unimod_name(mass_shift):
 
 
 def map_unimod_name_to_mass(unimod_name):
-    mapped = mapper.name_to_mass(unimod_name)
+    mapped = MAPPER.name_to_mass(unimod_name)
     if len(mapped) == 0:
         return None
     else:
@@ -230,7 +231,7 @@ def map_unimod_name_to_mass(unimod_name):
 
 
 def map_id_to_unimod_name(id):
-    mapped = list(set(mapper.id_to_name(id)))
+    mapped = list(set(MAPPER.id_to_name(id)))
     if len(mapped) > 1:  # name could not be uniquely mapped to unimod
         return " or ".join(list(mapped))
     elif len(mapped) == 0:  # mass shift couldnt bet mapped at all
@@ -240,7 +241,7 @@ def map_id_to_unimod_name(id):
 
 
 def map_id_to_mass(id):
-    mapped = mapper.id_to_mass(id)
+    mapped = MAPPER.id_to_mass(id)
     if len(mapped) > 1:
         mass_shifts = [str(x) for x in list(set(mapped))]
         return " or ".join(mass_shifts)
@@ -251,7 +252,7 @@ def map_id_to_mass(id):
 
 
 def map_mass_to_unimod_id(mass_shift):
-    mapped = mapper.mass_to_ids(mass_shift, decimals=4)
+    mapped = MAPPER.mass_to_ids(mass_shift, decimals=4)
     if len(mapped) > 1:  # mass shift could not be uniquely mapped to unimod
         return " or ".join(list(mapped))
     elif len(mapped) == 0:  # mass shift couldnt bet mapped at all
@@ -262,7 +263,7 @@ def map_mass_to_unimod_id(mass_shift):
 
 def map_unimod_description_to_unimod_id(mod):
     query_string = "`Description` == '{}'".format(mod)
-    matches = list(set(mapper.query(query_string)["Accession"].tolist()))
+    matches = list(set(MAPPER.query(query_string)["Accession"].tolist()))
     if len(matches) > 1:  # mass shift could not be uniquely mapped to unimod
         return " or ".join(list(matches))
     elif len(matches) == 0:  # mass shift couldn't bet mapped at all
@@ -326,7 +327,7 @@ def mass_shift_from_id(unimod_id, unimod_db):
 def id_from_name(name):
     ids = []
     for mod_name in name.split(" or "):
-        id = mapper.name_to_id(mod_name)[0]
+        id = MAPPER.name_to_id(mod_name)[0]
         ids.append(id)
     return ",".join(ids)
 
@@ -697,7 +698,7 @@ def read_msfragger(file):
     #    ]
     # ]
 
-    pept_mods.to_csv("./ptmvision/static/resources/msfragger_mods.csv", index=False)
+    pept_mods.to_csv(BASEPATH + "/static/resources/msfragger_mods.csv", index=False)
 
     return pept_mods
 
@@ -802,7 +803,7 @@ def read_maxquant(file):
     psm_list = read_file(f.name, filetype="msms")  # file is a StringIO object!
     Path(f.name).unlink()
 
-    maxquant_mapper = pd.read_csv("static/resources/map_mq_file.csv", index_col=0)[
+    maxquant_mapper = pd.read_csv(BASEPATH + "/static/resources/map_mq_file.csv", index_col=0)[
         "value"
     ].to_dict()
     psm_list.rename_modifications(maxquant_mapper)

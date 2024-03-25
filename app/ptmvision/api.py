@@ -34,12 +34,13 @@ Session(app)
 
 """ Definition of session keys """
 MODIFICATIONS_DATA = "bW9kaWZpY2F0aW9uc19kYXRhX2ZyYW1l"
+BASEPATH = "./app/ptmvision"
 
 @app.route("/example_session", methods=["GET"])
 def example_session():
     try :
         session.clear( )
-        with open( "/app/ptmvision/static/resources/example_modifications_data.json", "r" ) as example_modifications_data :
+        with open( BASEPATH + "/static/resources/example_modifications_data.json", "r" ) as example_modifications_data :
             session[MODIFICATIONS_DATA] = json.load( example_modifications_data )
         return "Ok", 200
     except Exception as e :
