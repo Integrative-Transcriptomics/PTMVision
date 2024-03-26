@@ -646,7 +646,7 @@ class OverviewChart {
           itemWidth: 11,
           text: [
             Math.max(...Object.values(this.#data.coOccurrence)),
-            "No. shared sites 1",
+            "No. Shared Sites 1",
           ],
           textStyle: { fontWeight: "lighter", fontSize: 11 },
         },
@@ -673,18 +673,11 @@ class OverviewChart {
           progressiveThreshold: 1500,
           animation: false,
           itemStyle: {
-            borderWidth: 0.1,
+            borderWidth: 0.2,
             borderRadius: 2,
             borderColor: "#fbfbfb",
           },
           data: dataCoOccurrence,
-          emphasis: {
-            itemStyle: {
-              color: "inherit",
-              borderColor: "#62a8ac",
-              borderWidth: 2,
-            },
-          },
           markLine: {},
         },
         {
@@ -1060,7 +1053,7 @@ class DashboardChart {
       yAxisIndex: 3,
       itemStyle: {
         borderWidth: 0.2,
-        borderRadius: 2,
+        borderRadius: 1,
         borderColor: "#fbfbfb",
       },
       cursor: "default",
@@ -1068,12 +1061,18 @@ class DashboardChart {
         disabled: true,
       },
     };
+    let minMaxScaleCounts = (count, aa) => {
+      let min = Math.min(...Object.values(this.#data.aminoacidCounts[aa]));
+      let max = Math.max(...Object.values(this.#data.aminoacidCounts[aa]));
+      if (min == max) return 1;
+      else return (count - min) / (max - min);
+    };
     for (const [aa, _] of Object.entries(this.#data.aminoacidCounts)) {
       for (const [mdname, count] of Object.entries(_)) {
         aacountSeries.data.push([
           this.#aminoAcids.indexOf(aa),
           this.#data.modifications.indexOf(mdname),
-          count,
+          minMaxScaleCounts(count, aa),
         ]);
       }
     }
@@ -1129,7 +1128,7 @@ class DashboardChart {
             itemStyle: {
               color: this.#getColor(modification.modification_classification),
               borderWidth: 0.2,
-              borderRadius: 2,
+              borderRadius: 1,
               borderColor: "#fbfbfb",
             },
             xAxisIndex: 1,
@@ -1481,7 +1480,6 @@ class DashboardChart {
     legendData.forEach((_) => {
       this.#option.legend[0].data.push({ name: _ });
     });
-    let aacountSeriesMax = Math.max(...aacountSeries.data.map((_) => _[2]));
     this.#option.visualMap.push({
       seriesIndex: this.#option.series.indexOf(aacountSeries),
       top: "14%",
@@ -1495,9 +1493,9 @@ class DashboardChart {
         fontSize: 10,
         fontWeight: "lighter",
       },
-      text: [aacountSeriesMax, "No. Occurrence 1"],
-      min: 1,
-      max: aacountSeriesMax,
+      text: ["1", "Per Aminoacid Min-Max Scaled No. Occurrence 0"],
+      min: 0,
+      max: 1,
     });
     this.#option.tooltip[0].formatter = (params) => {
       let contentHead = ``;
