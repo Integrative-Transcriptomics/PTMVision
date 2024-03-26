@@ -327,7 +327,7 @@ class OverviewChart {
         },
         {
           text: "Shared PTM sites between modification types",
-          top: 30,
+          top: 15,
           left: "10%",
           ...this.#titleStyle,
         },
@@ -464,7 +464,9 @@ class OverviewChart {
           nameGap: 95,
           data: Object.keys(this.#data.classCounts),
           axisTick: {
-            show: false,
+            alignWithLabel: true,
+            interval: 0,
+            length: 4,
           },
           axisLabel: {
             show: true,
@@ -491,7 +493,7 @@ class OverviewChart {
           axisTick: {
             alignWithLabel: true,
             interval: 0,
-            length: 1,
+            length: 2,
           },
           axisLabel: {
             show: true,
@@ -637,9 +639,9 @@ class OverviewChart {
           min: 1,
           max: Math.max(...Object.values(this.#data.coOccurrence)),
           orient: "horizontal",
-          top: "84%",
+          top: 30,
           left: "10%",
-          itemHeight: 100,
+          itemHeight: 50,
           itemWidth: 11,
           text: [
             Math.max(...Object.values(this.#data.coOccurrence)),
