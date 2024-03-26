@@ -18,24 +18,28 @@ class OverviewTable {
           field: "id",
           sorter: "string",
           width: "10%",
+          frozen: true,
         },
         {
           title: "Name",
           field: "name",
           sorter: "string",
           width: "40%",
+          frozen: true,
         },
         {
           title: "No. modified positions",
           field: "modified_positions",
           sorter: "number",
           width: "25%",
+          frozen: true,
         },
         {
           title: "No. distinct modifications",
           field: "unique_modifications",
           sorter: "number",
           width: "25%",
+          frozen: true,
         },
         {
           title: "Modifications",
@@ -400,7 +404,7 @@ class OverviewChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
             triggerTooltip: false,
@@ -418,6 +422,14 @@ class OverviewChart {
             rotate: 45,
             ...this.#axisLabelStyle,
           },
+          axisPointer: {
+            show: true,
+            label: {
+              show: true,
+            },
+            triggerEmphasis: false,
+            triggerTooltip: false,
+          },
         },
         {
           gridIndex: 2,
@@ -430,6 +442,14 @@ class OverviewChart {
             interval: 0,
             rotate: 45,
             ...this.#axisLabelStyle,
+          },
+          axisPointer: {
+            show: true,
+            label: {
+              show: true,
+            },
+            triggerEmphasis: false,
+            triggerTooltip: false,
           },
         },
         {
@@ -451,7 +471,7 @@ class OverviewChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
           },
@@ -488,7 +508,7 @@ class OverviewChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
             triggerTooltip: false,
@@ -503,7 +523,7 @@ class OverviewChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
           },
@@ -517,7 +537,7 @@ class OverviewChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
           },
@@ -531,6 +551,14 @@ class OverviewChart {
           axisLabel: {
             show: true,
             ...this.#axisLabelStyle,
+          },
+          axisPointer: {
+            show: true,
+            label: {
+              show: true,
+            },
+            triggerEmphasis: false,
+            triggerTooltip: false,
           },
         },
       ],
@@ -1206,7 +1234,7 @@ class DashboardChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
             triggerTooltip: true,
@@ -1220,7 +1248,7 @@ class DashboardChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
             triggerTooltip: false,
@@ -1239,7 +1267,7 @@ class DashboardChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
             triggerTooltip: true,
@@ -1258,7 +1286,7 @@ class DashboardChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
             triggerTooltip: false,
@@ -1274,6 +1302,14 @@ class DashboardChart {
             ...this.#axisLabelStyle,
           },
           gridIndex: 4,
+          axisPointer: {
+            show: true,
+            label: {
+              show: true,
+            },
+            triggerEmphasis: false,
+            triggerTooltip: false,
+          },
         },
       ],
       yAxis: [
@@ -1287,6 +1323,14 @@ class DashboardChart {
             ...this.#axisLabelStyle,
           },
           gridIndex: 0,
+          axisPointer: {
+            show: true,
+            label: {
+              show: true,
+            },
+            triggerEmphasis: false,
+            triggerTooltip: false,
+          },
         },
         {
           // Modifications map.
@@ -1306,7 +1350,7 @@ class DashboardChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
             triggerTooltip: false,
@@ -1323,6 +1367,14 @@ class DashboardChart {
             ...this.#axisLabelStyle,
           },
           gridIndex: 2,
+          axisPointer: {
+            show: true,
+            label: {
+              show: true,
+            },
+            triggerEmphasis: false,
+            triggerTooltip: false,
+          },
         },
         {
           // Amino acids.
@@ -1334,7 +1386,7 @@ class DashboardChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
             triggerTooltip: false,
@@ -1350,7 +1402,7 @@ class DashboardChart {
           axisPointer: {
             show: true,
             label: {
-              show: false,
+              show: true,
             },
             triggerEmphasis: false,
             triggerTooltip: true,
