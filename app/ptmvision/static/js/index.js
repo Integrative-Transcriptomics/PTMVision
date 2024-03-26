@@ -2229,9 +2229,9 @@ class DashboardChart {
     // Sort modification display names by mass shift and store in data.
     _modifications = [...new Set(_modifications)].sort((m1, m2) => {
       if (_modificationsMassShift[m1] < _modificationsMassShift[m2]) {
-        return -1;
-      } else if (_modificationsMassShift[m1] > _modificationsMassShift[m2]) {
         return 1;
+      } else if (_modificationsMassShift[m1] > _modificationsMassShift[m2]) {
+        return -1;
       } else {
         return 0;
       }
@@ -2840,7 +2840,6 @@ function overviewChartInitialize(afterResponse) {
     })
     .catch((error) => {
       console.error(error);
-      removeNotification();
       displayAlert(error.message);
     })
     .finally(() => {
