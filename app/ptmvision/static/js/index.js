@@ -11,40 +11,35 @@ class OverviewTable {
 
   constructor(id) {
     this.tabulator = new Tabulator("#" + id, {
-      selectable: 1,
+      selectableRows: 1,
       columns: [
         {
           title: "ID",
           field: "id",
           sorter: "string",
           width: "10%",
-          frozen: true,
         },
         {
           title: "Name",
           field: "name",
           sorter: "string",
           width: "40%",
-          frozen: true,
         },
         {
           title: "No. modified positions",
           field: "modified_positions",
           sorter: "number",
           width: "25%",
-          frozen: true,
         },
         {
           title: "No. distinct modifications",
           field: "unique_modifications",
           sorter: "number",
           width: "25%",
-          frozen: true,
         },
         {
           title: "Modifications",
           field: "modifications",
-          visible: false,
         },
       ],
     });
