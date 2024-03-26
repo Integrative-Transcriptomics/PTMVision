@@ -113,6 +113,7 @@ def get_available_proteins():
             # Construct entry per protein in input data.
             for protein_identifier in list( session[MODIFICATIONS_DATA]["proteins"].keys( ) ):
                 protein_name = _get_protein_name(session[MODIFICATIONS_DATA]["proteins"][protein_identifier]["annotation"])
+                protein_length = _get_protein_length(session[MODIFICATIONS_DATA]["proteins"][protein_identifier]["annotation"])
                 position_modification_data = session[MODIFICATIONS_DATA]["proteins"][
                     protein_identifier
                 ]["positions"]
@@ -129,6 +130,7 @@ def get_available_proteins():
                 protein_entry = {
                     "id": protein_identifier,
                     "name": protein_name,
+                    "length": protein_length,
                     "modified_positions": len(modified_positions),
                     "unique_modifications": len(modifications),
                     "modifications": "$".join(modifications),
@@ -348,6 +350,19 @@ def _get_protein_name(annotation: dict) -> str:
             else:
                 return na
         else:
+            return na
+        
+def _get_protein_length(annotation: dict) -> int:
+    na = "N/A"
+    if annotation == None:
+        return na
+    else :
+        if "sequence" in annotation:
+            if "length" in annotation["sequence"] :
+                return annotation["sequence"]["length"]
+            else :
+                return na
+        else :
             return na
 
 

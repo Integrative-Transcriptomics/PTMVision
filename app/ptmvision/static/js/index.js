@@ -17,13 +17,19 @@ class OverviewTable {
           title: "ID",
           field: "id",
           sorter: "string",
-          width: "10%",
+          width: "5%",
         },
         {
           title: "Name",
           field: "name",
           sorter: "string",
-          width: "40%",
+          width: "25%",
+        },
+        {
+          title: "Primary Sequence Length",
+          field: "length",
+          sorter: "number",
+          width: "20%",
         },
         {
           title: "No. modified positions",
