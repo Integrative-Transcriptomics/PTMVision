@@ -1647,14 +1647,14 @@ class DashboardChart {
         let clr;
         if (unionSize == 0) {
           cls = "Unmodified";
-          clr = "#d4d4d4";
+          clr = "#444444";
         } else if (unionSize > 0) {
           if (intersectionSize == 0) {
             cls = "Modified (No intersecting PTM)";
-            clr = "#5e5e5e";
+            clr = "#DC5754";
           } else {
             cls = "Modified (Intersecting PTM)";
-            clr = "#dc5754";
+            clr = "#FF3429";
           }
           if (
             highlightModifications != undefined &&
@@ -1737,6 +1737,7 @@ class DashboardChart {
           containLabel: false,
           zlevel: 0,
           show: true,
+          backgroundColor: "#111111",
         },
         {
           // Annotations.
