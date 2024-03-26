@@ -808,6 +808,9 @@ class DashboardChart {
       "Coiled coil": "#95A3A4",
       Motif: "#CC5A71",
       "Compositional bias": "#34344A",
+      contact_unmodified: "#AAAAAA",
+      contact_modified: "#000000",
+      contact_highlight: "#DC5754",
     },
   };
   #axisStyle = {
@@ -1146,6 +1149,7 @@ class DashboardChart {
       }
     }
     // Construct option object.
+    let n = this.#data.sequence.length;
     this.#option = {
       title: [
         /*{
@@ -1256,9 +1260,17 @@ class DashboardChart {
           data: Object.keys(this.#data.positions),
           name: "Protein Position",
           nameGap: 30,
-          ...this.#axisStyle,
+          nameLocation: "center",
+          nameTextStyle: {
+            fontWeight: "bold",
+            fontSize: 11,
+          },
+          axisTick: {
+            interval: "auto",
+          },
           axisLabel: {
             ...this.#axisLabelStyle,
+            interval: Math.round(n / 50),
           },
           gridIndex: 2,
           axisPointer: {
@@ -1654,13 +1666,6 @@ class DashboardChart {
       s2.forEach((e) => _.add(e));
       return _;
     };
-    var setIntersection = (s1, s2) => {
-      let _ = new Set();
-      for (let e of s1) {
-        if (s2.has(e)) _.add(e);
-      }
-      return _;
-    };
     for (let [index_i, contacts] of Object.entries(this.#data.contacts)) {
       let x = parseInt(index_i);
       for (let contact of contacts) {
@@ -1672,23 +1677,14 @@ class DashboardChart {
           this.#data.positions[y].modifications.map((_) => _.display_name)
         );
         let unionSize = setUnion(iModifications, jModifications).size;
-        let intersectionSize = setIntersection(
-          iModifications,
-          jModifications
-        ).size;
         let cls;
         let clr;
         if (unionSize == 0) {
-          cls = "Unmodified";
-          clr = "#444444";
+          cls = "Unmodified Contact";
+          clr = this.#colors.explicit.contact_unmodified;
         } else if (unionSize > 0) {
-          if (intersectionSize == 0) {
-            cls = "Modified (No intersecting PTM)";
-            clr = "#DC5754";
-          } else {
-            cls = "Modified (Intersecting PTM)";
-            clr = "#FF3429";
-          }
+          cls = "Modified Contact";
+          clr = this.#colors.explicit.contact_modified;
           if (
             highlightModifications != undefined &&
             highlightModifications.length > 0 &&
@@ -1696,8 +1692,10 @@ class DashboardChart {
               this.#contains(highlightModifications, [...jModifications]))
           ) {
             cls =
-              "Modified (Includes " + highlightModifications.join(",") + ")";
-            clr = "#6694ff";
+              "Modified Contact (Includes " +
+              highlightModifications.join(",") +
+              ")";
+            clr = this.#colors.explicit.contact_highlight;
           }
         } else {
           continue;
@@ -1710,12 +1708,16 @@ class DashboardChart {
             data: [],
             xAxisIndex: 1,
             yAxisIndex: 1,
+            large: true,
             cursor: "default",
             emphasis: {
               disabled: true,
             },
             itemStyle: {
               color: clr,
+              borderColor: clr,
+              borderWidth: 2,
+              borderRadius: 1,
             },
           };
         contactsSeries[cls].data.push([x - 1, y - 1, 1]);
@@ -1726,6 +1728,8 @@ class DashboardChart {
       this.structure.setStructure(this.#data.structure, this.#data.contacts);
     // Construct option object.
     let r = this.chart.instance.getWidth() / this.chart.instance.getHeight();
+    let n = this.#data.sequence.length;
+    console.log(n);
     $("#panel-dashboard-structure").css("left", 15 + 75 / r + "%");
     $("#panel-dashboard-structure").css("width", 100 - (20 + 75 / r) + "%");
     this.#option = this.#option = {
@@ -1739,16 +1743,27 @@ class DashboardChart {
           },
         },*/
         {
-          text: "Per Position PTM Counts, Spatial Contacts and Annotations",
+          text: "Per Position PTM Counts, Residue Contacts and Annotations",
           top: "4%",
           left: "8%",
           ...this.#titleStyle,
         },
         {
-          text: "Protein Structure and Contact PTM Detail View",
+          text: "Protein Structure and Residue Contact PTM Details",
           top: "4%",
           left: 15 + 75 / r + "%",
           ...this.#titleStyle,
+        },
+        {
+          top: "80%",
+          left: 15 + 75 / r + "%",
+          text: "No PTM details to be seen. Click on a cell representing modified residues in the heatmap of residue contacts to populate this chart.",
+          textStyle: {
+            fontSize: 13,
+            fontWeight: "lighter",
+          },
+          backgroundColor: "#FAFAFA",
+          show: true,
         },
       ],
       grid: [
@@ -1770,7 +1785,7 @@ class DashboardChart {
           containLabel: false,
           zlevel: 0,
           show: true,
-          backgroundColor: "#111111",
+          backgroundColor: "#FFFFFF",
         },
         {
           // Annotations.
@@ -1832,12 +1847,12 @@ class DashboardChart {
             fontSize: 11,
           },
           axisTick: {
-            alignWithLabel: true,
             interval: "auto",
           },
           axisLabel: {
             ...this.#axisLabelStyle,
-            interval: 10,
+            interval: Math.round(n / 50),
+            rotate: 45,
           },
           gridIndex: 2,
           axisPointer: {
@@ -1903,12 +1918,11 @@ class DashboardChart {
             fontSize: 11,
           },
           axisTick: {
-            alignWithLabel: true,
             interval: "auto",
           },
           axisLabel: {
             ...this.#axisLabelStyle,
-            interval: 10,
+            interval: Math.round(n / 50),
           },
           gridIndex: 1,
           axisPointer: {
@@ -2107,12 +2121,13 @@ class DashboardChart {
         if (noData) content += `<small>No data.</small></br>`;
       };
       if (positionIndexX != undefined) fillContent(positionIndexX);
+      content += "</br>";
       if (positionIndexY != undefined) fillContent(positionIndexY);
       if (positionIndexX != undefined && positionIndexY != undefined)
         content +=
           `<hr/><small>` +
           component.seriesName +
-          `</small> <code>Click for details.</code>`;
+          `</small> <code>Click to highlight.</code>`;
       return content;
     };
     this.chart.instance.on("click", (params) => {
@@ -2293,16 +2308,23 @@ class DashboardChart {
       this.#data.positions[y].modifications.forEach((o) => {
         yModifications[o.display_name] = o;
       });
-      var data = {};
+      if (
+        Object.keys(xModifications).length == 0 &&
+        Object.keys(yModifications).length == 0
+      ) {
+        this.#option.title[2].show = true;
+      } else {
+        this.#option.title[2].show = false;
+      }
+      var xData = {};
       for (const [name, _] of Object.entries(xModifications)) {
-        let clr = "#5e5e5e";
+        let clr = this.#colors.explicit.contact_modified;
         let ms = _.mass_shift == "null" ? 0.0 : _.mass_shift;
-        if (yModifications.hasOwnProperty(name)) clr = "#dc5754";
-        if (data.hasOwnProperty(ms)) {
-          data[ms].name += "\t" + name;
-          data[ms].itemStyle.clr = clr == "#dc5754" ? "#dc5754" : "#5e5e5e";
+        if (xData.hasOwnProperty(ms)) {
+          xData[ms].name += "\n\t" + name;
+          xData[ms].itemStyle.color = clr;
         } else {
-          data[ms] = {
+          xData[ms] = {
             name: name,
             value: [ms, 0],
             itemStyle: { color: clr },
@@ -2322,15 +2344,15 @@ class DashboardChart {
           };
         }
       }
+      var yData = {};
       for (const [name, _] of Object.entries(yModifications)) {
-        let clr = "#5e5e5e";
+        let clr = this.#colors.explicit.contact_modified;
         let ms = _.mass_shift == "null" ? 0.0 : _.mass_shift;
-        if (xModifications.hasOwnProperty(name)) clr = "#dc5754";
-        if (data.hasOwnProperty(ms)) {
-          data[ms].name += "\t" + name;
-          data[ms].itemStyle.clr = clr == "#dc5754" ? "#dc5754" : "#5e5e5e";
+        if (yData.hasOwnProperty(ms)) {
+          yData[ms].name += "\n\t" + name;
+          yData[ms].itemStyle.color = clr;
         } else {
-          data[ms] = {
+          yData[ms] = {
             name: name,
             value: [ms, 1],
             itemStyle: { color: clr },
@@ -2349,8 +2371,10 @@ class DashboardChart {
           };
         }
       }
-      this.#option.series.filter((_) => _.id == "contact_detail")[0].data =
-        Object.values(data);
+      this.#option.series.filter((_) => _.id == "contact_detail")[0].data = [
+        ...Object.values(xData),
+        ...Object.values(yData),
+      ];
       this.#option.yAxis[3].data = [x, y];
       this.#updateOption();
     }
@@ -2369,6 +2393,11 @@ class StructureView {
   #highlightPositions;
   #highlightModifications;
   #highlightContacts;
+  #colors = {
+    contact_unmodified: "#AAAAAA",
+    contact_modified: "#000000",
+    contact_highlight: "#DC5754",
+  };
 
   constructor(id) {
     this.domId = id;
@@ -2406,7 +2435,7 @@ class StructureView {
       {},
       {
         cartoon: {
-          color: "#d4d4d4",
+          color: "#D4D4D4",
         },
       }
     );
@@ -2423,7 +2452,7 @@ class StructureView {
         },
         {
           stick: {
-            color: "#dc5754",
+            color: "#dd9ac2",
             radius: 0.7,
           },
         }
@@ -2448,7 +2477,7 @@ class StructureView {
             },
             {
               stick: {
-                color: "#dd9ac2",
+                color: "#b486ab",
                 radius: 0.4,
               },
             }
@@ -2506,7 +2535,7 @@ class StructureView {
         { resi: this.#highlightPositions },
         {
           cartoon: {
-            color: "#6694FF",
+            color: this.#colors.contact_highlight,
           },
         }
       );
