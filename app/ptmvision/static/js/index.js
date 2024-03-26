@@ -161,6 +161,16 @@ class OverviewChart {
       fontSize: 13,
     },
   };
+  #axisPointerLabelStyle = {
+    show: true,
+    fontWeight: "bold",
+    fontSize: 11,
+    color: "#333333",
+    padding: [2, 4, 2, 4],
+    backgroundColor: "#fbfbfbe6",
+    borderColor: "#fbfbfb",
+    margin: 1,
+  };
   #sortingIndex = 1;
 
   constructor(id) {
@@ -403,9 +413,7 @@ class OverviewChart {
           },
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -424,9 +432,7 @@ class OverviewChart {
           },
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -445,9 +451,7 @@ class OverviewChart {
           },
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -470,9 +474,7 @@ class OverviewChart {
           },
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
           },
         },
@@ -507,9 +509,7 @@ class OverviewChart {
           },
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -522,9 +522,7 @@ class OverviewChart {
           inverse: true,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
           },
         },
@@ -536,9 +534,7 @@ class OverviewChart {
           inverse: true,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
           },
         },
@@ -554,9 +550,7 @@ class OverviewChart {
           },
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -847,6 +841,16 @@ class DashboardChart {
       color: "#111111",
       fontSize: 13,
     },
+  };
+  #axisPointerLabelStyle = {
+    show: true,
+    fontWeight: "bold",
+    fontSize: 11,
+    color: "#333333",
+    padding: [2, 4, 2, 4],
+    backgroundColor: "#fbfbfbe6",
+    borderColor: "#fbfbfb",
+    margin: 1,
   };
   #aminoAcids = [
     "ALA",
@@ -1233,9 +1237,7 @@ class DashboardChart {
           gridIndex: 0,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: true,
           },
@@ -1247,9 +1249,7 @@ class DashboardChart {
           gridIndex: 1,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -1266,9 +1266,7 @@ class DashboardChart {
           gridIndex: 2,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: true,
           },
@@ -1285,9 +1283,7 @@ class DashboardChart {
           gridIndex: 3,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -1304,9 +1300,7 @@ class DashboardChart {
           gridIndex: 4,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -1325,9 +1319,7 @@ class DashboardChart {
           gridIndex: 0,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -1349,9 +1341,7 @@ class DashboardChart {
           inverse: true,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -1369,9 +1359,7 @@ class DashboardChart {
           gridIndex: 2,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -1385,9 +1373,7 @@ class DashboardChart {
           inverse: true,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -1401,9 +1387,7 @@ class DashboardChart {
           inverse: true,
           axisPointer: {
             show: true,
-            label: {
-              show: true,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: true,
           },
@@ -1820,9 +1804,7 @@ class DashboardChart {
           gridIndex: 0,
           axisPointer: {
             show: true,
-            label: {
-              show: false,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: true,
           },
@@ -1834,9 +1816,7 @@ class DashboardChart {
           show: false,
           axisPointer: {
             show: true,
-            label: {
-              show: false,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -1853,9 +1833,7 @@ class DashboardChart {
           gridIndex: 2,
           axisPointer: {
             show: true,
-            label: {
-              show: false,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: true,
           },
@@ -1870,6 +1848,12 @@ class DashboardChart {
             ...this.#axisLabelStyle,
           },
           gridIndex: 3,
+          axisPointer: {
+            show: true,
+            label: { ...this.#axisPointerLabelStyle },
+            triggerEmphasis: false,
+            triggerTooltip: false,
+          },
         },
       ],
       yAxis: [
@@ -1883,6 +1867,12 @@ class DashboardChart {
             ...this.#axisLabelStyle,
           },
           gridIndex: 0,
+          axisPointer: {
+            show: true,
+            label: { ...this.#axisPointerLabelStyle },
+            triggerEmphasis: false,
+            triggerTooltip: false,
+          },
         },
         {
           // Contact map.
@@ -1897,9 +1887,7 @@ class DashboardChart {
           gridIndex: 1,
           axisPointer: {
             show: true,
-            label: {
-              show: false,
-            },
+            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
           },
@@ -1916,6 +1904,12 @@ class DashboardChart {
             ...this.#axisLabelStyle,
           },
           gridIndex: 2,
+          axisPointer: {
+            show: true,
+            label: { ...this.#axisPointerLabelStyle },
+            triggerEmphasis: false,
+            triggerTooltip: false,
+          },
         },
         {
           // Contact detail.
@@ -1928,6 +1922,12 @@ class DashboardChart {
             ...this.#axisLabelStyle,
           },
           gridIndex: 3,
+          axisPointer: {
+            show: true,
+            label: { ...this.#axisPointerLabelStyle },
+            triggerEmphasis: false,
+            triggerTooltip: false,
+          },
         },
       ],
       dataZoom: [
