@@ -1153,37 +1153,37 @@ class DashboardChart {
     // Construct option object.
     this.#option = {
       title: [
-        {
+        /*{
           top: 4,
-          left: "left",
+          left: 100,
           text: "PTM Classes",
           textStyle: {
             fontSize: 10,
           },
-        },
+        },*/
         {
           text: "Per Position PTMs and Annotations",
-          top: "4%",
+          top: "2%",
           left: "8%",
           ...this.#titleStyle,
         },
         {
           text: "Per Aminoacid PTM Counts",
-          top: "14%",
-          left: "63%",
+          top: "12%",
+          left: "64%",
           ...this.#titleStyle,
         },
         {
           text: "Per PTM Class Counts",
           top: "14%",
-          left: "83%",
+          left: "85%",
           ...this.#titleStyle,
         },
       ],
       grid: [
         {
           // Position counts.
-          top: "7%",
+          top: "5%",
           left: "8%",
           height: "11%",
           width: "55%",
@@ -1202,7 +1202,7 @@ class DashboardChart {
         },
         {
           // Annotations.
-          top: "82%",
+          top: "83%",
           left: "8%",
           height: "10%",
           width: "55%",
@@ -1213,7 +1213,7 @@ class DashboardChart {
         {
           // Amino-acid counts.
           top: "17%",
-          left: "63%",
+          left: "64%",
           height: "65%",
           width: "20%",
           containLabel: false,
@@ -1223,7 +1223,7 @@ class DashboardChart {
         {
           // PTM counts.
           top: "17%",
-          left: "83%",
+          left: "85%",
           height: "65%",
           width: "8%",
           containLabel: false,
@@ -1417,7 +1417,7 @@ class DashboardChart {
         {
           id: "legend",
           top: "top",
-          left: 70,
+          left: "center",
           zlevel: 2,
           icon: "circle",
           itemWidth: 10,
@@ -1471,11 +1471,11 @@ class DashboardChart {
     let aacountSeriesMax = Math.max(...aacountSeries.data.map((_) => _[2]));
     this.#option.visualMap.push({
       seriesIndex: this.#option.series.indexOf(aacountSeries),
-      top: "79%",
-      left: "65%",
+      top: "14%",
+      left: "64%",
       color: ["#111111", "#d1d1d1"],
       orient: "horizontal",
-      itemHeight: 100,
+      itemHeight: 50,
       itemWidth: 11,
       precision: 0,
       textStyle: {
@@ -1735,14 +1735,14 @@ class DashboardChart {
     $("#panel-dashboard-structure").css("width", 100 - (20 + 75 / r) + "%");
     this.#option = this.#option = {
       title: [
-        {
+        /*{
           top: 4,
           left: "left",
           text: "Contact Classes",
           textStyle: {
             fontSize: 10,
           },
-        },
+        },*/
         {
           text: "Per Position PTM Counts, Spatial Contacts and Annotations",
           top: "4%",
@@ -1752,7 +1752,7 @@ class DashboardChart {
         {
           text: "Protein Structure and Contact PTM Detail View",
           top: "4%",
-          left: "49%",
+          left: 15 + 75 / r + "%",
           ...this.#titleStyle,
         },
       ],
@@ -1761,7 +1761,7 @@ class DashboardChart {
           // Position counts.
           top: "7%",
           left: "8%",
-          height: "6%",
+          height: "5%",
           width: 75 / r + "%",
           zlevel: 0,
           show: true,
@@ -1779,9 +1779,9 @@ class DashboardChart {
         },
         {
           // Annotations.
-          top: "88%",
+          top: "89%",
           left: "8%",
-          height: "6%",
+          height: "5%",
           width: 75 / r + "%",
           containLabel: false,
           zlevel: 0,
@@ -1801,6 +1801,7 @@ class DashboardChart {
       xAxis: [
         {
           // Position counts.
+          type: "category",
           data: Object.keys(this.#data.positions),
           show: false,
           gridIndex: 0,
@@ -1813,6 +1814,7 @@ class DashboardChart {
         },
         {
           // Contact map.
+          type: "category",
           data: Object.keys(this.#data.positions),
           gridIndex: 1,
           show: false,
@@ -1825,12 +1827,22 @@ class DashboardChart {
         },
         {
           // Annotations.
+          type: "category",
           data: Object.keys(this.#data.positions),
           name: "Protein Position",
           nameGap: 30,
-          ...this.#axisStyle,
+          nameLocation: "center",
+          nameTextStyle: {
+            fontWeight: "bold",
+            fontSize: 11,
+          },
+          axisTick: {
+            alignWithLabel: true,
+            interval: "auto",
+          },
           axisLabel: {
             ...this.#axisLabelStyle,
+            interval: 10,
           },
           gridIndex: 2,
           axisPointer: {
@@ -1864,7 +1876,15 @@ class DashboardChart {
           type: "value",
           name: "Count",
           nameGap: 30,
-          ...this.#axisStyle,
+          nameLocation: "center",
+          nameTextStyle: {
+            fontWeight: "bold",
+            fontSize: 11,
+          },
+          axisTick: {
+            alignWithLabel: true,
+            interval: "auto",
+          },
           axisLabel: {
             ...this.#axisLabelStyle,
           },
@@ -1882,9 +1902,18 @@ class DashboardChart {
           data: Object.keys(this.#data.positions),
           name: "Position",
           nameGap: 30,
-          ...this.#axisStyle,
+          nameLocation: "center",
+          nameTextStyle: {
+            fontWeight: "bold",
+            fontSize: 11,
+          },
+          axisTick: {
+            alignWithLabel: true,
+            interval: "auto",
+          },
           axisLabel: {
             ...this.#axisLabelStyle,
+            interval: 10,
           },
           gridIndex: 1,
           axisPointer: {
@@ -1953,7 +1982,7 @@ class DashboardChart {
         {
           id: "legend",
           top: "top",
-          left: 80,
+          left: "center",
           zlevel: 2,
           icon: "circle",
           itemWidth: 10,
@@ -2674,7 +2703,7 @@ function redirectAbout() {
 }
 
 function togglePanel(id) {
-  $("#" + id).css("height", "4vh");
+  $("#" + id).css("height", "50px");
   $("#" + id).css("overflow", "hidden");
   $("#" + id).css("color", "#d4d4d4");
   $("#" + id).css("cursor", "pointer");
