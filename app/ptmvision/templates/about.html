@@ -326,7 +326,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   <tr>
                     <td>Plain CSV</td>
                     <td>N/A</td>
-                    <td>***</td>
+                    <td>See example below</td>
                     <td>
                       If no classification given: Retrieve protein sequence,
                       extract modified amino acid, retrieve UniMod
@@ -352,14 +352,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 PTMVision will include a way to filter modifications based on
                 the scores.
                 <br />
-                *** <em>uniprot_id</em>: UniProt Accession of the protein;
-                <em>position</em>: Position of the modification in the protein
-                sequence (1 indexed); <em>modification_unimod_name</em>: UniMod
-                Name; <em>modification_unimod_id</em>: UniMod ID; (optional)
-                <em>mass_shift</em>: mass of the modification in Dalton (will be
-                inferred from unimod ID if not provided); (optional)
-                <em>classification</em>: unimod classification (will be inferred
-                from unimod ID and modified residue if not provided)
+                <h6> Plain csv example</h6>
+                <table class="table striped">
+                  <thead>
+                      <tr>
+                          <th>uniprot_id</th>
+                          <th>position</th>
+                          <th>modification_unimod_name</th>
+                          <th>modification_unimod_id</th>
+                          <th>mass_shift (optional)</th>
+                          <th>classification (optional)</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td>UniProt Accession of the protein</td>
+                          <td>Position of the modification in the protein sequence (1 indexed)</td>
+                          <td>UniMod Name</td>
+                          <td>UniMod ID</td>
+                          <td>Mass of the modification in Dalton (will be inferred from unimod ID if not provided)</td>
+                          <td>Unimod classification (will be inferred from unimod ID and modified residue if not provided)</td>
+                      </tr>
+                      <tr>
+                        <td>P04075</td>
+                        <td>5</td>
+                        <td>carbamidomethyl</td>
+                        <td>4</td>
+                        <td>57.021464</td>
+                        <td>Artefact</td>
+                      </tr>
+                  </tbody>
+              </table>
               </div>
             </small>
             <hr />
