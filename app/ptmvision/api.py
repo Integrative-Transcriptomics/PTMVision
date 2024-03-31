@@ -34,7 +34,7 @@ Session(app)
 
 """ Definition of session keys """
 MODIFICATIONS_DATA = "bW9kaWZpY2F0aW9uc19kYXRhX2ZyYW1l"
-BASEPATH = "./app/ptmvision"
+BASEPATH = "/app/ptmvision"
 
 @app.route("/example_session", methods=["GET"])
 def example_session():
