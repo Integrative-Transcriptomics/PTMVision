@@ -70,6 +70,7 @@ db.sqlite3-journal
 # Flask stuff:
 instance/
 .webassets-cache
+session/
 
 # Scrapy stuff:
 .scrapy
@@ -108,7 +109,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -133,3 +133,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Resources
+/*.png
+
+# Docker
+/*.tar.gz
