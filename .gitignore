@@ -4,6 +4,9 @@ fastas/
 # Sessions
 session/
 
+# Not-ready-to-be-committed data
+example_data/usecase_paper
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
