@@ -18,7 +18,7 @@ import json
 
 MAPPER = UnimodMapper()
 PDBPARSER = PDBParser(PERMISSIVE=False)
-BASEPATH = "./app/ptmvision"
+BASEPATH = "/app/ptmvision"
 
 """
 TODO: Refactor into reader classes, one for each file format.
