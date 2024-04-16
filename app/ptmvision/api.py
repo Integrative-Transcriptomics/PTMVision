@@ -34,7 +34,7 @@ Session(app)
 
 """ Definition of session keys """
 MODIFICATIONS_DATA = "bW9kaWZpY2F0aW9uc19kYXRhX2ZyYW1l"
-BASEPATH = "./app/ptmvision"
+BASEPATH = "/app/ptmvision"
 
 @app.route("/example_session", methods=["GET"])
 def example_session():
@@ -104,12 +104,31 @@ def get_available_proteins():
                     protein_identifiers_unannotated,
                     "UniProtKB"
                 )
+
+                # remove IDs that were demerged in UniProt into multiple
+                # we don't know the original sequence, site mapping would go wrong
+                seen = set()
+                duplicates = set(item["from"] for item in annotations["results"] if item["from"] in seen or seen.add(item["from"]))
+
+                # remove them from results 
+                annotations["results"] = [item for item in annotations["results"] if item["from"] not in duplicates]
+
+                if "failedIds" in annotations :
+                    annotations["failedIds"].extend(list(duplicates))
+                else :
+                    annotations["failedIds"] = list(duplicates)
+                
+                # @Simon: number of demerged proteins / failed IDs to show user
+                n_demerged = len(duplicates)
+                n_failed = len(annotations["failedIds"])
+
                 if "results" in annotations :
                     for entry in annotations[ "results" ] :
                         _add_annotation_to_protein( entry["from"], entry["to"] )
                 if "failedIds" in annotations :
                     for failed_id in annotations[ "failedIds" ] :
                         _add_annotation_to_protein( failed_id, { }, failed = True )
+
             # Construct entry per protein in input data.
             for protein_identifier in list( session[MODIFICATIONS_DATA]["proteins"].keys( ) ):
                 protein_name = _get_protein_name(session[MODIFICATIONS_DATA]["proteins"][protein_identifier]["annotation"])
@@ -285,6 +304,8 @@ def _map_uniprot_identifiers(identifiers: list, target_db: str) -> dict:
     if check_id_mapping_results_ready(job_id):
         link = get_id_mapping_results_link(job_id)
         results = get_id_mapping_results_search(link)
+
+
     return results
 
 
