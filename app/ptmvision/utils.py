@@ -698,8 +698,6 @@ def read_msfragger(file):
     #    ]
     # ]
 
-    pept_mods.to_csv(BASEPATH + "/static/resources/msfragger_mods.csv", index=False)
-
     return pept_mods
 
 
@@ -729,6 +727,9 @@ def read_ionbot(file):
     df["display_name"] = df["modification_unimod_name"]
 
     df.drop(columns=["modification", "modified_residue"], inplace=True)
+    
+    df["uniprot_id"] = df["uniprot_id"].str.replace("sp|", "", regex=False).str.replace("tr|", "", regex=False)
+
     return df
 
 
@@ -909,7 +910,9 @@ def read_userinput(file, flag):
         df = read_maxquant(file)
     elif flag == "infer":
         df = read_any(file)
+
     df = df.fillna("null")
+    
     return parse_df_to_json_schema(df.drop_duplicates())
 
 
