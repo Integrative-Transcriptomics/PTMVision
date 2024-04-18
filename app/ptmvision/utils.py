@@ -1,7 +1,6 @@
 from Bio.PDB import PDBParser
 from Bio import SeqIO
 from io import StringIO
-from unimod_mapper import UnimodMapper
 import pandas as pd
 import numpy as np
 import scipy as sc
@@ -13,10 +12,10 @@ import brotli
 import base64
 from psm_utils.io import read_file
 from tempfile import NamedTemporaryFile
-from pyteomics.mass.unimod import Unimod
-import json
+import pyteomics.mass.unimod as unimod
 
-MAPPER = UnimodMapper()
+UNIMOD_MAPPER = unimod.Unimod("sqlite:///unimod.db")
+TOLERANCE = 0.001 # mass tolerance when matching masses to unimod IDs
 PDBPARSER = PDBParser(PERMISSIVE=False)
 BASEPATH = "/app/ptmvision"
 
@@ -193,83 +192,114 @@ def gather_mass_shift_msfragger(row):
 
     return
 
-
-def map_mass_to_unimod_msfragger(mods):
-    modstr = ""
-    for mod in mods.split(","):
-        pos_aa = mod.split("(")[0]
-
-        mass = re.search(r"\(.*?\)", mod)[0]
-        mass = float(mass.replace("(", "").replace(")", ""))
-        mapped = MAPPER.mass_to_names(
-            mass, decimals=4
-        )  # for unimod ID: mapper.mass_to_ids(mass, decimals = 4)
-
-        mapped_names = " or ".join(list(mapped))
-        if len(list(mapped)) > 0:
-            modstr += pos_aa + "[" + mapped_names + "]"
-
-    return modstr
-
-
-def map_mass_to_unimod_name(mass_shift):
-    mapped = MAPPER.mass_to_names(mass_shift, decimals=4)
-    if len(mapped) > 1:  # mass shift could not be uniquely mapped to unimod
-        return " or ".join(list(mapped))
-    elif len(mapped) == 0:  # mass shift couldnt bet mapped at all
-        return None
+    
+def map_modification_string_to_unimod_name(modification_string):
+    # gets either name ("Oxidation") or string ("+57.") and returns unimod name
+    if modification_string[0] in ["+", "-"]:
+        return map_mass_to_unimod_name(float(modification_string))
     else:
-        return mapped[0]
+        # check if valid unimod name
+        query_results = UNIMOD_MAPPER.by_name(modification_string, strict=False)
+        if query_results:
+            return modification_string
+    return modification_string
+
+
+def map_mass_to_unimod_name(mass):
+    # modification string: either mass shift or unimod name
+
+    query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.monoisotopic_mass.between(mass-TOLERANCE, mass+TOLERANCE)).all()
+    mod_names = [result.full_name for result in query_results]
+    if len(mod_names) == 0: 
+        return None
+    elif len(mod_names) > 1: 
+        return " or ".join(mod_names)
+    return mod_names[0]
+
+
+def map_modification_string_to_unimod_id(modification_string):
+    # gets either name ("Oxidation") or string ("+57.") and returns unimod id(s)
+    if modification_string[0] in ["+", "-"]:
+        return map_mass_to_unimod_id(float(modification_string))
+    else:
+        # check if valid unimod name
+        query_result = UNIMOD_MAPPER.by_name(modification_string, strict=False)
+        if query_result:
+            return str(query_result.id)
+        else:
+            return ""
+        
+
+def map_mass_to_unimod_id(mass):
+    query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.monoisotopic_mass.between(mass-TOLERANCE, mass+TOLERANCE)).all()
+    mod_ids = [str(result.id) for result in query_results]
+    if len(mod_ids) == 0: 
+        return ""
+    elif len(mod_ids) > 1: 
+        return " or ".join(mod_ids)
+    return str(mod_ids[0])
 
 
 def map_unimod_name_to_mass(unimod_name):
-    mapped = MAPPER.name_to_mass(unimod_name)
-    if len(mapped) == 0:
+    query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.ex_code_name == unimod_name).all()
+    mod_masses = [result.monoisotopic_mass for result in query_results]
+    if len(mod_masses) == 0: 
         return None
-    else:
-        return mapped[0]
+    elif len(mod_masses) > 1: 
+        return " or ".join(mod_masses)
+    return mod_masses[0]
+
+
+def map_ids_to_unimod_name(ids):
+    names = []
+    for id in ids.split(" or "):
+        name = map_id_to_unimod_name(id)
+        if name:
+            names.append(name)
+    if len(names) > 0:
+        return " or ".join(names)
+    return None
 
 
 def map_id_to_unimod_name(id):
-    mapped = list(set(MAPPER.id_to_name(id)))
-    if len(mapped) > 1:  # name could not be uniquely mapped to unimod
-        return " or ".join(list(mapped))
-    elif len(mapped) == 0:  # mass shift couldnt bet mapped at all
+    query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.id == id).all()
+    mod_names = [result.ex_code_name if result.ex_code_name != "" else result.code_name for result in query_results  ]
+    if len(mod_names) == 0: 
         return None
-    else:
-        return mapped[0]
+    elif len(mod_names) > 1:
+        return " or ".join(mod_names)
+    return mod_names[0]
 
 
 def map_id_to_mass(id):
-    mapped = MAPPER.id_to_mass(id)
-    if len(mapped) > 1:
-        mass_shifts = [str(x) for x in list(set(mapped))]
-        return " or ".join(mass_shifts)
-    elif len(mapped) == 0:
+    query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.id == id).all()
+    mod_masses = [result.monoisotopic_mass for result in query_results]
+    if len(mod_masses) == 0: 
         return None
-    else:
-        return mapped[0]
-
-
-def map_mass_to_unimod_id(mass_shift):
-    mapped = MAPPER.mass_to_ids(mass_shift, decimals=4)
-    if len(mapped) > 1:  # mass shift could not be uniquely mapped to unimod
-        return " or ".join(list(mapped))
-    elif len(mapped) == 0:  # mass shift couldnt bet mapped at all
-        return None
-    else:
-        return mapped[0]
-
+    elif len(mod_masses) > 1: 
+        return " or ".join(mod_masses)
+    return mod_masses[0]
+    
 
 def map_unimod_description_to_unimod_id(mod):
-    query_string = "`Description` == '{}'".format(mod)
-    matches = list(set(MAPPER.query(query_string)["Accession"].tolist()))
-    if len(matches) > 1:  # mass shift could not be uniquely mapped to unimod
-        return " or ".join(list(matches))
-    elif len(matches) == 0:  # mass shift couldn't bet mapped at all
+    query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.full_name == mod).all()
+    mod_ids = [str(result.id) for result in query_results]
+    if len(mod_ids) == 0: 
         return None
-    else:
-        return matches[0]
+    elif len(mod_ids) > 1: 
+        return " or ".join(mod_ids)
+    return mod_ids[0]
+
+
+def mass_shift_from_id(unimod_id, unimod_db):
+    """
+    Get mass shift from unimod ID
+    """
+    try:
+        mod = unimod_db.get(unimod_id)
+    except KeyError:  # deprecated unimod ID :(
+        return None
+    return mod.monoisotopic_mass
 
 
 def unimod_ids_to_unimod_names(x):
@@ -291,80 +321,33 @@ def classification_from_id(unimod_id, amino_acid, unimod_db):
     """
     Get amino acid specific classification of modification from unimod ID
     """
+    if unimod_id == "":
+        return "Unannotated mass shift"
     try:
         mod = unimod_db.get(int(unimod_id))
     except KeyError:  # deprecated unimod ID :(
-        return 
+        return "deprecated unimod entry"
     for specification in mod.specificities:
         if specification.amino_acid == amino_acid:
             classification = specification.classification.classification
             return classification
 
-    return 
+    return "Non-standard residue"
 
 
 def get_classification(unimod_id, residue, unimod_db):
     if unimod_id is None:
-        return
+        return "Unannotated mass shift"
     elif " or " in unimod_id:
-        return
+        return "Ambiguous mass shift"
     else:
         classification = classification_from_id(unimod_id, residue, unimod_db)
         return classification
 
 
-def mass_shift_from_id(unimod_id, unimod_db):
-    """
-    Get mass shift from unimod ID
-    """
-    try:
-        mod = unimod_db.get(unimod_id)
-    except KeyError:  # deprecated unimod ID :(
-        return None
-    return mod.monoisotopic_mass
-
-
-def id_from_name(name):
-    ids = []
-    for mod_name in name.split(" or "):
-        id = MAPPER.name_to_id(mod_name)[0]
-        ids.append(id)
-    return ",".join(ids)
-
-
-def from_psm_to_protein(df):
-    # for each psm in msfragger, map PTM position onto protein
-    uniprot_ids = []
-    modifications = []
-    positions = []
-    for index, psm in df.iterrows():
-        protein_start = psm["Protein Start"]
-        uniprot_id = psm["Protein ID"]
-
-        for mod in psm["Assigned Modifications parsed"].split("]"):
-            if mod == "":
-                continue
-            modification = mod.split("[")[1]
-            position = get_ptm_position_in_protein(mod, protein_start)
-
-            modifications.append(modification)
-            positions.append(position)
-            uniprot_ids.append(uniprot_id)
-
-    zipped = list(zip(uniprot_ids, positions, modifications))
-    protein_df = pd.DataFrame(
-        zipped, columns=["uniprot_id", "position", "modification_unimod_name"]
-    )
-    protein_df["modification_unimod_id"] = protein_df["modification_unimod_name"].apply(
-        lambda x: id_from_name(x)
-    )
-
-    return protein_df
-
-
 def extract_mods_from_proforma(peptidoform):
     """
-    ENYC[+57.0215]NNVMM[+15.994915]K/2	-> [(3, 57.0215), (8, 15.993915)] (zero indexed!), try to map to unimod names
+    ENYC[+57.0215]NNVMM[+15.994915]K/2	-> [(3, +57.0215), (8, +15.993915)] (zero indexed!), try to map to unimod names
     AADM[Oxidation]TGADIEAMTR/2 -> [(3, Oxidation)]
     """
     mods = []
@@ -453,7 +436,7 @@ def get_display_name(row):
 
 
 def get_mass_shift(mod):
-    # gets with either name ("Oxidation") or string ("+57.") with mass shift
+    # gets either name ("Oxidation") or string ("+57.") and returns mass shift
     if mod[0] in ["+", "-"]:
         mass_shift = float(mod)
     else:
@@ -466,13 +449,9 @@ def PSMList_to_mod_df(psm_list):
     """
     parse list of PSMs and return pandas dataframe with [protein, position, modification_unimod_id, modification_unimod_name]
     """
-    peptidoforms = []
-    proteins = []
-    peptide_sequences = []
-    for psm in psm_list:
-        peptidoforms.append(psm["peptidoform"].proforma)
-        proteins.append(psm.protein_list[0])
-        peptide_sequences.append(psm["peptidoform"].sequence)
+    peptidoforms = [psm["peptidoform"].proforma for psm in psm_list]
+    proteins = [psm.protein_list[0] for psm in psm_list]
+    peptide_sequences = [psm["peptidoform"].sequence for psm in psm_list]
 
     df = pd.DataFrame(
         zip(peptidoforms, proteins, peptide_sequences),
@@ -499,29 +478,33 @@ def PSMList_to_mod_df(psm_list):
 
     df["mass_shift"] = df["modification"].apply(lambda x: get_mass_shift(x[1]))
     df["mod_position_in_peptide"] = df["modification"].apply(lambda x: x[0])
+    
+    df["modification_unimod_id"] = df["modification"].apply(
+        lambda x
+        : map_modification_string_to_unimod_id(x[1])
+    )
 
-    # TODO: in case of already annotated mass shift, parse unimod name and id from modification col directly
-    df["modification_unimod_name"] = df["mass_shift"].apply(
-        lambda x: map_mass_to_unimod_name(x)
+    df["modification_unimod_name"] = df["modification_unimod_id"].apply(
+        lambda x: map_ids_to_unimod_name(x)
     )
-    df["modification_unimod_id"] = df["mass_shift"].apply(
-        lambda x: map_mass_to_unimod_id(x)
-    )
+
+    
     df["display_name"] = df.apply(
         lambda x: get_display_name(x), axis=1
     )  # Unimod Name if available, otherwise "unannotated mass shift: (mass shift)"
+
     df["peptide_position"] = df.apply(
         lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]),
         axis=1,
     )
+    
     df["position"] = df["mod_position_in_peptide"] + df["peptide_position"]
 
-    unimod_db = Unimod()
     df["classification"] = df.apply(
         lambda x: get_classification(
             x["modification_unimod_id"],
             x["peptide"][x["mod_position_in_peptide"]],
-            unimod_db,
+            UNIMOD_MAPPER,
         ),
         axis=1,
     )
@@ -672,13 +655,12 @@ def read_msfragger(file):
 
     # get amino acid at modified position and classification of modification
     # TODO: add N-Term Support (currently encoded as pos = 0)
-    unimod_db = Unimod()
     pept_mods["residue"] = pept_mods.apply(
         lambda x: x["Peptide"][int(x["modification"][0])], axis=1
     )
     pept_mods["classification"] = pept_mods.apply(
         lambda x: get_classification(
-            x["modification_unimod_id"], x["residue"], unimod_db
+            x["modification_unimod_id"], x["residue"], UNIMOD_MAPPER
         ),
         axis=1,
     )
@@ -686,24 +668,11 @@ def read_msfragger(file):
     # get display name (unimod name if available, otherwise "unannotated mass shift: (mass shift)"
     pept_mods["display_name"] = pept_mods.apply(lambda x: get_display_name(x), axis=1)
 
-    # pept_mods = pept_mods[
-    #    [
-    #        "uniprot_id",
-    #        "position",
-    #        "modification_unimod_name",
-    #        "modification_unimod_id",
-    #        "classification",
-    #        "mass_shift",
-    #        "display_name",
-    #    ]
-    # ]
-
     return pept_mods
 
 
 def read_ionbot(file):
     df = pd.read_csv(file)
-    unimod_db = Unimod()
 
     df = df[["uniprot_id", "modification", "position"]]
     df["modification_unimod_name"] = df["modification"].apply(
@@ -717,12 +686,12 @@ def read_ionbot(file):
     )
     df["classification"] = df.apply(
         lambda x: classification_from_id(
-            x["modification_unimod_id"], x["modified_residue"], unimod_db
+            x["modification_unimod_id"], x["modified_residue"], UNIMOD_MAPPER
         ),
         axis=1,
     )
     df["mass_shift"] = df["modification_unimod_id"].apply(
-        lambda x: mass_shift_from_id(x, unimod_db)
+        lambda x: mass_shift_from_id(x, UNIMOD_MAPPER)
     )
     df["display_name"] = df["modification_unimod_name"]
 
@@ -751,18 +720,16 @@ def read_mod_csv(file):
                 axis=1,
             )
 
-        unimod_db = Unimod()
         df["classification"] = df.apply(
             lambda x: classification_from_id(
-                x["modification_unimod_id"], x["modified_residue"], unimod_db
+                x["modification_unimod_id"], x["modified_residue"], UNIMOD_MAPPER
             ),
             axis=1,
         )
         df.drop(columns=["modified_residue"], inplace=True)
     if "mass_shift" not in [x.lower() for x in df.columns]:
-        unimod_db = Unimod()
         df["mass_shift"] = df["modification_unimod_id"].apply(
-            lambda x: mass_shift_from_id(x, unimod_db)
+            lambda x: mass_shift_from_id(x, UNIMOD_MAPPER)
         )
     if "display_name" not in [x.lower() for x in df.columns]:
         df["display_name"] = df["modification_unimod_name"]
@@ -935,11 +902,7 @@ def _brotly_compress(content: str) -> str:
 
 
 if __name__ == "__main__":
-    # json = parse_user_input("example_data/sage_results_v0131.tsv", "sage")
     json = parse_user_input(
         "example_data/msfragger_opensearch_ptmshepherdv206_msfraggerv40_psm.tsv",
         "msfragger",
     )
-    # json = parse_user_input("example_data/msms_maxquant_v24130.txt", "msms")
-    # json = parse_user_input("example_data/sulfolobus_acidocaldarius_UP000060043_with_crap.sage_default_config.results.sage.tsv", "sage")
-    # print(json)
