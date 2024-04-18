@@ -368,6 +368,8 @@ def _get_protein_name(annotation: dict) -> str:
                 return annotation["proteinDescription"]["recommendedName"]["fullName"]["value"]
             elif "alternativeNames" in annotation["proteinDescription"]:
                 return annotation["proteinDescription"]["alternativeNames"][0]["fullName"]["value"]
+            elif "submissionNames" in annotation["proteinDescription"]:
+                return annotation["proteinDescription"]["submissionNames"][0]["fullName"]["value"]
             else:
                 return na
         else:
