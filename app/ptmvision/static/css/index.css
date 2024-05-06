@@ -214,8 +214,8 @@ body {
   left: 5%;
   width: 90%;
   height: auto;
-  min-height: 60vh;
-  max-height: 60vh;
+  min-height: 70vh;
+  max-height: 70vh;
   overflow: scroll;
 }
 
