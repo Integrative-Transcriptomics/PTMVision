@@ -8,22 +8,30 @@ from ptmvision.uniprot_id_mapping import (
 )
 from flask import request, session
 from flask_session import Session
+from cachelib import FileSystemCache
 from dotenv import load_dotenv
 from io import StringIO
 from itertools import combinations
 from copy import deepcopy
+from datetime import timedelta
 import json, zlib, os, base64, traceback
 
 """ Load variables from local file system. """
 load_dotenv()
 
+""" Definition of session keys """
+MODIFICATIONS_DATA = "bW9kaWZpY2F0aW9uc19kYXRhX2ZyYW1l"
+BASEPATH = "./app/ptmvision"
+#BASEPATH = "/app/ptmvision"
+
 """ Set session configuration parameters. """
-app.config["SESSION_TYPE"] = "filesystem"
-app.config["SESSION_FILE_DIR"] = "./session/"
-app.config["SESSION_KEY_PREFIX"] = "ptmvision:"
-app.config["SESSION_USE_SIGNER"] = False
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_FILE_THRESHOLD"] = 1000
+app.config["SESSION_COOKIE_NAME"] = "PTMVision"
+app.config["SESSION_TYPE"] = "cachelib"
+app.config["SESSION_PERMANENT"] = True
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7.0)
+app.config["SESSION_USE_SIGNER"] = True
+app.config["SECRET_KEY"] = os.getenv("SIGNER")
+app.config['SESSION_CACHELIB'] = FileSystemCache(cache_dir = BASEPATH + '/session/', threshold=500)
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # Limit content lengths to 50 MB.
 
 """ Set API parameters. """
@@ -31,10 +39,6 @@ env_parameters = {"DEBUG": os.getenv("DEBUG")}
 
 """ Start session """
 Session(app)
-
-""" Definition of session keys """
-MODIFICATIONS_DATA = "bW9kaWZpY2F0aW9uc19kYXRhX2ZyYW1l"
-BASEPATH = "/app/ptmvision"
 
 @app.route("/example_session", methods=["GET"])
 def example_session():
@@ -376,6 +380,15 @@ def _get_protein_name(annotation: dict) -> str:
             return na
         
 def _get_protein_length(annotation: dict) -> int:
+    """
+    Get the length of a protein from its annotation.
+
+    Parameters:
+        annotation (dict): Annotation information for the protein.
+
+    Returns:
+        int: The length of the protein.
+    """
     na = "N/A"
     if annotation == None:
         return na
@@ -387,7 +400,6 @@ def _get_protein_length(annotation: dict) -> int:
                 return na
         else :
             return na
-
 
 def _format_exception(e: str) -> str:
     """
