@@ -1,9 +1,9 @@
 Bio==1.6.2
 biopython==1.81
 brotlipy==0.7.0
-Flask==2.2.3
-Werkzeug==2.2.2
-flask_session==0.7.0
+flask==2.3.3
+Flask-Session==0.5.0
+werkzeug==2.3.7
 numpy==1.24.4
 pandas==1.5.3
 psm_utils==0.7.4
