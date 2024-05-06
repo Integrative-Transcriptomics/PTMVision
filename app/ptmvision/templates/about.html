@@ -81,9 +81,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <div class="row">
           <div class="cell text-left ml-4 w-100">
             <div class="logo no-hover">
-              <img
+              <img style="cursor: pointer;"
                 src="{{ url_for('static', filename='resources/logo.png') }}"
-                alt="PTMVision Logo"
+                alt="PTMVision Logo - Redirects to home page."
+                onclick="redirectHome()"
+                role="button"
               />
             </div>
           </div>
