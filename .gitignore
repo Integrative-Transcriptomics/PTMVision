@@ -145,3 +145,5 @@ dmypy.json
 
 # Local files
 _local/
+dump.json
+unimod.db
