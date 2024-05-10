@@ -1,8 +1,58 @@
+/*!
+ * PTMVision v1.1 (https://github.com/Integrative-Transcriptomics/PTMVision)
+ * Copyright 2023-2024 by Caroline Jachmann and Simon Hackl
+ * Licensed under GPL-3.0
+ !*/
 var __url = null;
 var __overviewTable = null;
 var __overviewChart = null;
 var __dashboardChart = null;
 var __dashboardContent = null;
+
+// Definition of EChart style options.
+const STYLE_AXIS = {
+  nameLocation: "center",
+  nameGap: 50,
+  nameTextStyle: {
+    fontWeight: "bold",
+    fontSize: 11,
+  },
+  axisLabel: {
+    fontWeight: "lighter",
+    fontSize: 10,
+  },
+  axisTick: {
+    alignWithLabel: true,
+    length: 4,
+    interval: 0,
+  },
+};
+const STYLE_TOOLTIP = {
+  backgroundColor: "#fbfbfbe6",
+  borderColor: "#fbfbfb",
+  textStyle: {
+    color: "#111111",
+    fontSize: 13,
+  },
+};
+const STYLE_TITLE = {
+  textStyle: {
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+};
+const STYLE_POINTER = {
+  label: {
+    show: true,
+    fontWeight: "bold",
+    fontSize: 11,
+    color: "#333333",
+    padding: [2, 4, 2, 4],
+    backgroundColor: "#fbfbfbe6",
+    borderColor: "#fbfbfb",
+    margin: 1,
+  },
+};
 
 class OverviewTable {
   tabulator = null;
@@ -133,45 +183,6 @@ class OverviewChart {
   chart = null;
   #data;
   #option;
-  #axisStyle = {
-    nameLocation: "center",
-    nameTextStyle: {
-      fontWeight: "bold",
-      fontSize: 11,
-    },
-    axisTick: {
-      alignWithLabel: true,
-      interval: 0,
-    },
-  };
-  #axisLabelStyle = {
-    fontWeight: "lighter",
-    fontSize: 9,
-  };
-  #titleStyle = {
-    textStyle: {
-      fontSize: 12,
-      fontWeight: "bold",
-    },
-  };
-  #tooltipStyle = {
-    backgroundColor: "#fbfbfbe6",
-    borderColor: "#fbfbfb",
-    textStyle: {
-      color: "#111111",
-      fontSize: 13,
-    },
-  };
-  #axisPointerLabelStyle = {
-    show: true,
-    fontWeight: "bold",
-    fontSize: 11,
-    color: "#333333",
-    padding: [2, 4, 2, 4],
-    backgroundColor: "#fbfbfbe6",
-    borderColor: "#fbfbfb",
-    margin: 1,
-  };
   #sortingIndex = 1;
 
   constructor(id) {
@@ -211,15 +222,6 @@ class OverviewChart {
         position: "insideEndBottom",
       },
     };
-    /* Deprecated; Error level is very low and not well visualized.
-    let markAreaOption = {
-      silent: true,
-      itemStyle: {
-        color: "#ff6663",
-        opacity: 1.0,
-      },
-    };
-    */
     this.#option.series[0].markLine = {
       ...markLineOption,
       data: indices
@@ -238,20 +240,6 @@ class OverviewChart {
         return { yAxis: i };
       }),
     };
-
-    /* Deprecated; Error level is very low and not well visualized.
-    this.#option.series[1].markArea = {
-      ...markAreaOption,
-      data: indices.map((i) => {
-        let name = this.#data.modificationNamesSorted[this.#sortingIndex][i];
-        let massShift = this.#data.modifications[name].mass_shift;
-        return [
-          { coord: [massShift - 0.02, 0] },
-          { coord: [massShift + 0.02, this.#option.yAxis[1].data.length - 1] },
-        ];
-      }),
-    };
-    */
     this.#option.series[2].markLine = {
       ...markLineOption,
       data: indices.map((i) => {
@@ -281,7 +269,7 @@ class OverviewChart {
   getDataUrl() {
     if (this.#option == undefined) return;
     return this.chart.instance.getDataURL({
-      pixelRatio: 8,
+      pixelRatio: 10,
       backgroundColor: "#fff",
     });
   }
@@ -292,9 +280,13 @@ class OverviewChart {
         modifications: data[0],
         modificationNamesSorted: data[1],
         coOccurrence: data[2],
-        classCounts: data[3],
+        classCounts: Object.entries(data[3]) // Sort class counts by value.
+          .sort(([, v1], [, v2]) => v2 - v1)
+          .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {}),
+        meta: data[4],
       };
-    let r = this.chart.instance.getWidth() / this.chart.instance.getHeight();
+    console.log(this.#data);
+    let r = this.chart.instance.getWidth() / this.chart.instance.getHeight(); // Approximate quadratic aspect ratio.
     // Generate series data from data.
     let dataAxis = this.#data.modificationNamesSorted[this.#sortingIndex];
     let dataMassShift = dataAxis.map((name) => {
@@ -308,7 +300,8 @@ class OverviewChart {
       for (let j = 0; j < dataAxis.length; j++) {
         if (i == j) continue;
         let _ = [dataAxis[i], dataAxis[j]].sort().join("@");
-        dataCoOccurrence.push([i, j, this.#data.coOccurrence[_]]);
+        if (this.#data.coOccurrence.hasOwnProperty(_))
+          dataCoOccurrence.push([i, j, this.#data.coOccurrence[_]]);
       }
     }
     // Fill in option.
@@ -324,31 +317,31 @@ class OverviewChart {
             Object.keys(this.#data.classCounts).length,
           top: "top",
           left: "center",
-          ...this.#titleStyle,
+          ...STYLE_TITLE,
         },
         {
           text: "Shared PTM sites between modification types",
           top: 15,
           left: "10%",
-          ...this.#titleStyle,
+          ...STYLE_TITLE,
         },
         {
           text: "Mass Shift",
           top: 30,
           left: 10 + 2 + 80 / r + "%",
-          ...this.#titleStyle,
+          ...STYLE_TITLE,
         },
         {
           text: "Site Count",
           top: 30,
           left: 10 + 2 * 2 + 12 + 80 / r + "%",
-          ...this.#titleStyle,
+          ...STYLE_TITLE,
         },
         {
           text: "PTM Class Counts",
           top: 30,
           left: 10 + 4 * 2 + 2 * 12 + 80 / r + "%",
-          ...this.#titleStyle,
+          ...STYLE_TITLE,
         },
       ],
       grid: [
@@ -388,97 +381,73 @@ class OverviewChart {
           gridIndex: 0,
           type: "category",
           name: "Modification",
-          nameLocation: "center",
-          ...this.#axisStyle,
-          nameGap: 35,
+          ...STYLE_AXIS,
           data: dataAxis,
-          axisTick: {
-            alignWithLabel: true,
-            interval: 0,
-            length: 3,
-          },
           axisLabel: {
             show: true,
-            formatter: (i) => {
-              if (this.#data.modifications[i]["display_name"].length > 4) {
-                return (
-                  this.#data.modifications[i]["display_name"].substring(0, 5) +
-                  "..."
-                );
-              } else {
-                return this.#data.modifications[i]["display_name"];
-              }
-            },
             rotate: 45,
-            ...this.#axisLabelStyle,
+            formatter: (i) => {
+              let value = this.#data.modifications[i]["display_name"];
+              return value.length > 4 ? value.substring(0, 5) + "..." : value;
+            },
           },
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
           gridIndex: 1,
           type: "value",
           name: "Mass Shift [Da]",
-          ...this.#axisStyle,
-          nameGap: 35,
+          ...STYLE_AXIS,
           axisLabel: {
             show: true,
             interval: 0,
             rotate: 45,
-            ...this.#axisLabelStyle,
           },
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
           gridIndex: 2,
           type: "value",
           name: "Count",
-          ...this.#axisStyle,
-          nameGap: 35,
+          ...STYLE_AXIS,
           axisLabel: {
             show: true,
             interval: 0,
             rotate: 45,
-            ...this.#axisLabelStyle,
           },
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
           gridIndex: 3,
           type: "category",
           name: "Modification Class",
-          ...this.#axisStyle,
-          nameGap: 95,
+          ...STYLE_AXIS,
+          nameGap: 100,
           data: Object.keys(this.#data.classCounts),
-          axisTick: {
-            alignWithLabel: true,
-            interval: 0,
-            length: 4,
-          },
           axisLabel: {
             show: true,
             interval: 0,
             rotate: 45,
-            ...this.#axisLabelStyle,
           },
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
+            ...STYLE_POINTER,
           },
         },
       ],
@@ -487,34 +456,22 @@ class OverviewChart {
           gridIndex: 0,
           type: "category",
           name: "Modification",
-          ...this.#axisStyle,
+          ...STYLE_AXIS,
           nameGap: 140,
           data: dataAxis,
           inverse: true,
-          axisTick: {
-            alignWithLabel: true,
-            interval: 0,
-            length: 2,
-          },
           axisLabel: {
             show: true,
             formatter: (i) => {
-              if (this.#data.modifications[i]["display_name"].length > 20) {
-                return (
-                  this.#data.modifications[i]["display_name"].substring(0, 20) +
-                  "..."
-                );
-              } else {
-                return this.#data.modifications[i]["display_name"];
-              }
+              let value = this.#data.modifications[i]["display_name"];
+              return value.length > 12 ? value.substring(0, 13) + "..." : value;
             },
-            ...this.#axisLabelStyle,
           },
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
@@ -525,8 +482,8 @@ class OverviewChart {
           inverse: true,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
+            ...STYLE_POINTER,
           },
         },
         {
@@ -537,30 +494,28 @@ class OverviewChart {
           inverse: true,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
+            ...STYLE_POINTER,
           },
         },
         {
           gridIndex: 3,
           type: "value",
           name: "Count",
-          ...this.#axisStyle,
-          nameGap: 40,
+          ...STYLE_AXIS,
           axisLabel: {
             show: true,
-            ...this.#axisLabelStyle,
           },
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
       ],
       tooltip: {
-        ...this.#tooltipStyle,
+        ...STYLE_TOOLTIP,
         formatter: (params) => {
           if (Array.isArray(params)) params = params[0];
           if (params.seriesIndex == 0) {
@@ -620,36 +575,38 @@ class OverviewChart {
         },
       },
       visualMap: [
-        {
-          type: "continuous",
-          seriesIndex: [0],
-          inRange: {
-            color: [
-              "#dddddd",
-              "#cccccc",
-              "#888888",
-              "#666666",
-              "#444444",
-              "#222222",
-              "#000000",
-            ],
-          },
-          outOfRange: {
-            color: ["#444444"],
-          },
-          min: 1,
-          max: Math.max(...Object.values(this.#data.coOccurrence)),
-          orient: "horizontal",
-          top: 30,
-          left: "10%",
-          itemHeight: 50,
-          itemWidth: 11,
-          text: [
-            Math.max(...Object.values(this.#data.coOccurrence)),
-            "No. Shared Sites 1",
-          ],
-          textStyle: { fontWeight: "lighter", fontSize: 11 },
-        },
+        dataCoOccurrence.length > 0
+          ? {
+              type: "continuous",
+              seriesIndex: [0],
+              inRange: {
+                color: [
+                  "#dddddd",
+                  "#cccccc",
+                  "#888888",
+                  "#666666",
+                  "#444444",
+                  "#222222",
+                  "#000000",
+                ],
+              },
+              outOfRange: {
+                color: ["#444444"],
+              },
+              min: 1,
+              max: Math.max(...Object.values(this.#data.coOccurrence)),
+              orient: "horizontal",
+              top: 30,
+              left: "10%",
+              itemHeight: 50,
+              itemWidth: 11,
+              text: [
+                Math.max(...Object.values(this.#data.coOccurrence)),
+                "No. Shared Sites 1",
+              ],
+              textStyle: { fontWeight: "normal", fontSize: 12 },
+            }
+          : null,
       ],
       dataZoom: [
         {
@@ -812,45 +769,6 @@ class DashboardChart {
       contact_highlight: "#DC5754",
     },
   };
-  #axisStyle = {
-    nameLocation: "center",
-    nameTextStyle: {
-      fontWeight: "bold",
-      fontSize: 11,
-    },
-    axisTick: {
-      alignWithLabel: true,
-      interval: 0,
-    },
-  };
-  #axisLabelStyle = {
-    fontWeight: "lighter",
-    fontSize: 9,
-  };
-  #titleStyle = {
-    textStyle: {
-      fontSize: 11,
-      fontWeight: "bold",
-    },
-  };
-  #tooltipStyle = {
-    backgroundColor: "#fbfbfbe6",
-    borderColor: "#fbfbfb",
-    textStyle: {
-      color: "#111111",
-      fontSize: 13,
-    },
-  };
-  #axisPointerLabelStyle = {
-    show: true,
-    fontWeight: "bold",
-    fontSize: 11,
-    color: "#333333",
-    padding: [2, 4, 2, 4],
-    backgroundColor: "#fbfbfbe6",
-    borderColor: "#fbfbfb",
-    margin: 1,
-  };
   #aminoAcids = [
     "ALA",
     "CYS",
@@ -982,7 +900,7 @@ class DashboardChart {
   getDataUrl() {
     if (this.#option == undefined) return;
     return this.chart.instance.getDataURL({
-      pixelRatio: 8,
+      pixelRatio: 10,
       backgroundColor: "#fff",
     });
   }
@@ -1062,17 +980,21 @@ class DashboardChart {
       },
     };
     let minMaxScaleCounts = (count, aa) => {
-      let min = Math.min(...Object.values(this.#data.aminoacidCounts[aa]));
-      let max = Math.max(...Object.values(this.#data.aminoacidCounts[aa]));
+      let min = Math.min(
+        ...Object.values(this.#data.aminoacidCounts[aa]).map((_) => _[0])
+      );
+      let max = Math.max(
+        ...Object.values(this.#data.aminoacidCounts[aa]).map((_) => _[0])
+      );
       if (min == max) return 1;
       else return (count - min) / (max - min);
     };
     for (const [aa, _] of Object.entries(this.#data.aminoacidCounts)) {
-      for (const [mdname, count] of Object.entries(_)) {
+      for (const [mdname, info] of Object.entries(_)) {
         aacountSeries.data.push([
           this.#aminoAcids.indexOf(aa),
           this.#data.modifications.indexOf(mdname),
-          minMaxScaleCounts(count, aa),
+          minMaxScaleCounts(info[0], aa),
         ]);
       }
     }
@@ -1157,31 +1079,23 @@ class DashboardChart {
     let n = this.#data.sequence.length;
     this.#option = {
       title: [
-        /*{
-          top: 4,
-          left: 100,
-          text: "PTM Classes",
-          textStyle: {
-            fontSize: 10,
-          },
-        },*/
         {
           text: "Per Position PTMs and Annotations",
           top: "2%",
           left: "8%",
-          ...this.#titleStyle,
+          ...STYLE_TITLE,
         },
         {
           text: "Per Aminoacid PTM Counts",
           top: "12%",
           left: "64%",
-          ...this.#titleStyle,
+          ...STYLE_TITLE,
         },
         {
           text: "Per PTM Class Counts",
           top: "14%",
           left: "85%",
-          ...this.#titleStyle,
+          ...STYLE_TITLE,
         },
       ],
       grid: [
@@ -1243,9 +1157,9 @@ class DashboardChart {
           gridIndex: 0,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: true,
+            ...STYLE_POINTER,
           },
         },
         {
@@ -1255,68 +1169,54 @@ class DashboardChart {
           gridIndex: 1,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
           // Annotations.
           data: Object.keys(this.#data.positions),
           name: "Protein Position",
-          nameGap: 30,
-          nameLocation: "center",
-          nameTextStyle: {
-            fontWeight: "bold",
-            fontSize: 11,
-          },
-          axisTick: {
-            interval: "auto",
-          },
+          ...STYLE_AXIS,
+          nameGap: 35,
           axisLabel: {
-            ...this.#axisLabelStyle,
-            interval: Math.round(n / 50),
+            interval: Math.round(n / 40),
           },
           gridIndex: 2,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: true,
+            ...STYLE_POINTER,
           },
         },
         {
           // Amino acids.
           data: this.#aminoAcids,
           name: "Amino Acid",
-          nameGap: 30,
-          ...this.#axisStyle,
-          axisLabel: {
-            ...this.#axisLabelStyle,
-          },
+          ...STYLE_AXIS,
+          nameGap: 35,
           gridIndex: 3,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
           // Modification counts.
           type: "value",
           name: "Count",
-          nameGap: 30,
-          ...this.#axisStyle,
-          axisLabel: {
-            ...this.#axisLabelStyle,
-          },
+          ...STYLE_AXIS,
+          nameGap: 35,
           gridIndex: 4,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
       ],
@@ -1325,17 +1225,13 @@ class DashboardChart {
           // Position counts.
           type: "value",
           name: "Count",
-          nameGap: 30,
-          ...this.#axisStyle,
-          axisLabel: {
-            ...this.#axisLabelStyle,
-          },
+          ...STYLE_AXIS,
           gridIndex: 0,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
@@ -1343,21 +1239,20 @@ class DashboardChart {
           type: "category",
           data: this.#data.modifications,
           name: "Modification",
-          nameGap: 120,
-          ...this.#axisStyle,
+          ...STYLE_AXIS,
+          nameGap: 125,
           axisLabel: {
-            ...this.#axisLabelStyle,
             formatter: (value) => {
-              return value.length > 20 ? value.substring(0, 21) + "..." : value;
+              return value.length > 12 ? value.substring(0, 13) + "..." : value;
             },
           },
           gridIndex: 1,
           inverse: true,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
@@ -1365,17 +1260,14 @@ class DashboardChart {
           // type: "category",
           data: annotationLabels,
           name: "Annotation",
-          nameGap: 120,
-          ...this.#axisStyle,
-          axisLabel: {
-            ...this.#axisLabelStyle,
-          },
+          ...STYLE_AXIS,
+          nameGap: 125,
           gridIndex: 2,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
@@ -1387,9 +1279,9 @@ class DashboardChart {
           inverse: true,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
@@ -1401,9 +1293,9 @@ class DashboardChart {
           inverse: true,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: true,
+            ...STYLE_POINTER,
           },
         },
       ],
@@ -1454,7 +1346,7 @@ class DashboardChart {
       tooltip: [
         {
           trigger: "item",
-          ...this.#tooltipStyle,
+          ...STYLE_TOOLTIP,
         },
       ],
       series: [
@@ -1538,15 +1430,21 @@ class DashboardChart {
           "</code> ";
       if (component.seriesId.startsWith("modifications"))
         contentHead += " as <code>" + component.seriesName + "</code>";
-      if (aminoacidIndex != undefined)
-        contentHead +=
-          "has " +
+      if (aminoacidIndex != undefined) {
+        let countAndClass =
           this.#data.aminoacidCounts[this.#aminoAcids[aminoacidIndex]][
             this.#data.modifications[modificationIndex]
-          ] +
-          " occurrences on aminoacid <code>" +
+          ];
+        contentHead +=
+          "has " +
+          countAndClass[0] +
+          " occurrences (<code>" +
+          countAndClass[1] +
+          "</code>) on aminoacid <code>" +
           this.#aminoAcids[aminoacidIndex] +
           "</code>";
+        return contentHead; // Do not fill content body for aminoacid axis.
+      }
       // Fill content body based on axis.
       var noData;
       if (positionIndex != undefined) {
@@ -1577,9 +1475,8 @@ class DashboardChart {
               `&nbsp;` +
               i[0] +
               (i[3] != "" ? `&nbsp;` + i[3] : ``) +
-              `</br>`;
+              `</small></br>`;
           }
-          contentBody += `</small>`;
         }
         if (noData) contentBody += `<small>No data.</small>`;
       }
@@ -1733,30 +1630,21 @@ class DashboardChart {
     // Construct option object.
     let r = this.chart.instance.getWidth() / this.chart.instance.getHeight();
     let n = this.#data.sequence.length;
-    console.log(n);
     $("#panel-dashboard-structure").css("left", 15 + 75 / r + "%");
     $("#panel-dashboard-structure").css("width", 100 - (20 + 75 / r) + "%");
     this.#option = this.#option = {
       title: [
-        /*{
-          top: 4,
-          left: "left",
-          text: "Contact Classes",
-          textStyle: {
-            fontSize: 10,
-          },
-        },*/
         {
           text: "Per Position PTM Counts, Residue Contacts and Annotations",
           top: "4%",
           left: "8%",
-          ...this.#titleStyle,
+          ...STYLE_TITLE,
         },
         {
           text: "Protein Structure and Residue Contact PTM Details",
           top: "4%",
           left: 15 + 75 / r + "%",
-          ...this.#titleStyle,
+          ...STYLE_TITLE,
         },
         {
           top: "80%",
@@ -1821,9 +1709,9 @@ class DashboardChart {
           gridIndex: 0,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: true,
+            ...STYLE_POINTER,
           },
         },
         {
@@ -1834,9 +1722,9 @@ class DashboardChart {
           show: false,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
@@ -1844,43 +1732,31 @@ class DashboardChart {
           type: "category",
           data: Object.keys(this.#data.positions),
           name: "Protein Position",
-          nameGap: 30,
-          nameLocation: "center",
-          nameTextStyle: {
-            fontWeight: "bold",
-            fontSize: 11,
-          },
-          axisTick: {
-            interval: "auto",
-          },
-          axisLabel: {
-            ...this.#axisLabelStyle,
-            interval: Math.round(n / 50),
-            rotate: 45,
-          },
+          ...STYLE_AXIS,
+          nameGap: 35,
           gridIndex: 2,
+          axisLabel: {
+            interval: Math.round(n / 25),
+          },
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: true,
+            ...STYLE_POINTER,
           },
         },
         {
           // Contact detail.
           type: "value",
           name: "Mass Shift [Da]",
-          nameGap: 30,
-          ...this.#axisStyle,
-          axisLabel: {
-            ...this.#axisLabelStyle,
-          },
+          ...STYLE_AXIS,
+          nameGap: 35,
           gridIndex: 3,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
       ],
@@ -1889,25 +1765,13 @@ class DashboardChart {
           // Position counts.
           type: "value",
           name: "Count",
-          nameGap: 30,
-          nameLocation: "center",
-          nameTextStyle: {
-            fontWeight: "bold",
-            fontSize: 11,
-          },
-          axisTick: {
-            alignWithLabel: true,
-            interval: "auto",
-          },
-          axisLabel: {
-            ...this.#axisLabelStyle,
-          },
+          ...STYLE_AXIS,
           gridIndex: 0,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
@@ -1915,25 +1779,16 @@ class DashboardChart {
           type: "category",
           data: Object.keys(this.#data.positions),
           name: "Position",
-          nameGap: 30,
-          nameLocation: "center",
-          nameTextStyle: {
-            fontWeight: "bold",
-            fontSize: 11,
-          },
-          axisTick: {
-            interval: "auto",
-          },
+          ...STYLE_AXIS,
           axisLabel: {
-            ...this.#axisLabelStyle,
-            interval: Math.round(n / 50),
+            interval: Math.round(n / 40),
           },
           gridIndex: 1,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
           inverse: true,
         },
@@ -1942,17 +1797,14 @@ class DashboardChart {
           type: "category",
           data: annotationLabels,
           name: "Annotation",
-          nameGap: 120,
-          ...this.#axisStyle,
-          axisLabel: {
-            ...this.#axisLabelStyle,
-          },
+          ...STYLE_AXIS,
+          nameGap: 125,
           gridIndex: 2,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
         {
@@ -1960,17 +1812,13 @@ class DashboardChart {
           type: "category",
           data: ["", ""],
           name: "Residue Index",
-          nameGap: 30,
-          ...this.#axisStyle,
-          axisLabel: {
-            ...this.#axisLabelStyle,
-          },
+          ...STYLE_AXIS,
           gridIndex: 3,
           axisPointer: {
             show: true,
-            label: { ...this.#axisPointerLabelStyle },
             triggerEmphasis: false,
             triggerTooltip: false,
+            ...STYLE_POINTER,
           },
         },
       ],
@@ -2020,7 +1868,7 @@ class DashboardChart {
       tooltip: [
         {
           trigger: "item",
-          ...this.#tooltipStyle,
+          ...STYLE_TOOLTIP,
         },
       ],
       series: [
@@ -2118,9 +1966,8 @@ class DashboardChart {
               `&nbsp;` +
               i[0] +
               (i[3] != "" ? `&nbsp;` + i[3] : ``) +
-              `</br>`;
+              `</small></br>`;
           }
-          content += `</small>`;
         }
         if (noData) content += `<small>No data.</small></br>`;
       };
@@ -2146,6 +1993,7 @@ class DashboardChart {
   fill(data) {
     this.#data = data;
     this.#postprocess();
+    console.log(this.#data);
     this.setModificationsOption();
     this.hideStructure();
     this.#updateOption(true);
@@ -2191,11 +2039,16 @@ class DashboardChart {
         const modificationName = modification.display_name;
         const modificationClass = modification.modification_classification;
         _modifications.push(modificationName);
+
         if (!this.#data.aminoacidCounts[aa].hasOwnProperty(modificationName)) {
-          this.#data.aminoacidCounts[aa][modificationName] = 1;
+          this.#data.aminoacidCounts[aa][modificationName] = [
+            1,
+            modificationClass,
+          ];
         } else {
-          this.#data.aminoacidCounts[aa][modificationName] += 1;
+          this.#data.aminoacidCounts[aa][modificationName][0] += 1;
         }
+
         if (!_modificationsMassShift.hasOwnProperty(modificationName))
           _modificationsMassShift[modificationName] = modification.mass_shift;
         if (!this.#data.modificationCounts.hasOwnProperty(modificationName))
@@ -2337,7 +2190,6 @@ class DashboardChart {
             symbolRotate: 180,
             label: {
               show: true,
-              ...this.#axisLabelStyle,
               position: [5, -5],
               rotate: 45,
               formatter: (params) => {
@@ -2364,7 +2216,6 @@ class DashboardChart {
             symbolSize: 12,
             label: {
               show: true,
-              ...this.#axisLabelStyle,
               position: [5, -5],
               rotate: 45,
               formatter: (params) => {
@@ -2646,6 +2497,7 @@ async function startExistingSession() {
 async function startSession() {
   displayNotification("Transfer and process entered data.");
   request = {
+    massShiftTolerance: 0.001,
     contentType: null,
     content: null,
   };
@@ -2659,6 +2511,7 @@ async function startSession() {
     request.content = response;
   });
   request.contentType = $("#data-type-form")[0].value;
+  request.massShiftTolerance = parseFloat($("#data-tolerance-form")[0].value);
   axios
     .post(
       __url + "/process_search_engine_output",
@@ -2728,6 +2581,13 @@ function readFile(file) {
  */
 function redirectAbout() {
   window.open(__url + "/about", "_blank");
+}
+
+/**
+ * Redirects the browser to the home page of this project.
+ */
+function redirectHome() {
+  window.open(window.location.origin, "_self");
 }
 
 function togglePanel(id) {

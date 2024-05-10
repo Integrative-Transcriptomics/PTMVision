@@ -1,26 +1,25 @@
-from Bio.PDB import PDBParser
-from Bio import SeqIO
-from io import StringIO
 import pandas as pd
 import numpy as np
 import scipy as sc
+import pyteomics.mass.unimod as unimod
+from Bio.PDB import PDBParser
+from Bio import SeqIO
+from io import StringIO
 from pathlib import Path
-import re
-import urllib.request
-import requests
-import brotli
-import base64
 from psm_utils.io import read_file
 from tempfile import NamedTemporaryFile
-import pyteomics.mass.unimod as unimod
+from datetime import datetime
+import re, urllib.request, requests, brotli, base64, os
 
 UNIMOD_MAPPER = unimod.Unimod("sqlite:///unimod.db")
-TOLERANCE = 0.001 # mass tolerance when matching masses to unimod IDs
+TOLERANCE = 0.001 # Mass tolerance when matching masses to unimod IDs.
 PDBPARSER = PDBParser(PERMISSIVE=False)
+# BASEPATH = "./app/ptmvision" # Use this for local development.
 BASEPATH = "/app/ptmvision"
-
+DEBUG = os.getenv("DEBUG")
 """
 TODO: Refactor into reader classes, one for each file format.
+TODO: Unimod mapper decreases performance.
 """
 
 def check_fasta_coverage(uniprot_ids, fasta_dict):
@@ -207,7 +206,7 @@ def map_modification_string_to_unimod_name(modification_string):
 
 def map_mass_to_unimod_name(mass):
     # modification string: either mass shift or unimod name
-
+    global TOLERANCE
     query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.monoisotopic_mass.between(mass-TOLERANCE, mass+TOLERANCE)).all()
     mod_names = [result.full_name for result in query_results]
     if len(mod_names) == 0: 
@@ -231,6 +230,7 @@ def map_modification_string_to_unimod_id(modification_string):
         
 
 def map_mass_to_unimod_id(mass):
+    global TOLERANCE
     query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.monoisotopic_mass.between(mass-TOLERANCE, mass+TOLERANCE)).all()
     mod_ids = [str(result.id) for result in query_results]
     if len(mod_ids) == 0: 
@@ -325,15 +325,13 @@ def classification_from_id(unimod_id, amino_acid, unimod_db):
         return "Unannotated mass shift"
     try:
         mod = unimod_db.get(int(unimod_id))
-    except KeyError:  # deprecated unimod ID :(
-        return "deprecated unimod entry"
+    except KeyError:  # Deprecated Unimod ID :(
+        return "Deprecated unimod entry"
     for specification in mod.specificities:
         if specification.amino_acid == amino_acid:
             classification = specification.classification.classification
             return classification
-
     return "Non-standard residue"
-
 
 def get_classification(unimod_id, residue, unimod_db):
     if unimod_id is None:
@@ -582,6 +580,8 @@ def parse_msfragger_mods(msfragger_psm_row):
 
 
 def read_msfragger(file):
+    if DEBUG :
+        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'msfragger' ... ", end = '', flush = True)
     # read file and pick relevant rows and columns
     pept_mods = pd.read_csv(file, sep="\t")
     pept_mods = pept_mods[
@@ -672,31 +672,39 @@ def read_msfragger(file):
 
 
 def read_ionbot(file):
+    if DEBUG :
+        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'ionbot' ... ", end = '', flush = True)
     df = pd.read_csv(file)
 
     df = df[["uniprot_id", "modification", "position"]]
+
     df["modification_unimod_name"] = df["modification"].apply(
         lambda x: x.split("]")[1].split("[")[0].lower()
     )
+
     df["modification_unimod_id"] = df["modification"].apply(
         lambda x: int(x.split("]")[0][1:])
     )
+
     df["modified_residue"] = df["modification"].apply(
         lambda x: x.split("[")[2].split("]")[0]
     )
+
     df["classification"] = df.apply(
         lambda x: classification_from_id(
             x["modification_unimod_id"], x["modified_residue"], UNIMOD_MAPPER
         ),
         axis=1,
     )
+
     df["mass_shift"] = df["modification_unimod_id"].apply(
         lambda x: mass_shift_from_id(x, UNIMOD_MAPPER)
     )
+
     df["display_name"] = df["modification_unimod_name"]
 
     df.drop(columns=["modification", "modified_residue"], inplace=True)
-    
+
     df["uniprot_id"] = df["uniprot_id"].str.replace("sp|", "", regex=False).str.replace("tr|", "", regex=False)
 
     return df
@@ -709,6 +717,8 @@ def read_mod_csv(file):
     optional: classification, mass_shift, annotation
     if classification and mass_shift are not provided, they will be queried from unimod
     """
+    if DEBUG :
+        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'csv' ... ", end = '', flush = True)
     df = pd.read_csv(file)
     if "classification" not in [x.lower() for x in df.columns]:
         if "modified_residue" not in [x.lower() for x in df.columns]:
@@ -738,6 +748,8 @@ def read_mod_csv(file):
 
 
 def read_sage(file):
+    if DEBUG :
+        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'sage' ... ", end = '', flush = True)
     # write sage to temporary file and then give filepath to psm utils
     with NamedTemporaryFile(mode="wt", delete=False) as f:
         f.write(file.getvalue())
@@ -763,6 +775,8 @@ def read_sage(file):
 
 
 def read_maxquant(file):
+    if DEBUG :
+        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'maxquant' ... ", end = '', flush = True)
     # write msms to temporary file and then give filepath to psm utils
     with NamedTemporaryFile(mode="wt", delete=False) as f:
         f.write(file.getvalue())
@@ -789,6 +803,8 @@ def read_maxquant(file):
 
 
 def read_any(file):
+    if DEBUG :
+        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'any' ... ", end = '', flush = True)
     # write to temporary file and then give filepath to psm utils
     with NamedTemporaryFile(mode="wt", delete=False) as f:
         f.write(file.getvalue())
@@ -826,6 +842,8 @@ def construct_modifications_entry(row):
 
 
 def parse_df_to_json_schema(dataframe):
+    if DEBUG :
+        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tConvert data into schema ... ", end = '', flush = True)
     # Init. dictionary to store results in JSON schema.
     protein_dict = {"proteins": {}, "meta_data": {}}
     # Internal function to add entries.
@@ -860,6 +878,8 @@ def parse_df_to_json_schema(dataframe):
             protein_dict["proteins"][row["uniprot_id"]]["positions"][row["position"]][
                 "modifications"
             ].append(construct_modifications_entry(row))
+    if DEBUG :
+        print( "DONE" )
     return protein_dict
 
 
@@ -877,15 +897,18 @@ def read_userinput(file, flag):
         df = read_maxquant(file)
     elif flag == "infer":
         df = read_any(file)
-
     df = df.fillna("null")
-    
+    if DEBUG :
+        print( "DONE" )
     return parse_df_to_json_schema(df.drop_duplicates())
 
 
-def parse_user_input(user_file, user_flag):
+def parse_user_input(user_file, user_flag, mass_shift_tolerance = 0.001):
+    global TOLERANCE
+    TOLERANCE = mass_shift_tolerance
     try:
         json = read_userinput(user_file, user_flag)
+        json["meta_data"]["mass_shift_tolerance"] = mass_shift_tolerance
     except TypeError:
         raise TypeError(
             "Your file could not be parsed. Have you selected the right format?"
@@ -899,10 +922,3 @@ def _brotli_decompress(content: str) -> str:
 
 def _brotly_compress(content: str) -> str:
     return base64.urlsafe_b64encode(brotli.compress(content.encode())).decode()
-
-
-if __name__ == "__main__":
-    json = parse_user_input(
-        "example_data/msfragger_opensearch_ptmshepherdv206_msfraggerv40_psm.tsv",
-        "msfragger",
-    )

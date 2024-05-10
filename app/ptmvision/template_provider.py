@@ -1,5 +1,5 @@
 from ptmvision import app
-from ptmvision.api import env_parameters
+from ptmvision.api import DEBUG
 from flask import render_template
 
 

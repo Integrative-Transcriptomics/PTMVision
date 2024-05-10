@@ -17,7 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<html>
+<html lang="en">
   <head>
     <title>PTMVision</title>
     <link
@@ -40,74 +40,74 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       -->
     <link
       rel="stylesheet"
-      href="https://cdn.korzh.com/metroui/v4/css/metro-all.min.css"
+      href="{{url_for('static', filename='css/metro-5.0.0.rc9.min.css')}}"
     />
     <link
       rel="stylesheet"
       type="text/css"
-      href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css"
+      href="{{url_for('static', filename='css/tabulator-6.1.0.min.css')}}"
     />
     <link
       rel="stylesheet"
       type="text/css"
-      href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap4.min.css"
+      href="{{url_for('static', filename='css/tabulator-bootstrap4-6.1.0.min.css')}}"
     />
     <link
       rel="stylesheet"
       type="text/css"
-      href="{{url_for('static', filename='css/index.css')}}"
+      href="{{url_for('static', filename='css/ptmvision.index-1.1.css')}}"
     />
     <!--
       Definition of java script files to use in the application.
       -->
     <script
       type="text/javascript"
-      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      src="{{url_for('static', filename='js/jquery-3.7.1.min.js')}}"
     ></script>
     <script
       type="text/javascript"
-      src="https://cdn.korzh.com/metroui/v4/js/metro.min.js"
+      src="{{url_for('static', filename='js/metro-5.0.0.rc9.min.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/resizesensor-0.0.6.min.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/echarts-5.5.0.min.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/3Dmol-2.1.0.min.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/sweetalert2-11.10.8.min.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/axios-1.1.2.min.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/lodash-4.17.21.min.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/tabulator-6.1.0.min.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/pako-2.1.0.min.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/ptmvision.index-1.1.js')}}"
     ></script>
     <script
       type="text/javascript"
       src="https://kit.fontawesome.com/df04f22e3d.js"
       crossorigin="anonymous"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/resize-sensor@0.0.6/ResizeSensor.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://3Dmol.org/build/3Dmol-min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://unpkg.com/tabulator-tables@6.1.0/dist/js/tabulator.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/pako.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/index.js')}}"
     ></script>
   </head>
   <body onLoad="init();">
@@ -121,7 +121,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     >
       <div id="menu-grid" class="grid w-100">
         <div class="row">
-          <div class="cell text-left ml-4">
+          <div class="cell text-left ml-4 w-100">
             <div class="logo no-hover">
               <img
                 src="{{ url_for('static', filename='resources/logo.png') }}"
@@ -257,16 +257,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </dt>
             <small>
               <dd class="infotext-small">
-                We recommend using PTMVision in Chrome or Firefox for optimal
-                performance. Safari has issues when visualising larger datasets.
+                <span>&#8226;</span> We recommend using PTMVision in Chrome or
+                Firefox for optimal performance. Safari has issues when
+                visualising larger datasets.
                 <br />
-                Note that PTMVision serves solely to visualize the content
-                provided in the input and does not conduct any further quality
-                control. The localization of modifications still remains a
-                challenging task and may yield imprecise results. PTMVision will
-                be continuously updated and improved, including the addition of
-                filters for localisation scores as soon as they will be reported
-                by search engines.
+                <span>&#8226;</span> Note that PTMVision serves solely to
+                visualize the content provided in the input and does not conduct
+                any further quality control. The localization of modifications
+                still remains a challenging task and may yield imprecise
+                results.
+                <br />
+                <span>&#8226;</span> PTMVision will be continuously updated and
+                improved, including the addition of filters for localisation
+                scores as soon as they will be reported by search engines.
               </dd>
             </small>
           </dl>
@@ -300,6 +303,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-role="file"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
+          <h7 class="secondary">Specify mass shift tolerance: </h7>&nbsp;<small
+            ><b>Only</b> relevant for closed searches.</small
+          >
+          <br />
+          <input
+            id="data-tolerance-form"
+            class="w-25 input-small"
+            type="number"
+            value="0.001"
+            min="0"
+            max="1"
+            step="0.0001"
+          />
+          <br />
           <button class="proceed-button mt-2" onclick="startSession()">
             Submit
           </button>

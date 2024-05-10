@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from io import StringIO
 from itertools import combinations
 from copy import deepcopy
-from datetime import timedelta
+from datetime import datetime
 import json, zlib, os, base64, traceback
 
 """ Load variables from local file system. """
@@ -21,21 +21,21 @@ load_dotenv()
 
 """ Definition of session keys """
 MODIFICATIONS_DATA = "bW9kaWZpY2F0aW9uc19kYXRhX2ZyYW1l"
-BASEPATH = "./app/ptmvision"
-#BASEPATH = "/app/ptmvision"
+#BASEPATH = "./app/ptmvision" # Use this for local development.
+BASEPATH = "/app/ptmvision" 
 
 """ Set session configuration parameters. """
 app.config["SESSION_COOKIE_NAME"] = "PTMVision"
 app.config["SESSION_TYPE"] = "cachelib"
-app.config["SESSION_PERMANENT"] = True
-app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7.0)
+app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True
 app.config["SECRET_KEY"] = os.getenv("SIGNER")
-app.config['SESSION_CACHELIB'] = FileSystemCache(cache_dir = BASEPATH + '/session/', threshold=500)
-app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # Limit content lengths to 50 MB.
+app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir = BASEPATH + '/session/', threshold=1000)
+app.config["SESSION_CLEANUP_N_REQUESTS"] = 100
+app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # Limit content lengths to 100 MB.
 
 """ Set API parameters. """
-env_parameters = {"DEBUG": os.getenv("DEBUG")}
+DEBUG = os.getenv("DEBUG")
 
 """ Start session """
 Session(app)
@@ -78,12 +78,13 @@ def process_search_engine_output():
     """Route to process CSV data or SAGE, ionbot or MSFragger search engine output."""
     try:
         json_request_data = _request_to_json(request.data)
-        content_type = json_request_data["contentType"]
         json_user_data = utils.parse_user_input(
-            StringIO(json_request_data["content"]), content_type
+            StringIO(json_request_data["content"]),
+            json_request_data["contentType"],
+            json_request_data["massShiftTolerance"]
         )
         session[MODIFICATIONS_DATA] = json_user_data
-        if env_parameters["DEBUG"] :
+        if DEBUG :
             with open( "./dump.json", "w+" ) as dumpfile :
                 dumpfile.write( json.dumps( session[MODIFICATIONS_DATA], indent = 3 ) )
         return "Ok", 200
@@ -122,9 +123,10 @@ def get_available_proteins():
                 else :
                     annotations["failedIds"] = list(duplicates)
                 
-                # @Simon: number of demerged proteins / failed IDs to show user
-                n_demerged = len(duplicates)
-                n_failed = len(annotations["failedIds"])
+                # Number of demerged proteins / failed IDs to show user
+                #if env_parameters["DEBUG"] :
+                #n_demerged = len(duplicates)
+                #n_failed = len(annotations["failedIds"])
 
                 if "results" in annotations :
                     for entry in annotations[ "results" ] :
@@ -159,7 +161,7 @@ def get_available_proteins():
                     "modifications": "$".join(modifications),
                 }
                 protein_entries.append(protein_entry)
-            if env_parameters["DEBUG"] :
+            if DEBUG :
                     with open( "./dump.json", "w+" ) as dumpfile :
                         dumpfile.write( json.dumps( session[MODIFICATIONS_DATA], indent = 3 ) )
             return protein_entries, 200
@@ -218,7 +220,8 @@ def get_overview_data():
                 modifications,
                 [ modifications_by_mass_shift, modifications_by_count ],
                 modification_co_occurrence,
-                modification_classification_counts
+                modification_classification_counts,
+                session[MODIFICATIONS_DATA][ "meta_data" ]
             ], 200
         else :
             raise Exception("Faulty session data.")
@@ -267,6 +270,7 @@ def get_protein_data():
             # Construct response.
             response = deepcopy( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ] )
             response[ "structure" ] = utils._brotli_decompress( response[ "structure" ] )
+            response[ "meta" ] = session[MODIFICATIONS_DATA]["meta_data"]
             return response, 200
         else :
             return "Error in request '/get_protein_data': No protein structure available.", 303
@@ -302,12 +306,16 @@ def _map_uniprot_identifiers(identifiers: list, target_db: str) -> dict:
     Returns:
         dict: Results of the identifier mapping.
     """
+    if DEBUG :
+        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tRetrieve UniProt information ... ", end = '', flush = True)
     job_id = submit_id_mapping(
         from_db="UniProtKB_AC-ID", to_db=target_db, ids=identifiers
     )
     if check_id_mapping_results_ready(job_id):
         link = get_id_mapping_results_link(job_id)
         results = get_id_mapping_results_search(link)
+    if DEBUG :
+        print( "DONE", end = '', flush = True)
 
 
     return results
@@ -379,6 +387,7 @@ def _get_protein_name(annotation: dict) -> str:
         else:
             return na
         
+
 def _get_protein_length(annotation: dict) -> int:
     """
     Get the length of a protein from its annotation.
@@ -401,6 +410,7 @@ def _get_protein_length(annotation: dict) -> int:
         else :
             return na
 
+
 def _format_exception(e: str) -> str:
     """
     Formats the given exception into a string.
@@ -415,7 +425,7 @@ def _format_exception(e: str) -> str:
         This function utilizes the global variable `api_parameters` to determine whether to print the exception traceback.
         If `api_parameters["DEBUG"]` is True, the traceback will be printed with color highlighting; otherwise, only the exception message will be formatted.
     """
-    if env_parameters["DEBUG"]:
+    if DEBUG:
         # Print the exception traceback with color highlighting
         print("\u001b[31m" + "".join(traceback.format_exception(e)) + "\u001b[0m")
     
