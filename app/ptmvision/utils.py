@@ -691,23 +691,36 @@ def read_ionbot(file):
         lambda x: x.split("[")[2].split("]")[0]
     )
 
-    df["classification"] = df.apply(
+    #get all unique unimod id - amino acid combinations 
+    unique_mods = df[["modification_unimod_id", "modified_residue"]].drop_duplicates()
+
+    #look unimod classification up in the db, store them in column
+    unique_mods["classification"] = unique_mods.apply(
         lambda x: classification_from_id(
             x["modification_unimod_id"], x["modified_residue"], UNIMOD_MAPPER
         ),
         axis=1,
     )
 
-    df["mass_shift"] = df["modification_unimod_id"].apply(
+    #merge
+    df = df.merge(unique_mods, on=["modification_unimod_id", "modified_residue"], how="left")
+
+    #get all unique unimod ids
+    unique_mass_shifts = df[["modification_unimod_id"]].drop_duplicates()
+
+    #look mass shifts up in the db, store them in column
+    unique_mass_shifts["mass_shift"] = unique_mass_shifts["modification_unimod_id"].apply(
         lambda x: mass_shift_from_id(x, UNIMOD_MAPPER)
     )
+
+    #merge
+    df = df.merge(unique_mass_shifts, on="modification_unimod_id", how="left")
 
     df["display_name"] = df["modification_unimod_name"]
 
     df.drop(columns=["modification", "modified_residue"], inplace=True)
 
     df["uniprot_id"] = df["uniprot_id"].str.replace("sp|", "", regex=False).str.replace("tr|", "", regex=False)
-
     return df
 
 
