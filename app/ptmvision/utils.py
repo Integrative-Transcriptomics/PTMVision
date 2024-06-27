@@ -364,25 +364,6 @@ def extract_mods_from_proforma(peptidoform):
     return mods
 
 
-def parse_protein_string_old(x):
-    """
-    Try to parse uniprot ID from protein_list entry in PSMList
-    """
-    uniprot_accession_pattern = re.compile(
-        "[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}"
-    )
-    accession_candidates = [x]
-    if "|" in x:
-        if x.count("|") == 2:
-            accession_candidates.append(x.split("|")[1])
-        else:
-            return accession_candidates.append(x.split("|")[-1])
-    for x in accession_candidates:
-        if uniprot_accession_pattern.match(x):
-            return x  # probably accession number
-    return None
-
-
 def parse_protein_string(x):
     """
     Try to parse uniprot accession ID from protein string
@@ -391,9 +372,10 @@ def parse_protein_string(x):
         "[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}"
     )
     accession_candidates = [x] + x.split("|")
-    for x in accession_candidates:
-        if uniprot_accession_pattern.match(x):
-            return x  # probably accession number
+    for candidate in accession_candidates:
+        match = uniprot_accession_pattern.match(candidate)
+        if match:
+            return match.group(0)  # probably accession number
     return None
 
 
