@@ -578,6 +578,7 @@ def read_msfragger(file):
             "Protein Start",
         ]
     ]
+
     pept_mods = pept_mods.drop_duplicates()
 
     # filter out unmodified peptidoforms
@@ -589,10 +590,10 @@ def read_msfragger(file):
     ]
 
     # filter out ambigously matched modifications
-    pept_mods = pept_mods[pept_mods["Observed Modifications"].str.count(";") == 0]
+    pept_mods = pept_mods[pept_mods["Observed Modifications"].fillna("").str.count(";") == 0]
 
     # filter out combinations of modifications
-    pept_mods = pept_mods[pept_mods["Observed Modifications"].str.count("Mod2") == 0]
+    pept_mods = pept_mods[pept_mods["Observed Modifications"].fillna("").str.count("Mod2") == 0]
 
     # filter out ambiguously localized modifications
     pept_mods = pept_mods[
