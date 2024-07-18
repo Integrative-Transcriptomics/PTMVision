@@ -286,7 +286,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <h7 class="secondary"
             >Specify pipeline with which your data was generated:</h7
           >
-          <select data-role="select" id="data-type-form">
+          <select id="data-type-form" class="mb-2" data-role="select">
             <optgroup label="Pipeline">
               <option value="ionbot">Ionbot</option>
               <option value="msfragger">MSFragger</option>
@@ -299,17 +299,55 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <h7 class="secondary">Specify PTM data file:</h7>
           <input
             id="data-input-form"
+            class="mb-2"
             type="file"
             data-role="file"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
+          <h7 class="secondary"
+            >Specify (Unimod) modification classes to exclude from the
+            analysis:</h7
+          >
+          <select
+            id="data-excludecls-form"
+            class="mb-2"
+            data-role="select"
+            multiple
+          >
+            <optgroup label="Other"></optgroup>
+              <option value="Chemical derivative">Chemical derivative</option>
+              <option value="Artefact">Artefact</option>
+              <option value="Synth. pep. protect. gp.">Synth. pep. protect. gp.</option>
+              <option value="Isotopic label">Isotopic label</option>
+              <option value="Non-standard residue">Non-standard residue</option>
+              <option value="Multiple">Multiple</option>
+              <option value="Other">Other</option>
+              <option value="AA substitution">AA substitution</option>
+            </optgroup>
+            <optgroup label="Translational">
+              <option value="Post-translational">Post-translational</option>
+              <option value="Co-translational">Co-translational</option>
+              <option value="Pre-translational">Pre-translational</option>
+            </optgroup>
+            <optgroup label="Glycosylation"></optgroup>
+              <option value="N-linked glycosylation">N-linked glycosylation</option>
+              <option value="O-linked glycosylation">O-linked glycosylation</option>
+              <option value="Other glycosylation">Other glycosylation</option>
+            </optgroup>
+            <optgroup label="Cross-Link"></optgroup>
+              <option value="Cross-link">Cross-link</option>
+              <option value="CID cleavable cross-link">CID cleavable cross-link</option>
+              <option value="Photo cleavable cross-link">Photo cleavable cross-link</option>
+              <option value="Other cleavable cross-link">Other cleavable cross-link</option>
+            </optgroup>
+          </select>
           <h7 class="secondary">Specify mass shift tolerance: </h7>&nbsp;<small
             ><b>Only</b> relevant for closed searches.</small
           >
           <br />
           <input
             id="data-tolerance-form"
-            class="w-25 input-small"
+            class="mb-1 w-25 input-small"
             type="number"
             value="0.001"
             min="0"
@@ -327,6 +365,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           >
           <input
             id="session-input-form"
+            class="mb-1"
             type="file"
             data-role="file"
             accept=".zlib"

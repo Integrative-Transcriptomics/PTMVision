@@ -21,8 +21,8 @@ load_dotenv()
 
 """ Definition of session keys """
 MODIFICATIONS_DATA = "bW9kaWZpY2F0aW9uc19kYXRhX2ZyYW1l"
-#BASEPATH = "./app/ptmvision" # Use this for local development.
-BASEPATH = "/app/ptmvision" 
+BASEPATH = "./app/ptmvision" # Use this for local development.
+#BASEPATH = "/app/ptmvision" # Use this for deployment.
 
 """ Set session configuration parameters. """
 app.config["SESSION_COOKIE_NAME"] = "PTMVision"
@@ -81,7 +81,8 @@ def process_search_engine_output():
         json_user_data = utils.parse_user_input(
             StringIO(json_request_data["content"]),
             json_request_data["contentType"],
-            json_request_data["massShiftTolerance"]
+            json_request_data["massShiftTolerance"],
+            json_request_data["excludeClasses"]
         )
         session[MODIFICATIONS_DATA] = json_user_data
         if DEBUG :

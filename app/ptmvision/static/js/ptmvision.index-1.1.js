@@ -1993,7 +1993,6 @@ class DashboardChart {
   fill(data) {
     this.#data = data;
     this.#postprocess();
-    console.log(this.#data);
     this.setModificationsOption();
     this.hideStructure();
     this.#updateOption(true);
@@ -2035,10 +2034,16 @@ class DashboardChart {
     // Extract count information from data.
     for (const [position, info] of Object.entries(this.#data.positions)) {
       const aa = this.#data.sequence[position - 1];
+      if (aa == undefined) {
+        console.warn("Sequence position " + position + " not defined!");
+        continue;
+      }
       for (const modification of Object.values(info.modifications)) {
         const modificationName = modification.display_name;
         const modificationClass = modification.modification_classification;
         _modifications.push(modificationName);
+
+        console.log(aa);
 
         if (!this.#data.aminoacidCounts[aa].hasOwnProperty(modificationName)) {
           this.#data.aminoacidCounts[aa][modificationName] = [
@@ -2498,6 +2503,7 @@ async function startSession() {
   displayNotification("Transfer and process entered data.");
   request = {
     massShiftTolerance: 0.001,
+    excludeClasses: [],
     contentType: null,
     content: null,
   };
@@ -2512,6 +2518,10 @@ async function startSession() {
   });
   request.contentType = $("#data-type-form")[0].value;
   request.massShiftTolerance = parseFloat($("#data-tolerance-form")[0].value);
+  request.excludeClasses = Metro.getPlugin(
+    "#data-excludecls-form",
+    "select"
+  ).val();
   axios
     .post(
       __url + "/process_search_engine_output",

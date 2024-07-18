@@ -11,12 +11,13 @@ from tempfile import NamedTemporaryFile
 from datetime import datetime
 import re, urllib.request, requests, brotli, base64, os
 
-# UNIMOD_MAPPER = unimod.Unimod("sqlite:///unimod.db") # Use this for local development.
-UNIMOD_MAPPER = unimod.Unimod( )
+BASEPATH = "./app/ptmvision" # Use this for local development.
+# BASEPATH = "/app/ptmvision" # Use this for deployment.
+UNIMOD_MAPPER = unimod.Unimod("sqlite:///unimod.db") # Use this for local development.
+# UNIMOD_MAPPER = unimod.Unimod( ) # Use this for deployment. TODO: Seems to be broken.
 TOLERANCE = 0.001 # Mass tolerance when matching masses to unimod IDs.
+EXCLUDE_CLASSES = [ ] # Exclude PTMs with these Unimod classifications from the results.
 PDBPARSER = PDBParser(PERMISSIVE=False)
-# BASEPATH = "./app/ptmvision" # Use this for local development.
-BASEPATH = "/app/ptmvision"
 DEBUG = os.getenv("DEBUG")
 """
 TODO: Refactor into reader classes, one for each file format.
@@ -490,6 +491,10 @@ def PSMList_to_mod_df(psm_list):
         axis=1,
     )
 
+    #remove unwanted modifications based on unimod class assignment
+    global EXCLUDE_CLASSES
+    df = df[~df["classification"].isin(EXCLUDE_CLASSES)]
+
     df = df[
         [
             "uniprot_id",
@@ -649,6 +654,10 @@ def read_msfragger(file):
         axis=1,
     )
 
+    #remove unwanted modifications based on unimod class assignment
+    global EXCLUDE_CLASSES
+    pept_mods = pept_mods[~pept_mods["classification"].isin(EXCLUDE_CLASSES)]
+
     # get display name (unimod name if available, otherwise "unannotated mass shift: (mass shift)"
     pept_mods["display_name"] = pept_mods.apply(lambda x: get_display_name(x), axis=1)
 
@@ -687,6 +696,10 @@ def read_ionbot(file):
 
     #merge
     df = df.merge(unique_mods, on=["modification_unimod_id", "modified_residue"], how="left")
+
+    #remove unwanted modifications based on unimod class assignment
+    global EXCLUDE_CLASSES
+    df = df[~df["classification"].isin(EXCLUDE_CLASSES)]
 
     #get all unique unimod ids
     unique_mass_shifts = df[["modification_unimod_id"]].drop_duplicates()
@@ -733,6 +746,11 @@ def read_mod_csv(file):
             ),
             axis=1,
         )
+
+        #remove unwanted modifications based on unimod class assignment
+        global EXCLUDE_CLASSES
+        df = df[~df["classification"].isin(EXCLUDE_CLASSES)]
+
         df.drop(columns=["modified_residue"], inplace=True)
     if "mass_shift" not in [x.lower() for x in df.columns]:
         df["mass_shift"] = df["modification_unimod_id"].apply(
@@ -843,7 +861,6 @@ def parse_df_to_json_schema(dataframe):
         print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tConvert data into schema ... ", end = '', flush = True)
     # Init. dictionary to store results in JSON schema.
     protein_dict = {"proteins": {}, "meta_data": {}}
-    # Internal function to add entries.
     # For each row
     for _, row in dataframe.iterrows():
         # Add entire entry, if protein does not exist yet.
@@ -900,12 +917,15 @@ def read_userinput(file, flag):
     return parse_df_to_json_schema(df.drop_duplicates())
 
 
-def parse_user_input(user_file, user_flag, mass_shift_tolerance = 0.001):
+def parse_user_input(user_file, user_flag, mass_shift_tolerance = 0.001, exclude_classes = []):
     global TOLERANCE
     TOLERANCE = mass_shift_tolerance
+    global EXCLUDE_CLASSES
+    EXCLUDE_CLASSES = exclude_classes
     try:
         json = read_userinput(user_file, user_flag)
         json["meta_data"]["mass_shift_tolerance"] = mass_shift_tolerance
+        json["meta_data"]["exclude_classes"] = exclude_classes
     except TypeError:
         raise TypeError(
             "Your file could not be parsed. Have you selected the right format?"
