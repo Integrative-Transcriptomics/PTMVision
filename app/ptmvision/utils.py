@@ -21,7 +21,6 @@ PDBPARSER = PDBParser(PERMISSIVE=False)
 DEBUG = os.getenv("DEBUG")
 """
 TODO: Refactor into reader classes, one for each file format.
-TODO: Unimod mapper decreases performance.
 """
 
 def check_fasta_coverage(uniprot_ids, fasta_dict):
@@ -670,6 +669,9 @@ def read_ionbot(file):
     df = pd.read_csv(file)
 
     df = df[["uniprot_id", "modification", "position"]]
+
+    # fix ionbot bug where C-term modifications are not correctly placed in the protein
+    df['position'] = df.apply(lambda x: x['position'] - 1 if 'C-term' in x['modification'] else x['position'], axis=1)     
 
     df["modification_unimod_name"] = df["modification"].apply(
         lambda x: x.split("]")[1].split("[")[0].lower()
