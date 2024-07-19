@@ -285,7 +285,6 @@ class OverviewChart {
           .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {}),
         meta: data[4],
       };
-    console.log(this.#data);
     let r = this.chart.instance.getWidth() / this.chart.instance.getHeight(); // Approximate quadratic aspect ratio.
     // Generate series data from data.
     let dataAxis = this.#data.modificationNamesSorted[this.#sortingIndex];
@@ -326,7 +325,7 @@ class OverviewChart {
           ...STYLE_TITLE,
         },
         {
-          text: "Mass Shift",
+          text: "Mass Shift in Dalton",
           top: 30,
           left: 10 + 2 + 80 / r + "%",
           ...STYLE_TITLE,
@@ -2011,12 +2010,14 @@ class DashboardChart {
 
   #postprocess() {
     if (this.#data == undefined) return;
+    console.log(this.#data);
     let _modifications = [];
     let _modificationsMassShift = [];
     this.#data.aminoacidCounts = {};
     this.#aminoAcids.forEach((aa) => (this.#data.aminoacidCounts[aa] = {}));
     this.#data.modificationCounts = {};
     // Add missing position entries.
+    // Check for positions wrt. the sequence length that are not reflected in the data.
     for (let p of [...Array(this.#data.sequence.length).keys()].map(
       (x) => x + 1
     )) {
@@ -2031,20 +2032,33 @@ class DashboardChart {
         };
       }
     }
+    // Check for positions wrt. the data that are not reflected in the sequence length.
+    for (const [position, _] of Object.entries(this.#data.positions)) {
+      if (parseInt(position) > this.#data.sequence.length) {
+        // Remove from contact information.
+        if (this.#data.contacts.hasOwnProperty(position))
+          delete this.#data.contacts[position];
+        // Remove modifications information.
+        delete this.#data.positions[position];
+        console.warn(
+          "Delete data at position " +
+            position +
+            "; exceeds the sequence length."
+        );
+      }
+    }
+    for (const [_, entries] of Object.entries(this.#data.contacts)) {
+      this.#data.contacts[_] = entries.filter(
+        (e) => e[0] > this.#data.sequence.length
+      );
+    }
     // Extract count information from data.
     for (const [position, info] of Object.entries(this.#data.positions)) {
       const aa = this.#data.sequence[position - 1];
-      if (aa == undefined) {
-        console.warn("Sequence position " + position + " not defined!");
-        continue;
-      }
       for (const modification of Object.values(info.modifications)) {
         const modificationName = modification.display_name;
         const modificationClass = modification.modification_classification;
         _modifications.push(modificationName);
-
-        console.log(aa);
-
         if (!this.#data.aminoacidCounts[aa].hasOwnProperty(modificationName)) {
           this.#data.aminoacidCounts[aa][modificationName] = [
             1,
@@ -2053,7 +2067,6 @@ class DashboardChart {
         } else {
           this.#data.aminoacidCounts[aa][modificationName][0] += 1;
         }
-
         if (!_modificationsMassShift.hasOwnProperty(modificationName))
           _modificationsMassShift[modificationName] = modification.mass_shift;
         if (!this.#data.modificationCounts.hasOwnProperty(modificationName))
@@ -2790,6 +2803,7 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
         displayAlert("Failed to fetch protein structure.");
       } else {
         var protein_data = response.data;
+        // TODO: Prune protein data to remove modifications at positions that exceed the protein's length.
         let primaryAccession = protein_data.annotation.primaryAccession;
         let proteinName = protein_data.annotation.hasOwnProperty(
           "proteinDescription"
