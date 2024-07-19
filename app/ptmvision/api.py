@@ -77,6 +77,7 @@ def restart_session():
 def process_search_engine_output():
     """Route to process CSV data or SAGE, ionbot or MSFragger search engine output."""
     try:
+        session.clear( )
         json_request_data = _request_to_json(request.data)
         json_user_data = utils.parse_user_input(
             StringIO(json_request_data["content"]),
