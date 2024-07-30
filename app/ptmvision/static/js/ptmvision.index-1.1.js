@@ -3,23 +3,37 @@
  * Copyright 2023-2024 by Caroline Jachmann and Simon Hackl
  * Licensed under GPL-3.0
  !*/
+
+/**
+ * The URL to the backend API.
+ */
 var __url = null;
+/**
+ * Instance of the OverviewTable class.
+ */
 var __overviewTable = null;
+/**
+ * Instance of the OverviewChart class.
+ */
 var __overviewChart = null;
+/**
+ * Instance of the DashboardChart class.
+ */
 var __dashboardChart = null;
+/**
+ * The currently displayed dashboard content. One of "modifications" or "structure".
+ */
 var __dashboardContent = null;
 
-// Definition of EChart style options.
+/**
+ * ECharts option for global axis style.
+ */
 const STYLE_AXIS = {
   nameLocation: "center",
   nameGap: 50,
   nameTextStyle: {
     fontWeight: "bold",
-    fontSize: 11,
-  },
-  axisLabel: {
-    fontWeight: "lighter",
-    fontSize: 10,
+    fontSize: 16,
   },
   axisTick: {
     alignWithLabel: true,
@@ -27,20 +41,36 @@ const STYLE_AXIS = {
     interval: 0,
   },
 };
+/**
+ * ECharts option for global axis label style.
+ */
+const STYLE_AXIS_LABEL = {
+  fontWeight: "normal",
+  fontSize: 14,
+};
+/**
+ * ECharts option for global tooltip style.
+ */
 const STYLE_TOOLTIP = {
   backgroundColor: "#fbfbfbe6",
   borderColor: "#fbfbfb",
   textStyle: {
     color: "#111111",
-    fontSize: 13,
+    fontSize: 14,
   },
 };
+/**
+ * ECharts option for global title style.
+ */
 const STYLE_TITLE = {
   textStyle: {
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: "bold",
   },
 };
+/**
+ * ECharts option for global pointer style.
+ */
 const STYLE_POINTER = {
   label: {
     show: true,
@@ -54,11 +84,28 @@ const STYLE_POINTER = {
   },
 };
 
+/**
+ * Internal class for handling the overview table component.
+ */
 class OverviewTable {
+  /**
+   * Tabulator instance.
+   */
   tabulator = null;
+  /**
+   * Available identifiers for filtering.
+   */
   availableIdentifiers = [];
+  /**
+   * Available modifications for filtering.
+   */
   availableModifications = [];
 
+  /**
+   * Class constructor.
+   *
+   * @param {String} id DOM id of the element to bind the component to.
+   */
   constructor(id) {
     this.tabulator = new Tabulator("#" + id, {
       selectableRows: 1,
@@ -101,6 +148,11 @@ class OverviewTable {
     });
   }
 
+  /**
+   * Exposes the Tabulator rowSelectionChanged event handler.
+   *
+   * @param {Function} action Function to be executed on row selection change.
+   */
   registerSelectionAction(action) {
     this.tabulator.on(
       "rowSelectionChanged",
@@ -110,6 +162,12 @@ class OverviewTable {
     );
   }
 
+  /**
+   * Sets the filters for the table.
+   *
+   * @param {Array} idValues List of identifiers to filter for.
+   * @param {Array} modValues List of modifications to filter for.
+   */
   setFilters(idValues, modValues) {
     this.tabulator.clearFilter(true);
     const filters = [];
@@ -131,6 +189,11 @@ class OverviewTable {
     this.tabulator.setFilter(filters);
   }
 
+  /**
+   * Fills the table with data.
+   *
+   * @param {Array} data List of Objects containing the data to be displayed.
+   */
   setData(data) {
     this.tabulator.setData(data);
     this.availableModifications = new Set();
@@ -145,6 +208,11 @@ class OverviewTable {
     this.availableIdentifiers = [...this.availableIdentifiers];
   }
 
+  /**
+   * Returns the selected row's ID.
+   *
+   * @returns The selected row's ID.
+   */
   getSelection() {
     let _ = this.tabulator.getSelectedData();
     if (_.length > 0) return this.tabulator.getSelectedData()[0].id;
@@ -152,11 +220,28 @@ class OverviewTable {
   }
 }
 
+/**
+ * Internal class for handling EChart instances.
+ */
 class Chart {
+  /**
+   * EChart instance.
+   */
   instance = null;
+  /**
+   * DOM id of the element to bind the chart to.
+   */
   #instanceDomId = null;
+  /**
+   * ResizeObserver instance for the chart.
+   */
   #resizeObserver = null;
 
+  /**
+   * Class constructor.
+   *
+   * @param {String} id DOM id of the element to bind the component to.
+   */
   constructor(id) {
     this.#instanceDomId = id;
     this.instance = echarts.init($("#" + this.#instanceDomId)[0], {
@@ -174,21 +259,51 @@ class Chart {
     this.#resizeObserver.observe($("#" + this.#instanceDomId)[0]);
   }
 
+  /**
+   *
+   * @param {Object} option An ECharts option object (https://echarts.apache.org/en/option.html).
+   * @param {Boolean} replace Handles the replace/merge behavior of the setOption method (https://echarts.apache.org/en/api.html#echartsInstance.setOption).
+   */
   setOption(option, replace) {
     this.instance.setOption(option, replace);
   }
 }
 
+/**
+ * Internal class for handling the overview chart component.
+ */
 class OverviewChart {
+  /**
+   * Chart instance.
+   */
   chart = null;
+  /**
+   * Internal data object.
+   */
   #data;
+  /**
+   * Internal ECharts option object.
+   */
   #option;
+  /**
+   * Internal sorting index.
+   */
   #sortingIndex = 1;
 
+  /**
+   * Class constructor.
+   *
+   * @param {String} id DOM id of the element to bind the component to.
+   */
   constructor(id) {
     this.chart = new Chart(id);
   }
 
+  /**
+   * Restores the zoom level of the chart.
+   *
+   * @returns None if no option is set.
+   */
   restoreZoom() {
     if (this.#option == undefined) return;
     [0, 1].forEach((_) =>
@@ -201,6 +316,12 @@ class OverviewChart {
     );
   }
 
+  /**
+   * Highlights the provided indices in the chart.
+   *
+   * @param {Array} indices
+   * @returns None if no option is set.
+   */
   highlight(indices) {
     if (this.#option == undefined) return;
     let markLineOption = {
@@ -249,6 +370,11 @@ class OverviewChart {
     this.#updateOption(false);
   }
 
+  /**
+   * Switches the sorting of the chart.
+   *
+   * @returns None if no option is set.
+   */
   resort() {
     if (this.#option == undefined) return;
     if (this.#sortingIndex == 1) {
@@ -260,20 +386,35 @@ class OverviewChart {
     }
   }
 
+  /**
+   * Returns the modification names of the data wrt. to the current sorting index.
+   *
+   * @returns The names of the data or an empty list if no data is set.
+   */
   getDataNames() {
     if (this.#data != undefined)
       return this.#data.modificationNamesSorted[this.#sortingIndex];
     else return [];
   }
 
+  /**
+   * Returns the data URL of the chart used for exporting images.
+   *
+   * @returns The data URL of the chart or None if no option is set.
+   */
   getDataUrl() {
     if (this.#option == undefined) return;
     return this.chart.instance.getDataURL({
-      pixelRatio: 10,
+      pixelRatio: 4,
       backgroundColor: "#fff",
     });
   }
 
+  /**
+   * Fills the chart with data; I.e., generates the ECharts option object from the data.
+   *
+   * @param {Object} data Contains the data to be displayed.
+   */
   fill(data) {
     if (data != undefined)
       this.#data = {
@@ -308,11 +449,11 @@ class OverviewChart {
       title: [
         {
           text:
-            "Total Modifications (e.g. Phospho on Ser249) " +
+            "Total modifications (e.g. Phospho on Ser249): " +
             Object.values(this.#data.classCounts).reduce((a, b) => a + b, 0) +
-            " | Modification Types (e.g. Phospho) " +
+            " | Modification types (e.g. Phospho): " +
             Object.keys(this.#data.modifications).length +
-            " | Modification Classes " +
+            " | Unimod modification classes (e.g. Post-translational): " +
             Object.keys(this.#data.classCounts).length,
           top: "top",
           left: "center",
@@ -320,57 +461,57 @@ class OverviewChart {
         },
         {
           text: "Shared PTM sites between modification types",
-          top: 15,
-          left: "10%",
+          top: 20,
+          left: "12%",
           ...STYLE_TITLE,
         },
         {
-          text: "Mass Shift in Dalton",
-          top: 30,
+          text: "Mass shift in Dalton",
+          top: 35,
           left: 10 + 2 + 80 / r + "%",
           ...STYLE_TITLE,
         },
         {
-          text: "Site Count",
-          top: 30,
+          text: "Site count",
+          top: 35,
           left: 10 + 2 * 2 + 12 + 80 / r + "%",
           ...STYLE_TITLE,
         },
         {
-          text: "PTM Class Counts",
-          top: 30,
+          text: "Unimod PTM class counts",
+          top: 35,
           left: 10 + 4 * 2 + 2 * 12 + 80 / r + "%",
           ...STYLE_TITLE,
         },
       ],
       grid: [
         {
-          top: 50,
-          left: "10%",
-          height: "80%",
-          width: 80 / r + "%",
+          top: 60,
+          left: "16%",
+          height: "60%",
+          width: 60 / r + "%",
           show: true,
         },
         {
-          top: 50,
+          top: 60,
           left: 10 + 2 + 80 / r + "%",
-          height: "80%",
+          height: "60%",
           width: "12%",
           show: true,
         },
         {
-          top: 50,
+          top: 60,
           left: 10 + 2 * 2 + 12 + 80 / r + "%",
-          height: "80%",
+          height: "60%",
           width: "12%",
           show: true,
         },
         {
-          top: 50,
+          top: 60,
           bottom: "24%",
           left: 10 + 4 * 2 + 2 * 12 + 80 / r + "%",
           right: "4%",
-          height: "auto",
+          height: "60%",
           width: "auto",
           show: true,
         },
@@ -380,15 +521,18 @@ class OverviewChart {
           gridIndex: 0,
           type: "category",
           name: "Modification",
-          ...STYLE_AXIS,
           data: dataAxis,
+          ...STYLE_AXIS,
+          nameGap: 160,
           axisLabel: {
             show: true,
-            rotate: 45,
+            rotate: 70,
             formatter: (i) => {
               let value = this.#data.modifications[i]["display_name"];
-              return value.length > 4 ? value.substring(0, 5) + "..." : value;
+              return value;
+              // return value.length > 4 ? value.substring(0, 5) + "..." : value;
             },
+            ...STYLE_AXIS_LABEL,
           },
           axisPointer: {
             show: true,
@@ -400,12 +544,13 @@ class OverviewChart {
         {
           gridIndex: 1,
           type: "value",
-          name: "Mass Shift [Da]",
+          name: "Mass shift [Da]",
           ...STYLE_AXIS,
           axisLabel: {
             show: true,
             interval: 0,
-            rotate: 45,
+            rotate: 70,
+            ...STYLE_AXIS_LABEL,
           },
           axisPointer: {
             show: true,
@@ -422,7 +567,8 @@ class OverviewChart {
           axisLabel: {
             show: true,
             interval: 0,
-            rotate: 45,
+            rotate: 70,
+            ...STYLE_AXIS_LABEL,
           },
           axisPointer: {
             show: true,
@@ -434,14 +580,15 @@ class OverviewChart {
         {
           gridIndex: 3,
           type: "category",
-          name: "Modification Class",
+          name: "Class",
           ...STYLE_AXIS,
-          nameGap: 100,
+          nameGap: 170,
           data: Object.keys(this.#data.classCounts),
           axisLabel: {
             show: true,
             interval: 0,
-            rotate: 45,
+            rotate: 70,
+            ...STYLE_AXIS_LABEL,
           },
           axisPointer: {
             show: true,
@@ -456,15 +603,17 @@ class OverviewChart {
           type: "category",
           name: "Modification",
           ...STYLE_AXIS,
-          nameGap: 140,
+          nameGap: 160,
           data: dataAxis,
           inverse: true,
           axisLabel: {
             show: true,
             formatter: (i) => {
               let value = this.#data.modifications[i]["display_name"];
-              return value.length > 12 ? value.substring(0, 13) + "..." : value;
+              return value;
+              // return value.length > 12 ? value.substring(0, 13) + "..." : value;
             },
+            ...STYLE_AXIS_LABEL,
           },
           axisPointer: {
             show: true,
@@ -504,6 +653,7 @@ class OverviewChart {
           ...STYLE_AXIS,
           axisLabel: {
             show: true,
+            ...STYLE_AXIS_LABEL,
           },
           axisPointer: {
             show: true,
@@ -595,15 +745,15 @@ class OverviewChart {
               min: 1,
               max: Math.max(...Object.values(this.#data.coOccurrence)),
               orient: "horizontal",
-              top: 30,
-              left: "10%",
+              top: 38,
+              left: "12%",
               itemHeight: 50,
               itemWidth: 11,
               text: [
                 Math.max(...Object.values(this.#data.coOccurrence)),
-                "No. Shared Sites 1",
+                "No. shared sites 1",
               ],
-              textStyle: { fontWeight: "normal", fontSize: 12 },
+              textStyle: { fontWeight: "normal", fontSize: 14 },
             }
           : null,
       ],
@@ -695,7 +845,10 @@ class OverviewChart {
         let j = i - 1;
         if (j < 0) break;
         if (dataMassShift[i] == "null" || dataMassShift[j] == "null") continue;
-        if (dataMassShift[i] + 0.02 >= dataMassShift[j]) {
+        if (
+          dataMassShift[i] + this.#data.meta.mass_shift_tolerance >=
+          dataMassShift[j]
+        ) {
           segment.add(i);
           segment.add(j);
         } else {
@@ -721,16 +874,39 @@ class OverviewChart {
     this.#updateOption(true);
   }
 
+  /**
+   * Internal method for updating the chart option.
+   *
+   * @param {Boolean} replace Passed to the setOption method of the Chart instance.
+   */
   #updateOption(replace) {
     if (this.#option != undefined) this.chart.setOption(this.#option, replace);
   }
 }
 
+/**
+ * Internal class for handling the modification- and structure view components.
+ */
 class DashboardChart {
+  /**
+   * Chart instance.
+   */
   chart = null;
+  /**
+   * StructureView instance.
+   */
   structure = null;
+  /**
+   * Internal data object.
+   */
   #data;
+  /**
+   * Internal ECharts option object.
+   */
   #option;
+  /**
+   * Internal color object.
+   */
   #colors = {
     M: {},
     i: 0,
@@ -768,6 +944,9 @@ class DashboardChart {
       contact_highlight: "#DC5754",
     },
   };
+  /**
+   * Internal amino acid list.
+   */
   #aminoAcids = [
     "ALA",
     "CYS",
@@ -790,22 +969,42 @@ class DashboardChart {
     "TRP",
     "TYR",
   ];
+  /**
+   * The current content mode. One of 1 (modifications) or 2 (structure).
+   */
   #contentMode = 1;
 
+  /**
+   * Class constructor.
+   *
+   * @param {String} id1 DOM id of the element to bind the chart component to.
+   * @param {String} id2 DOM id of the element to bind the 3DMol structure view component to.
+   */
   constructor(id1, id2) {
     this.chart = new Chart(id1);
     this.structure = new StructureView(id2);
     this.hideStructure();
   }
 
+  /**
+   * Shows the 3DMol structure view component.
+   */
   showStructure() {
     $("#" + this.structure.domId).show();
   }
 
+  /**
+   * Hides the 3DMol structure view component.
+   */
   hideStructure() {
     $("#" + this.structure.domId).hide();
   }
 
+  /**
+   * Restores the zoom level of the chart.
+   *
+   * @returns None if no option is set.
+   */
   restoreZoom() {
     if (this.#option == undefined) return;
     let I;
@@ -825,6 +1024,12 @@ class DashboardChart {
     );
   }
 
+  /**
+   * Highlights the provided indices in the chart.
+   *
+   * @param {Array} indices
+   * @returns None if no option is set.
+   */
   highlight(indices) {
     if (this.#option == undefined) return;
     if (this.#contentMode == 1) {
@@ -877,6 +1082,11 @@ class DashboardChart {
     }
   }
 
+  /**
+   * Switches the content mode of the component.
+   *
+   * @returns None if no option is set.
+   */
   switchContent() {
     if (this.#option == undefined) return;
     if (this.#contentMode == 1) {
@@ -891,19 +1101,33 @@ class DashboardChart {
     this.#updateOption(true);
   }
 
+  /**
+   * Returns the modification names of the data wrt. to the current sorting index.
+   *
+   * @returns The names of the data or an empty list if no data is set.
+   */
+
   getDataNames() {
     if (this.#data != undefined) return this.#data.modifications;
     else return [];
   }
 
+  /**
+   * Returns the data URL of the chart used for exporting images.
+   *
+   * @returns The data URL of the chart or None if no option is set.
+   */
   getDataUrl() {
     if (this.#option == undefined) return;
     return this.chart.instance.getDataURL({
-      pixelRatio: 10,
+      pixelRatio: 4,
       backgroundColor: "#fff",
     });
   }
 
+  /**
+   * Generates the ECharts option object for the modifications view from the currently set data.
+   */
   setModificationsOption() {
     // Populate per modification counts series.
     let mdcountSeries = {};
@@ -1239,10 +1463,11 @@ class DashboardChart {
           data: this.#data.modifications,
           name: "Modification",
           ...STYLE_AXIS,
-          nameGap: 125,
+          nameGap: 130,
           axisLabel: {
             formatter: (value) => {
-              return value.length > 12 ? value.substring(0, 13) + "..." : value;
+              return value;
+              //return value.length > 12 ? value.substring(0, 13) + "..." : value;
             },
           },
           gridIndex: 1,
@@ -1260,7 +1485,7 @@ class DashboardChart {
           data: annotationLabels,
           name: "Annotation",
           ...STYLE_AXIS,
-          nameGap: 125,
+          nameGap: 130,
           gridIndex: 2,
           axisPointer: {
             show: true,
@@ -1319,24 +1544,25 @@ class DashboardChart {
       legend: [
         {
           id: "legend",
-          top: "top",
-          left: "center",
+          top: 15,
+          left: "right",
           zlevel: 2,
           icon: "circle",
           itemWidth: 10,
           itemHeight: 10,
           orient: "horizontal",
           textStyle: {
-            fontSize: 10,
+            fontSize: 14,
             fontWeight: "lighter",
           },
           data: [],
           selector: [
-            { type: "all", title: "Select all." },
-            { type: "inverse", title: "Invert selection." },
+            { type: null, title: "Unimod class" },
+            //{ type: "all", title: "Select all." },
+            //{ type: "inverse", title: "Invert selection." },
           ],
           selectorLabel: {
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: "lighter",
             borderRadius: 2,
           },
@@ -1381,8 +1607,8 @@ class DashboardChart {
       itemWidth: 11,
       precision: 0,
       textStyle: {
-        fontSize: 10,
-        fontWeight: "lighter",
+        fontSize: 12,
+        fontWeight: "normal",
       },
       text: ["1", "Per Aminoacid Min-Max Scaled No. Occurrence 0"],
       min: 0,
@@ -1498,6 +1724,12 @@ class DashboardChart {
     this.chart.instance.on("click", () => {});
   }
 
+  /**
+   * Generates the ECharts option object for the structure view from the currently set data.
+   *
+   * @param {Boolean} setStructure Whether to initialize the structure view.
+   * @param {Array} highlightModifications  Modifications to highlight in the components.
+   */
   setContactsOption(setStructure, highlightModifications) {
     // Populate per position counts series.
     let pscountSeries = {};
@@ -1566,10 +1798,10 @@ class DashboardChart {
       s2.forEach((e) => _.add(e));
       return _;
     };
-    for (let [index_i, contacts] of Object.entries(this.#data.contacts)) {
+    for (let [index_i, contactEntries] of Object.entries(this.#data.contacts)) {
       let x = parseInt(index_i);
-      for (let contact of contacts) {
-        let y = contact[0];
+      for (let [index_j, _] of Object.entries(contactEntries)) {
+        let y = parseInt(index_j);
         let iModifications = new Set(
           this.#data.positions[x].modifications.map((_) => _.display_name)
         );
@@ -1772,6 +2004,7 @@ class DashboardChart {
             triggerTooltip: false,
             ...STYLE_POINTER,
           },
+          intervaL: 4,
         },
         {
           // Contact map.
@@ -1849,8 +2082,8 @@ class DashboardChart {
           itemHeight: 10,
           orient: "horizontal",
           textStyle: {
-            fontSize: 10,
-            fontWeight: "lighter",
+            fontSize: 12,
+            fontWeight: "normal",
           },
           data: [],
           selector: [
@@ -1989,6 +2222,11 @@ class DashboardChart {
     });
   }
 
+  /**
+   * Fills the chart with data; I.e., generates the ECharts option object from the data.
+   *
+   * @param {Object} data Contains the data to be displayed.
+   */
   fill(data) {
     this.#data = data;
     this.#postprocess();
@@ -1997,6 +2235,12 @@ class DashboardChart {
     this.#updateOption(true);
   }
 
+  /**
+   * Retrieves the set color for a given key. If the key is not set, a new color is assigned.
+   *
+   * @param {String} key Identifier for any colorable component.
+   * @returns The color for the given key.
+   */
   #getColor(key) {
     if (!this.#colors.M.hasOwnProperty(key)) {
       this.#colors.M[key] = this.#colors.i;
@@ -2008,9 +2252,13 @@ class DashboardChart {
     return this.#colors.C[this.#colors.M[key]];
   }
 
+  /**
+   * Postprocesses the data to generate additional information for the chart.
+   *
+   * @returns None if no data is set.
+   */
   #postprocess() {
     if (this.#data == undefined) return;
-    console.log(this.#data);
     let _modifications = [];
     let _modificationsMassShift = [];
     this.#data.aminoacidCounts = {};
@@ -2041,16 +2289,33 @@ class DashboardChart {
         // Remove modifications information.
         delete this.#data.positions[position];
         console.warn(
-          "Delete data at position " +
+          "Delete modifications data at position " +
             position +
-            "; exceeds the sequence length."
+            "; Position exceeds the sequence length."
         );
       }
     }
-    for (const [_, entries] of Object.entries(this.#data.contacts)) {
-      this.#data.contacts[_] = entries.filter(
-        (e) => e[0] > this.#data.sequence.length
-      );
+    for (const [position, entries] of Object.entries(this.#data.contacts)) {
+      if (parseInt(position) > this.#data.sequence.length) {
+        delete this.#data.contacts[position];
+        console.warn(
+          "Delete contacts data at position " +
+            position +
+            "; Position exceeds the sequence length."
+        );
+      }
+      for (const [contact, _] of Object.entries(entries)) {
+        if (parseInt(contact) > this.#data.sequence.length) {
+          delete this.#data.contacts[position][contact];
+          console.warn(
+            "Delete contact at position " +
+              position +
+              " to position " +
+              contact +
+              "; Position exceeds the sequence length."
+          );
+        }
+      }
     }
     // Extract count information from data.
     for (const [position, info] of Object.entries(this.#data.positions)) {
@@ -2128,12 +2393,12 @@ class DashboardChart {
       "Active site": "Site",
       "Binding site": "Site",
       Site: "Site",
-      "Non-standard residue": "Amino acid modifications",
-      "Modified residue": "Amino acid modifications",
-      Lipidation: "Amino acid modifications",
-      Glycosylation: "Amino acid modifications",
-      "Disulfide bond": "Amino acid modifications",
-      "Cross-link": "Amino acid modifications",
+      "Non-standard residue": "Modification",
+      "Modified residue": "Modification",
+      Lipidation: "Modification",
+      Glycosylation: "Modification",
+      "Disulfide bond": "Modification",
+      "Cross-link": "Modification",
       "Alternative sequence": "Natural variations",
       "Natural variant": "Natural variations",
       Mutagenesis: "Experimental info",
@@ -2169,10 +2434,21 @@ class DashboardChart {
     }
   }
 
+  /**
+   * Internal method for updating the chart option.
+   *
+   * @param {Boolean} replace Passed to the setOption method of the Chart instance.
+   */
   #updateOption(replace) {
     if (this.#option != undefined) this.chart.setOption(this.#option, replace);
   }
 
+  /**
+   * Highlights a contact in the structure view.
+   *
+   * @param {Number} x Position index of the first residue.
+   * @param {Number} y Position index of the second residue.
+   */
   #showContactDetail(x, y) {
     if (this.#contentMode == 2) {
       let xModifications = {};
@@ -2253,25 +2529,61 @@ class DashboardChart {
     }
   }
 
+  /**
+   * Checks whether listB contains all elements of listA.
+   *
+   * @param {Array} listA List of elements to check for.
+   * @param {Array} listB List of elements to check in.
+   * @returns True, if listB contains all elements of listA.
+   */
   #contains(listA, listB) {
     const isContained = (entryA) => listB.includes(entryA);
     return listA.every(isContained);
   }
 }
 
+/**
+ * Internal class for handling the structure view.
+ */
 class StructureView {
+  /**
+   * GLViewer instance for the structure view.
+   */
   glviewer = null;
+  /**
+   * DOM identifier of the element to bind the the structure view to.
+   */
   domId = null;
+  /**
+   * Data object containing the (structure) contact information.
+   */
   #contacts = null;
+  /**
+   * Highlighted positions in the structure view.
+   */
   #highlightPositions;
+  /**
+   * Highlighted modifications in the structure view.
+   */
   #highlightModifications;
+  /**
+   * Highlighted contacts in the structure view.
+   */
   #highlightContacts;
+  /**
+   * Colors for the structure view.
+   */
   #colors = {
     contact_unmodified: "#AAAAAA",
     contact_modified: "#000000",
     contact_highlight: "#DC5754",
   };
 
+  /**
+   * Class constructor.
+   *
+   * @param {String} id DOM id of the element to bind the component to.
+   */
   constructor(id) {
     this.domId = id;
     this.glviewer = $3Dmol.createViewer($("#" + id), {
@@ -2281,6 +2593,12 @@ class StructureView {
     });
   }
 
+  /**
+   * Sets the structure view with the passed protein structure and contact information.
+   *
+   * @param {String} pdbString Protein structure in PDB format.
+   * @param {Object} contacts Object containing the contact information of residues within the passsed structure.
+   */
   setStructure(pdbString, contacts) {
     this.#highlightPositions = null;
     this.#highlightModifications = null;
@@ -2301,6 +2619,9 @@ class StructureView {
     this.#contacts = contacts;
   }
 
+  /**
+   * Applies the style to the structure view based on current settings.
+   */
   style() {
     this.glviewer.removeAllLabels();
     this.glviewer.removeAllShapes();
@@ -2336,14 +2657,15 @@ class StructureView {
         },
         {
           backgroundColor: "rgb(51, 51, 51)",
-          backgroundOpacity: 0.7,
+          backgroundOpacity: 0.8,
           fontColor: "#f0f5f5",
-          fontSize: 10,
+          fontSize: 14,
         }
       );
       if (this.#contacts.hasOwnProperty(targetIndex)) {
-        for (let entry of this.#contacts[targetIndex]) {
-          let contactIndex = entry[0];
+        for (let [contactIndex, distance] of Object.entries(
+          this.#contacts[targetIndex]
+        )) {
           this.glviewer.addStyle(
             {
               resi: [contactIndex],
@@ -2361,9 +2683,9 @@ class StructureView {
             },
             {
               backgroundColor: "rgb(51, 51, 51)",
-              backgroundOpacity: 0.7,
+              backgroundOpacity: 0.8,
               fontColor: "#f0f5f5",
-              fontSize: 10,
+              fontSize: 14,
             }
           );
           let contactCaAtom = this.glviewer.getAtomsFromSel({
@@ -2385,11 +2707,11 @@ class StructureView {
               z: contactCaAtom.z,
             },
           });
-          this.glviewer.addLabel(entry[1].toFixed(2) + " Å", {
+          this.glviewer.addLabel(distance.toFixed(2) + " Å", {
             backgroundColor: "rgb(51, 51, 51)",
-            backgroundOpacity: 0.4,
+            backgroundOpacity: 0.8,
             fontColor: "#f0f5f5",
-            fontSize: 10,
+            fontSize: 13,
             position: {
               x: (targetCaAtom.x + contactCaAtom.x) / 2,
               y: (targetCaAtom.y + contactCaAtom.y) / 2,
@@ -2425,11 +2747,22 @@ class StructureView {
     this.glviewer.render();
   }
 
+  /**
+   * Highlights all residues in contact with the specified resude in the structure view.
+   *
+   * @param {Number} targetIndex Index of the residue to highlight contact information for.
+   */
   highlightContacts(targetIndex) {
     this.#highlightContacts = targetIndex;
     this.style();
   }
 
+  /**
+   * Highlights all residues with the specified modifications in the structure view.
+   *
+   * @param {Array} indices The residue indices to highlight.
+   * @param {Array} modifications The modifications to highlight.
+   */
   highlightPositions(indices, modifications) {
     this.#highlightPositions = indices;
     this.#highlightModifications = modifications;
@@ -2459,10 +2792,15 @@ function init() {
   );
 }
 
-function startExampleSession() {
+/**
+ * Starts an example session by making a GET request to the server and initializing the overview table and chart.
+ *
+ * @param {String} fileIdentifier The file identifier of the example session to start.
+ */
+function startExampleSession(fileIdentifier) {
   displayNotification("Initializing example session.");
   axios
-    .get(__url + "/example_session")
+    .get(__url + "/example_session?fileIdentifier=" + fileIdentifier)
     .then((_) => {
       overviewTableInitialize(); // Init. table.
       overviewChartInitialize(); // Init.overview chart.
@@ -2477,6 +2815,9 @@ function startExampleSession() {
     });
 }
 
+/**
+ * Restarts an existing PTMVision session.
+ */
 async function startExistingSession() {
   displayNotification("Re-initializing session.");
   request = null;
@@ -2510,7 +2851,7 @@ async function startExistingSession() {
 }
 
 /**
- * Sends the specified search enginge output data to the PTMVision backend and loads the results in the overview table.
+ * Sends the specified search enginge output data to the PTMVision backend to start a new session.
  */
 async function startSession() {
   displayNotification("Transfer and process entered data.");
@@ -2570,6 +2911,9 @@ function downloadBlob(blob, name) {
   download_link.remove();
 }
 
+/**
+ * Downloads the current session data to the client.
+ */
 function downloadSessionData() {
   axios.get(__url + "/download_session").then((response) => {
     const D = new Date();
@@ -2613,6 +2957,11 @@ function redirectHome() {
   window.open(window.location.origin, "_self");
 }
 
+/**
+ * Toggle the visibility of an element.
+ *
+ * @param {String} id DOM element identifier to toggle.
+ */
 function togglePanel(id) {
   $("#" + id).css("height", "50px");
   $("#" + id).css("overflow", "hidden");
@@ -2632,6 +2981,11 @@ function togglePanel(id) {
   };
 }
 
+/**
+ * Displays a notification to the user.
+ *
+ * @param {String} text The text to display in the notification.
+ */
 function displayNotification(text) {
   $("#menu").append(
     `<div class='notification'><i class="fa-duotone fa-spinner-third fa-spin fa-2xl"></i> ` +
@@ -2640,6 +2994,9 @@ function displayNotification(text) {
   );
 }
 
+/**
+ * Removes all notifications from the user interface.
+ */
 function removeNotification() {
   $(".notification").remove();
 }
@@ -2657,9 +3014,14 @@ function displayAlert(text) {
   );
 }
 
+/**
+ * Initializes the overview table by fetching the available proteins from the server.
+ *
+ * @param {Function} afterResponse Optional callback function to execute after the response was received.
+ */
 function overviewTableInitialize(afterResponse) {
   axios
-    .get(__url + "/get_available_proteins")
+    .get(__url + "/available_proteins")
     .then((response) => {
       __overviewTable.setData(response.data);
       modifications_data_string = "";
@@ -2701,6 +3063,9 @@ function overviewTableInitialize(afterResponse) {
     });
 }
 
+/**
+ * Sets the filters of the overview table.
+ */
 function overviewTableSetFilters() {
   __overviewTable.setFilters(
     Metro.getPlugin("#panel-table-filter-id", "select").val(),
@@ -2708,9 +3073,14 @@ function overviewTableSetFilters() {
   );
 }
 
+/**
+ * Initializes the overview chart by fetching the data from the server.
+ *
+ * @param {Function} afterResponse Optional callback function to execute after the response was received.
+ */
 function overviewChartInitialize(afterResponse) {
   axios
-    .get(__url + "/get_overview_data")
+    .get(__url + "/overview_data")
     .then((response) => {
       __overviewChart.fill(response.data);
       window.scrollTo({
@@ -2729,6 +3099,9 @@ function overviewChartInitialize(afterResponse) {
     });
 }
 
+/**
+ * Downloads the image of the overview chart.
+ */
 function overviewChartDownloadImage() {
   const _ = document.createElement("a");
   document.body.appendChild(_);
@@ -2738,10 +3111,16 @@ function overviewChartDownloadImage() {
   _.remove();
 }
 
+/**
+ * Restores the zoom of the overview chart.
+ */
 function overviewChartRestoreZoom() {
   __overviewChart.restoreZoom();
 }
 
+/**
+ * Highlights the selected PTMs in the overview chart.
+ */
 function overviewChartHighlight() {
   let options = [];
   let names = __overviewChart.getDataNames();
@@ -2770,10 +3149,19 @@ function overviewChartHighlight() {
   });
 }
 
+/**
+ * Resorts the overview chart.
+ */
 function overviewChartSort() {
   __overviewChart.resort();
 }
 
+/**
+ * Initialies the dashboard chart by fetching the data of one protein from the server.
+ *
+ * @param {Number} cutoff_value Distance cutoff value to use for defining residue contacts.
+ * @param {String} pdb_text_value Optional PDB text value to initialize the dashboard chart with.
+ */
 function dashboardChartInitialize(cutoff_value, pdb_text_value) {
   displayNotification("Initializing dashboard.");
   if (cutoff_value == undefined) cutoff_value = 4.69;
@@ -2792,7 +3180,7 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
     cutoff: cutoff_value,
   };
   axios
-    .post(__url + "/get_protein_data", pako.deflate(JSON.stringify(request)), {
+    .post(__url + "/protein_data", pako.deflate(JSON.stringify(request)), {
       headers: {
         "Content-Type": "application/octet-stream",
         "Content-Encoding": "zlib",
@@ -2802,22 +3190,21 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
       if (response.status == 303) {
         displayAlert("Failed to fetch protein structure.");
       } else {
-        var protein_data = response.data;
         // TODO: Prune protein data to remove modifications at positions that exceed the protein's length.
-        let primaryAccession = protein_data.annotation.primaryAccession;
-        let proteinName = protein_data.annotation.hasOwnProperty(
+        let primaryAccession = response.data.annotation.primaryAccession;
+        let proteinName = response.data.annotation.hasOwnProperty(
           "proteinDescription"
         )
-          ? protein_data.annotation.proteinDescription.hasOwnProperty(
+          ? response.data.annotation.proteinDescription.hasOwnProperty(
               "recommendedName"
             )
-            ? protein_data.annotation.proteinDescription.recommendedName
+            ? response.data.annotation.proteinDescription.recommendedName
                 .fullName.value
-            : Object.values(protein_data.annotation.proteinDescription)[0][0]
+            : Object.values(response.data.annotation.proteinDescription)[0][0]
                 .fullName.value
           : "N/A";
-        let organismName = protein_data.annotation.hasOwnProperty("organism")
-          ? "<em>" + protein_data.annotation.organism.scientificName + "</em>"
+        let organismName = response.data.annotation.hasOwnProperty("organism")
+          ? "<em>" + response.data.annotation.organism.scientificName + "</em>"
           : "N/A";
         $("#panel-dashboard-selection").html(
           [primaryAccession, proteinName, organismName].join(", ")
@@ -2843,7 +3230,7 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
             confirmButtonText: "Close Info",
           })
         );
-        __dashboardChart.fill(protein_data);
+        __dashboardChart.fill(response.data);
         __dashboardContent = "modifications";
         $("#panel-dashboard-title").html("Explore detail - Modifications view");
         window.scrollTo({
@@ -2863,6 +3250,9 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
     });
 }
 
+/**
+ * Downloads the image of the dashboard chart.
+ */
 function dashboardChartDownloadImage() {
   const _ = document.createElement("a");
   document.body.appendChild(_);
@@ -2872,10 +3262,16 @@ function dashboardChartDownloadImage() {
   _.remove();
 }
 
+/**
+ * Restores the zoom of the dashboard chart.
+ */
 function dashboardChartRestoreZoom() {
   __dashboardChart.restoreZoom();
 }
 
+/**
+ * Highlights the selected PTMs in the dashboard chart.
+ */
 function dashboardChartHighlight() {
   let options = [];
   let names = __dashboardChart.getDataNames();
@@ -2900,6 +3296,9 @@ function dashboardChartHighlight() {
   });
 }
 
+/**
+ * Switches the content of the dashboard chart between modifications and structure view.
+ */
 function dashboardChartSwitch() {
   if (__dashboardContent == "modifications") {
     __dashboardContent = "structure";
@@ -2911,6 +3310,11 @@ function dashboardChartSwitch() {
   __dashboardChart.switchContent();
 }
 
+/**
+ * Scrolls to a specific DOM element.
+ *
+ * @param {String} id DOM element identifier to scroll to.
+ */
 function to(id) {
   let e = $("#" + id).get(0);
   let offset = Math.round(e.getBoundingClientRect().top) - 80;
@@ -2918,18 +3322,4 @@ function to(id) {
     top: offset,
     behavior: "smooth",
   });
-}
-
-function stringToHash(string) {
-  let hash = 0;
-
-  if (string.length == 0) return hash;
-
-  for (i = 0; i < string.length; i++) {
-    let char = string.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-
-  return hash;
 }
