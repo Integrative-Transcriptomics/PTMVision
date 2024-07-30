@@ -30,9 +30,9 @@ app.config["SESSION_TYPE"] = "cachelib"
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True
 app.config["SECRET_KEY"] = os.getenv("SIGNER")
-app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir = BASEPATH + '/session/', threshold=1000)
-app.config["SESSION_CLEANUP_N_REQUESTS"] = 100
-app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # Limit content lengths to 100 MB.
+app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir = BASEPATH + '/session/', threshold=1000000)
+app.config["SESSION_CLEANUP_N_REQUESTS"] = 10
+app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # Limit content lengths to 50 MB.
 
 """ Set API parameters. """
 DEBUG = os.getenv("DEBUG")
@@ -42,10 +42,13 @@ Session(app)
 
 @app.route("/example_session", methods=["GET"])
 def example_session():
+    """
+    Route to load an example session from a JSON file.
+    """
     try :
         session.clear( )
-        with open( BASEPATH + "/static/resources/example_modifications_data.json", "r" ) as example_modifications_data :
-            session[MODIFICATIONS_DATA] = json.load( example_modifications_data )
+        with open( BASEPATH + "/static/resources/example_data/" + request.args.get("fileIdentifier") + ".json", "r" ) as example_session_data :
+            session[MODIFICATIONS_DATA] = json.load( example_session_data )
         return "Ok", 200
     except Exception as e :
         return "Failed request '/example_session': " + _format_exception(e), 500
@@ -53,6 +56,9 @@ def example_session():
 
 @app.route("/download_session", methods=["GET"])
 def download_session():
+    """
+    Route to download the current session as a zlib file.
+    """
     try :
         zlib_compress = zlib.compressobj( 6, zlib.DEFLATED, zlib.MAX_WBITS )
         compressed_session_bytes = zlib_compress.compress( bytes(json.dumps(session[MODIFICATIONS_DATA]), "utf-8") ) + zlib_compress.flush( )
@@ -64,6 +70,9 @@ def download_session():
 
 @app.route("/restart_session", methods=["POST"])
 def restart_session():
+    """
+    Route to restart a previous session.
+    """
     try :
         session.clear( )
         session_data = zlib.decompress( base64.b64decode( request.data ) ).decode( )
@@ -75,7 +84,9 @@ def restart_session():
 
 @app.route("/process_search_engine_output", methods=["POST"])
 def process_search_engine_output():
-    """Route to process CSV data or SAGE, ionbot or MSFragger search engine output."""
+    """
+    Route to process the output of a search engine and store the data in the session.
+    """
     try:
         session.clear( )
         json_request_data = _request_to_json(request.data)
@@ -94,9 +105,11 @@ def process_search_engine_output():
         return "Failed request '/process_search_engine_output': " + _format_exception(e), 500
 
 
-@app.route("/get_available_proteins", methods=["GET"])
-def get_available_proteins():
-    """Route to retrieve all available proteins of the session as a JSON."""
+@app.route("/available_proteins", methods=["GET"])
+def available_proteins():
+    """
+    Route to retrieve all available proteins of the session as a JSON.
+    """
     try :
         protein_entries = []
         if MODIFICATIONS_DATA in session:
@@ -173,8 +186,11 @@ def get_available_proteins():
         return "Failed request '/get_available_proteins': " + _format_exception(e), 500
 
 
-@app.route("/get_overview_data", methods=["GET"])
-def get_overview_data():
+@app.route("/overview_data", methods=["GET"])
+def overview_data():
+    """
+    Route to retrieve overview data of the session as a JSON.
+    """
     try :
         modifications =  { } # Stores all present modifications together with their count.
         modification_co_occurrence = { } # Maps pairs of modification display names to their co-occurrence count.
@@ -231,8 +247,11 @@ def get_overview_data():
         return "Failed request '/get_overview_data': " + _format_exception(e), 500
 
 
-@app.route("/get_protein_data", methods=["POST"])
-def get_protein_data():
+@app.route("/protein_data", methods=["POST"])
+def protein_data():
+    """
+    Route to retrieve data for a specific protein.
+    """
     try :
         json_request_data = _request_to_json(request.data)
         # Try to fetch PDB format structure for UniProt identifier from AlphaFold database.
@@ -258,18 +277,18 @@ def get_protein_data():
             #    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ]["annotation"] = annotation[ "results" ][ 0 ][ "to" ]
             # Compute contacts from structure and store them in session data.
             if not "contacts" in session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ] :
-                session[MODIFICATIONS_DATA]["meta_data"]["distance_cutoff"] = int(json_request_data["cutoff"])
+                session[MODIFICATIONS_DATA]["meta_data"]["distance_cutoff"] = float(json_request_data["cutoff"])
                 session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ] = { }
                 distance_matrix = utils.get_distance_matrix(structure)
                 contacts = utils.get_contacts(
                     distance_matrix,
-                    float(json_request_data["cutoff"]),
-                )
+                    session[MODIFICATIONS_DATA]["meta_data"]["distance_cutoff"],
+                )        
                 for source_position, contacts_list in contacts.items( ) :
-                    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ][ source_position ] = [ ]
+                    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ][ source_position ] = { }
                     for contact_position in contacts_list :
-                        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ][ source_position ].append( ( contact_position, distance_matrix[ source_position, contact_position ] ) )
-            # Construct response.
+                        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ][ source_position ][ contact_position ] = round( distance_matrix[ source_position, contact_position ], 4 )
+            # Construct response
             response = deepcopy( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ] )
             response[ "structure" ] = utils._brotli_decompress( response[ "structure" ] )
             response[ "meta" ] = session[MODIFICATIONS_DATA]["meta_data"]
