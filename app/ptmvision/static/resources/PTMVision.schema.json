@@ -62,89 +62,92 @@
               }
             },
             "contacts": {
-              "description": "Maps protein positions to all positions in contact.",
+              "description": "Maps protein positions to other positions in contact. Properties represent first position in contact.",
               "type": "object",
               "patternProperties": {
                 "^[0-9]+$": {
-                  "description": "List of positions in contact with the position represented by key.",
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
+                  "description": "Properties represent second position in contact.",
+                  "type": "object",
+                  "patternProperties": {
+                    "^[0-9]+$": {
+                      "description": "Value is the distance in Angstrom.",
+                      "type": "integer"
+                    }
                   }
                 }
               }
-            },
-            "annotation": {
-              "description": "UniProt annotations associated with this entry.",
-              "type": "object"
             }
+          },
+          "annotation": {
+            "description": "UniProt annotations associated with this entry.",
+            "type": "object"
           }
         }
       }
-    },
-    "meta_data": {
-      "description": "Generalized meta data for classifications and annotations for all stored protein entries.",
-      "type": "object",
-      "properties": {
-        "modification_classifications": {
-          "description": "List of modification classifications that occur across all stored protein entries.",
-          "type": "object",
-          "patternProperties": {
-            "^.+$": {
-              "description": "The key of this object names the resp. modification classification.",
-              "type": "object",
-              "properties": {
-                "color": {
-                  "description": "Color to use for vis. of this modification classifcation.",
-                  "type": "string"
-                },
-                "description": {
-                  "description": "Description to use for this modification classifcation.",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "distance_cutoff": {
-          "description": "The distance cutoff in Angstrom to determine residues in contact.",
-          "type": "integer",
-          "minimum": 0
-        },
-        "modification_metadata": {
-          "description": "Information about modifications",
-          "type": "object",
-          "patternProperties": {
-            "^custom_modification_annotation_[0-9]+$": {
-              "description": "Any custom annotation object (for modifications).",
-              "type": "object",
-              "properties": {
-                "name": {
-                  "description": "The internal name to use for this custom modification annotation (e.g. polar).",
-                  "type": "string"
-                }
+    }
+  },
+  "meta_data": {
+    "description": "Generalized meta data for classifications and annotations for all stored protein entries.",
+    "type": "object",
+    "properties": {
+      "modification_classifications": {
+        "description": "List of modification classifications that occur across all stored protein entries.",
+        "type": "object",
+        "patternProperties": {
+          "^.+$": {
+            "description": "The key of this object names the resp. modification classification.",
+            "type": "object",
+            "properties": {
+              "color": {
+                "description": "Color to use for vis. of this modification classifcation.",
+                "type": "string"
+              },
+              "description": {
+                "description": "Description to use for this modification classifcation.",
+                "type": "string"
               }
             }
           }
         }
       },
-      "patternProperties": {
-        "^custom_annotation_[A-Za-z0-9]+$": {
-          "description": "Any custom annotation object (for modified positions).",
-          "type": "object",
-          "properties": {
-            "name": {
-              "description": "The internal name to use for this custom annotation.",
-              "type": "string"
-            },
-            "color": {
-              "description": "Color to use for vis. of this custom annotation.",
-              "type": "string"
-            },
-            "description": {
-              "description": "Description to use for this custom annotation.",
-              "type": "string"
+      "distance_cutoff": {
+        "description": "The distance cutoff in Angstrom to determine residues in contact.",
+        "type": "integer",
+        "minimum": 0
+      },
+      "modification_metadata": {
+        "description": "Information about modifications",
+        "type": "object",
+        "patternProperties": {
+          "^custom_modification_annotation_[0-9]+$": {
+            "description": "Any custom annotation object (for modifications).",
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "The internal name to use for this custom modification annotation (e.g. polar).",
+                "type": "string"
+              }
             }
+          }
+        }
+      }
+    },
+    "patternProperties": {
+      "^custom_annotation_[A-Za-z0-9]+$": {
+        "description": "Any custom annotation object (for modified positions).",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "The internal name to use for this custom annotation.",
+            "type": "string"
+          },
+          "color": {
+            "description": "Color to use for vis. of this custom annotation.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Description to use for this custom annotation.",
+            "type": "string"
           }
         }
       }
