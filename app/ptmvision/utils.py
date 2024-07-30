@@ -15,7 +15,7 @@ BASEPATH = "./app/ptmvision" # Use this for local development.
 # BASEPATH = "/app/ptmvision" # Use this for deployment.
 UNIMOD_MAPPER = unimod.Unimod("sqlite:///unimod.db") # Use this for local development.
 # UNIMOD_MAPPER = unimod.Unimod( ) # Use this for deployment. TODO: Seems to be broken.
-TOLERANCE = 0.001 # Mass tolerance when matching masses to unimod IDs.
+TOLERANCE = 0.02 # Mass tolerance when matching masses to unimod IDs.
 EXCLUDE_CLASSES = [ ] # Exclude PTMs with these Unimod classifications from the results.
 PDBPARSER = PDBParser(PERMISSIVE=False)
 DEBUG = os.getenv("DEBUG")
@@ -59,9 +59,9 @@ def get_contacts(dist_matrix, threshold):
     contacts = {}
     for pairwise_contact in np.argwhere(dist_matrix < threshold):
         if pairwise_contact[0] != pairwise_contact[1]:
-            contacts.setdefault(int(pairwise_contact[0]), []).append(
-                int(pairwise_contact[1])
-            )
+            contacts.setdefault(
+                int(pairwise_contact[0]), []
+            ).append( int( pairwise_contact[1] ) )
     return contacts
 
 
