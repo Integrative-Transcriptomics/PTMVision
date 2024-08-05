@@ -47,8 +47,9 @@ def example_session():
     """
     try :
         session.clear( )
-        with open( BASEPATH + "/static/resources/example_data/" + request.args.get("fileIdentifier") + ".json", "r" ) as example_session_data :
-            session[MODIFICATIONS_DATA] = json.load( example_session_data )
+        with open( BASEPATH + "/static/resources/example_session/" + request.args.get("fileIdentifier") + ".zlib", "rb" ) as example_session_data :
+            session_data = zlib.decompress( base64.b64decode( example_session_data.read( ) ) ).decode( )
+        session[MODIFICATIONS_DATA] = json.loads(session_data)
         return "Ok", 200
     except Exception as e :
         return "Failed request '/example_session': " + _format_exception(e), 500
