@@ -15,7 +15,7 @@ BASEPATH = "./app/ptmvision" # Use this for local development.
 # BASEPATH = "/app/ptmvision" # Use this for deployment.
 UNIMOD_MAPPER = unimod.Unimod("sqlite:///unimod.db") # Use this for local development.
 # UNIMOD_MAPPER = unimod.Unimod( ) # Use this for deployment. TODO: Seems to be broken.
-TOLERANCE = 0.02 # Mass tolerance when matching masses to unimod IDs.
+TOLERANCE = 0.001 # Mass tolerance when matching masses to unimod IDs.
 EXCLUDE_CLASSES = [ ] # Exclude PTMs with these Unimod classifications from the results.
 PDBPARSER = PDBParser(PERMISSIVE=False)
 DEBUG = os.getenv("DEBUG")
@@ -520,7 +520,7 @@ def parse_assigned_mods_msfragger(mods):
             pos = int(re.search("\d+", mod).group(0)) - 1
         mass = re.search(r"\(.*?\)", mod)[0]
         mass = float(mass.replace("(", "").replace(")", ""))
-        mod_list.append((pos, "Unannotated mass-shift " +str(mass)))
+        mod_list.append((pos, "Unannotated mass-shift " + str(mass)))
 
     return mod_list
 
