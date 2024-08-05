@@ -609,7 +609,7 @@ class OverviewChart {
           axisLabel: {
             show: true,
             formatter: (i) => {
-              let value = this.#data.modifications[i]["display_name"];
+              return this.#data.modifications[i]["display_name"];
               return value;
               // return value.length > 12 ? value.substring(0, 13) + "..." : value;
             },
@@ -1557,9 +1557,8 @@ class DashboardChart {
           },
           data: [],
           selector: [
-            { type: null, title: "Unimod class" },
-            //{ type: "all", title: "Select all." },
-            //{ type: "inverse", title: "Invert selection." },
+            { type: "all", title: "Select all." },
+            { type: "inverse", title: "Invert selection." },
           ],
           selectorLabel: {
             fontSize: 12,
@@ -2790,10 +2789,6 @@ function init() {
     "panel-dashboard-chart",
     "panel-dashboard-structure"
   );
-  // Set non-input panels as initially hidden.
-  togglePanel("panel-overview");
-  togglePanel("panel-table");
-  togglePanel("panel-dashboard");
 }
 
 /**
@@ -2923,7 +2918,7 @@ function downloadSessionData() {
     const D = new Date();
     downloadBlob(
       response.data,
-      "ptmvis-" +
+      "ptmvision-" +
         [D.getFullYear(), D.getMonth() + 1, Date.now()].join("-") +
         ".zlib"
     );
