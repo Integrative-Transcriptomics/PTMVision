@@ -190,7 +190,7 @@ body {
 }
 
 #panel-info {
-  margin-top: 5vh;
+  margin-top: 1vw;
   left: 5%;
   width: 90%;
   height: auto;
@@ -282,9 +282,9 @@ body {
 }
 
 #panel-dashboard {
+  margin: 1vw;
   margin-top: 5vh;
   width: 98vw;
-  margin: 1vw;
   min-height: 84vh;
   overflow-y: auto;
 }

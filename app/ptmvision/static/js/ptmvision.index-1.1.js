@@ -2790,6 +2790,10 @@ function init() {
     "panel-dashboard-chart",
     "panel-dashboard-structure"
   );
+  // Set non-input panels as initially hidden.
+  togglePanel("panel-overview");
+  togglePanel("panel-table");
+  togglePanel("panel-dashboard");
 }
 
 /**
