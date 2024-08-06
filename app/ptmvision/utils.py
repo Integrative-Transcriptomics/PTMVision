@@ -196,6 +196,16 @@ def map_mass_to_unimod_id(mass):
     return str(mod_ids[0])
 
 
+def map_mass_to_unimod_names(mass):
+    global TOLERANCE
+    query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.monoisotopic_mass.between(mass-TOLERANCE, mass+TOLERANCE)).all()
+    mod_names = [str(result.code_name) for result in query_results]
+    if len(mod_names) == 0: 
+        return ""
+    elif len(mod_names) > 1: 
+        return " or ".join(mod_names)
+    return str(mod_names[0])
+
 def map_unimod_name_to_mass(unimod_name):
     query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.ex_code_name == unimod_name).all()
     mod_masses = [result.monoisotopic_mass for result in query_results]
@@ -382,6 +392,11 @@ def get_mass_shift(mod):
         mass_shift = map_unimod_name_to_mass(mod)
     return mass_shift
 
+def get_candidates_from_mass_shift(mass_shift):
+    unimod_names = map_mass_to_unimod_names(mass_shift)
+    if " or " in unimod_names:
+        return unimod_names
+    return 
 
 def PSMList_to_mod_df(psm_list):
     """
@@ -532,7 +547,7 @@ def read_msfragger(file):
     if DEBUG :
         print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'msfragger' ... ", end = '', flush = True)
     # read file and pick relevant rows and columns
-    pept_mods = pd.read_csv(file, sep="\t")[:30]
+    pept_mods = pd.read_csv(file, sep="\t")
     pept_mods = pept_mods[
         [
             "Modified Peptide",
@@ -640,6 +655,9 @@ def read_ionbot(file):
 
     df = df[["uniprot_id", "modification", "position"]]
 
+    # get rid of prefixes in protein ids
+    df["uniprot_id"] = df["uniprot_id"].str.replace("sp|", "", regex=False).str.replace("tr|", "", regex=False)
+
     # fix ionbot bug where C-term modifications are not correctly placed in the protein
     df['position'] = df.apply(lambda x: x['position'] - 1 if 'C-term' in x['modification'] else x['position'], axis=1)     
 
@@ -684,11 +702,16 @@ def read_ionbot(file):
     #merge
     df = df.merge(unique_mass_shifts, on="modification_unimod_id", how="left")
 
+    # get mismatch candidates
+    df["candidates"] = df.apply(
+        lambda row: get_candidates_from_mass_shift(row["mass_shift"]),
+        axis=1
+    )
+
     df["display_name"] = df["modification_unimod_name"]
 
     df.drop(columns=["modification", "modified_residue"], inplace=True)
 
-    df["uniprot_id"] = df["uniprot_id"].str.replace("sp|", "", regex=False).str.replace("tr|", "", regex=False)
     return df
 
 
