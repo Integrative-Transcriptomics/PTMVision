@@ -23,19 +23,6 @@ DEBUG = os.getenv("DEBUG")
 TODO: Refactor into reader classes, one for each file format.
 """
 
-def check_fasta_coverage(uniprot_ids, fasta_dict):
-    # check how many proteins were found in uniprot, let the user decide if they want to provide their own fasta
-    found = len(fasta_dict)
-    total = len(uniprot_ids)
-    not_found = total - found
-    if not_found > 50:
-        raise Exception(
-            "Not able to retrieve protein sequences for {} protein IDs. Please provide the fasta used for database search.".format(
-                not_found
-            )
-        )
-
-
 def get_distance_matrix(structure):
     residue_count = 0
     for residue in enumerate(structure.get_residues()):
@@ -145,14 +132,6 @@ def get_peptide_position_in_protein(peptide, protein):
     return int(protein.find(peptide_sequence))
 
 
-def get_ptm_position_in_protein(mod, protein_start):
-    if protein_start == -1:
-        return -1
-    position_ptm_in_peptide = int(re.search(".+?(?=\D)", mod)[0])
-    position_ptm_in_protein = protein_start + position_ptm_in_peptide - 1
-    return position_ptm_in_protein
-
-
 def get_amino_acid_from_protein(position, uniprot_id, fasta_dict):
     for record in fasta_dict.keys():
         if uniprot_id in record:
@@ -191,30 +170,6 @@ def gather_mass_shift_msfragger(row):
         return mass_shift
 
     return
-
-    
-def map_modification_string_to_unimod_name(modification_string):
-    # gets either name ("Oxidation") or string ("+57.") and returns unimod name
-    if modification_string[0] in ["+", "-"]:
-        return map_mass_to_unimod_name(float(modification_string))
-    else:
-        # check if valid unimod name
-        query_results = UNIMOD_MAPPER.by_name(modification_string, strict=False)
-        if query_results:
-            return modification_string
-    return modification_string
-
-
-def map_mass_to_unimod_name(mass):
-    # modification string: either mass shift or unimod name
-    global TOLERANCE
-    query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.monoisotopic_mass.between(mass-TOLERANCE, mass+TOLERANCE)).all()
-    mod_names = [result.full_name for result in query_results]
-    if len(mod_names) == 0: 
-        return None
-    elif len(mod_names) > 1: 
-        return " or ".join(mod_names)
-    return mod_names[0]
 
 
 def map_modification_string_to_unimod_id(modification_string):
@@ -381,7 +336,7 @@ def parse_protein_string(x):
 
 def msfragger_to_unimod_id(x):
     """
-    map mass shift or description to unimod name
+    map mass shift or description to unimod id
     """
     # (7, 15.9949)
     # (3, Unannotated mass-shift -116.0590)
@@ -410,8 +365,10 @@ def msfragger_to_unimod_id(x):
 
 
 def get_display_name(row):
-    if row["modification_unimod_name"]:
-        return row["modification_unimod_name"]
+    # if unimod name is available and unambiguous, use it as display name
+    if row["modification_unimod_name"] and " or " not in row["modification_unimod_name"]:
+            return row["modification_unimod_name"]
+    # otherwise use the original label
     else:
         return row["modification"][1]
 
@@ -543,25 +500,30 @@ def parse_observed_mods_msfragger(localisation, mod):
 
 def parse_msfragger_mods(msfragger_psm_row):
     """
-    parse modifications from MSFragger PSM
-    variable mods: Assigned Modification ("7M(15.9949)")  N-term(42.0106)
-    new mods: Observed Modiciation (Mod1: Methylation (PeakApex: 14.0144, Theoretical: 14.0157), localization in MSFragger Localization (TVkEAEEAAK)
-    combine into one list of tuples => ((7,15.9949), ())
+    Parse modifications from MSFragger PSM.
+    
+    Variable mods are in column "Assigned Modification" (e.g. "7M(15.9949)" or "N-term(42.0106)").
+    Mass shifts are in column "Observed Modification" (e.g. Mod1: Methylation (PeakApex: 14.0144, Theoretical: 14.0157)).
+    Their localization is in column "MSFragger Localization" (e.g. TVkEAEEAAK).
+    Combine into one list of tuples => [(7, 15.9949), ()].
+    
+    :param msfragger_psm_row: A row from the MSFragger PSM DataFrame.
+    :return: A list of tuples representing the modifications.
     """
     mods = []
-    if not pd.isna(msfragger_psm_row["Assigned Modifications"]):
-        var_mods = parse_assigned_mods_msfragger(
-            msfragger_psm_row["Assigned Modifications"]
-        )
+
+    assigned_mods = msfragger_psm_row.get("Assigned Modifications")
+    if pd.notna(assigned_mods):
+        var_mods = parse_assigned_mods_msfragger(assigned_mods)
         if var_mods:
-            mods = mods + var_mods
-    if not pd.isna(msfragger_psm_row["MSFragger Localization"]):
-        new_mods = parse_observed_mods_msfragger(
-            msfragger_psm_row["MSFragger Localization"],
-            msfragger_psm_row["Observed Modifications"],
-        )
+            mods.extend(var_mods)
+
+    localization = msfragger_psm_row.get("MSFragger Localization")
+    observed_mods = msfragger_psm_row.get("Observed Modifications")
+    if pd.notna(localization):
+        new_mods = parse_observed_mods_msfragger(localization, observed_mods)
         if new_mods:
-            mods = mods + new_mods
+            mods.extend(new_mods)
 
     return mods
 
@@ -570,7 +532,7 @@ def read_msfragger(file):
     if DEBUG :
         print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'msfragger' ... ", end = '', flush = True)
     # read file and pick relevant rows and columns
-    pept_mods = pd.read_csv(file, sep="\t")
+    pept_mods = pd.read_csv(file, sep="\t")[:30]
     pept_mods = pept_mods[
         [
             "Modified Peptide",
@@ -616,11 +578,14 @@ def read_msfragger(file):
     )
     pept_mods = pept_mods.explode("modification")
 
-    # Protein Start is 1 indexed, modification position is 0 indexed, so cancels out the -1
+    # map modification to unimod id
     pept_mods = pept_mods.dropna(subset=["modification"])
     pept_mods["modification_unimod_id"] = pept_mods["modification"].apply(
         lambda x: msfragger_to_unimod_id(x)
     )
+
+    # map modification onto protein position
+    # Protein Start is 1 indexed, modification position is 0 indexed, so cancels out the -1
     pept_mods["position"] = pept_mods["Protein Start"] + pept_mods[
         "modification"
     ].apply(lambda x: int(x[0]))
@@ -657,9 +622,14 @@ def read_msfragger(file):
     global EXCLUDE_CLASSES
     pept_mods = pept_mods[~pept_mods["classification"].isin(EXCLUDE_CLASSES)]
 
-    # get display name (unimod name if available, otherwise "unannotated mass shift: (mass shift)"
+    # get display name (unimod name if unambiguous, otherwise "unannotated mass shift: (mass shift)"
     pept_mods["display_name"] = pept_mods.apply(lambda x: get_display_name(x), axis=1)
 
+    # for ambiguous mass shifts, store all candidates
+    pept_mods["candidates"] = pept_mods.apply(
+        lambda row: row["modification_unimod_name"] if "Ambiguous mass shift" in row["classification"] else None,
+        axis=1
+    )
     return pept_mods
 
 
@@ -855,6 +825,7 @@ def construct_modifications_entry(row):
         "modification_unimod_id": row["modification_unimod_id"],
         "display_name": row["display_name"] if "display_name" in row else "null",
         "mass_shift": row["mass_shift"] if "mass_shift" in row else "null",
+        "candidates": row["candidates"] if "candidates" in row else "null",
     }
 
 
