@@ -30,10 +30,10 @@ var __dashboardContent = null;
  */
 const STYLE_AXIS = {
   nameLocation: "center",
-  nameGap: 50,
+  nameGap: 40,
   nameTextStyle: {
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 12,
   },
   axisTick: {
     alignWithLabel: true,
@@ -46,7 +46,7 @@ const STYLE_AXIS = {
  */
 const STYLE_AXIS_LABEL = {
   fontWeight: "normal",
-  fontSize: 14,
+  fontSize: 11,
 };
 /**
  * ECharts option for global tooltip style.
@@ -56,7 +56,7 @@ const STYLE_TOOLTIP = {
   borderColor: "#fbfbfb",
   textStyle: {
     color: "#111111",
-    fontSize: 14,
+    fontSize: 11,
   },
 };
 /**
@@ -64,7 +64,7 @@ const STYLE_TOOLTIP = {
  */
 const STYLE_TITLE = {
   textStyle: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: "bold",
   },
 };
@@ -461,57 +461,57 @@ class OverviewChart {
         },
         {
           text: "Shared PTM sites between modification types",
-          top: 20,
-          left: "12%",
+          top: 35,
+          left: "9%",
           ...STYLE_TITLE,
         },
         {
           text: "Mass shift in Dalton",
-          top: 35,
-          left: 10 + 2 + 80 / r + "%",
+          top: 54,
+          left: 9 + 1 + 65 / r + "%",
           ...STYLE_TITLE,
         },
         {
           text: "Site count",
-          top: 35,
-          left: 10 + 2 * 2 + 12 + 80 / r + "%",
+          top: 54,
+          left: 9 + 2 * 1 + 12 + 65 / r + "%",
           ...STYLE_TITLE,
         },
         {
           text: "Unimod PTM class counts",
-          top: 35,
-          left: 10 + 4 * 2 + 2 * 12 + 80 / r + "%",
+          top: 54,
+          left: 9 + 8 * 1 + 2 * 12 + 65 / r + "%",
           ...STYLE_TITLE,
         },
       ],
       grid: [
         {
-          top: 60,
-          left: "16%",
-          height: "60%",
-          width: 60 / r + "%",
+          top: 80,
+          left: "9%",
+          height: "65%",
+          width: 65 / r + "%",
           show: true,
         },
         {
-          top: 60,
-          left: 10 + 2 + 80 / r + "%",
-          height: "60%",
+          top: 80,
+          left: 9 + 1 + 65 / r + "%",
+          height: "65%",
           width: "12%",
           show: true,
         },
         {
-          top: 60,
-          left: 10 + 2 * 2 + 12 + 80 / r + "%",
-          height: "60%",
+          top: 80,
+          left: 9 + 2 * 1 + 12 + 65 / r + "%",
+          height: "65%",
           width: "12%",
           show: true,
         },
         {
-          top: 60,
+          top: 80,
           bottom: "24%",
-          left: 10 + 4 * 2 + 2 * 12 + 80 / r + "%",
-          right: "4%",
-          height: "60%",
+          left: 9 + 8 * 1 + 2 * 12 + 65 / r + "%",
+          right: "2%",
+          height: "65%",
           width: "auto",
           show: true,
         },
@@ -523,14 +523,17 @@ class OverviewChart {
           name: "Modification",
           data: dataAxis,
           ...STYLE_AXIS,
-          nameGap: 160,
+          nameGap: 110,
           axisLabel: {
             show: true,
-            rotate: 70,
+            rotate: 50,
             formatter: (i) => {
-              let value = this.#data.modifications[i]["display_name"];
-              return value;
-              // return value.length > 4 ? value.substring(0, 5) + "..." : value;
+              let displayName = this.#data.modifications[i]["display_name"];
+              displayName = displayName.replace(
+                "Unannotated mass-shift",
+                "Mass-shift"
+              );
+              return displayName;
             },
             ...STYLE_AXIS_LABEL,
           },
@@ -549,7 +552,7 @@ class OverviewChart {
           axisLabel: {
             show: true,
             interval: 0,
-            rotate: 70,
+            rotate: 50,
             ...STYLE_AXIS_LABEL,
           },
           axisPointer: {
@@ -567,7 +570,7 @@ class OverviewChart {
           axisLabel: {
             show: true,
             interval: 0,
-            rotate: 70,
+            rotate: 50,
             ...STYLE_AXIS_LABEL,
           },
           axisPointer: {
@@ -582,12 +585,12 @@ class OverviewChart {
           type: "category",
           name: "Class",
           ...STYLE_AXIS,
-          nameGap: 170,
+          nameGap: 110,
           data: Object.keys(this.#data.classCounts),
           axisLabel: {
             show: true,
             interval: 0,
-            rotate: 70,
+            rotate: 50,
             ...STYLE_AXIS_LABEL,
           },
           axisPointer: {
@@ -603,15 +606,20 @@ class OverviewChart {
           type: "category",
           name: "Modification",
           ...STYLE_AXIS,
-          nameGap: 160,
+          nameGap: 120,
           data: dataAxis,
           inverse: true,
           axisLabel: {
             show: true,
             formatter: (i) => {
-              return this.#data.modifications[i]["display_name"];
-              return value;
-              // return value.length > 12 ? value.substring(0, 13) + "..." : value;
+              let displayName = this.#data.modifications[i]["display_name"];
+              displayName = displayName.replace(
+                "Unannotated mass-shift",
+                "Mass-shift"
+              );
+              return displayName.length > 17
+                ? displayName.slice(0, 17) + "..."
+                : displayName;
             },
             ...STYLE_AXIS_LABEL,
           },
@@ -745,15 +753,15 @@ class OverviewChart {
               min: 1,
               max: Math.max(...Object.values(this.#data.coOccurrence)),
               orient: "horizontal",
-              top: 38,
-              left: "12%",
+              top: 54,
+              left: "9%",
               itemHeight: 50,
               itemWidth: 11,
               text: [
                 Math.max(...Object.values(this.#data.coOccurrence)),
                 "No. shared sites 1",
               ],
-              textStyle: { fontWeight: "normal", fontSize: 14 },
+              textStyle: { fontWeight: "normal", fontSize: 11 },
             }
           : null,
       ],
@@ -828,7 +836,7 @@ class OverviewChart {
         },
       ],
     };
-    // Highlight PTMs that fall within 0.02 Da mass shift tolerance, when sorting by mass shift.
+    // Highlight PTMs that fall within mass shift tolerance, when sorting by mass shift.
     if (this.#sortingIndex == 0) {
       let segments = [];
       let segment = new Set();
@@ -1044,7 +1052,7 @@ class DashboardChart {
             return this.#data.modifications[params.data.value];
           },
           fontWeight: "lighter",
-          fontSize: 10,
+          fontSize: 9,
           position: "insideEndBottom",
         },
         data: indices.map((i) => {
@@ -1366,7 +1374,7 @@ class DashboardChart {
           top: "17%",
           left: "85%",
           height: "65%",
-          width: "8%",
+          width: "12%",
           containLabel: false,
           zlevel: 0,
           show: true,
@@ -1466,8 +1474,8 @@ class DashboardChart {
           nameGap: 130,
           axisLabel: {
             formatter: (value) => {
-              return value;
-              //return value.length > 12 ? value.substring(0, 13) + "..." : value;
+              value = value.replace("Unannotated mass-shift", "Mass-shift");
+              return value.length > 17 ? value.slice(0, 17) + "..." : value;
             },
           },
           gridIndex: 1,
@@ -1544,15 +1552,15 @@ class DashboardChart {
       legend: [
         {
           id: "legend",
-          top: 15,
-          left: "right",
+          top: "top",
+          left: "center",
           zlevel: 2,
           icon: "circle",
           itemWidth: 10,
           itemHeight: 10,
           orient: "horizontal",
           textStyle: {
-            fontSize: 14,
+            fontSize: 11,
             fontWeight: "lighter",
           },
           data: [],
@@ -1561,7 +1569,7 @@ class DashboardChart {
             { type: "inverse", title: "Invert selection." },
           ],
           selectorLabel: {
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: "lighter",
             borderRadius: 2,
           },
@@ -1606,7 +1614,7 @@ class DashboardChart {
       itemWidth: 11,
       precision: 0,
       textStyle: {
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: "normal",
       },
       text: ["1", "Per Aminoacid Min-Max Scaled No. Occurrence 0"],
@@ -1798,9 +1806,9 @@ class DashboardChart {
       return _;
     };
     for (let [index_i, contactEntries] of Object.entries(this.#data.contacts)) {
-      let x = parseInt(index_i);
+      let x = parseInt(index_i) + 1; // +1 to account for protein position instead of 0-based index.
       for (let [index_j, _] of Object.entries(contactEntries)) {
-        let y = parseInt(index_j);
+        let y = parseInt(index_j) + 1; // +1 to account for protein position instead of 0-based index.
         let iModifications = new Set(
           this.#data.positions[x].modifications.map((_) => _.display_name)
         );
@@ -1851,7 +1859,7 @@ class DashboardChart {
               borderRadius: 1,
             },
           };
-        contactsSeries[cls].data.push([x - 1, y - 1, 1]);
+        contactsSeries[cls].data.push([x - 1, y - 1, 1]); // -1 to account for 0-based index of series.
       }
     }
     // Initialize structure view.
@@ -1860,8 +1868,8 @@ class DashboardChart {
     // Construct option object.
     let r = this.chart.instance.getWidth() / this.chart.instance.getHeight();
     let n = this.#data.sequence.length;
-    $("#panel-dashboard-structure").css("left", 15 + 75 / r + "%");
-    $("#panel-dashboard-structure").css("width", 100 - (20 + 75 / r) + "%");
+    $("#panel-dashboard-structure").css("left", 12 + 75 / r + "%");
+    $("#panel-dashboard-structure").css("width", 100 - (16 + 75 / r) + "%");
     this.#option = this.#option = {
       title: [
         {
@@ -1873,7 +1881,7 @@ class DashboardChart {
         {
           text: "Protein Structure and Residue Contact PTM Details",
           top: "4%",
-          left: 15 + 75 / r + "%",
+          left: 12 + 75 / r + "%",
           ...STYLE_TITLE,
         },
         {
@@ -1922,8 +1930,8 @@ class DashboardChart {
         {
           // Contact detail.
           top: "80%",
-          left: 15 + 75 / r + "%",
-          width: 100 - (20 + 75 / r) + "%",
+          left: 12 + 75 / r + "%",
+          width: 100 - (16 + 75 / r) + "%",
           height: "13%",
           containLabel: false,
           zlevel: 0,
@@ -2081,7 +2089,7 @@ class DashboardChart {
           itemHeight: 10,
           orient: "horizontal",
           textStyle: {
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: "normal",
           },
           data: [],
@@ -2090,7 +2098,7 @@ class DashboardChart {
             { type: "inverse", title: "Invert selection." },
           ],
           selectorLabel: {
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: "lighter",
             borderRadius: 2,
           },
@@ -2629,6 +2637,7 @@ class StructureView {
       {
         cartoon: {
           color: "#D4D4D4",
+          radius: 0.4,
         },
       }
     );
@@ -2710,7 +2719,7 @@ class StructureView {
             backgroundColor: "rgb(51, 51, 51)",
             backgroundOpacity: 0.8,
             fontColor: "#f0f5f5",
-            fontSize: 13,
+            fontSize: 14,
             position: {
               x: (targetCaAtom.x + contactCaAtom.x) / 2,
               y: (targetCaAtom.y + contactCaAtom.y) / 2,
@@ -2720,7 +2729,7 @@ class StructureView {
         }
       }
     }
-    // Add style fo r position highlight, if set.
+    // Add style for position highlight, if set.
     if (
       this.#highlightPositions != undefined &&
       this.#highlightPositions.length > 0
