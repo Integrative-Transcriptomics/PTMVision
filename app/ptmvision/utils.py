@@ -183,15 +183,15 @@ def map_modification_string_to_unimod_id(modification_string):
             return str(query_result.id)
         else:
             return ""
-        
+
 
 def map_mass_to_unimod_id(mass):
     global TOLERANCE
     query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.monoisotopic_mass.between(mass-TOLERANCE, mass+TOLERANCE)).all()
     mod_ids = [str(result.id) for result in query_results]
-    if len(mod_ids) == 0: 
+    if len(mod_ids) == 0:
         return ""
-    elif len(mod_ids) > 1: 
+    elif len(mod_ids) > 1:
         return " or ".join(mod_ids)
     return str(mod_ids[0])
 
@@ -200,18 +200,18 @@ def map_mass_to_unimod_names(mass):
     global TOLERANCE
     query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.monoisotopic_mass.between(mass-TOLERANCE, mass+TOLERANCE)).all()
     mod_names = [str(result.code_name) for result in query_results]
-    if len(mod_names) == 0: 
+    if len(mod_names) == 0:
         return ""
-    elif len(mod_names) > 1: 
+    elif len(mod_names) > 1:
         return " or ".join(mod_names)
     return str(mod_names[0])
 
 def map_unimod_name_to_mass(unimod_name):
     query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.ex_code_name == unimod_name).all()
     mod_masses = [result.monoisotopic_mass for result in query_results]
-    if len(mod_masses) == 0: 
+    if len(mod_masses) == 0:
         return None
-    elif len(mod_masses) > 1: 
+    elif len(mod_masses) > 1:
         return " or ".join(mod_masses)
     return mod_masses[0]
 
@@ -230,7 +230,7 @@ def map_ids_to_unimod_name(ids):
 def map_id_to_unimod_name(id):
     query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.id == id).all()
     mod_names = [result.ex_code_name if result.ex_code_name != "" else result.code_name for result in query_results  ]
-    if len(mod_names) == 0: 
+    if len(mod_names) == 0:
         return None
     elif len(mod_names) > 1:
         return " or ".join(mod_names)
@@ -240,19 +240,19 @@ def map_id_to_unimod_name(id):
 def map_id_to_mass(id):
     query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.id == id).all()
     mod_masses = [result.monoisotopic_mass for result in query_results]
-    if len(mod_masses) == 0: 
+    if len(mod_masses) == 0:
         return None
-    elif len(mod_masses) > 1: 
+    elif len(mod_masses) > 1:
         return " or ".join(mod_masses)
     return mod_masses[0]
-    
+
 
 def map_unimod_description_to_unimod_id(mod):
     query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.full_name == mod).all()
     mod_ids = [str(result.id) for result in query_results]
-    if len(mod_ids) == 0: 
+    if len(mod_ids) == 0:
         return None
-    elif len(mod_ids) > 1: 
+    elif len(mod_ids) > 1:
         return " or ".join(mod_ids)
     return mod_ids[0]
 
@@ -396,7 +396,7 @@ def get_candidates_from_mass_shift(mass_shift):
     unimod_names = map_mass_to_unimod_names(mass_shift)
     if " or " in unimod_names:
         return unimod_names
-    return 
+    return
 
 def PSMList_to_mod_df(psm_list):
     """
@@ -431,7 +431,7 @@ def PSMList_to_mod_df(psm_list):
 
     df["mass_shift"] = df["modification"].apply(lambda x: get_mass_shift(x[1]))
     df["mod_position_in_peptide"] = df["modification"].apply(lambda x: x[0])
-    
+
     df["modification_unimod_id"] = df["modification"].apply(
         lambda x
         : map_modification_string_to_unimod_id(x[1])
@@ -441,7 +441,7 @@ def PSMList_to_mod_df(psm_list):
         lambda x: map_ids_to_unimod_name(x)
     )
 
-    
+
     df["display_name"] = df.apply(
         lambda x: get_display_name(x), axis=1
     )  # Unimod Name if available, otherwise "unannotated mass shift: (mass shift)"
@@ -450,7 +450,7 @@ def PSMList_to_mod_df(psm_list):
         lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]),
         axis=1,
     )
-    
+
     df["position"] = df["mod_position_in_peptide"] + df["peptide_position"]
 
     df["classification"] = df.apply(
@@ -516,12 +516,12 @@ def parse_observed_mods_msfragger(localisation, mod):
 def parse_msfragger_mods(msfragger_psm_row):
     """
     Parse modifications from MSFragger PSM.
-    
+
     Variable mods are in column "Assigned Modification" (e.g. "7M(15.9949)" or "N-term(42.0106)").
     Mass shifts are in column "Observed Modification" (e.g. Mod1: Methylation (PeakApex: 14.0144, Theoretical: 14.0157)).
     Their localization is in column "MSFragger Localization" (e.g. TVkEAEEAAK).
     Combine into one list of tuples => [(7, 15.9949), ()].
-    
+
     :param msfragger_psm_row: A row from the MSFragger PSM DataFrame.
     :return: A list of tuples representing the modifications.
     """
@@ -659,7 +659,7 @@ def read_ionbot(file):
     df["uniprot_id"] = df["uniprot_id"].str.replace("sp|", "", regex=False).str.replace("tr|", "", regex=False)
 
     # fix ionbot bug where C-term modifications are not correctly placed in the protein
-    df['position'] = df.apply(lambda x: x['position'] - 1 if 'C-term' in x['modification'] else x['position'], axis=1)     
+    df['position'] = df.apply(lambda x: x['position'] - 1 if 'C-term' in x['modification'] else x['position'], axis=1)
 
     df["modification_unimod_name"] = df["modification"].apply(
         lambda x: x.split("]")[1].split("[")[0].lower()
@@ -673,7 +673,7 @@ def read_ionbot(file):
         lambda x: x.split("[")[2].split("]")[0]
     )
 
-    #get all unique unimod id - amino acid combinations 
+    #get all unique unimod id - amino acid combinations
     unique_mods = df[["modification_unimod_id", "modified_residue"]].drop_duplicates()
 
     #look unimod classification up in the db, store them in column
@@ -699,8 +699,18 @@ def read_ionbot(file):
         lambda x: mass_shift_from_id(x, UNIMOD_MAPPER)
     )
 
+    #look unimod names up in the db, store them in column (ionbot renames some modifications)
+    unique_mass_shifts["modification_unimod_name_mapped"] = unique_mass_shifts["modification_unimod_id"].apply(
+        lambda x: map_id_to_unimod_name(x)
+    )
+
     #merge
     df = df.merge(unique_mass_shifts, on="modification_unimod_id", how="left")
+
+    # use mapped name if available, else use original name
+    df["modification_unimod_name"] = df.apply(
+        lambda row: row["modification_unimod_name"] if pd.isna(row["modification_unimod_name_mapped"]) else row["modification_unimod_name_mapped"],
+        axis=1)
 
     # get mismatch candidates
     df["candidates"] = df.apply(
