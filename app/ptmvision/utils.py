@@ -822,6 +822,54 @@ def read_maxquant(file):
     return df
 
 
+def read_spectronaut(file):
+    # reads spectronaut PTM Site report file
+    if DEBUG :
+        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'spectronaut' ... ", end = '', flush = True)
+
+    df = pd.read_csv(file, usecols=["PTM.ProteinId", "PTM.SiteLocation", "PTM.ModificationTitle", "PTM.SiteAA"], sep="\t")
+    df = df.dropna(subset=["PTM.SiteLocation"])
+    df["PTM.SiteLocation"] = df["PTM.SiteLocation"].astype(int)
+    df.rename(columns={"PTM.ProteinId": "uniprot_id", "PTM.SiteLocation": "position", "PTM.ModificationTitle": "modification_unimod_name", "PTM.SiteAA": "modified_residue"}, inplace=True)
+    df["modification_unimod_name"] = df["modification_unimod_name"].apply(lambda x: x.split(" (")[0])
+
+    unique_mods = df[["modification_unimod_name", "modified_residue"]].drop_duplicates()
+
+    unique_mods["modification_unimod_id"] = unique_mods["modification_unimod_name"].apply(
+        lambda x: map_modification_string_to_unimod_id(x)
+    )
+    unique_mods["classification"] = unique_mods.apply(
+        lambda x: classification_from_id(x["modification_unimod_id"], x["modified_residue"], UNIMOD_MAPPER),
+        axis=1
+    )
+
+    unique_mods["mass_shift"] = unique_mods["modification_unimod_id"].apply(
+        lambda x: mass_shift_from_id(int(x), UNIMOD_MAPPER)
+    )
+
+    df = df.merge(unique_mods, on=["modification_unimod_name", "modified_residue"], how="left")
+
+    df["display_name"] = df["modification_unimod_name"]
+
+    #remove unwanted modifications based on unimod class assignment
+    global EXCLUDE_CLASSES
+    unique_mods = unique_mods[~unique_mods["classification"].isin(EXCLUDE_CLASSES)]
+
+    df = df[
+        [
+            "uniprot_id",
+            "position",
+            "modification_unimod_name",
+            "modification_unimod_id",
+            "classification",
+            "mass_shift",
+            "display_name",
+        ]
+    ]
+
+    return df
+
+
 def read_any(file):
     if DEBUG :
         print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'any' ... ", end = '', flush = True)
@@ -915,6 +963,8 @@ def read_userinput(file, flag):
         df = read_sage(file)
     elif flag == "msms":
         df = read_maxquant(file)
+    elif flag == "spectronaut":
+        df = read_spectronaut(file)
     elif flag == "infer":
         df = read_any(file)
     df = df.fillna("null")
