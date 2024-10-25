@@ -398,9 +398,13 @@ def get_candidates_from_mass_shift(mass_shift):
         return unimod_names
     return
 
+def get_AA(peptide, position):
+    return peptide[position]
+
 def PSMList_to_mod_df(psm_list):
     """
     parse list of PSMs and return pandas dataframe with [protein, position, modification_unimod_id, modification_unimod_name]
+    # TODO: refactor
     """
     peptidoforms = [psm["peptidoform"].proforma for psm in psm_list]
     proteins = [psm.protein_list[0] for psm in psm_list]
@@ -419,28 +423,42 @@ def PSMList_to_mod_df(psm_list):
     df = df.explode("modification")
 
     df["uniprot_id"] = df["protein"].apply(lambda x: parse_protein_string(x))
+    df = df.dropna(subset=["uniprot_id"])
 
     # query uniprot for protein sequence
-    fasta = query_uniprot_for_fasta(df["uniprot_id"].tolist())
+    fasta = query_uniprot_for_fasta(df["uniprot_id"].unique().tolist())
 
     df["protein_sequence"] = df["uniprot_id"].apply(
         lambda x: get_protein_sequence(fasta, x)
     )
-
     df = df[df["protein_sequence"] != ""]
 
-    df["mass_shift"] = df["modification"].apply(lambda x: get_mass_shift(x[1]))
     df["mod_position_in_peptide"] = df["modification"].apply(lambda x: x[0])
 
-    df["modification_unimod_id"] = df["modification"].apply(
+    #get all unique modifications
+    unique_mods = df[["modification"]].drop_duplicates()
+
+    #look unimod id up in the db, store them in column
+    unique_mods["modification_unimod_id"] = unique_mods["modification"].apply(
         lambda x
         : map_modification_string_to_unimod_id(x[1])
     )
 
-    df["modification_unimod_name"] = df["modification_unimod_id"].apply(
+    unique_mods["mass_shift"] = unique_mods["modification"].apply(lambda x: get_mass_shift(x[1]))
+
+    #merge
+    df = df.merge(unique_mods, on=["modification"], how="left")
+
+    #get all unique unimod ids
+    unique_mods = df[["modification_unimod_id"]].drop_duplicates()
+
+    #look unimod classification up in the db, store them in column
+    unique_mods["modification_unimod_name"] = unique_mods["modification_unimod_id"].apply(
         lambda x: map_ids_to_unimod_name(x)
     )
 
+    #merge
+    df = df.merge(unique_mods, on=["modification_unimod_id"], how="left")
 
     df["display_name"] = df.apply(
         lambda x: get_display_name(x), axis=1
@@ -451,16 +469,20 @@ def PSMList_to_mod_df(psm_list):
         axis=1,
     )
 
-    df["position"] = df["mod_position_in_peptide"] + df["peptide_position"]
+    # get unique unimod - amino acid combinations
+    df["AA"] = df.apply(lambda x: get_AA(x["peptide"], x["mod_position_in_peptide"]), axis = 1)
 
-    df["classification"] = df.apply(
-        lambda x: get_classification(
-            x["modification_unimod_id"],
-            x["peptide"][x["mod_position_in_peptide"]],
-            UNIMOD_MAPPER,
+    unique_mod_aas = df[["modification_unimod_id", "AA"]].drop_duplicates()
+    unique_mod_aas["classification"] = unique_mod_aas.apply(
+        lambda x: classification_from_id(
+            x["modification_unimod_id"], x["AA"], UNIMOD_MAPPER
         ),
         axis=1,
     )
+
+    df = df.merge(unique_mod_aas, on=["modification_unimod_id", "AA"], how="left")
+
+    df["position"] = df["mod_position_in_peptide"] + df["peptide_position"]
 
     #remove unwanted modifications based on unimod class assignment
     global EXCLUDE_CLASSES
@@ -477,6 +499,7 @@ def PSMList_to_mod_df(psm_list):
             "display_name",
         ]
     ]
+
     df = df.drop_duplicates()
 
     return df
@@ -874,6 +897,7 @@ def read_any(file):
     if DEBUG :
         print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'any' ... ", end = '', flush = True)
     # write to temporary file and then give filepath to psm utils
+
     with NamedTemporaryFile(mode="wt", delete=False) as f:
         f.write(file.getvalue())
         f.close()
@@ -886,6 +910,34 @@ def read_any(file):
     psm_list = [
         x for x in psm_list if x.peptidoform.is_modified
     ]  # filter for modified peptidoforms
+    psm_list = [
+        x for x in psm_list if len(x.protein_list) == 1
+    ]  # filter nonunique peptidoforms
+
+    df = PSMList_to_mod_df(
+        psm_list
+    )  # [protein, mass_shift, modification_unimod_id, modification_unimod_name, display_name, position]
+
+    return df
+
+
+def read_mzid(file):
+    if DEBUG :
+        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'mzid' ... ", end = '', flush = True)
+    # write mzid to temporary file and then give filepath to psm utils
+    with NamedTemporaryFile(mode="wt", delete=False) as f:
+        f.write(file.getvalue())
+        f.close()
+
+    psm_list = read_file(f.name, filetype="mzid")  # file is a StringIO object!
+    Path(f.name).unlink()
+
+    psm_list = [x for x in psm_list if not x.is_decoy]  # remove decoys
+
+    psm_list = [
+        x for x in psm_list if x.peptidoform.is_modified
+    ]  # filter for modified peptidoforms
+
     psm_list = [
         x for x in psm_list if len(x.protein_list) == 1
     ]  # filter nonunique peptidoforms
@@ -965,6 +1017,8 @@ def read_userinput(file, flag):
         df = read_maxquant(file)
     elif flag == "spectronaut":
         df = read_spectronaut(file)
+    elif flag == "mzid":
+        df = read_mzid(file)
     elif flag == "infer":
         df = read_any(file)
     df = df.fillna("null")
