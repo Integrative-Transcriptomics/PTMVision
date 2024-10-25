@@ -158,10 +158,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <div id="vline"></div>
 
         <div id="panel-info" class="panel-container">
-          <h5>
+          <h4>
             PTMVision: Interactive Visualization of Post Translational
             Modifications
-          </h5>
+          </h4>
           <p class="text-just text-light">
             Understanding the intricate landscape of post-translational
             modifications (PTMs) is crucial for unraveling the complex
@@ -169,20 +169,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             PTMVision, researchers can effortlessly analyze and explore PTM data
             derived from various proteomics search engines, including ionbot,
             MSFragger, Sage, or from a plain CSV table format processed manually
-            from mass spectrometry (MS) data.
-            <b
-              >For a detailed explanation of the use of PTMVision and
-              interpretation of the visualizations offered, please refer to the
-              <a href="#" onclick="redirectAbout()">About</a>
-              page of PTMVision.</b
-            >
+            from mass spectrometry (MS) data. For a detailed explanation of the
+            use of PTMVision and interpretation of the visualizations offered,
+            please refer to the
+            <a href="#" onclick="redirectAbout()">About</a>
+            page of PTMVision.
           </p>
           <dl>
             <dt>
-              <h4>
+              <h5>
                 <i class="fa-solid fa-person-chalkboard"></i> Short Usage
                 Instruction
-              </h4>
+              </h5>
             </dt>
             <small>
               <dt class="infotext-header">
@@ -512,41 +510,48 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 selected proteins
               </dt>
               <dd class="infotext-small">
-                Detail information about the occurrence of PTMs for the selected
-                protein is displayed in panel
-                <i class="fa-duotone fa-circle-4 fa-sm"></i>. You can switch
-                between two display modes via the top-right button on the panel:
-                <br />
-                <span>&#8226;</span> The <b>Modification View</b> focuses on the
-                occurrence of PTMs along the selected protein primary sequence
-                as well as per amino acid.
-                <br />
-                <span>&#8226;</span> The <b>Structure View</b> focuses on the
-                occurrence of PTMs in the context of residues that are in close
-                spatial contact.
+                <ul style="list-style-position: inside; padding-left: 0">
+                  <li>
+                    Detail information about the occurrence of PTMs for the
+                    selected protein is displayed in panel
+                    <i class="fa-duotone fa-circle-4 fa-sm"></i>. You can switch
+                    between two display modes via the top-right button on the
+                    panel:
+                  </li>
+                  <li>
+                    The <b>Modification View</b> focuses on the occurrence of
+                    PTMs along the selected protein primary sequence as well as
+                    per amino acid.
+                  </li>
+                  <li>
+                    The <b>Structure View</b> focuses on the occurrence of PTMs
+                    in the context of residues that are in close spatial
+                    contact.
+                  </li>
+                </ul>
               </dd>
-            </small>
-            <br />
-            <dt>
-              <h4>
+              <dt class="infotext-header mt-6">
                 <i class="fa-solid fa-triangle-exclamation"></i> Disclaimer
-              </h4>
-            </dt>
-            <small>
+              </dt>
               <dd class="infotext-small">
-                <span>&#8226;</span> We recommend using PTMVision in Chrome or
-                Firefox for optimal performance. Safari has issues when
-                visualising larger datasets.
-                <br />
-                <span>&#8226;</span> Note that PTMVision serves solely to
-                visualize the content provided in the input and does not conduct
-                any further quality control. The localization of modifications
-                still remains a challenging task and may yield imprecise
-                results.
-                <br />
-                <span>&#8226;</span> PTMVision will be continuously updated and
-                improved, including the addition of filters for localisation
-                scores as soon as they will be reported by search engines.
+                <ul style="list-style-position: inside; padding-left: 0">
+                  <li>
+                    We recommend using PTMVision in Chrome or Firefox for
+                    optimal performance. Safari has issues when visualising
+                    larger datasets.
+                  </li>
+                  <li>
+                    Note that PTMVision serves solely to visualize the content
+                    provided in the input and does not conduct any further
+                    quality control. The localization of modifications still
+                    remains a challenging task and may yield imprecise results.
+                  </li>
+                  <li>
+                    PTMVision will be continuously updated and improved,
+                    including the addition of filters for localisation scores as
+                    soon as they will be reported by search engines.
+                  </li>
+                </ul>
               </dd>
             </small>
           </dl>
@@ -559,13 +564,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               >Upload post-translational modification data from open or closed
               search <u>or</u> Restart a previous PTMVision session</strong
             >
+            <br />
+            <p style="font-size: 1em; font-style: italic">
+              Input labels can be hovered for explanations.
+            </p>
           </h6>
-          <h7 class="secondary"
-            ><b style="color: #dc5754">Required input: </b>Specify the
-            <b>pipeline/proteomics search engine</b> with which your data was
-            generated. This defines the data format to be processed.</h7
-          >
-          <select id="data-type-form" class="mb-2" data-role="select">
+          <span
+            style="
+              background-color: var(--background-color-1);
+              padding: 2px;
+              border-radius: 4px;
+              cursor: pointer;
+            "
+            data-role="hint"
+            data-hint-position="right"
+            data-hint-hide="0"
+            data-hint-text="Specifies the data format to be processed, i.e. the pipeline/proteomics search engine used to generate your PTM data. Plain CSV supports manually compiled inputs, while Infer attempts to determine the format using the psm-utils library. For more information, see the page about PTMVision."
+            ><code style="color: var(--highlight-2)">Mandatory</code> Input
+            Format
+          </span>
+          <select id="data-type-form" class="mt-2 mb-4 w-75" data-role="select">
             <optgroup label="Search Engine">
               <option value="ionbot">Ionbot</option>
               <option value="msfragger">MSFragger</option>
@@ -575,30 +593,46 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </optgroup>
             <optgroup label="Other">
               <option value="csv">Plain CSV</option>
-              <option value="infer">Infer (Experimental)</option>
+              <option value="infer">Infer (psm-utils)</option>
             </optgroup>
           </select>
-          <h7 class="secondary">
-            <b style="color: #dc5754">Required input: </b>Specify the
-            <b>PTM data</b> file. This is either the output of the chosen
-            proteomics search engine or a manually compiled file (Plain
-            CSV).</h7
-          >
+          <span
+            style="
+              background-color: var(--background-color-1);
+              padding: 2px;
+              border-radius: 4px;
+              cursor: pointer;
+            "
+            data-role="hint"
+            data-hint-position="right"
+            data-hint-hide="0"
+            data-hint-text="The PTM data to be parsed. This is either the output of the selected proteomics search engine specified in Input Format or a manually compiled file (plain CSV). Further information can be found on the page about PTMVision."
+            ><code style="color: var(--highlight-2)">Mandatory</code> PTM Data
+          </span>
           <input
             id="data-input-form"
-            class="mb-2"
+            class="mt-2 mb-4 w-75"
             type="file"
             data-role="file"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
-          <h7 class="secondary"
-            ><b style="color: #666666">Optional selection: </b> Specify (Unimod)
-            modification classes to exclude from processing. Any PTM in your
-            data of one of the selected classes will be ignored.</h7
-          >
+          <span
+            style="
+              background-color: var(--background-color-1);
+              padding: 2px;
+              border-radius: 4px;
+              cursor: pointer;
+            "
+            data-role="hint"
+            data-hint-position="right"
+            data-hint-hide="0"
+            data-hint-text="Specify any number of Unimod modification classes. PTMs of the specified classes will be excluded from processing, i.e. any PTM in your data that belongs to one of the selected classes will be ignored. Leave this blank if you want to include all PTMs in your data."
+            ><code style="color: var(--color-3)">Optional</code> Exclude Unimod
+            Classes
+          </span>
           <select
             id="data-excludecls-form"
-            class="mb-2"
+            class="mt-2 mb-4 w-75"
             data-role="select"
             multiple
           >
@@ -644,15 +678,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               </option>
             </optgroup>
           </select>
-          <h7 class="secondary">
-            <b style="color: #666666">Optional selection: </b> Specify the mass
-            shift tolerance. This is only relevant for closed search data and
-            will merge PTMs within the specified tolerance.
-          </h7>
+          <span
+            style="
+              background-color: var(--background-color-1);
+              padding: 2px;
+              border-radius: 4px;
+              cursor: pointer;
+            "
+            data-role="hint"
+            data-hint-position="right"
+            data-hint-hide="0"
+            data-hint-text="Specify the tolerance for the mass shift in Daltons. This is only relevant for closed search data and combines PTMs whose mass shift relative to each other is within the specified tolerance value."
+            ><code style="color: var(--color-3)">Optional</code> Mass Shift
+            Tolerance
+          </span>
           <br />
           <input
             id="data-tolerance-form"
-            class="mt-1 mb-1 w-25 input-small"
+            class="mt-2 mb-4 w-25 input-small"
             type="number"
             value="0.001"
             min="0"
@@ -660,23 +703,49 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             step="0.001"
           />
           <br />
-          <button class="proceed-button mt-2" onclick="startSession()">
+          <button
+            class="proceed-button mt-2"
+            data-role="hint"
+            data-hint-position="right"
+            data-hint-hide="0"
+            data-hint-text="Starts the PTMVision session with the specified input data."
+            onclick="startSession()"
+          >
             Submit
           </button>
+
           <h5>or</h5>
-          <h7 class="secondary"
-            ><b style="color: #dc5754">Required input: </b>Specify a previously
-            downloaded PTMVision session <code>.zlib</code> file.</h7
-          >
+
+          <span
+            style="
+              background-color: var(--background-color-1);
+              padding: 2px;
+              border-radius: 4px;
+              cursor: pointer;
+            "
+            data-role="hint"
+            data-hint-position="right"
+            data-hint-hide="0"
+            data-hint-text="Specify a previously downloaded PTMVision session (.zlib file)."
+            ><code style="color: var(--highlight-2)">Mandatory</code> PTMVision
+            Session
+          </span>
           <input
             id="session-input-form"
-            class="mb-1"
+            class="mt-2 mb-4"
             type="file"
             data-role="file"
             accept=".zlib"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
-          <button class="proceed-button mt-2" onclick="startExistingSession()">
+          <button
+            class="proceed-button mt-2"
+            data-role="hint"
+            data-hint-position="right"
+            data-hint-hide="0"
+            data-hint-text="Starts the specified PTMVision session."
+            onclick="startExistingSession()"
+          >
             Submit
           </button>
         </div>
