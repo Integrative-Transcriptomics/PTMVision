@@ -2920,6 +2920,17 @@ function downloadBlob(blob, name) {
 }
 
 /**
+ * Sends a request to download example data from the server.
+ *
+ * @param {String} name The full file name to request from the server.
+ */
+function downloadExampleData(name) {
+  axios.get(__url + "/example_data?name=" + name).then((response) => {
+    downloadBlob(response.data, name);
+  });
+}
+
+/**
  * Downloads the current session data to the client.
  */
 function downloadSessionData() {
