@@ -222,7 +222,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 </ul>
               </dd>
               <!-- Add example sessions here, if new ones are available. -->
-              <table class="table striped w-75 ml-12">
+              <table class="table striped w-75 ml-12 mt-2">
                 <thead>
                   <tr>
                     <th>Search Engine</th>
@@ -253,11 +253,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       from analysis.
                     </td>
                     <td>
-                      <button class="example-button">Start Session</button>
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Starts this example session."
+                        onclick="startExampleSession('ptmvision.example.PXD000498.ionbot-v011')"
+                      >
+                        Start
+                      </button>
                     </td>
                     <td>
-                      <button class="example-button">
-                        Download Input Data
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Download the input PTM data file used for this PTMVision session."
+                        onclick="downloadExampleData('PXD000498.ionbot-v011.csv')"
+                      >
+                        <i class="fa-solid fa-download"></i>
                       </button>
                     </td>
                   </tr>
@@ -280,11 +292,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       from analysis.
                     </td>
                     <td>
-                      <button class="example-button">Start Session</button>
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Starts this example session."
+                        onclick="startExampleSession('ptmvision.example.PXD007740.msfragger-v40')"
+                      >
+                        Start
+                      </button>
                     </td>
                     <td>
-                      <button class="example-button">
-                        Download Input Data
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Download the input PTM data file used for this PTMVision session."
+                        onclick="downloadExampleData('PXD007740.msfragger-v40.tsv')"
+                      >
+                        <i class="fa-solid fa-download"></i>
                       </button>
                     </td>
                   </tr>
@@ -297,17 +321,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       <a
                         href="https://www.ebi.ac.uk/pride/archive/projects/PXD000498"
                         >PXD000498</a
-                      >, LC-MS/MS run
-                        of an unenriched <i>Escherichia coli</i> sample</a
-                      >.
+                      >, LC-MS/MS run of an unenriched
+                      <i>Escherichia coli</i> sample.
                     </td>
                     <td></td>
                     <td>
-                      <button class="example-button">Start Session</button>
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Starts this example session."
+                        onclick="startExampleSession('ptmvision.example.PXD000498.sage-v0131')"
+                      >
+                        Start
+                      </button>
                     </td>
                     <td>
-                      <button class="example-button">
-                        Download Input Data
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Download the input PTM data file used for this PTMVision session."
+                        onclick="downloadExampleData('PXD000498.sage-v0131.tsv')"
+                      >
+                        <i class="fa-solid fa-download"></i>
                       </button>
                     </td>
                   </tr>
@@ -320,19 +355,55 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       <a
                         href="https://www.ebi.ac.uk/pride/archive/projects/PXD025088"
                         >PXD025088</a
-                      >, LC-MS/MS run
-                        of an unenriched <i>Escherichia coli</i> sample</a
-                      >.
+                      >, LC-MS/MS run of an unenriched
+                      <i>Escherichia coli</i> sample.
+                    </td>
+                    <td>Source file filtered for modified peptides.</td>
+                    <td>
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Starts this example session."
+                        onclick="startExampleSession('ptmvision.example.PXD025088.maxquant-v24130')"
+                      >
+                        Start
+                      </button>
                     </td>
                     <td>
-                      Source file filtered for modified peptides.
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Download the input PTM data file used for this PTMVision session."
+                        onclick="downloadExampleData('PXD025088.maxquant-v24130.tsv')"
+                      >
+                        <i class="fa-solid fa-download"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Spectronaut</td>
+                    <td>v?.?.?</td>
+                    <td>?</td>
+                    <td>?</td>
+                    <td>N/A</td>
+                    <td>
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Starts this example session."
+                        disabled
+                      >
+                        Start
+                      </button>
                     </td>
                     <td>
-                      <button class="example-button">Start Session</button>
-                    </td>
-                    <td>
-                      <button class="example-button">
-                        Download Input Data
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Download the input PTM data file used for this PTMVision session."
+                        disabled
+                      >
+                        <i class="fa-solid fa-download"></i>
                       </button>
                     </td>
                   </tr>
@@ -341,10 +412,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     <td></td>
                     <td>Open</td>
                     <td>
-                      <a
-                        href="http://biovis.net/2022/biovisChallenges_vis/"
+                      <a href="http://biovis.net/2022/biovisChallenges_vis/"
                         >IEEE VIS 2022 Bio+MedVis challenge dataset</a
-                      > comprising  modifications of three human proteins and their mouse orthologs identified with Ionbot.
+                      >
+                      comprising modifications of three human proteins and their
+                      mouse orthologs identified with Ionbot.
                     </td>
                     <td>
                       Unimod classes
@@ -352,11 +424,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       from analysis.
                     </td>
                     <td>
-                      <button class="example-button">Start Session</button>
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Starts this example session."
+                        onclick="startExampleSession('ptmvision.example.biomedvis2022.plain')"
+                      >
+                        Start
+                      </button>
                     </td>
                     <td>
-                      <button class="example-button">
-                        Download Input Data
+                      <button
+                        class="example-button"
+                        data-role="hint"
+                        data-hint-text="Download the input PTM data file used for this PTMVision session."
+                        onclick="downloadExampleData('biomedvis2022.plain.csv')"
+                      >
+                        <i class="fa-solid fa-download"></i>
                       </button>
                     </td>
                   </tr>
@@ -482,13 +566,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             generated. This defines the data format to be processed.</h7
           >
           <select id="data-type-form" class="mb-2" data-role="select">
-            <optgroup label="Pipeline">
+            <optgroup label="Search Engine">
               <option value="ionbot">Ionbot</option>
               <option value="msfragger">MSFragger</option>
-              <option value="sage">Sage (closed)</option>
-              <option value="msms">MaxQuant (closed)</option>
+              <option value="sage">Sage (Closed Search)</option>
+              <option value="msms">MaxQuant (Closed Search)</option>
+              <option value="spectronaut">Spectronaut (PTM Site Report)</option>
+            </optgroup>
+            <optgroup label="Other">
               <option value="csv">Plain CSV</option>
-              <!-- <option value="infer">Infer (Experimental)</option> -->
+              <option value="infer">Infer (Experimental)</option>
             </optgroup>
           </select>
           <h7 class="secondary">
