@@ -6,7 +6,7 @@ from ptmvision.uniprot_id_mapping import (
     get_id_mapping_results_link,
     get_id_mapping_results_search,
 )
-from flask import request, session
+from flask import request, session, send_file
 from flask_session import Session
 from cachelib import FileSystemCache
 from dotenv import load_dotenv
@@ -52,7 +52,16 @@ def example_session():
         return "Ok", 200
     except Exception as e :
         return "Failed request '/example_session': " + _format_exception(e), 500
-
+    
+@app.route("/example_data", methods=["GET"])
+def example_data():
+    """
+    Route to send example session input data to client.
+    """
+    try:
+        return send_file( "./static/resources/example_data/" + request.args.get( 'name' ) ), 200
+    except Exception as e:
+        return "Failed request '/example_data': " + _format_exception(e), 500
 
 @app.route("/download_session", methods=["GET"])
 def download_session():
