@@ -149,6 +149,24 @@ body {
   transition: 0.2s;
 }
 
+.example-button {
+  background-color: var(--color-3);
+  color: var(--background-color-1);
+  border: none;
+  border-radius: 4px;
+  font-size: x-small;
+  cursor: pointer;
+}
+
+.example-button i {
+  font-size: xx-small;
+}
+
+.example-button:hover {
+  background-color: var(--color-1);
+  transition: 0.2s;
+}
+
 #main {
   background-color: var(--color-5);
   position: absolute;
