@@ -953,9 +953,9 @@ class DashboardChart {
     },
   };
   /**
-   * Internal amino acid list.
+   * Internal amino acid three letter code list.
    */
-  #aminoAcids = [
+  #aminoAcids3 = [
     "ALA",
     "CYS",
     "ASP",
@@ -976,6 +976,31 @@ class DashboardChart {
     "VAL",
     "TRP",
     "TYR",
+  ];
+  /**
+   * Internal amino acid one letter code list.
+   */
+  #aminoAcids1 = [
+    "A", // "ALA",
+    "C", // "CYS",
+    "D", // "ASP",
+    "E", // "GLU",
+    "F", // "PHE",
+    "G", // "GLY",
+    "H", // "HIS",
+    "I", // "ILE",
+    "K", // "LYS",
+    "L", // "LEU",
+    "M", // "MET",
+    "N", // "ASN",
+    "P", // "PRO",
+    "Q", // "GLN",
+    "R", // "ARG",
+    "S", // "SER",
+    "T", // "THR",
+    "V", // "VAL",
+    "W", // "TRP",
+    "Y", // "TYR",
   ];
   /**
    * The current content mode. One of 1 (modifications) or 2 (structure).
@@ -1223,7 +1248,7 @@ class DashboardChart {
     for (const [aa, _] of Object.entries(this.#data.aminoacidCounts)) {
       for (const [mdname, info] of Object.entries(_)) {
         aacountSeries.data.push([
-          this.#aminoAcids.indexOf(aa),
+          this.#aminoAcids3.indexOf(aa),
           this.#data.modifications.indexOf(mdname),
           minMaxScaleCounts(info[0], aa),
         ]);
@@ -1424,7 +1449,7 @@ class DashboardChart {
         },
         {
           // Amino acids.
-          data: this.#aminoAcids,
+          data: this.#aminoAcids3,
           name: "Amino Acid",
           ...STYLE_AXIS,
           nameGap: 35,
@@ -1434,6 +1459,10 @@ class DashboardChart {
             triggerEmphasis: false,
             triggerTooltip: false,
             ...STYLE_POINTER,
+          },
+          axisLabel: {
+            rotate: 60,
+            interval: 0,
           },
         },
         {
@@ -1664,7 +1693,7 @@ class DashboardChart {
         contentHead += " as <code>" + component.seriesName + "</code>";
       if (aminoacidIndex != undefined) {
         let countAndClass =
-          this.#data.aminoacidCounts[this.#aminoAcids[aminoacidIndex]][
+          this.#data.aminoacidCounts[this.#aminoAcids3[aminoacidIndex]][
             this.#data.modifications[modificationIndex]
           ];
         contentHead +=
@@ -1673,7 +1702,7 @@ class DashboardChart {
           " occurrences (<code>" +
           countAndClass[1] +
           "</code>) on aminoacid <code>" +
-          this.#aminoAcids[aminoacidIndex] +
+          this.#aminoAcids3[aminoacidIndex] +
           "</code>";
         return contentHead; // Do not fill content body for aminoacid axis.
       }
@@ -2269,7 +2298,7 @@ class DashboardChart {
     let _modifications = [];
     let _modificationsMassShift = [];
     this.#data.aminoacidCounts = {};
-    this.#aminoAcids.forEach((aa) => (this.#data.aminoacidCounts[aa] = {}));
+    this.#aminoAcids3.forEach((aa) => (this.#data.aminoacidCounts[aa] = {}));
     this.#data.modificationCounts = {};
     // Add missing position entries.
     // Check for positions wrt. the sequence length that are not reflected in the data.
