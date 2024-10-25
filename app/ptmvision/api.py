@@ -30,8 +30,7 @@ app.config["SESSION_TYPE"] = "cachelib"
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True
 app.config["SECRET_KEY"] = os.getenv("SIGNER")
-app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir = BASEPATH + '/session/', threshold=1000000)
-app.config["SESSION_CLEANUP_N_REQUESTS"] = 10
+app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir = BASEPATH + '/session/', threshold=0)
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # Limit content lengths to 50 MB.
 
 """ Set API parameters. """
