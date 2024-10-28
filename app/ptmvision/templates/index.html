@@ -585,15 +585,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </span>
           <select id="data-type-form" class="mt-2 mb-4 w-75" data-role="select">
             <optgroup label="Search Engine">
-              <option value="ionbot">Ionbot</option>
-              <option value="msfragger">MSFragger</option>
-              <option value="sage">Sage (Closed Search)</option>
-              <option value="msms">MaxQuant (Closed Search)</option>
-              <option value="spectronaut">Spectronaut (PTM Site Report)</option>
-              <option value="mzid">mzid</option>
+              <option value="ionbot">Ionbot: ionbot.modification.csv</option>
+              <option value="msfragger">MSFragger: psm.tsv</option>
+              <option value="sage">Sage (Closed Search): results.sage.tsv</option>
+              <option value="msms">MaxQuant (Closed Search): msms.txt</option>
+              <option value="spectronaut">Spectronaut: PTM Site Report</option>
+              <option value="mzid">Any: *.mzid</option>
             </optgroup>
             <optgroup label="Other">
-              <option value="csv">Plain CSV</option>
+              <option value="csv">Plain CSV: *.csv</option>
               <option value="infer">Infer (psm-utils)</option>
             </optgroup>
             </optgroup>
@@ -690,7 +690,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-role="hint"
             data-hint-position="right"
             data-hint-hide="0"
-            data-hint-text="Specify the tolerance for the mass shift in Daltons. This is only relevant for closed search data and combines PTMs whose mass shift relative to each other is within the specified tolerance value."
+            data-hint-text="Specify the tolerance for the mass shift in Daltons. This is only relevant for open search data and combines PTMs whose mass shift relative to each other is within the specified tolerance value."
             ><code style="color: var(--color-3)">Optional</code> Mass Shift
             Tolerance
           </span>
