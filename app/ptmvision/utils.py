@@ -287,17 +287,20 @@ def classification_from_id(unimod_id, amino_acid, unimod_db):
     """
     Get amino acid specific classification of modification from unimod ID
     """
-    if unimod_id == "":
+    if unimod_id == "": # If the mass shift is not annotated in Unimod.
         return "Unannotated mass shift"
-    try:
-        mod = unimod_db.get(int(unimod_id))
-    except KeyError:  # Deprecated Unimod ID :(
-        return "Deprecated unimod entry"
+    elif type(unimod_id) == str and " or " in unimod_id: # If the mass shift is ambiguous, i.e. matches multiple Unimod IDs.
+        return "Multiple"
+    else: # If the mass shift is annotated in Unimod, try to match.
+        try:
+            mod = unimod_db.get(int(unimod_id))
+        except KeyError:  # In case of deprecated Unimod ID :(
+            return "Deprecated unimod entry"
     for specification in mod.specificities:
         if specification.amino_acid == amino_acid:
             classification = specification.classification.classification
             return classification
-    return "Non-standard residue"
+    return "Non-standard residue" # If the mass shift is not annotated for the amino acid.
 
 def get_classification(unimod_id, residue, unimod_db):
     if unimod_id is None:
@@ -775,15 +778,17 @@ def read_mod_csv(file):
             axis=1,
         )
 
-        #remove unwanted modifications based on unimod class assignment
-        global EXCLUDE_CLASSES
-        df = df[~df["classification"].isin(EXCLUDE_CLASSES)]
-
         df.drop(columns=["modified_residue"], inplace=True)
+
+    #remove unwanted modifications based on unimod class assignment
+    global EXCLUDE_CLASSES
+    df = df[~df["classification"].isin(EXCLUDE_CLASSES)]
+
     if "mass_shift" not in [x.lower() for x in df.columns]:
         df["mass_shift"] = df["modification_unimod_id"].apply(
             lambda x: mass_shift_from_id(x, UNIMOD_MAPPER)
         )
+
     if "display_name" not in [x.lower() for x in df.columns]:
         df["display_name"] = df["modification_unimod_name"]
 
@@ -814,6 +819,10 @@ def read_sage(file):
         psm_list
     )  # [protein, mass_shift, modification_unimod_id, modification_unimod_name, display_name, position]
 
+    #remove unwanted modifications based on unimod class assignment
+    global EXCLUDE_CLASSES
+    df = df[~df["classification"].isin(EXCLUDE_CLASSES)]
+
     return df
 
 
@@ -841,6 +850,10 @@ def read_maxquant(file):
     ]  # filter nonunique peptidoforms
 
     df = PSMList_to_mod_df(psm_list)
+
+    #remove unwanted modifications based on unimod class assignment
+    global EXCLUDE_CLASSES
+    df = df[~df["classification"].isin(EXCLUDE_CLASSES)]
 
     return df
 
@@ -874,10 +887,6 @@ def read_spectronaut(file):
 
     df["display_name"] = df["modification_unimod_name"]
 
-    #remove unwanted modifications based on unimod class assignment
-    global EXCLUDE_CLASSES
-    unique_mods = unique_mods[~unique_mods["classification"].isin(EXCLUDE_CLASSES)]
-
     df = df[
         [
             "uniprot_id",
@@ -889,6 +898,10 @@ def read_spectronaut(file):
             "display_name",
         ]
     ]
+
+    #remove unwanted modifications based on unimod class assignment
+    global EXCLUDE_CLASSES
+    df = df[~df["classification"].isin(EXCLUDE_CLASSES)]
 
     return df
 
@@ -918,6 +931,10 @@ def read_any(file):
         psm_list
     )  # [protein, mass_shift, modification_unimod_id, modification_unimod_name, display_name, position]
 
+    #remove unwanted modifications based on unimod class assignment
+    global EXCLUDE_CLASSES
+    df = df[~df["classification"].isin(EXCLUDE_CLASSES)]
+
     return df
 
 
@@ -945,6 +962,10 @@ def read_mzid(file):
     df = PSMList_to_mod_df(
         psm_list
     )  # [protein, mass_shift, modification_unimod_id, modification_unimod_name, display_name, position]
+
+    #remove unwanted modifications based on unimod class assignment
+    global EXCLUDE_CLASSES
+    df = df[~df["classification"].isin(EXCLUDE_CLASSES)]
 
     return df
 
