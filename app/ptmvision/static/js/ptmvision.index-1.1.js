@@ -460,7 +460,7 @@ class OverviewChart {
           ...STYLE_TITLE,
         },
         {
-          text: "Shared PTM sites between modification types",
+          text: "Shared PTM Sites between Modification Types",
           top: 35,
           left: "9%",
           ...STYLE_TITLE,
@@ -888,7 +888,8 @@ class OverviewChart {
    * @param {Boolean} replace Passed to the setOption method of the Chart instance.
    */
   #updateOption(replace) {
-    if (this.#option != undefined) this.chart.setOption(this.#option, replace);
+    if (this.#option != undefined)
+      this.chart.setOption(this.#option, { notMerge: replace });
   }
 }
 
@@ -2476,7 +2477,8 @@ class DashboardChart {
    * @param {Boolean} replace Passed to the setOption method of the Chart instance.
    */
   #updateOption(replace) {
-    if (this.#option != undefined) this.chart.setOption(this.#option, replace);
+    if (this.#option != undefined)
+      this.chart.setOption(this.#option, { notMerge: replace });
   }
 
   /**
@@ -2949,29 +2951,38 @@ function downloadBlob(blob, name) {
 }
 
 /**
- * Sends a request to download example data from the server.
+ * Sends a request to download resources from the server.
  *
  * @param {String} name The full file name to request from the server.
  */
-function downloadExampleData(name) {
-  axios.get(__url + "/example_data?name=" + name).then((response) => {
-    downloadBlob(response.data, name);
-  });
+function downloadResource(name) {
+  axios
+    .get(window.location.origin + "/resource?name=" + name)
+    .then((response) => {
+      downloadBlob(response.data, name);
+    });
 }
 
 /**
  * Downloads the current session data to the client.
  */
 function downloadSessionData() {
-  axios.get(__url + "/download_session").then((response) => {
-    const D = new Date();
-    downloadBlob(
-      response.data,
-      "ptmvision-" +
-        [D.getFullYear(), D.getMonth() + 1, Date.now()].join("-") +
-        ".zlib"
-    );
-  });
+  axios
+    .get(__url + "/download_session")
+    .then((response) => {
+      const D = new Date();
+      downloadBlob(
+        response.data,
+        "ptmvision-" +
+          [D.getFullYear(), D.getMonth() + 1, Date.now()].join("-") +
+          ".zlib"
+      );
+    })
+    .catch((error) => {
+      console.error(error);
+      removeNotification();
+      displayAlert(error.message);
+    });
 }
 
 /**
@@ -3260,7 +3271,7 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
         $("#panel-dashboard-selection").css("cursor", "pointer");
         $("#panel-dashboard-selection").on("click", () =>
           Swal.fire({
-            html: protein_data.annotation.comments
+            html: response.data.annotation.comments
               .filter((_) => {
                 return _.hasOwnProperty("texts");
               })
