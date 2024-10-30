@@ -53,13 +53,13 @@ def example_session():
     except Exception as e :
         return "Failed request '/example_session': " + _format_exception(e), 500
     
-@app.route("/example_data", methods=["GET"])
-def example_data():
+@app.route("/resource", methods=["GET"])
+def get_resource():
     """
-    Route to send example session input data to client.
+    Route to send resource files to client.
     """
     try:
-        return send_file( "./static/resources/example_data/" + request.args.get( 'name' ) ), 200
+        return send_file( "./static/resources/" + request.args.get( 'name' ) ), 200
     except Exception as e:
         return "Failed request '/example_data': " + _format_exception(e), 500
 
@@ -68,6 +68,8 @@ def download_session():
     """
     Route to download the current session as a zlib file.
     """
+    if MODIFICATIONS_DATA not in session:
+        return "Failed request '/download_session': Resource is not available.", 404
     try :
         zlib_compress = zlib.compressobj( 6, zlib.DEFLATED, zlib.MAX_WBITS )
         compressed_session_bytes = zlib_compress.compress( bytes(json.dumps(session[MODIFICATIONS_DATA]), "utf-8") ) + zlib_compress.flush( )
