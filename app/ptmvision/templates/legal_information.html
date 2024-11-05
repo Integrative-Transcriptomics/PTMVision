@@ -97,7 +97,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         class="ml-2"
         style="font-family: monospace; color: var(--color-5); width: 4em"
       >
-        <i class="fa-light fa-pipe"></i> About
+        <i class="fa-light fa-pipe"></i> Legal
       </h5>
       <ul class="app-bar-menu">
         <li
@@ -126,22 +126,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           data-hint-position="bottom"
           data-hint-offset="10"
           onclick="redirectTo('about', '_self')"
-          disabled
         >
-          <i
-            class="fa-duotone fa-solid fa-graduation-cap"
-            style="color: var(--background-color-2)"
-          ></i>
-          About PTMVision
+          <i class="fa-duotone fa-solid fa-graduation-cap"></i> About PTMVision
         </li>
         <li
           data-role="hint"
           data-hint-text="Redirect to the legal information page."
           data-hint-position="bottom"
           data-hint-offset="10"
-          onclick="redirectTo('legal', '_self')"
+          onclick="redirectTo('legal', '_blank')"
+          disabled
         >
-          <i class="fa-solid fa-section"></i> Legal Information
+          <i
+            class="fa-solid fa-section"
+            style="color: var(--background-color-2)"
+          ></i>
+          Legal Information
         </li>
         <li
           data-role="hint"

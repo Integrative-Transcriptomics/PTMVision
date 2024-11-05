@@ -3003,17 +3003,15 @@ function readFile(file) {
 }
 
 /**
- * Redirects the browser to the about page of this project.
+ * Redirects the browser to the specified page of this project.
+ *
+ * This function is necessary as the single pages of the application do not know the base URL of the project.
+ *
+ * @param {String} pageName The name of the page to redirect to.
+ * @param {String} target The target of the redirection; Should be one of '_blank' or '_self'.
  */
-function redirectAbout() {
-  window.open(__url + "/about", "_blank");
-}
-
-/**
- * Redirects the browser to the home page of this project.
- */
-function redirectHome() {
-  window.open(window.location.origin, "_self");
+function redirectTo(pageName, target) {
+  window.open(window.location.origin + "/" + pageName, target);
 }
 
 /**

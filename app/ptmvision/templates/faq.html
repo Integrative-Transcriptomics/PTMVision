@@ -97,7 +97,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         class="ml-2"
         style="font-family: monospace; color: var(--color-5); width: 4em"
       >
-        <i class="fa-light fa-pipe"></i> About
+        <i class="fa-light fa-pipe"></i> FAQ
       </h5>
       <ul class="app-bar-menu">
         <li
@@ -126,13 +126,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           data-hint-position="bottom"
           data-hint-offset="10"
           onclick="redirectTo('about', '_self')"
-          disabled
         >
-          <i
-            class="fa-duotone fa-solid fa-graduation-cap"
-            style="color: var(--background-color-2)"
-          ></i>
-          About PTMVision
+          <i class="fa-duotone fa-solid fa-graduation-cap"></i> About PTMVision
         </li>
         <li
           data-role="hint"
@@ -148,9 +143,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           data-hint-text="Redirect to the FAQ page."
           data-hint-position="bottom"
           data-hint-offset="10"
-          onclick="redirectTo('faq', '_self')"
+          onclick="redirectTo('faq', '_blank')"
+          disabled
         >
-          <i class="fa-duotone fa-solid fa-question"></i> FAQ
+          <i
+            class="fa-duotone fa-solid fa-question"
+            style="color: var(--background-color-2)"
+          ></i>
+          FAQ
         </li>
         <li
           data-role="hint"

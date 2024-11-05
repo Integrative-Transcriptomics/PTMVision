@@ -125,38 +125,81 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       data-expand="true"
       data-role-appbar="true"
     >
-      <div id="menu-grid" class="grid w-100">
-        <div class="row">
-          <div class="cell text-left ml-4 w-100">
-            <div class="logo no-hover">
-              <img
-                src="{{ url_for('static', filename='resources/logo.png') }}"
-                alt="PTMVision Logo"
-              />
-            </div>
-          </div>
-          <div class="cell text-right">
-            <button
-              onclick="downloadSessionData()"
-              class="button-no-decoration menu-button mr-8"
-              data-role="hint"
-              data-hint-text="Download (binary) session data for later re-upload."
-              data-hint-position="left"
-            >
-              <i class="fa-duotone fa-file-arrow-down fa-2xl"></i>
-            </button>
-            <button
-              onclick="redirectAbout()"
-              class="button-no-decoration menu-button mr-8"
-              data-role="hint"
-              data-hint-text="Redirect to the PTMVision help and about page."
-              data-hint-position="left"
-            >
-              About
-            </button>
-          </div>
-        </div>
-      </div>
+      <a href="#" class="brand no-hover"
+        ><img
+          style="height: 80%"
+          src="{{ url_for('static', filename='resources/logo.png') }}"
+          alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
+      /></a>
+      <h5
+        class="ml-2"
+        style="font-family: monospace; color: var(--color-5); width: 4em"
+      >
+        <i class="fa-light fa-pipe"></i> Home
+      </h5>
+      <ul class="app-bar-menu">
+        <li
+          data-role="hint"
+          data-hint-text="Redirect to the main page."
+          data-hint-position="bottom"
+          data-hint-offset="10"
+          onclick="redirectTo('', '_self')"
+          disabled
+        >
+          <i
+            class="fa-solid fa-house-blank"
+            style="color: var(--background-color-2)"
+          ></i>
+          Home
+        </li>
+        <li
+          data-role="hint"
+          data-hint-text="Redirect to the usage guide."
+          data-hint-position="bottom"
+          data-hint-offset="10"
+          onclick="redirectTo('usage', '_self')"
+        >
+          <i class="fa-duotone fa-solid fa-book"></i>
+          Usage Guide
+        </li>
+        <li
+          data-role="hint"
+          data-hint-text="Redirect to the about page."
+          data-hint-position="bottom"
+          data-hint-offset="10"
+          onclick="redirectTo('about', '_self')"
+        >
+          <i class="fa-duotone fa-solid fa-graduation-cap"></i> About PTMVision
+        </li>
+        <li
+          data-role="hint"
+          data-hint-text="Redirect to the legal information page."
+          data-hint-position="bottom"
+          data-hint-offset="10"
+          onclick="redirectTo('legal', '_self')"
+        >
+          <i class="fa-solid fa-section"></i> Legal Information
+        </li>
+        <li
+          data-role="hint"
+          data-hint-text="Redirect to the FAQ page."
+          data-hint-position="bottom"
+          data-hint-offset="10"
+          onclick="redirectTo('faq', '_self')"
+        >
+          <i class="fa-duotone fa-solid fa-question"></i> FAQ
+        </li>
+        <li
+          data-role="hint"
+          data-hint-text="Download (binary) session data for later re-upload."
+          data-hint-position="bottom"
+          data-hint-offset="10"
+          onclick="downloadSessionData()"
+        >
+          <i class="fa-duotone fa-solid fa-file-arrow-down"></i> Download
+          Session Data
+        </li>
+      </ul>
     </header>
 
     <div id="main">
@@ -177,15 +220,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             standard, or from a plain CSV table format processed manually from
             mass spectrometry (MS) data. For a detailed explanation of the use
             of PTMVision and interpretation of the visualizations offered,
-            please refer to the
-            <a
-              href="#"
-              onclick="redirectAbout()"
-              data-role="hint"
-              data-hint-text="Redirect to the PTMVision help and about page."
-              >About</a
-            >
-            page of PTMVision.
+            please refer to the About page of PTMVision.
           </p>
           <dl class="text-just text-light">
             <dt>
