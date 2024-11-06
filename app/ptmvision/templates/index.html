@@ -154,6 +154,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </li>
         <li
           data-role="hint"
+          data-hint-text="Redirect to the about page."
+          data-hint-position="bottom"
+          data-hint-offset="10"
+          onclick="redirectTo('about', '_self')"
+        >
+          <i class="fa-duotone fa-solid fa-info"></i> About PTMVision
+        </li>
+        <li
+          data-role="hint"
           data-hint-text="Redirect to the usage guide."
           data-hint-position="bottom"
           data-hint-offset="10"
@@ -161,24 +170,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         >
           <i class="fa-duotone fa-solid fa-book"></i>
           Usage Guide
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the about page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('about', '_self')"
-        >
-          <i class="fa-duotone fa-solid fa-graduation-cap"></i> About PTMVision
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the legal information page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('legal', '_self')"
-        >
-          <i class="fa-solid fa-section"></i> Legal Information
         </li>
         <li
           data-role="hint"
@@ -191,7 +182,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </li>
         <li
           data-role="hint"
-          data-hint-text="Download (binary) session data for later re-upload."
+          data-hint-text="Redirect to the legal information page."
+          data-hint-position="bottom"
+          data-hint-offset="10"
+          onclick="redirectTo('legal', '_self')"
+        >
+          <i class="fa-solid fa-section"></i> Legal Information
+        </li>
+        <li
+          data-role="hint"
+          data-hint-text="Download (binary) session data for re-upload."
           data-hint-position="bottom"
           data-hint-offset="10"
           onclick="downloadSessionData()"
@@ -617,31 +617,56 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
 
         <div id="panel-inputs" class="panel-container">
-          <h6 class="secondary">
+          <h5 style="font-weight: 600">
             <i class="fa-duotone fa-circle-1"></i>
-            <strong
-              >Upload post-translational modification data from open or closed
-              search <u>or</u> Restart a previous PTMVision session</strong
-            >
-            <br />
-            <p style="font-size: 1em; font-style: italic">
-              Input labels can be hovered for explanations.
-            </p>
-          </h6>
-          <span
-            style="
-              background-color: var(--background-color-1);
-              padding: 2px;
-              border-radius: 4px;
-              cursor: pointer;
-            "
-            data-role="hint"
-            data-hint-position="right"
-            data-hint-hide="0"
-            data-hint-text="Specifies the data format to be processed, i.e. the proteomics search engine used to generate your PTM data. Plain supports manually compiled inputs in CSV format; mzIdentML supports the mzIdentML exchange standard (.mzid files); Infer attempts to determine the format using psm-utils. For more information, see the About page of PTMVision."
-            ><code style="color: var(--highlight-2)">Mandatory</code> Input
+            Start Session
+          </h5>
+          <p
+            class="text-light text-just"
+            style="font-family: monospace; font-size: small"
+          >
+            Upload data, re-upload a session or start an example session. Once
+            complete, session data can be downloaded with
+            <em>Download Session Data</em> in the header menu and panels
+            <i class="fa-duotone fa-circle-2" style="font-size: small"></i> and
+            <i class="fa-duotone fa-circle-3" style="font-size: small"></i> will
+            be filled. Click
+            <i
+              class="fa-duotone fa-solid fa-circle-question"
+              style="font-size: small"
+            ></i>
+            symbols for help.
+          </p>
+          <p class="mb-2" style="font-size: larger; font-weight: 500">
+            Upload post-translational modification data from open or closed
+            search to start a new session
+          </p>
+          <p>
+            <code style="color: var(--highlight-2)">Mandatory</code> Input
             Format
-          </span>
+            <i
+              id="inputs-help-1"
+              class="fa-duotone fa-solid fa-circle-question fa-2xs"
+              style="font-size: small; cursor: pointer"
+            ></i>
+          </p>
+          <div
+            class="remark yellow text-light text-just w-75"
+            style="font-family: monospace; font-size: small"
+            data-role="collapse"
+            data-toggle-element="#inputs-help-1"
+            data-collapsed="true"
+          >
+            Select one value from the drop down menu to specify the data format
+            to be processed. This is either determined by the proteomics search
+            engine used to generate your PTM data (available as options from the
+            <em>Search Engine</em> group) or one of the following (available as
+            options from the <em>Other</em> group): Plain/CSV supports manually
+            compiled inputs in CSV format; mzIdentML supports the mzIdentML
+            exchange standard (.mzid files); Infer/psm_utils attempts to
+            determine the format using the psm_utils Python package. For more
+            information, see the <em>Usage Guide</em>.
+          </div>
           <select id="data-type-form" class="mt-2 mb-4 w-75" data-role="select">
             <optgroup label="Search Engine">
               <option value="ionbot">ionbot</option>
@@ -651,24 +676,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               <option value="spectronaut">Spectronaut (PTM Site Report)</option>
             </optgroup>
             <optgroup label="Other">
-              <option value="csv">Plain (.csv)</option>
+              <option value="csv">Plain/CSV</option>
               <option value="mzid">mzIdentML (.mzid)</option>
-              <option value="infer">Infer (psm-utils)</option>
+              <option value="infer">Infer/psm_utils</option>
             </optgroup>
           </select>
-          <span
-            style="
-              background-color: var(--background-color-1);
-              padding: 2px;
-              border-radius: 4px;
-              cursor: pointer;
-            "
-            data-role="hint"
-            data-hint-position="right"
-            data-hint-hide="0"
-            data-hint-text="The PTM data to be parsed. This is either the output of the selected proteomics search engine specified in Input Format or a manually compiled CSV format file (selection Plain). For more information, see the About page of PTMVision."
-            ><code style="color: var(--highlight-2)">Mandatory</code> PTM Data
-          </span>
+          <p>
+            <code style="color: var(--highlight-2)">Mandatory</code> PTM Data
+            <i
+              id="inputs-help-2"
+              class="fa-duotone fa-solid fa-circle-question fa-2xs"
+              style="font-size: small; cursor: pointer"
+            ></i>
+          </p>
+          <div
+            class="remark yellow text-light text-just w-75"
+            style="font-family: monospace; font-size: small"
+            data-role="collapse"
+            data-toggle-element="#inputs-help-2"
+            data-collapsed="true"
+          >
+            Browse a file by clicking on the input below. The file is expected
+            to contain the PTM data to be parsed and should match the format
+            selected before. For more information, see the
+            <em>Usage Guide</em>.
+          </div>
           <input
             id="data-input-form"
             class="mt-2 mb-4 w-75"
@@ -676,20 +708,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-role="file"
             data-button-title='<i class="fa-duotone fa-folder-open"></i>'
           />
-          <span
-            style="
-              background-color: var(--background-color-1);
-              padding: 2px;
-              border-radius: 4px;
-              cursor: pointer;
-            "
-            data-role="hint"
-            data-hint-position="right"
-            data-hint-hide="0"
-            data-hint-text="Specify any UniMod modification classes. PTMs of the specified classes will be excluded from processing, i.e. any PTM in your data that belongs to one of the selected classes will be ignored. Leave this blank if you want to include all PTMs in your data. For more information, see the About page of PTMVision."
-            ><code style="color: var(--color-3)">Optional</code> Exclude UniMod
+          <p>
+            <code style="color: var(--color-3)">Optional</code> Exclude UniMod
             Classes
-          </span>
+            <i
+              id="inputs-help-3"
+              class="fa-duotone fa-solid fa-circle-question fa-2xs"
+              style="font-size: small; cursor: pointer"
+            ></i>
+          </p>
+          <div
+            class="remark yellow text-light text-just w-75"
+            style="font-family: monospace; font-size: small"
+            data-role="collapse"
+            data-toggle-element="#inputs-help-3"
+            data-collapsed="true"
+          >
+            Select multiple UniMod modification classes from the drop down menu.
+            PTMs of the specified classes will be excluded from processing, i.e.
+            any PTM in your data that belongs to one of the selected classes
+            will be ignored. Select no class if you want to include all PTMs in
+            your data. For more information, see the
+            <em>Usage Guide</em>.
+          </div>
           <select
             id="data-excludecls-form"
             class="mt-2 mb-4 w-75"
@@ -741,21 +782,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               </option>
             </optgroup>
           </select>
-          <span
-            style="
-              background-color: var(--background-color-1);
-              padding: 2px;
-              border-radius: 4px;
-              cursor: pointer;
-            "
-            data-role="hint"
-            data-hint-position="right"
-            data-hint-hide="0"
-            data-hint-text="Specify the tolerance for the mass shift of modifications in Daltons. This is only relevant for open search data and combines PTMs whose mass shift relative to each other is within the specified tolerance value."
-            ><code style="color: var(--color-3)">Optional</code> Mass Shift
-            Tolerance
-          </span>
-          <br />
+          <p>
+            <code style="color: var(--color-3)">Optional</code> Adjust Mass
+            Shift Tolerance
+            <i
+              id="inputs-help-4"
+              class="fa-duotone fa-solid fa-circle-question fa-2xs"
+              style="font-size: small; cursor: pointer"
+            ></i>
+          </p>
+          <div
+            class="remark yellow text-light text-just w-75"
+            style="font-family: monospace; font-size: small"
+            data-role="collapse"
+            data-toggle-element="#inputs-help-4"
+            data-collapsed="true"
+          >
+            Adjust the tolerance for the mass shift of modifications in Daltons
+            with the input. This is only relevant for open search data and
+            combines PTMs whose mass shift relative to each other is within the
+            specified tolerance value. For more information, see the
+            <em>Usage Guide</em>.
+          </div>
           <input
             id="data-tolerance-form"
             class="mt-2 mb-4 w-25 input-small"
@@ -771,28 +819,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-role="hint"
             data-hint-position="right"
             data-hint-hide="0"
-            data-hint-text="Starts the PTMVision session with the specified input data."
+            data-hint-text="Submit the specified input data to start a new PTMVision session."
             onclick="startSession()"
           >
             Submit
           </button>
-
-          <h5>or</h5>
-
-          <span
-            style="
-              background-color: var(--background-color-1);
-              padding: 2px;
-              border-radius: 4px;
-              cursor: pointer;
-            "
-            data-role="hint"
-            data-hint-position="right"
-            data-hint-hide="0"
-            data-hint-text="Specify a previously downloaded PTMVision session (.zlib file)."
-            ><code style="color: var(--highlight-2)">Mandatory</code> PTMVision
+          <p class="mb-2" style="font-size: larger; font-weight: 500">
+            <u>or</u> re-load a previous PTMVision session
+          </p>
+          <p>
+            <code style="color: var(--highlight-2)">Mandatory</code> PTMVision
             Session
-          </span>
+            <i
+              id="inputs-help-5"
+              class="fa-duotone fa-solid fa-circle-question fa-2xs"
+              style="font-size: small; cursor: pointer"
+            ></i>
+          </p>
+          <div
+            class="remark yellow text-light text-just w-75"
+            style="font-family: monospace; font-size: small"
+            data-role="collapse"
+            data-toggle-element="#inputs-help-5"
+            data-collapsed="true"
+          >
+            Browse a previously downloaded PTMVision session (.zlib file) by
+            clicking the input below. The session file contains all relevant
+            information to reload the session. For more information, see the
+            <em>Usage Guide</em>.
+          </div>
           <input
             id="session-input-form"
             class="mt-2 mb-4"
@@ -811,6 +866,252 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           >
             Submit
           </button>
+
+          <p class="mb-2" style="font-size: larger; font-weight: 500">
+            <u>or</u>
+            <code
+              id="inputs-help-6"
+              style="color: var(--color-2); cursor: pointer"
+              >Browse Example Sessions</code
+            >
+          </p>
+          <div
+            class="remark secondary text-light text-just"
+            style="font-size: small"
+            data-role="collapse"
+            data-toggle-element="#inputs-help-6"
+            data-collapsed="true"
+          >
+            <p style="font-family: monospace">
+              Example sessions to explore the features of PTMVision can be
+              started from the table below by clicking the individual
+              <span
+                style="
+                  background-color: #62a8ac;
+                  padding: 1px;
+                  font-size: small;
+                  font-weight: normal;
+                  border-radius: 4px;
+                  color: #fbfbfb;
+                "
+                >Start</span
+              >
+              buttons - the <em>PTM Data</em> files used for the sessions can be
+              downloaded from the PTMVision Zenodo record at
+              <a href="https://zenodo.org/records/13270569" target="_blank"
+                >https://zenodo.org/records/13270569</a
+              >.
+            </p>
+            <!-- Add example sessions here, if new ones are available. -->
+            <table class="table striped w-100 mt-2">
+              <thead>
+                <tr>
+                  <th>Search Engine or <em>File Format</em></th>
+                  <th>Version</th>
+                  <th>Search Type</th>
+                  <th>Source Data</th>
+                  <th>Note</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>ionbot</td>
+                  <td><code>v0.11.3</code></td>
+                  <td>Open</td>
+                  <td>
+                    PRIDE project
+                    <a
+                      href="https://www.ebi.ac.uk/pride/archive/projects/PXD000498"
+                      target="_blank"
+                      >PXD000498</a
+                    >, LC-MS/MS run of an unenriched
+                    <i>Escherichia coli</i> sample.
+                  </td>
+                  <td>
+                    UniMod classes <i>Artefact</i> and
+                    <i>Chemical derivative</i> excluded (via PTMVision).
+                  </td>
+                  <td>
+                    <button
+                      class="example-button"
+                      data-role="hint"
+                      data-hint-text="Start this example session."
+                      onclick="startExampleSession('ptmvision.example.PXD000498.ionbot-v011')"
+                    >
+                      Start
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>MSFragger</td>
+                  <td><code>v4.0</code></td>
+                  <td>Open</td>
+                  <td>
+                    PRIDE project
+                    <a
+                      href="https://www.ebi.ac.uk/pride/archive/projects/PXD007740"
+                      target="_blank"
+                      >PXD007740</a
+                    >, LC-MS/MS run of a human colorectal cancer sample enriched
+                    for phosphorylated peptides using Ti<sup>4+</sup>-IMAC.
+                  </td>
+                  <td>
+                    Source file filtered for modified peptides. UniMod classes
+                    <i>Artefact</i> and <i>Chemical derivative</i> excluded (via
+                    PTMVision).
+                  </td>
+                  <td>
+                    <button
+                      class="example-button"
+                      data-role="hint"
+                      data-hint-text="Start this example session."
+                      onclick="startExampleSession('ptmvision.example.PXD007740.msfragger-v40')"
+                    >
+                      Start
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Sage</td>
+                  <td><code>v0.13.1</code></td>
+                  <td>Closed</td>
+                  <td>
+                    PRIDE project
+                    <a
+                      href="https://www.ebi.ac.uk/pride/archive/projects/PXD000498"
+                      target="_blank"
+                      >PXD000498</a
+                    >, LC-MS/MS run of an unenriched
+                    <i>Escherichia coli</i> sample. Closed search with
+                    <i>carbamidomethylation</i> as fixed; <i>oxidation</i> as
+                    variable.
+                  </td>
+                  <td></td>
+                  <td>
+                    <button
+                      class="example-button"
+                      data-role="hint"
+                      data-hint-text="Start this example session."
+                      onclick="startExampleSession('ptmvision.example.PXD000498.sage-v0131')"
+                    >
+                      Start
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>MaxQuant</td>
+                  <td><code>v2.4.13.0</code></td>
+                  <td>Closed</td>
+                  <td>
+                    PRIDE project
+                    <a
+                      href="https://www.ebi.ac.uk/pride/archive/projects/PXD025088"
+                      target="_blank"
+                      >PXD025088</a
+                    >, LC-MS/MS run of an unenriched
+                    <i>Escherichia coli</i> sample. Closed search with
+                    <i>carbamidomethylation</i> as fixed; <i>oxidation</i> and
+                    <i>protein n-terminal acetylation</i> as variable.
+                  </td>
+                  <td>Source file filtered for modified peptides.</td>
+                  <td>
+                    <button
+                      class="example-button"
+                      data-role="hint"
+                      data-hint-text="Start this example session."
+                      onclick="startExampleSession('ptmvision.example.PXD025088.maxquant-v24130')"
+                    >
+                      Start
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Spectronaut</td>
+                  <td><code>v9</code></td>
+                  <td>Not specified</td>
+                  <td>
+                    MassIVE project
+                    <a
+                      href="https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=6dfcd4ae92a7471a85fa0bf0add8c9bd"
+                      target="_blank"
+                      >MSV000091214</a
+                    >, LC-MS/MS run of an succinyl-enriched mouse kidney sample
+                    using DC8 and DC12.
+                  </td>
+                  <td></td>
+                  <td>
+                    <button
+                      class="example-button"
+                      data-role="hint"
+                      data-hint-text="Start this example session."
+                      onclick="startExampleSession('ptmvision.example.MSV000091214.spectronaut')"
+                    >
+                      Start
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><em>Plain</em></td>
+                  <td></td>
+                  <td></td>
+                  <td>
+                    <a
+                      href="http://biovis.net/2022/biovisChallenges_vis/"
+                      target="_blank"
+                      >IEEE VIS 2022 Bio+MedVis Challenge</a
+                    >
+                    dataset comprising modifications of three human proteins and
+                    their mouse orthologs. PTM analysis carried out with ionbot
+                    (open search).
+                  </td>
+                  <td>
+                    UniMod classes
+                    <i>Artefact</i> and <i>Chemical derivative</i> excluded (via
+                    PTMVision).
+                  </td>
+                  <td>
+                    <button
+                      class="example-button"
+                      data-role="hint"
+                      data-hint-text="Start this example session."
+                      onclick="startExampleSession('ptmvision.example.biomedvis2022.plain')"
+                    >
+                      Start
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><em>mzIdentML</em></td>
+                  <td></td>
+                  <td></td>
+                  <td>
+                    PRIDE project
+                    <a
+                      href="https://www.ebi.ac.uk/pride/archive/projects/PXD001077"
+                      target="_blank"
+                      >PXD001077</a
+                    >, LC-MS/MS of an unenriched
+                    <i>Pyrococcus furiosus</i> sample. PTM analysis carried out
+                    with MS-GF+ v10024 via SearchGUI v1.18.7. Closed search with
+                    <i>carbamidomethylation</i> as fixed; <i>oxidation</i> and
+                    <i>phosphorylation</i> as variable.
+                  </td>
+                  <td></td>
+                  <td>
+                    <button
+                      class="example-button"
+                      data-role="hint"
+                      data-hint-text="Start this example session."
+                      onclick="startExampleSession('ptmvision.example.PXD001077.mzid')"
+                    >
+                      Start
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div id="panel-overview" class="panel-container">

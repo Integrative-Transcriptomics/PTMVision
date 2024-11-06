@@ -402,11 +402,16 @@ body {
   padding: 1em 10em 1em 10em;
 }
 
-.content {
-  padding: 1em;
+.text-container {
+  padding: 1em 5em 1em 1em;
+  margin: calc(5vh + 1em) 1em 1em 1em;
+  height: calc(100% - (5vh + 2em));
+  width: calc(100% - 2em);
+  border-radius: 4px;
+  background-color: var(--background-color-1);
 }
 
-.about-content-list li {
+.content-list li {
   cursor: pointer;
   color: var(--color-2);
   padding: 3px;
@@ -414,7 +419,7 @@ body {
   border-radius: 4px;
 }
 
-.about-content-list li:hover {
+.content-list li:hover {
   background-color: var(--background-color-3);
   transition: 0.1s;
 }
