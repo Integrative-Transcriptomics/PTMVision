@@ -625,8 +625,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             class="text-light text-just"
             style="font-family: monospace; font-size: small"
           >
-            Upload data, re-upload a session or start an example session. Once
-            complete, session data can be downloaded with
+            Upload data, re-upload a session or browse and start an example
+            session. Once complete, session data can be downloaded with
             <em>Download Session Data</em> in the header menu and panels
             <i class="fa-duotone fa-circle-2" style="font-size: small"></i> and
             <i class="fa-duotone fa-circle-3" style="font-size: small"></i> will
@@ -651,7 +651,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ></i>
           </p>
           <div
-            class="remark yellow text-light text-just w-75"
+            class="remark yellow text-light text-just w-50"
             style="font-family: monospace; font-size: small"
             data-role="collapse"
             data-toggle-element="#inputs-help-1"
@@ -690,7 +690,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ></i>
           </p>
           <div
-            class="remark yellow text-light text-just w-75"
+            class="remark yellow text-light text-just w-50"
             style="font-family: monospace; font-size: small"
             data-role="collapse"
             data-toggle-element="#inputs-help-2"
@@ -698,7 +698,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           >
             Browse a file by clicking on the input below. The file is expected
             to contain the PTM data to be parsed and should match the format
-            selected before. For more information, see the
+            selected above. For more information, see the
             <em>Usage Guide</em>.
           </div>
           <input
@@ -718,17 +718,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ></i>
           </p>
           <div
-            class="remark yellow text-light text-just w-75"
+            class="remark yellow text-light text-just w-50"
             style="font-family: monospace; font-size: small"
             data-role="collapse"
             data-toggle-element="#inputs-help-3"
             data-collapsed="true"
           >
             Select multiple UniMod modification classes from the drop down menu.
-            PTMs of the specified classes will be excluded from processing, i.e.
-            any PTM in your data that belongs to one of the selected classes
-            will be ignored. Select no class if you want to include all PTMs in
-            your data. For more information, see the
+            PTMs of the specified classes will be excluded from processing,
+            i.e., any PTM in your data that belongs to one of the selected
+            classes will be ignored. Select no class if you want to include all
+            PTMs in your data. For more information, see the
             <em>Usage Guide</em>.
           </div>
           <select
@@ -792,16 +792,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ></i>
           </p>
           <div
-            class="remark yellow text-light text-just w-75"
+            class="remark yellow text-light text-just w-50"
             style="font-family: monospace; font-size: small"
             data-role="collapse"
             data-toggle-element="#inputs-help-4"
             data-collapsed="true"
           >
             Adjust the tolerance for the mass shift of modifications in Daltons
-            with the input. This is only relevant for open search data and
-            combines PTMs whose mass shift relative to each other is within the
-            specified tolerance value. For more information, see the
+            with the input below. This is only relevant for open search data and
+            combines PTMs whose mass shift, relative to each other, is within
+            the specified tolerance value. For more information, see the
             <em>Usage Guide</em>.
           </div>
           <input
@@ -825,7 +825,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             Submit
           </button>
           <p class="mb-2" style="font-size: larger; font-weight: 500">
-            <u>or</u> re-load a previous PTMVision session
+            <u>or</u> re-upload a PTMVision session
           </p>
           <p>
             <code style="color: var(--highlight-2)">Mandatory</code> PTMVision
@@ -837,7 +837,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ></i>
           </p>
           <div
-            class="remark yellow text-light text-just w-75"
+            class="remark yellow text-light text-just w-50"
             style="font-family: monospace; font-size: small"
             data-role="collapse"
             data-toggle-element="#inputs-help-5"
@@ -850,7 +850,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </div>
           <input
             id="session-input-form"
-            class="mt-2 mb-4"
+            class="mt-2 mb-4 w-75"
             type="file"
             data-role="file"
             accept=".zlib"
@@ -926,11 +926,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       target="_blank"
                       >PXD000498</a
                     >, LC-MS/MS run of an unenriched
-                    <i>Escherichia coli</i> sample.
+                    <em>Escherichia coli</em> sample.
                   </td>
                   <td>
-                    UniMod classes <i>Artefact</i> and
-                    <i>Chemical derivative</i> excluded (via PTMVision).
+                    UniMod classes <em>Artefact</em> and
+                    <em>Chemical derivative</em> excluded (via PTMVision).
                   </td>
                   <td>
                     <button
@@ -958,8 +958,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   </td>
                   <td>
                     Source file filtered for modified peptides. UniMod classes
-                    <i>Artefact</i> and <i>Chemical derivative</i> excluded (via
-                    PTMVision).
+                    <em>Artefact</em> and <em>Chemical derivative</em> excluded
+                    (via PTMVision).
                   </td>
                   <td>
                     <button
@@ -983,9 +983,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       target="_blank"
                       >PXD000498</a
                     >, LC-MS/MS run of an unenriched
-                    <i>Escherichia coli</i> sample. Closed search with
-                    <i>carbamidomethylation</i> as fixed; <i>oxidation</i> as
-                    variable.
+                    <em>Escherichia coli</em> sample. Closed search with
+                    <em>carbamidomethylation</em> as fixed;
+                    <em>oxidation</em> as variable.
                   </td>
                   <td></td>
                   <td>
@@ -1010,9 +1010,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       target="_blank"
                       >PXD025088</a
                     >, LC-MS/MS run of an unenriched
-                    <i>Escherichia coli</i> sample. Closed search with
-                    <i>carbamidomethylation</i> as fixed; <i>oxidation</i> and
-                    <i>protein n-terminal acetylation</i> as variable.
+                    <em>Escherichia coli</em> sample. Closed search with
+                    <em>carbamidomethylation</em> as fixed;
+                    <em>oxidation</em> and
+                    <em>protein n-terminal acetylation</em> as variable.
                   </td>
                   <td>Source file filtered for modified peptides.</td>
                   <td>
@@ -1052,7 +1053,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   </td>
                 </tr>
                 <tr>
-                  <td><em>Plain</em></td>
+                  <td><em>Plain/CSV</em></td>
                   <td></td>
                   <td></td>
                   <td>
@@ -1067,8 +1068,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   </td>
                   <td>
                     UniMod classes
-                    <i>Artefact</i> and <i>Chemical derivative</i> excluded (via
-                    PTMVision).
+                    <em>Artefact</em> and <em>Chemical derivative</em> excluded
+                    (via PTMVision).
                   </td>
                   <td>
                     <button
@@ -1092,10 +1093,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       target="_blank"
                       >PXD001077</a
                     >, LC-MS/MS of an unenriched
-                    <i>Pyrococcus furiosus</i> sample. PTM analysis carried out
-                    with MS-GF+ v10024 via SearchGUI v1.18.7. Closed search with
-                    <i>carbamidomethylation</i> as fixed; <i>oxidation</i> and
-                    <i>phosphorylation</i> as variable.
+                    <em>Pyrococcus furiosus</em> sample. PTM analysis carried
+                    out with MS-GF+ v10024 via SearchGUI v1.18.7. Closed search
+                    with <em>carbamidomethylation</em> as fixed;
+                    <em>oxidation</em> and <em>phosphorylation</em> as variable.
                   </td>
                   <td></td>
                   <td>
@@ -1115,10 +1116,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
 
         <div id="panel-overview" class="panel-container">
-          <h6 class="secondary">
+          <h5 style="font-weight: 600">
             <i class="fa-duotone fa-circle-2"></i>
-            <strong>Overview PTMs</strong>
-          </h6>
+            Overview PTMs
+          </h5>
           <div id="panel-overview-chart"></div>
           <div id="panel-overview-controls">
             <button
@@ -1168,45 +1169,96 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <div class="grid">
             <div class="row">
               <div class="cell-11">
-                <h6 class="secondary">
+                <h5 style="font-weight: 600">
                   <i class="fa-duotone fa-circle-3"></i>
-                  <strong id="panel-table-title"
-                    >Select single protein of interest</strong
-                  >
-                </h6>
+                  Select Single Protein of Interest
+                </h5>
+                <p
+                  class="text-light text-just"
+                  style="font-family: monospace; font-size: small"
+                >
+                  Overview of all proteins available from session data, listing
+                  one protein per row with basic information about the protein
+                  and associated PTMs. Select a single row by clicking on it
+                  (highlighted in red) and click
+                  <em>Display</em> to obtain a detailed view of the PTMs on the
+                  selected protein. Click
+                  <i
+                    class="fa-duotone fa-solid fa-circle-question"
+                    style="font-size: small"
+                  ></i>
+                  symbols for help.
+                </p>
               </div>
             </div>
+
             <div class="row">
               <div class="cell-3">
-                <h7 class="secondary float-left"
-                  >Filter for modifications by UniMod name:&nbsp;</h7
-                >
+                <p class="secondary float-left">
+                  Filter for modifications by UniMod name
+                  <i
+                    id="table-help-1"
+                    class="fa-duotone fa-solid fa-circle-question fa-2xs"
+                    style="font-size: small; cursor: pointer"
+                  ></i>
+                </p>
               </div>
               <div class="cell-7">
                 <select
                   id="panel-table-filter-modification"
-                  class="input-small"
+                  class="input-small w-75"
                   data-role="select"
                   data-on-change="overviewTableSetFilters"
                   multiple
                 ></select>
               </div>
             </div>
+            <div
+              class="remark yellow text-light text-just w-50"
+              style="font-family: monospace; font-size: small"
+              data-role="collapse"
+              data-toggle-element="#table-help-1"
+              data-collapsed="true"
+              data-effect="fade"
+            >
+              Select one or multiple UniMod modifications (by their name) from
+              the drop down menu above to filter the table for proteins that
+              contain the specified PTMs at least once. The table will be
+              updated accordingly. The filters are applied in an AND logic.
+            </div>
             <div class="row mt-2">
               <div class="cell-3">
-                <h7 class="secondary float-left"
-                  >Filter for protein names/UniProt identifier:&nbsp;</h7
-                >
+                <p class="secondary float-left">
+                  Filter for protein names/UniProt identifier
+                  <i
+                    id="table-help-2"
+                    class="fa-duotone fa-solid fa-circle-question fa-2xs"
+                    style="font-size: small; cursor: pointer"
+                  ></i>
+                </p>
               </div>
               <div class="cell-7">
                 <select
                   id="panel-table-filter-id"
-                  class="input-small"
+                  class="input-small w-75"
                   data-role="select"
                   data-on-change="overviewTableSetFilters"
                   multiple
                 ></select>
               </div>
+            </div>
+            <div
+              class="remark yellow text-light text-just w-50"
+              style="font-family: monospace; font-size: small"
+              data-role="collapse"
+              data-toggle-element="#table-help-2"
+              data-collapsed="true"
+              data-effect="fade"
+            >
+              Select a protein name or UniProt identifier from the drop down
+              menu to filter the table for proteins that match the specified
+              name or identifier. The table will be updated accordingly. The
+              filters are applied in an AND logic.
             </div>
           </div>
           <div id="panel-table-tabulator"></div>
@@ -1221,11 +1273,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
 
         <div id="panel-dashboard" class="panel-container">
-          <h6 class="secondary">
+          <h5 style="font-weight: 600">
             <i class="fa-duotone fa-circle-4"></i>
-            <strong id="panel-dashboard-title">Explore detail</strong>
+            <span id="panel-dashboard-title">Explore Detail</span>
             <u id="panel-dashboard-selection"></u>
-          </h6>
+          </h5>
           <div id="panel-dashboard-chart"></div>
           <div id="panel-dashboard-structure">
             <div id="panel-dashboard-structure-meta"></div>
