@@ -651,13 +651,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ></i>
           </p>
           <div
-            class="remark yellow text-light text-just w-50"
-            style="font-family: monospace; font-size: small"
+            class="remark text-light text-just w-100"
             data-role="collapse"
             data-toggle-element="#inputs-help-1"
             data-collapsed="true"
           >
-            Select one value from the drop down menu to specify the data format
+            Select one value from the drop-down menu to specify the data format
             to be processed. This is either determined by the proteomics search
             engine used to generate your PTM data (available as options from the
             <em>Search Engine</em> group) or one of the following (available as
@@ -690,15 +689,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ></i>
           </p>
           <div
-            class="remark yellow text-light text-just w-50"
-            style="font-family: monospace; font-size: small"
+            class="remark text-light text-just w-100"
             data-role="collapse"
             data-toggle-element="#inputs-help-2"
             data-collapsed="true"
           >
             Browse a file by clicking on the input below. The file is expected
-            to contain the PTM data to be parsed and should match the format
-            selected above. For more information, see the
+            to contain the PTM data and should match the format selected above.
+            For more information, see the
             <em>Usage Guide</em>.
           </div>
           <input
@@ -718,13 +716,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ></i>
           </p>
           <div
-            class="remark yellow text-light text-just w-50"
-            style="font-family: monospace; font-size: small"
+            class="remark text-light text-just w-100"
             data-role="collapse"
             data-toggle-element="#inputs-help-3"
             data-collapsed="true"
           >
-            Select multiple UniMod modification classes from the drop down menu.
+            Select multiple UniMod modification classes from the drop-down menu.
             PTMs of the specified classes will be excluded from processing,
             i.e., any PTM in your data that belongs to one of the selected
             classes will be ignored. Select no class if you want to include all
@@ -792,16 +789,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ></i>
           </p>
           <div
-            class="remark yellow text-light text-just w-50"
-            style="font-family: monospace; font-size: small"
+            class="remark text-light text-just w-100"
             data-role="collapse"
             data-toggle-element="#inputs-help-4"
             data-collapsed="true"
           >
             Adjust the tolerance for the mass shift of modifications in Daltons
-            with the input below. This is only relevant for open search data and
-            combines PTMs whose mass shift, relative to each other, is within
-            the specified tolerance value. For more information, see the
+            with the input below. This is only relevant for open search data:
+            PTMs whose mass shift, relative to each other, is within the
+            specified tolerance value will be merged. For more information, see
+            the
             <em>Usage Guide</em>.
           </div>
           <input
@@ -837,15 +834,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ></i>
           </p>
           <div
-            class="remark yellow text-light text-just w-50"
-            style="font-family: monospace; font-size: small"
+            class="remark text-light text-just w-100"
             data-role="collapse"
             data-toggle-element="#inputs-help-5"
             data-collapsed="true"
           >
-            Browse a previously downloaded PTMVision session (.zlib file) by
-            clicking the input below. The session file contains all relevant
-            information to reload the session. For more information, see the
+            Browse a downloaded PTMVision session (.zlib file) by clicking the
+            input below. The file contains all relevant information to reload
+            the session. For more information, see the
             <em>Usage Guide</em>.
           </div>
           <input
@@ -876,7 +872,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             >
           </p>
           <div
-            class="remark secondary text-light text-just"
+            class="remark text-light text-just"
             style="font-size: small"
             data-role="collapse"
             data-toggle-element="#inputs-help-6"
@@ -1119,7 +1115,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <h5 style="font-weight: 600">
             <i class="fa-duotone fa-circle-2"></i>
             Overview PTMs
+            <i
+              id="overview-help-1"
+              class="fa-duotone fa-solid fa-circle-question fa-2xs"
+              style="font-size: small; cursor: pointer"
+            ></i>
           </h5>
+          <div
+            id="panel-overview-help"
+            class="remark text-light text-just"
+            data-role="collapse"
+            data-toggle-element="#overview-help-1"
+            data-collapsed="true"
+            data-effect="fade"
+          >
+            Displays <em>Shared PTM Sites between Modification Types</em>,
+            <em>Mass Shift</em> and <em>Site Count</em> per PTM, and
+            <em>PTM Class Counts</em> based on PTMs on all proteins in the data.
+            For more information, see the <em>Usage Guide</em>.
+            <p>
+              <i class="fa-duotone fa-camera"></i> Screenshot of the current
+              view.
+            </p>
+            <p>
+              <i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+              Reset the zoom level of all overview visualizations to default
+              (zoomed out completely).
+            </p>
+            <p>
+              <i class="fa-duotone fa-highlighter"></i> Highlight a specific PTM
+              of interest.
+            </p>
+            <p>
+              <i class="fa-duotone fa-arrow-up-arrow-down"></i> Sort the
+              <em>Shared PTM sites</em>, <em>Mass Shift</em> and
+              <em>Site Count</em> visualizations either by mass shift or count.
+            </p>
+          </div>
           <div id="panel-overview-chart"></div>
           <div id="panel-overview-controls">
             <button
@@ -1194,7 +1226,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             <div class="row">
               <div class="cell-3">
-                <p class="secondary float-left">
+                <p class="float-left">
                   Filter for modifications by UniMod name
                   <i
                     id="table-help-1"
@@ -1214,21 +1246,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               </div>
             </div>
             <div
-              class="remark yellow text-light text-just w-50"
-              style="font-family: monospace; font-size: small"
+              class="remark text-light text-just w-100"
               data-role="collapse"
               data-toggle-element="#table-help-1"
               data-collapsed="true"
               data-effect="fade"
             >
               Select one or multiple UniMod modifications (by their name) from
-              the drop down menu above to filter the table for proteins that
-              contain the specified PTMs at least once. The table will be
-              updated accordingly. The filters are applied in an AND logic.
+              the drop-down menu above to filter the table for proteins that
+              contain the specified PTMs at least once. Only modifications that
+              are actually included in the session data are listed in the
+              drop-down menu. The table will be updated accordingly. Filters are
+              applied in an AND logic.
             </div>
             <div class="row mt-2">
               <div class="cell-3">
-                <p class="secondary float-left">
+                <p class="float-left">
                   Filter for protein names/UniProt identifier
                   <i
                     id="table-help-2"
@@ -1248,17 +1281,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               </div>
             </div>
             <div
-              class="remark yellow text-light text-just w-50"
-              style="font-family: monospace; font-size: small"
+              class="remark text-light text-just w-100"
               data-role="collapse"
               data-toggle-element="#table-help-2"
               data-collapsed="true"
               data-effect="fade"
             >
-              Select a protein name or UniProt identifier from the drop down
+              Select a protein name or UniProt identifier from the drop-down
               menu to filter the table for proteins that match the specified
-              name or identifier. The table will be updated accordingly. The
-              filters are applied in an AND logic.
+              name or identifier. Only identifiers and names that are actually
+              included in the session data are listed in the drop-down menu. The
+              table will be updated accordingly. Filters are applied in an AND
+              logic.
             </div>
           </div>
           <div id="panel-table-tabulator"></div>
@@ -1276,8 +1310,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <h5 style="font-weight: 600">
             <i class="fa-duotone fa-circle-4"></i>
             <span id="panel-dashboard-title">Explore Detail</span>
+            <i
+              id="dashboard-help-1"
+              class="fa-duotone fa-solid fa-circle-question fa-2xs"
+              style="font-size: small; cursor: pointer"
+            ></i>
             <u id="panel-dashboard-selection"></u>
           </h5>
+          <div
+            id="panel-dashboard-help"
+            class="remark text-light text-just"
+            data-role="collapse"
+            data-toggle-element="#dashboard-help-1"
+            data-collapsed="true"
+            data-effect="fade"
+          >
+            Display details of PTMs for one selected protein:
+            <em>Modifications View</em> (default) provides an overview over
+            which PTMs are found for the selected protein and where they are
+            located on the primary sequence. <em>Structure View</em> displays a
+            contact map (left) with residues plotted against each other and cell
+            coloring based on modifications. The right panel shows a 3D
+            structure of the protein with PTMs highlighted based on user
+            interactions with the contact map.
+            <p>
+              <i class="fa-duotone fa-camera"></i> Screenshot of the current
+              view.
+            </p>
+            <p>
+              <i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+              Reset the zoom level of all overview visualizations to default
+              (zoomed out completely).
+            </p>
+            <p>
+              <i class="fa-duotone fa-highlighter"></i> Highlight a specific PTM
+              of interest.
+            </p>
+            <i class="fa-duotone fa-repeat"></i> Switch between
+            <em>Modifications View</em> and <em>Structure View</em>.
+          </div>
           <div id="panel-dashboard-chart"></div>
           <div id="panel-dashboard-structure">
             <div id="panel-dashboard-structure-meta"></div>

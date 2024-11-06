@@ -113,6 +113,12 @@ body {
   color: var(--color-2);
 }
 
+.remark {
+  background-color: var(--color-5) !important;
+  font-family: monospace;
+  font-size: small;
+}
+
 .proceed-button {
   background-color: var(--highlight-1);
   color: var(--background-color-1);
@@ -216,6 +222,15 @@ body {
   overflow: scroll;
 }
 
+#panel-overview-help {
+  position: absolute;
+  z-index: 2;
+  top: 34px;
+  right: 4px;
+  left: 5px;
+  border-radius: 4px;
+}
+
 #panel-overview-chart {
   position: absolute;
   top: 50px;
@@ -284,6 +299,15 @@ body {
   width: 98vw;
   min-height: 84vh;
   overflow-y: auto;
+}
+
+#panel-dashboard-help {
+  position: absolute;
+  z-index: 2;
+  top: 34px;
+  right: 4px;
+  left: 5px;
+  border-radius: 4px;
 }
 
 #panel-dashboard-chart {
