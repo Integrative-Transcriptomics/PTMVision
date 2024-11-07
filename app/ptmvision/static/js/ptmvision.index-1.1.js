@@ -114,13 +114,13 @@ class OverviewTable {
           title: "ID",
           field: "id",
           sorter: "string",
-          width: "5%",
+          width: "20%",
         },
         {
           title: "Name",
           field: "name",
           sorter: "string",
-          width: "25%",
+          width: "20%",
         },
         {
           title: "Primary Sequence Length",
@@ -132,13 +132,13 @@ class OverviewTable {
           title: "No. modified positions",
           field: "modified_positions",
           sorter: "number",
-          width: "25%",
+          width: "20%",
         },
         {
           title: "No. distinct modifications",
           field: "unique_modifications",
           sorter: "number",
-          width: "25%",
+          width: "20%",
         },
         {
           title: "Modifications",
