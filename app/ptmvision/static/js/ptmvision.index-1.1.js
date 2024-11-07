@@ -449,11 +449,11 @@ class OverviewChart {
       title: [
         {
           text:
-            "Total modifications (e.g. Phospho on Ser249): " +
+            "Total modifications: " +
             Object.values(this.#data.classCounts).reduce((a, b) => a + b, 0) +
-            " | Modification types (e.g. Phospho): " +
+            " | Distinct modification types: " +
             Object.keys(this.#data.modifications).length +
-            " | Unimod modification classes (e.g. Post-translational): " +
+            " | Distinct UniMod modification classes: " +
             Object.keys(this.#data.classCounts).length,
           top: "top",
           left: "center",
