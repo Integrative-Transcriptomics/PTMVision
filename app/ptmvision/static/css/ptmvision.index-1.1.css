@@ -245,9 +245,9 @@ body {
 #panel-overview-controls {
   position: absolute;
   display: inline-block;
-  top: calc(1vh);
-  right: 8px;
-  height: 2vh;
+  top: 1em;
+  right: 1em;
+  height: auto;
   width: auto;
   background-color: transparent;
   border-radius: 4px;
@@ -351,9 +351,9 @@ body {
 #panel-dashboard-controls {
   position: absolute;
   display: inline-block;
-  top: calc(1vh);
-  right: 8px;
-  height: 2vh;
+  top: 1em;
+  right: 1em;
+  height: auto;
   width: auto;
   background-color: transparent;
   border-radius: 4px;
