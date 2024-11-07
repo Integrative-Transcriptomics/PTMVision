@@ -533,7 +533,9 @@ class OverviewChart {
                 "Unannotated mass-shift",
                 "Mass-shift"
               );
-              return displayName;
+              return displayName.length > 17
+                ? displayName.slice(0, 17) + "..."
+                : displayName;
             },
             ...STYLE_AXIS_LABEL,
           },
