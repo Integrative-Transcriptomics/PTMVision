@@ -3261,7 +3261,9 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
           ? "<em>" + response.data.annotation.organism.scientificName + "</em>"
           : "N/A";
         $("#panel-dashboard-selection").html(
-          [primaryAccession, proteinName, organismName].join(", ")
+          "Selected Protein: <u>" +
+            [primaryAccession, proteinName, organismName].join(" | ") +
+            "</u> (Click for UniProt Information)"
         );
         $("#panel-dashboard-selection").css("cursor", "pointer");
         $("#panel-dashboard-selection").on("click", () =>
@@ -3274,7 +3276,7 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
                 return (
                   "<code>" +
                   _.commentType +
-                  "</code><p class='text-left'>" +
+                  "</code><p class='text-just' style='font-size: smaller;'>" +
                   _.texts[0].value +
                   "</p>"
                 );
@@ -3282,6 +3284,8 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
               .join("</br>"),
             confirmButtonColor: "#d4d4d4",
             confirmButtonText: "Close Info",
+            width: "35vw",
+            heightAuto: false,
           })
         );
         __dashboardChart.fill(response.data);
