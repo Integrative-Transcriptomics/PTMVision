@@ -2843,7 +2843,6 @@ function startExampleSession(fileIdentifier) {
     .then((_) => {
       overviewTableInitialize(); // Init. table.
       overviewChartInitialize(); // Init.overview chart.
-      togglePanel("panel-inputs");
     })
     .catch((error) => {
       console.error(error);
@@ -2878,7 +2877,6 @@ async function startExistingSession() {
     .then((_) => {
       overviewTableInitialize(); // Init. table.
       overviewChartInitialize(); // Init.overview chart.
-      togglePanel("panel-inputs");
     })
     .catch((error) => {
       console.error(error);
@@ -3152,7 +3150,6 @@ function overviewChartInitialize(afterResponse) {
     })
     .finally(() => {
       removeNotification();
-      togglePanel("panel-inputs");
     });
 }
 
@@ -3294,8 +3291,6 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
           top: $("#panel-dashboard").get(0).offsetTop + 40,
           behavior: "smooth",
         });
-        togglePanel("panel-overview");
-        togglePanel("panel-table");
       }
     })
     .catch((error) => {
