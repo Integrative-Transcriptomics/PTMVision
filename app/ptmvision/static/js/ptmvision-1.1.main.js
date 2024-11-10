@@ -2937,55 +2937,6 @@ async function startSession() {
 }
 
 /**
- * Downloads the content of a blob to a client file.
- *
- * @param {Blob} blob File-like blob data to download.
- * @param {String} name The file name to save the downloaded content to.
- */
-function downloadBlob(blob, name) {
-  var download_link = document.createElement("a");
-  download_link.href = window.URL.createObjectURL(new Blob([blob]));
-  download_link.download = name;
-  download_link.click();
-  download_link.remove();
-}
-
-/**
- * Sends a request to download resources from the server.
- *
- * @param {String} name The full file name to request from the server.
- */
-function downloadResource(name) {
-  axios
-    .get(window.location.origin + "/resource?name=" + name)
-    .then((response) => {
-      downloadBlob(response.data, name);
-    });
-}
-
-/**
- * Downloads the current session data to the client.
- */
-function downloadSessionData() {
-  axios
-    .get(__url + "/download_session")
-    .then((response) => {
-      const D = new Date();
-      downloadBlob(
-        response.data,
-        "ptmvision-" +
-          [D.getFullYear(), D.getMonth() + 1, Date.now()].join("-") +
-          ".zlib"
-      );
-    })
-    .catch((error) => {
-      console.error(error);
-      removeNotification();
-      displayAlert(error.message);
-    });
-}
-
-/**
  * Reads a file-like blob object to its String content.
  *
  * @param {Blob} file File-like blob data to read.
@@ -3000,75 +2951,6 @@ function readFile(file) {
     fileReader.onerror = (error) => reject(error);
     fileReader.readAsText(file);
   });
-}
-
-/**
- * Redirects the browser to the specified page of this project.
- *
- * This function is necessary as the single pages of the application do not know the base URL of the project.
- *
- * @param {String} pageName The name of the page to redirect to.
- * @param {String} target The target of the redirection; Should be one of '_blank' or '_self'.
- */
-function redirectTo(pageName, target) {
-  window.open(window.location.origin + "/" + pageName, target);
-}
-
-/**
- * Toggle the visibility of an element.
- *
- * @param {String} id DOM element identifier to toggle.
- */
-function togglePanel(id) {
-  $("#" + id).css("height", "50px");
-  $("#" + id).css("overflow", "hidden");
-  $("#" + id).css("color", "#d4d4d4");
-  $("#" + id).css("cursor", "pointer");
-  var minH = $("#" + id).css("min-height");
-  $("#" + id).css("min-height", 0);
-  if (id == "panel-overview") $("#panel-overview-chart").css("display", "none");
-  document.getElementById(id).onclick = function () {
-    $("#" + id).css("height", "auto");
-    $("#" + id).css("overflow", "inherit");
-    $("#" + id).css("color", "#333333");
-    $("#" + id).css("cursor", "default");
-    $("#" + id).css("min-height", minH);
-    if (id == "panel-overview")
-      $("#panel-overview-chart").css("display", "inherit");
-  };
-}
-
-/**
- * Displays a notification to the user.
- *
- * @param {String} text The text to display in the notification.
- */
-function displayNotification(text) {
-  $("#menu").append(
-    `<div class='notification'><i class="fa-duotone fa-spinner-third fa-spin fa-2xl"></i> ` +
-      text +
-      `</div>`
-  );
-}
-
-/**
- * Removes all notifications from the user interface.
- */
-function removeNotification() {
-  $(".notification").remove();
-}
-
-/**
- * Displays a toast element with a custom error message to the user.
- *
- * @param {String} text The message to display.
- */
-function displayAlert(text) {
-  $("#menu").append(
-    `<div class='alert'><i class="fa-duotone fa-circle-exclamation"></i> ` +
-      text +
-      `<button class='button-no-decoration float-right' onclick='$(".alert").remove()'><i class="fa-solid fa-x"></i></button></div>`
-  );
 }
 
 /**
@@ -3366,18 +3248,4 @@ function dashboardChartSwitch() {
     $("#panel-dashboard-title").html("Explore detail - Modifications view");
   }
   __dashboardChart.switchContent();
-}
-
-/**
- * Scrolls to a specific DOM element.
- *
- * @param {String} id DOM element identifier to scroll to.
- */
-function to(id) {
-  let e = $("#" + id).get(0);
-  let offset = Math.round(e.getBoundingClientRect().top) - 80;
-  window.scrollTo({
-    top: offset,
-    behavior: "smooth",
-  });
 }
