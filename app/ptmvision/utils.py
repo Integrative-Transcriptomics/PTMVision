@@ -305,8 +305,8 @@ def classification_from_id(unimod_id, amino_acid, unimod_db):
 def get_classification(unimod_id, residue, unimod_db):
     if unimod_id is None:
         return "Unannotated mass shift"
-    elif " or " in unimod_id:
-        return "Ambiguous mass shift"
+    elif type(unimod_id) == str and " or " in unimod_id:
+        return "Multiple"
     else:
         classification = classification_from_id(unimod_id, residue, unimod_db)
         return classification
@@ -668,7 +668,7 @@ def read_msfragger(file):
 
     # for ambiguous mass shifts, store all candidates
     pept_mods["candidates"] = pept_mods.apply(
-        lambda row: row["modification_unimod_name"] if "Ambiguous mass shift" in row["classification"] else None,
+        lambda row: row["modification_unimod_name"] if "Multiple" in row["classification"] else None,
         axis=1
     )
     return pept_mods
