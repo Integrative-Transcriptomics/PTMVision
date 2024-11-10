@@ -320,6 +320,17 @@ def protein_data():
         return "Failed request '/get_protein_data': " + _format_exception(e), 500
 
 
+@app.route("/session_state", methods=["GET"])
+def session_state():
+    """
+    Route to retrieve the current session state.
+    """
+    try :
+        return session[SESSION_STATE], 200
+    except Exception as e :
+        return {}, 200
+
+
 def _set_session_state(**kwargs):
     """
     Set session state.

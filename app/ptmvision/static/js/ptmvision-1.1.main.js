@@ -2811,7 +2811,6 @@ class StructureView {
  * Inizializes all client side elements of the PTMVision application.
  */
 function init() {
-  window.location.origin = window.location.origin;
   $("#menu")[0].style.display = "flex";
   $("#panel")[0].style.display = "block";
   __overviewTable = new OverviewTable("panel-table-tabulator");
@@ -2827,6 +2826,20 @@ function init() {
     "panel-dashboard-chart",
     "panel-dashboard-structure"
   );
+  checkSessionState();
+}
+
+/**
+ * Checks the current session state and updates the UI accordingly.
+ */
+function checkSessionState() {
+  axios.get(window.location.origin + "/session_state").then((response) => {
+    if (response.status == 200 && response.data.has_data) {
+      overviewTableInitialize(overviewChartInitialize);
+      if (response.data.hasOwnProperty("protein_selected"))
+        dashboardChartInitialize(response.data.protein_selected);
+    }
+  });
 }
 
 /**
@@ -3100,11 +3113,18 @@ function overviewChartSort() {
  * @param {Number} cutoff_value Distance cutoff value to use for defining residue contacts.
  * @param {String} pdb_text_value Optional PDB text value to initialize the dashboard chart with.
  */
-function dashboardChartInitialize(cutoff_value, pdb_text_value) {
+function dashboardChartInitialize(
+  uniprot_pa_value,
+  cutoff_value,
+  pdb_text_value
+) {
   displayNotification("Initializing dashboard.");
   if (cutoff_value == undefined) cutoff_value = 4.69;
   if (pdb_text_value == undefined) pdb_text_value = null;
-  let sel_protein_id = __overviewTable.getSelection();
+  let sel_protein_id = undefined;
+  if (uniprot_pa_value == undefined)
+    sel_protein_id = __overviewTable.getSelection();
+  else sel_protein_id = uniprot_pa_value;
   if (sel_protein_id == null) {
     removeNotification();
     displayAlert(
