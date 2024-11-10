@@ -6,6 +6,7 @@ from ptmvision.uniprot_id_mapping import (
     get_id_mapping_results_link,
     get_id_mapping_results_search,
 )
+from datetime import timedelta
 from flask import request, session, send_file
 from flask_session import Session
 from cachelib import FileSystemCache
@@ -20,14 +21,18 @@ import json, zlib, os, base64, traceback
 load_dotenv()
 
 """ Definition of session keys """
-MODIFICATIONS_DATA = "bW9kaWZpY2F0aW9uc19kYXRhX2ZyYW1l"
+MODIFICATIONS_DATA = "7421BE93662C5"
+SESSION_STATE = "E3D6FB747F7ED"
+STATE_HAS_DATA = "has_data"
+STATE_PROTEIN_SELECTED = "protein_selected"
 BASEPATH = "./app/ptmvision" # Use this for local development.
-#BASEPATH = "/app/ptmvision" # Use this for deployment.
+# BASEPATH = "/app/ptmvision" # Use this for deployment.
 
 """ Set session configuration parameters. """
 app.config["SESSION_COOKIE_NAME"] = "PTMVision"
 app.config["SESSION_TYPE"] = "cachelib"
-app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_PERMANENT"] = True
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=1)
 app.config["SESSION_USE_SIGNER"] = True
 app.config["SECRET_KEY"] = os.getenv("SIGNER")
 app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir = BASEPATH + '/session/', threshold=0)
@@ -49,10 +54,12 @@ def example_session():
         with open( BASEPATH + "/static/resources/example_session/" + request.args.get("fileIdentifier") + ".zlib", "rb" ) as example_session_data :
             session_data = zlib.decompress( base64.b64decode( example_session_data.read( ) ) ).decode( )
         session[MODIFICATIONS_DATA] = json.loads(session_data)
+        _set_session_state(**{STATE_HAS_DATA: True})
         return "Ok", 200
     except Exception as e :
         return "Failed request '/example_session': " + _format_exception(e), 500
-    
+
+
 @app.route("/resource", methods=["GET"])
 def get_resource():
     """
@@ -62,6 +69,7 @@ def get_resource():
         return send_file( "./static/resources/" + request.args.get( 'name' ) ), 200
     except Exception as e:
         return "Failed request '/example_data': " + _format_exception(e), 500
+
 
 @app.route("/download_session", methods=["GET"])
 def download_session():
@@ -108,6 +116,7 @@ def process_search_engine_output():
             json_request_data["excludeClasses"]
         )
         session[MODIFICATIONS_DATA] = json_user_data
+        _set_session_state(**{STATE_HAS_DATA: True})
         if DEBUG :
             with open( "./dump.json", "w+" ) as dumpfile :
                 dumpfile.write( json.dumps( session[MODIFICATIONS_DATA], indent = 3 ) )
@@ -303,11 +312,25 @@ def protein_data():
             response = deepcopy( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ] )
             response[ "structure" ] = utils._brotli_decompress( response[ "structure" ] )
             response[ "meta" ] = session[MODIFICATIONS_DATA]["meta_data"]
+            _set_session_state(**{STATE_PROTEIN_SELECTED: json_request_data["uniprot_pa"]})
             return response, 200
         else :
             return "Error in request '/get_protein_data': No protein structure available.", 303
     except Exception as e:
         return "Failed request '/get_protein_data': " + _format_exception(e), 500
+
+
+def _set_session_state(**kwargs):
+    """
+    Set session state.
+
+    Parameters:
+        **kwargs: Keyword arguments to set the session state.
+    """
+    if SESSION_STATE not in session:
+        session[SESSION_STATE] = {}
+    for key, value in kwargs.items():
+        session[SESSION_STATE][key] = value
 
 
 def _request_to_json(request_content: bytes) -> object:
