@@ -5,10 +5,6 @@
  !*/
 
 /**
- * The URL to the backend API.
- */
-var __url = null;
-/**
  * Instance of the OverviewTable class.
  */
 var __overviewTable = null;
@@ -2815,7 +2811,7 @@ class StructureView {
  * Inizializes all client side elements of the PTMVision application.
  */
 function init() {
-  __url = window.location.origin;
+  window.location.origin = window.location.origin;
   $("#menu")[0].style.display = "flex";
   $("#panel")[0].style.display = "block";
   __overviewTable = new OverviewTable("panel-table-tabulator");
@@ -2841,7 +2837,11 @@ function init() {
 function startExampleSession(fileIdentifier) {
   displayNotification("Initializing example session.");
   axios
-    .get(__url + "/example_session?fileIdentifier=" + fileIdentifier)
+    .get(
+      window.location.origin +
+        "/example_session?fileIdentifier=" +
+        fileIdentifier
+    )
     .then((_) => {
       overviewTableInitialize(); // Init. table.
       overviewChartInitialize(); // Init.overview chart.
@@ -2871,7 +2871,7 @@ async function startExistingSession() {
     request = response;
   });
   axios
-    .post(__url + "/restart_session", request, {
+    .post(window.location.origin + "/restart_session", request, {
       headers: {
         "Content-Type": "text",
       },
@@ -2917,7 +2917,7 @@ async function startSession() {
   ).val();
   axios
     .post(
-      __url + "/process_search_engine_output",
+      window.location.origin + "/process_search_engine_output",
       pako.deflate(JSON.stringify(request)),
       {
         headers: {
@@ -2960,7 +2960,7 @@ function readFile(file) {
  */
 function overviewTableInitialize(afterResponse) {
   axios
-    .get(__url + "/available_proteins")
+    .get(window.location.origin + "/available_proteins")
     .then((response) => {
       __overviewTable.setData(response.data);
       modifications_data_string = "";
@@ -3019,7 +3019,7 @@ function overviewTableSetFilters() {
  */
 function overviewChartInitialize(afterResponse) {
   axios
-    .get(__url + "/overview_data")
+    .get(window.location.origin + "/overview_data")
     .then((response) => {
       __overviewChart.fill(response.data);
       window.scrollTo({
@@ -3118,12 +3118,16 @@ function dashboardChartInitialize(cutoff_value, pdb_text_value) {
     cutoff: cutoff_value,
   };
   axios
-    .post(__url + "/protein_data", pako.deflate(JSON.stringify(request)), {
-      headers: {
-        "Content-Type": "application/octet-stream",
-        "Content-Encoding": "zlib",
-      },
-    })
+    .post(
+      window.location.origin + "/protein_data",
+      pako.deflate(JSON.stringify(request)),
+      {
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Content-Encoding": "zlib",
+        },
+      }
+    )
     .then((response) => {
       if (response.status == 303) {
         displayAlert("Failed to fetch protein structure.");
