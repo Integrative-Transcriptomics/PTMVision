@@ -11,10 +11,6 @@ def route_index():
 def route_usage_guide():
     return render_template("usage_guide.html")
 
-@app.route("/about")
-def route_about():
-    return render_template("about.html")
-
 @app.route("/legal")
 def route_legal_information():
     return render_template("legal_information.html")

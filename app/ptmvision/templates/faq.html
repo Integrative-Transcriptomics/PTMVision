@@ -87,12 +87,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       data-expand="true"
       data-role-appbar="true"
     >
-      <a href="#" class="brand no-hover"
-        ><img
-          style="height: 80%"
-          src="{{ url_for('static', filename='resources/logo.png') }}"
-          alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
-      /></a>
+      <img
+        class="brand no-hover"
+        style="height: 80%; cursor: pointer"
+        src="{{ url_for('static', filename='resources/logo.png') }}"
+        alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
+        onclick="redirectTo('', '_self')"
+      />
       <h5
         class="ml-2"
         style="font-family: monospace; color: var(--color-5); width: 4em"
@@ -109,15 +110,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         >
           <i class="fa-solid fa-house-blank"></i>
           Home
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the about page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('about', '_self')"
-        >
-          <i class="fa-duotone fa-solid fa-info"></i> About PTMVision
         </li>
         <li
           data-role="hint"

@@ -87,12 +87,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       data-expand="true"
       data-role-appbar="true"
     >
-      <a href="#" class="brand no-hover"
-        ><img
-          style="height: 80%"
-          src="{{ url_for('static', filename='resources/logo.png') }}"
-          alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
-      /></a>
+      <img
+        class="brand no-hover"
+        style="height: 80%; cursor: pointer"
+        src="{{ url_for('static', filename='resources/logo.png') }}"
+        alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
+        onclick="redirectTo('', '_self')"
+      />
       <h5
         class="ml-2"
         style="font-family: monospace; color: var(--color-5); width: 4em"
@@ -109,15 +110,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         >
           <i class="fa-solid fa-house-blank"></i>
           Home
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the about page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('about', '_self')"
-        >
-          <i class="fa-duotone fa-solid fa-info"></i> About PTMVision
         </li>
         <li
           data-role="hint"
@@ -181,6 +173,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </li>
       </ol>
       <hr />
+
       <h4 id="about-c1">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         I. Starting a PTMVision Session - Input Specification and Supported
@@ -228,7 +221,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <u onclick="to('about-c2')" style="cursor: pointer"
             >II. Download Session Data</u
           >
-          for more information.
+          for more information on how to download session data.
         </li>
         <li>
           <b>Start an example session</b> via the individual
@@ -251,14 +244,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           >
         </li>
       </ul>
+      <div class="remark">
+        <i class="fa-duotone fa-solid fa-circle-exclamation"></i> PTMVision
+        sessions are stored for 24 hours on our server and will be deleted
+        afterwards. Please download your session data if you want to keep it for
+        later use.
+      </div>
 
-      <h5>
+      <h5 style="margin-top: 1em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         Mandatory Inputs - Input Format and PTM Data
       </h5>
       <p>
         To start a new PTMVision session, <b>two mandatory inputs</b> are
-        necessary: To make a selection in the <em>Input Format</em> drop down
+        necessary: To make a selection in the <em>Input Format</em> drop-down
         menu and to upload a file in the respective format in the
         <em>PTM Data</em> file upload. The former conveys the data format to be
         expected, while the uploaded file contains the actual PTM data. The
@@ -268,7 +267,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </p>
       <p>
         In addition to search engine-specific formats, the mandatory
-        <em>Input Format</em> drop down menu allows users to select
+        <em>Input Format</em> drop-down menu allows users to select
       </p>
       <ul>
         <li>
@@ -314,9 +313,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           for more information.
         </li>
       </ul>
-      <p>
-        If you can't find a suitable format, feel free to open an issue in the
-        PTMVision GitHub repository
+      <div class="remark">
+        <i class="fa-duotone fa-solid fa-circle-exclamation"></i> If you can't
+        find a suitable format, feel free to open an issue in the PTMVision
+        GitHub repository
         <a
           href="https://github.com/Integrative-Transcriptomics/PTMVision"
           target="_blank"
@@ -331,84 +331,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <u onclick="to('about-c3')" style="cursor: pointer"
           >III. Available Example Sessions</u
         >.
-      </p>
+      </div>
 
-      <h5>
-        <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
-        Plain CSV Format
-      </h5>
-      <p style="font-weight: bolder">
-        A template file is available
-        <a
-          href="javascript:void(0)"
-          onclick="downloadResource('ptmvision.plain-format.template.csv')"
-          >here</a
-        >.
-      </p>
-      <p>
-        The plain CSV format was implemented to provide users the possibility to
-        transfer individually compiled PTM data to PTMVision if no other format
-        can be used. The following table provides an overview of the required
-        columns and their content. In essence, the format provides the
-        description of a modification at one position of a protein per line as
-        comma separated values - thus, one file can contain information on
-        several proteins. If
-        <em>mass_shift</em> or <em>classification</em> are not provided, they
-        are tried to be inferred from the UniMod ID and the protein sequence.
-      </p>
-      <table
-        class="table striped mt-2 mb-2 text-left"
-        style="font-size: smaller"
-      >
-        <thead>
-          <tr>
-            <th>Column Name</th>
-            <th>uniprot_id</th>
-            <th>position</th>
-            <th>modification_unimod_name</th>
-            <th>modification_unimod_id</th>
-            <th>mass_shift<sup>(optional)</sup></th>
-            <th>classification<sup>(optional)</sup></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><b>Content Description</b></td>
-            <td>The <em>UniProt Accession</em> of the protein.</td>
-            <td>
-              The position of the modification in the protein sequence (1-based
-              index).
-            </td>
-            <td>
-              The UniMod name of the modification observed on the specified
-              position.
-            </td>
-            <td>
-              The UniMod ID of the modification observed on the specified
-              position.
-            </td>
-            <td>
-              The mass shift of the modification in Dalton. This will be
-              inferred from the UniMod ID if not provided.
-            </td>
-            <td>
-              The UniMod classification of the modification. This will be
-              inferred from the UniMod ID and modified residue if not provided.
-            </td>
-          </tr>
-          <tr>
-            <td><b>Example Entry</b></td>
-            <td>P04075</td>
-            <td>5</td>
-            <td>carbamidomethyl</td>
-            <td>4</td>
-            <td>57.021464</td>
-            <td>Artefact</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h5>
+      <h5 style="margin-top: 1em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         Search Engine Specific Formats
       </h5>
@@ -505,7 +430,83 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         modifications based on the scores.
       </p>
 
-      <h5>
+      <h5 style="margin-top: 1em">
+        <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+        Plain CSV Format
+      </h5>
+      <div class="remark">
+        <i class="fa-duotone fa-solid fa-circle-exclamation"></i> A template
+        file is available
+        <a
+          href="javascript:void(0)"
+          onclick="downloadResource('ptmvision.plain-format.template.csv')"
+          >here</a
+        >.
+      </div>
+      <p>
+        The plain CSV format was implemented to provide users the possibility to
+        transfer individually compiled PTM data to PTMVision if no other format
+        can be used. The following table provides an overview of the required
+        columns and their content. In essence, the format provides the
+        description of a modification at one position of a protein per line as
+        comma separated values - thus, one file can contain information on
+        several proteins. If
+        <em>mass_shift</em> or <em>classification</em> are not provided, they
+        are tried to be inferred from the UniMod ID and the protein sequence.
+      </p>
+      <table
+        class="table striped mt-2 mb-2 text-left"
+        style="font-size: smaller"
+      >
+        <thead>
+          <tr>
+            <th>Column Name</th>
+            <th>uniprot_id</th>
+            <th>position</th>
+            <th>modification_unimod_name</th>
+            <th>modification_unimod_id</th>
+            <th>mass_shift<sup>(optional)</sup></th>
+            <th>classification<sup>(optional)</sup></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Content Description</b></td>
+            <td>The <em>UniProt Accession</em> of the protein.</td>
+            <td>
+              The position of the modification in the protein sequence (1-based
+              index).
+            </td>
+            <td>
+              The UniMod name of the modification observed on the specified
+              position.
+            </td>
+            <td>
+              The UniMod ID of the modification observed on the specified
+              position.
+            </td>
+            <td>
+              The mass shift of the modification in Dalton. This will be
+              inferred from the UniMod ID if not provided.
+            </td>
+            <td>
+              The UniMod classification of the modification. This will be
+              inferred from the UniMod ID and modified residue if not provided.
+            </td>
+          </tr>
+          <tr>
+            <td><b>Example Entry</b></td>
+            <td>P04075</td>
+            <td>5</td>
+            <td>carbamidomethyl</td>
+            <td>4</td>
+            <td>57.021464</td>
+            <td>Artefact</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h5 style="margin-top: 1em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         Optional Inputs - Exclude UniMod Classes and Mass Shift Tolerance
       </h5>
@@ -517,7 +518,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <p>
         The <b>Exclude UniMod Classes</b> input allows users to exclude specific
         UniMod classes from the analysis. The single classes can be selected
-        from a drop down menu and will be added as tags in the input field. If
+        from a drop-down menu and will be added as tags in the input field. If
         no classes are specified, all classes are included in the analysis. The
         18 classes provided by UniMod were extended by
       </p>
@@ -539,31 +540,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         relative to each other is within the specified tolerance value.
       </p>
 
-      <hr />
-      <h4 id="about-c2">
+      <h4 id="about-c2" style="margin-top: 2em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         II. Download Session Data
       </h4>
       <p>
-        Once you have processed your data with PTMVision you can download the
-        results in a binary <em>zlib</em> compressed format by clicking on
-        <i class="fa-duotone fa-file-arrow-down"></i> in the header menu on the
-        right. If no session data is yet available, the request will fail with a
+        Once a PTMVision session was established, one can download the results
+        in a binary <em>zlib</em> compressed format by clicking on '<i
+          class="fa-duotone fa-file-arrow-down"
+        ></i>
+        Download Session Data' in the header menu on the right. If no session
+        data is yet available, the request will fail with a
         <code>404</code> status code. The downloaded format is not human
         readable, but contains all relevant information of your session. The
         file can be re-uploaded to re-initialize a session and is also intended
         to easily share results with fellow users.
       </p>
 
-      <hr />
-      <h4 id="about-c3">
+      <h4 id="about-c3" style="margin-top: 2em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         III. Available Example Sessions
       </h4>
       <p>
         PTMVision provides a variety of example sessions - one for each
         supported input type with the exception of the
-        <em>Infer</em> option - that can be started with a single click on the
+        <em>Infer</em> option. A table with all available example sessions with
+        a description can be be accessed by clicking on the 'Browse Example
+        Sessions' button on panel <i class="fa-duotone fa-circle-1 fa-sm"></i>.
+        From there, example sessions can be started with a single click on the
         individual
         <span
           style="
@@ -576,10 +580,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           "
           >Start</span
         >
-        buttons in the example sessions table on panel
-        <i class="fa-duotone fa-circle-1 fa-sm"></i> of the PTMVision main page.
-        The <em>PTM Data</em> files used to set up the sessions can be
-        downloaded from the PTMVision Zenodo record
+        buttons in the table. The <em>PTM Data</em> files used to set up the
+        sessions can be downloaded from the PTMVision Zenodo record
         <a href="https://zenodo.org/records/13270569" , target="_blank"
           >zenodo.org/records/13270569</a
         >. An overview of the available example sessions and their respective
@@ -723,17 +725,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </tbody>
       </table>
 
-      <hr />
-      <h4 id="about-c4">
+      <h4 id="about-c4" style="margin-top: 2em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         IV. Global PTM Overview Visualizations
       </h4>
       <p>
-        After successful data processing, you will be presented with a variety
+        After successful data processing, users will be presented with a variety
         of overview visualizations (see the following subsections) and a tabular
-        overview of all proteins in your data (described in section
+        overview of all proteins in the data (described in section
         <u onclick="to('about-c5')" style="cursor: pointer"
-          >Overview Table and Protein Selection</u
+          >V. Overview Table and Protein Selection</u
         >). All overview visualizations have zoom and pan operations, for which
         the y-axes of those visualizations that display information per
         modification are linked, and offer a range of user interactions
@@ -787,12 +788,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         >
       </div>
 
-      <h5>
+      <h5 style="margin-top: 1em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         Shared PTM Sites between Modification Types
       </h5>
       <p>
-        For each pair of modifications, this visualisation shows if both were
+        For each pair of modifications, this visualization shows if both were
         found on common sites. If there are sites that were modified by both
         modifications within the data set, the number of sites is displayed with
         a color gradient, where brighter cells indicate lower numbers of shared
@@ -824,16 +825,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <ul>
         <li>
           Zooming in and out is possible by scrolling the mouse wheel and the
-          visualisation can be panned by dragging the mouse.
+          visualization can be panned by dragging the mouse.
         </li>
         <li>
           The visual range bar on the bottom left shows the range of the number
           of shared sites that are displayed. Hovering over it will highlight
-          the corresponding cells in the visualisation.
+          the corresponding cells in the visualization.
         </li>
       </ul>
 
-      <h5>
+      <h5 style="margin-top: 1em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         Mass Shift
       </h5>
@@ -844,7 +845,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         either parsed directly from the file or retrieved from the UniMod
         database (monoisotopic mass). Using the
         <i class="fa-duotone fa-arrow-up-arrow-down"></i> button at the top
-        right, the visualisation can be sorted by mass shift instead of Site
+        right, the visualization can be sorted by mass shift instead of Site
         Count.
       </p>
       <p>
@@ -880,15 +881,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           The mass shift scatter plot can be zoomed in and out by scrolling the
           mouse wheel.
         </li>
-        <li>The visualisation can be panned by dragging the mouse.</li>
+        <li>The visualization can be panned by dragging the mouse.</li>
       </ul>
 
-      <h5>
+      <h5 style="margin-top: 1em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         Site Count
       </h5>
       <p>
-        The <em>Site Count</em> histogram shows the number of sites that were
+        The <em>Site Count</em> bar chart shows the number of sites that were
         modified by each modification type. Hovering over the bars will display
         the number of sites, and additionally show you across how many proteins
         these sites are spreaded.
@@ -896,28 +897,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <div class="img-container thumbnail mt-4 mb-4" style="width: 30%">
         <img
           src="{{ url_for('static', filename='resources/usage_guide_images/Site_Count.png') }}"
-          alt="Example of the Site Count Histogram."
+          alt="Example of the Site Count bar chart."
         />
         <span class="title"
           ><secondary
-            >Example of the <em>Site Count Histogram</em>.</secondary
+            >Example of the <em>Site Count</em> bar chart.</secondary
           ></span
         >
       </div>
       <ul>
         <li>
-          The histogram can be zoomed in and out by scrolling the mouse wheel.
+          The bar chart can be zoomed in and out by scrolling the mouse wheel.
         </li>
-        <li>The visualisation can be panned by dragging the mouse.</li>
+        <li>The visualization can be panned by dragging the mouse.</li>
       </ul>
 
-      <h5>
+      <h5 style="margin-top: 1em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         PTM Class Counts
       </h5>
       <p>
-        The <em>PTM Class Counts</em> barchart shows how many times each of the
-        UniMod classes have been assigned to a modification + site pair. Note
+        The <em>PTM Class Counts</em> bar chart shows how many times each of the
+        UniMod classes have been assigned to a modification plus site pair. Note
         that UniMod classifications are depending on the residue that is
         modified. Hovering over the bars will display the exact number of
         modifications.
@@ -925,18 +926,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <div class="img-container thumbnail mt-4 mb-4" style="width: 30%">
         <img
           src="{{ url_for('static', filename='resources/usage_guide_images/PTM_Class_counts.png') }}"
-          alt="Example of the PTM Class Count Barchart."
+          alt="Example of the PTM Class Count bar chart."
         />
         <span class="title"
           ><secondary
-            >Example of the <em>PTM Class Count Barchart</em>, showing the
+            >Example of the <em>PTM Class Count bar chart</em>, showing the
             modification class tooltip.</secondary
           ></span
         >
       </div>
 
-      <hr />
-      <h4 id="about-c5">
+      <h4 id="about-c5" style="margin-top: 2em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         V. Overview Table and Protein Selection
       </h4>
@@ -963,7 +963,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         descending order by clicking on their headers. The two input elements at
         the top allow the filtering of the rows for the occurrence of PTMs
         and/or protein UniProt ID or name. For the former, items representing
-        the available PTMs in the data can be selected from a drop down menu and
+        the available PTMs in the data can be selected from a drop-down menu and
         only those proteins are displayed for which the corresponding PTM was
         detected.
       </p>
@@ -987,8 +987,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         button.
       </p>
 
-      <hr />
-      <h4 id="about-c6">
+      <h4 id="about-c6" style="margin-top: 2em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         VI. Investigating the PTMs of one Protein in Detail
       </h4>
@@ -1030,7 +1029,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <em>Modifications View</em> and <em>Structure View</em>.
       </p>
 
-      <h5>
+      <h5 style="margin-top: 1em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         Modifications View
       </h5>
@@ -1055,26 +1054,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <p>
         The <em>Modifications View</em> provides an overview over which
         modification types are found in the previously selected protein and
-        where they are located on the primary sequence. The core visualisation
-        is the presence/absence matrix, where each row represents a modification
+        where they are located on the primary sequence. The core visualization
+        is the presence/absence plot, where each row represents a modification
         type and each column a position in the protein sequence. A filled cell
         indicates that the modification type was found at the respective
         position. The cells are colored by the UniMod classification, the color
-        legend is displayed on the top left side and can be used to filter for
-        specific classes. Filtering can be reset by clicking the "Select all"
-        button, the current selection can be inverted via the "Invert selection"
-        button.
+        legend is displayed on the top and legend items can be clicked to toggle
+        the display of specific classes. Filtering can be reset by clicking the
+        "Select all" button, the current selection can be inverted via the
+        "Invert selection" button.
       </p>
       <p>
-        The histogram above the presence/absence plot shows the total number of
+        The bar chart above the presence/absence plot shows the total number of
         modifications per position, the distribution of UniMod classes is
         encoded by colors. Hovering over a bar will show the exact PTM class
-        counts. This histogram can be used to navigate directly to a site of
-        interest. The histogram to the far right shows the total number of
+        counts. This bar chart can be used to navigate directly to a site of
+        interest. The bar chart to the far right shows the total number of
         modification sites per modification type, the distribution of UniMod
         classes is encoded by colors as well. Hovering over a bar will show the
-        exact PTM class counts. This histogram can be used to navigate directly
-        to a modification of interest.
+        exact PTM class counts. This visualization can be used to navigate
+        directly to a modification of interest.
       </p>
       <p>
         Tracks below the presence/absence plot show information that could be
@@ -1087,14 +1086,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             target="_blank"
             >Experimental info:
           </a>
-          information on the disease(s), phenotype(s), and variants associated
+          Information on the disease(s), phenotype(s), and variants associated
           with the protein
         </li>
         <li>
           <a href="https://www.uniprot.org/help/binding" target="_blank"
             >Sites:
           </a>
-          information on the interaction between protein residues and chemical
+          Information on the interaction between protein residues and chemical
           entities (e.g. metals, cofactors)
         </li>
         <li>
@@ -1103,7 +1102,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             target="_blank"
             >Region:
           </a>
-          sequence similarities with other proteins and the domain(s) present in
+          Sequence similarities with other proteins and the domain(s) present in
           the protein
         </li>
         <li>
@@ -1112,7 +1111,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             target="_blank"
             >Secondary Structure:
           </a>
-          information on the secondary structure elements within the protein
+          Information on the secondary structure elements within the protein
         </li>
         <li>
           <a
@@ -1120,7 +1119,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             target="_blank"
             >Amino Acid Modifications:
           </a>
-          post-translational modifications (PTMs) and/or processing events
+          Post-translational modifications (PTMs) and/or processing events
         </li>
         <li>
           <a
@@ -1128,7 +1127,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             target="_blank"
             >Molecule Processing:
           </a>
-          information on the disease(s), phenotype(s), and variants associated
+          Information on the disease(s), phenotype(s), and variants associated
           with the protein
         </li>
       </ul>
@@ -1136,13 +1135,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         The heatmap to the right shows the distribution of modification types
         across the different amino acid residues. A colored cell indicates that
         the respective modification type was found on the respective amino acid.
-        The color legend is displayed on the bottom, where a darker color
-        indicates a higher number of sites with this modification-amino acid
-        combination. Note that the absolute, non-normalized numbers of sites are
-        given.
+        The visual map is displayed below the title of the chart, where a darker
+        color indicates a higher number of sites with this modification-amino
+        acid combination. Note that the absolute, non-normalized numbers of
+        sites are given.
       </p>
 
-      <h5>
+      <h5 style="margin-top: 1em">
         <i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
         Structure View
       </h5>
@@ -1164,40 +1163,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </div>
       <p>
         Clicking the <i class="fa-duotone fa-repeat"></i> switch button on the
-        panel menu will open the structure dashboard. The left side shows the 3D
-        structure in 2D via a contact map. The residues are plotted against each
-        other, and a cell is colored if the respective residues are in close
-        contact, meaning that their C-beta (Glycine: C-alpha) atoms are within x
-        Angström. The cells are colored according to the modification state of
-        the respective residue pair:
+        panel menu will open the structure dashboard. The left side shows a
+        protein contact map of the protein structure: The residues are plotted
+        against each other, and a cell is colored if the respective residues are
+        in close contact, meaning that their C-beta (Glycine: C-alpha) atoms are
+        within a distance of 4.69 Angström. The cells are colored according to
+        the modification state of the respective residue pair:
       </p>
       <ul>
         <li>
           Light grey cells represent pairs of amino acids that are in contact,
-          and both residues are unmodified
+          and both residues are unmodified.
         </li>
         <li>
-          Dark grey cells represent pairs of amino acids that are in contact,
-          and one or both residues are modified, but no modification type is
-          shared between the residues
+          Black cells represent pairs of amino acids that are in contact, and
+          one or both residues are modified.
         </li>
         <li>
-          Red cells represent pairs of amino acids that are in contact, both
-          residues are modified, and they share at least one modification type
-          (e.g. both were found to be phosphorylated)
+          Red cells represent pairs of amino acids that are in contact and at
+          least one residue is modified with a modification type that was
+          selected for highlighting.
         </li>
-        <li>
+        <!-- <li>
           If a modification was highlighted via the
           <i class="fa-duotone fa-highlighter"></i> button in the menu, residues
           that are in contact and where one or both carry the selected
           modification are colored in blue.
-        </li>
+        </li> -->
       </ul>
       <p>
-        Via the color legend on the top, the classes can be filtered. The
-        filtering can be reset via the "Select all" button, the current
-        selection can be inverted via the "Invert selection" button. The
-        histogram on top and the tracks at the bottom are the same as in the
+        The color legend is displayed at the top and items can be clicked to
+        toggle the display of specific classes. The filtering can be reset via
+        the "Select all" button, the current selection can be inverted via the
+        "Invert selection" button. The bar chart on top and the tracks at the
+        bottom are the same as in the
         <em>Modifications View</em>: The first shows the total number of
         modifications per position, the second shows the annotations mapped via
         UniProt.
@@ -1209,15 +1208,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         right side, and show their distance in Angström. Highlighting a
         modification via the
         <i class="fa-duotone fa-highlighter"></i> button will color the residues
-        in the structure model that carry the selected modification in blue. The
+        in the structure model that carry the selected modification in red. The
         structure model can be rotated by clicking and dragging the mouse,
         zoomed in and out by scrolling the mouse wheel, and panned by dragging
-        the mouse.
-      </p>
-      <p>
-        Clicking on a cell will show a track at the bottom of the structure
-        model that displays the modifications of the respective residues,
-        plotted according to their mass shift in Dalton.
+        the mouse. Furthermore, details of the modification types observed for
+        the two residues represented by the clicked cell are displayed on the
+        tracks below the structure model, plotted according to their mass shift
+        in Dalton.
       </p>
     </div>
   </body>

@@ -125,12 +125,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       data-expand="true"
       data-role-appbar="true"
     >
-      <a href="#" class="brand no-hover"
-        ><img
-          style="height: 80%"
-          src="{{ url_for('static', filename='resources/logo.png') }}"
-          alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
-      /></a>
+      <img
+        class="brand no-hover"
+        style="height: 80%"
+        src="{{ url_for('static', filename='resources/logo.png') }}"
+        alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
+      />
       <h5
         class="ml-2"
         style="font-family: monospace; color: var(--color-5); width: 4em"
@@ -151,15 +151,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             style="color: var(--background-color-2)"
           ></i>
           Home
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the about page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('about', '_self')"
-        >
-          <i class="fa-duotone fa-solid fa-info"></i> About PTMVision
         </li>
         <li
           data-role="hint"
@@ -207,174 +198,175 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <div id="vline"></div>
 
         <div id="panel-info" class="panel-container">
-          <h4>
+          <h4 style="margin-left: 1em">
             PTMVision: Interactive Visualization of Post Translational
             Modifications
           </h4>
-          <!-- <p class="text-just text-light">
-            Understanding the intricate landscape of post-translational
-            modifications (PTMs) is crucial for unraveling the complex
-            mechanisms underlying cellular processes and diseases. With
-            PTMVision, researchers can effortlessly analyze and explore PTM data
-            derived from various proteomics search engines, the mzIdentML data
-            standard, or from a plain CSV table format processed manually from
-            mass spectrometry (MS) data. For a detailed explanation of the use
-            of PTMVision and interpretation of the visualizations offered,
-            please refer to the About page of PTMVision.
-          </p> -->
-          <dl class="text-just text-light">
-            <dt>
-              <h5>
-                <i class="fa-solid fa-person-chalkboard"></i> Short Usage
-                Instruction
-              </h5>
-            </dt>
-            <small>
-              <dt class="infotext-header">
-                <i class="fa-duotone fa-circle-1"></i> Upload data
-              </dt>
-              <dd class="infotext-small">
-                <ul style="list-style-position: inside; padding-left: 0">
-                  <li>
-                    Upload your data or re-upload a previously downloaded
-                    PTMVision session file at panel
-                    <i class="fa-duotone fa-circle-1 fa-sm"></i> by entering all
-                    required inputs and clicking the
-                    <span
-                      style="
-                        background-color: #ff6663;
-                        padding: 1px;
-                        font-size: small;
-                        font-weight: normal;
-                        border-radius: 4px;
-                        color: #fbfbfb;
-                      "
-                      >Submit</span
-                    >
-                    button. The input labels can be hovered for more
-                    information.
-                  </li>
-                  <li>
-                    Once the processing is complete, your current session data
-                    can be downloaded by clicking on
-                    <i class="fa-duotone fa-file-arrow-down"></i> in the header
-                    menu on the right.
-                  </li>
-                  <li>
-                    <b>Example sessions</b> to explore the features of PTMVision
-                    can be started from the following table by clicking the
-                    individual
-                    <span
-                      style="
-                        background-color: #62a8ac;
-                        padding: 1px;
-                        font-size: small;
-                        font-weight: normal;
-                        border-radius: 4px;
-                        color: #fbfbfb;
-                      "
-                      >Start</span
-                    >
-                    buttons - the <em>PTM Data</em> files used for the sessions
-                    can be downloaded from the
-                    <a
-                      href="https://zenodo.org/records/13270569"
-                      target="_blank"
-                      data-role="hint"
-                      data-hint-text="Redirect to the PTMVision Zenodo record."
-                      >PTMVision Zenodo record</a
-                    >.
-                  </li>
-                </ul>
-              </dd>
-              <br />
-              <dt class="infotext-header">
-                <i class="fa-duotone fa-circle-2"></i> Overview
-                post-translational modifications
-              </dt>
-              <dd class="infotext-small">
-                <ul style="list-style-position: inside; padding-left: 0">
-                  <li>
-                    After the data transfer and successful processing, you will
-                    be provided with a dashboard with an overview of all PTMs in
-                    your data in panel
-                    <i class="fa-duotone fa-circle-2 fa-sm"></i>.
-                  </li>
-                  <li>
-                    This allows you to obtain a quantitative and qualitative
-                    assessment of the PTMs in your data, independent of
-                    individual proteins.
-                  </li>
-                </ul>
-              </dd>
-              <br />
-              <dt class="infotext-header">
-                <i class="fa-duotone fa-circle-3"></i> Overview proteins and
-                select proteins of interest
-              </dt>
-              <dd class="infotext-small">
-                <ul style="list-style-position: inside; padding-left: 0">
-                  <li>
-                    A tabular overview of all proteins available from your data
-                    is given in panel
-                    <i class="fa-duotone fa-circle-3 fa-sm"></i>, listing one
-                    protein per row with basic information about the protein and
-                    the associated PTMs.
-                  </li>
-                  <li>
-                    The rows of the table can be filtered according to the name
-                    of the protein, the UniProt identifier and the presence of
-                    modifications to proteins based on their names. All filters
-                    are applied in an AND logic.
-                  </li>
-                  <li>
-                    Select a single row from the table by clicking on it (it
-                    will be highlighted in red) and click
-                    <span
-                      style="
-                        background-color: #ff6663;
-                        padding: 1px;
-                        font-size: small;
-                        font-weight: normal;
-                        border-radius: 4px;
-                        color: #fbfbfb;
-                      "
-                      >Display</span
-                    >
-                    to obtain a detailed view of the PTMs in the selected
-                    protein in panel
-                    <i class="fa-duotone fa-circle-4 fa-sm"></i>.
-                  </li>
-                </ul>
-              </dd>
-              <br />
-              <dt class="infotext-header">
-                <i class="fa-duotone fa-circle-4"></i> Explore the details of
-                selected proteins
-              </dt>
-              <dd class="infotext-small">
-                <ul style="list-style-position: inside; padding-left: 0">
-                  <li>
-                    Detail information about the occurrence of PTMs for the
-                    selected protein is displayed in panel
-                    <i class="fa-duotone fa-circle-4 fa-sm"></i>. You can switch
-                    between two display modes via the top-right button on the
-                    panel:
-                  </li>
-                  <li>
-                    The <b>Modification View</b> focuses on the occurrence of
-                    PTMs along the selected protein primary sequence as well as
-                    per amino acid.
-                  </li>
-                  <li>
-                    The <b>Structure View</b> focuses on the occurrence of PTMs
-                    in the context of residues that are in close spatial
-                    contact.
-                  </li>
-                </ul>
-              </dd>
-            </small>
-          </dl>
+          <div id="panel-info-banner">
+            <div
+              id="panel-info-banner-l"
+              class="image-container float-left"
+              style="width: 30%"
+            >
+              <img
+                src="{{ url_for('static', filename='resources/index_banner/left.png') }}"
+                alt="Example of the Site Count Histogram."
+                style="height: 100%"
+              />
+              <div class="image-overlay">
+                <p>
+                  PTMVision supports the upload of PTM data from various
+                  proteomics search engines, the mzIdentML standard or manually
+                  compiled CSV files.
+                </p>
+              </div>
+            </div>
+            <div
+              id="panel-info-banner-m"
+              class="image-container float-left"
+              style="width: 40%"
+            >
+              <img
+                src="{{ url_for('static', filename='resources/index_banner/mid.png') }}"
+                alt="Example of the Site Count Histogram."
+                style="height: 100%"
+              />
+              <div class="image-overlay">
+                <p>
+                  Receive a quantitative and qualitative assessment of the PTMs
+                  in your data, independent of individual proteins.
+                </p>
+                <p>
+                  Get an overview of all available proteins from your data,
+                  complemented with associated PTMs.
+                </p>
+              </div>
+            </div>
+            <div
+              id="panel-info-banner-r"
+              class="image-container float-left"
+              style="width: 30%"
+            >
+              <img
+                src="{{ url_for('static', filename='resources/index_banner/right.png') }}"
+                alt="Example of the Site Count Histogram."
+                style="height: 100%"
+              />
+              <div class="image-overlay">
+                <p>
+                  For selected proteins, investigate detailed information on the
+                  occurrence of PTMs along the primary protein sequence and in a
+                  spatial structural context.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div data-role="buttongroup" style="margin: 1em">
+            <button
+              class="text-button"
+              onclick="$('#panel-info-about').toggle()"
+            >
+              About PTMVision
+            </button>
+            <button
+              class="text-button ml-4"
+              onclick="redirectTo('usage', '_self')"
+            >
+              Usage Guide
+            </button>
+          </div>
+          <div id="panel-info-about" class="remark">
+            <h5 class="secondary">About PTMVision</h5>
+            <p>
+              Understanding the intricate landscape of PTMs is crucial for
+              unraveling the complex mechanisms underlying cellular processes
+              and diseases. PTMVision (Interactive Visualization of Post
+              Translational Modifications) is an interactive web platform for
+              effortless exploratory visual analysis of
+              <a
+                href="https://www.thermofisher.com/de/de/home/life-science/protein-biology/protein-biology-learning-center/protein-biology-resource-library/pierce-protein-methods/overview-post-translational-modification.html"
+                target="_blank"
+                ><em>post translational modifications</em></a
+              >
+              (PTMs) obtained from
+              <a
+                href="https://www.broadinstitute.org/technology-areas/what-mass-spectrometry"
+                target="_blank"
+                ><em>mass spectrometry</em></a
+              >
+              (MS) data using search engines such as ionbot, MaxQuant,
+              MSFragger, Spectronaut, or Sage. The application is designed in
+              close collaboration with proteomics experts and was initiated as
+              an entry to the Bio+MedVis Challenge at the IEEE VIS conference in
+              2022. PTMVision is accessible to laboratory researchers without
+              requiring coding skills.
+            </p>
+            <h5 class="secondary">
+              <i class="fa-solid fa-star-shooting"></i> Key Features
+            </h5>
+            <ul>
+              <li>
+                <b>Variety of overview and summary visualizations</b> that help
+                identify patterns and trends in PTM data.
+              </li>
+              <li>
+                Visualizations are dynamically linked and support features to
+                highlight PTMs of interest.
+              </li>
+              <li>
+                <b
+                  >Integration of protein structure and annotation data from
+                  UniProt</b
+                >
+                provide multidimensional view. This improves the
+                interpretability of the data significantly.
+              </li>
+              <li>
+                <b
+                  >Unique emphasis on interactions of residues in close contact
+                  within a single protein</b
+                >
+                and associated modifications. This allows to study the dynamic
+                interplay between PTMs and their putative effects on protein
+                folding and function.
+              </li>
+              <li>
+                <b>Responsive and intuitive interface</b> that allows users to
+                effortlessly navigate the website and through their data.
+              </li>
+              <li>
+                <b>Supports high degree of data provenance</b> by allowing
+                various input formats and an easy export of session data to
+                continue analysis without repeated processing input data.
+              </li>
+            </ul>
+            <h5 class="secondary">
+              <i class="fa-solid fa-triangle-exclamation"></i> Limitations
+            </h5>
+            <ul>
+              <li>
+                We recommend using PTMVision in Chrome or Firefox for optimal
+                performance. Safari has issues when visualising larger datasets.
+              </li>
+              <li>
+                Note that PTMVision serves solely to visualize the content
+                provided in the input and does not conduct any further quality
+                control. The localization of modifications still remains a
+                challenging task and may yield imprecise results.
+              </li>
+              <li>
+                PTMVision will be continuously updated and improved, including
+                the addition of filters for localisation scores as soon as they
+                will be reported by search engines.
+              </li>
+              <li>
+                PTMVision currently limits the maximal request size with respect
+                to the
+                <em>zlib</em> compressed content of the <em>PTM Data</em> file
+                to a maximum of 50 MB.
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div id="panel-inputs" class="panel-container">
@@ -397,6 +389,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               style="font-size: small"
             ></i>
             symbols for help.
+          </p>
+          <p
+            class="text-light text-just"
+            style="font-family: monospace; font-size: small"
+          >
+            PTMVision sessions are stored for 24 hours on our server and will be
+            deleted afterwards.
           </p>
           <p class="mb-2" style="font-size: larger; font-weight: 500">
             Upload post-translational modification data from open or closed
@@ -624,13 +623,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             Submit
           </button>
 
-          <p class="mb-2" style="font-size: larger; font-weight: 500">
-            <u>or</u>
-            <code
-              id="inputs-help-6"
-              style="color: var(--color-2); cursor: pointer"
-              >Browse Example Sessions</code
-            >
+          <p class="mb-2">
+            <u style="font-size: larger; font-weight: 500">or</u>
+            <button id="inputs-help-6" class="text-button ml-2">
+              Browse Example Sessions
+            </button>
           </p>
           <div
             class="remark text-light text-just"
@@ -890,10 +887,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-collapsed="true"
             data-effect="fade"
           >
-            Displays <em>Shared PTM Sites between Modification Types</em>,
-            <em>Mass Shift</em> and <em>Site Count</em> per PTM, and
-            <em>PTM Class Counts</em> based on PTMs on all proteins in the data.
-            For more information, see the <em>Usage Guide</em>.
+            Dashboard displays an overview of all PTMs in your data:
+            <ul>
+              <li>
+                <b>Shared PTM Sites between Modification Types</b>: Shows for
+                each modification pair, if both were found on common sites. The
+                number of common sites is displayed with a color gradient, where
+                brighter cells indicate lower numbers of shared sites.
+              </li>
+              <li>
+                <b>Mass Shift</b>: Shows the mass shift of each modification
+                type in a scatter plot. Hovering over a point will display the
+                mass shift in Dalton.
+              </li>
+              <li>
+                <b>Site Count</b>: Shows the number of sites that are modified
+                with the respective modification type in a bar plot. Hovering
+                over the bars will display the number of sites.
+              </li>
+              <li>
+                <b>PTM Class Counts</b>: Shows how many times each of the UniMod
+                classes have been assigned to a modification and site pair in a
+                bar plot.
+              </li>
+            </ul>
+            <p>The following controls are available for the dashboard:</p>
             <p>
               <i class="fa-duotone fa-camera"></i> Screenshot of the current
               view.
@@ -912,6 +930,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               <em>Shared PTM sites</em>, <em>Mass Shift</em> and
               <em>Site Count</em> visualizations either by mass shift or count.
             </p>
+            <p>For more information, see the <em>Usage Guide</em>.</p>
           </div>
           <div id="panel-overview-chart"></div>
           <div id="panel-overview-controls">
@@ -1060,6 +1079,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <button
             id="dashboard-display-button"
             class="proceed-button"
+            data-role="hint"
+            data-hint-text="Display details of the selected protein."
+            data-hint-position="right"
             onclick="dashboardChartInitialize( )"
             disabled
           >
@@ -1095,14 +1117,61 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             data-collapsed="true"
             data-effect="fade"
           >
-            Display details of PTMs for one selected protein:
-            <em>Modifications View</em> (default) provides an overview over
-            which PTMs are found for the selected protein and where they are
-            located on the primary sequence. <em>Structure View</em> displays a
-            contact map (left) with residues plotted against each other and cell
-            coloring based on modifications. The right panel shows a 3D
-            structure of the protein with PTMs highlighted based on user
-            interactions with the contact map.
+            <p>
+              PTMVision offers two distinct modes to display the PTM landscape
+              of a single protein; The Modifications View (default) and the
+              Structure View.
+            </p>
+            <p>The <b>Modifications View</b> dashboard displays:</p>
+            <ul>
+              <li>
+                <b>Per Position PTMs and Annotations</b>: (Top) The bar plot
+                shows the total number of modifications per position. (Mid) The
+                presence/absence matrix, where each row represents a
+                modification type and each column a position in the protein
+                sequence, indicates which modification type was found at the
+                respective position. (Bottom) Displays UniProt annotation
+                tracks.
+              </li>
+              <li>
+                <b>Per Aminoacid PTM Counts</b>: Displays the distribution of
+                modification types across the different amino acid residues in a
+                heatmap.
+              </li>
+              <li>
+                <b>Per PTM Class Counts</b>: Shows the total number of
+                modification sites per modification type in a bar plot.
+              </li>
+              <li>
+                <b>Legend</b>: Coloring of all plots, excpet the Per Aminoacid
+                PTM Counts, is based on the UniMod class of the modification.
+                Items can be clicked to toggle visibility of the respective
+                PTMs.
+              </li>
+            </ul>
+            <p>The <b>Structure View</b> dashboard displays:</p>
+            <ul>
+              <li>
+                <b>Per Position PTM Counts, Residue Contacts and Annotations</b
+                >: (Top) The bar plot shows the total number of modifications
+                per position. (Mid) The residues are plotted against each other
+                in a contact map; The cell color indicates whether the residues
+                in contact are modified. Clicking on a cell highlights the
+                respective residue in the protein structure. (Bottom) Displays
+                UniProt annotation tracks.
+              </li>
+              <li>
+                <b>Protein Structure and Residue Contact PTM Details</b>:
+                Displays the 3D structure model of the protein as well as
+                details on the obersved PTMs and distances of selected residues.
+              </li>
+              <li>
+                <b>Legend</b>: Coloring indicates if residues in contact are
+                modified or not as well as highlighted PTMs. Items can be
+                clicked to toggle visibility of the respective data points.
+              </li>
+            </ul>
+            <p>The following controls are available for the dashboard:</p>
             <p>
               <i class="fa-duotone fa-camera"></i> Screenshot of the current
               view.
@@ -1116,8 +1185,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               <i class="fa-duotone fa-highlighter"></i> Highlight a specific PTM
               of interest.
             </p>
-            <i class="fa-duotone fa-repeat"></i> Switch between
-            <em>Modifications View</em> and <em>Structure View</em>.
+            <p>
+              <i class="fa-duotone fa-repeat"></i> Switch between
+              <em>Modifications View</em> and <em>Structure View</em>.
+            </p>
+            <p>For more information, see the <em>Usage Guide</em>.</p>
           </div>
           <div id="panel-dashboard-chart"></div>
           <div id="panel-dashboard-structure">
