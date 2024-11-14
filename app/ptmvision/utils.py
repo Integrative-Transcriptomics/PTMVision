@@ -28,7 +28,6 @@ def get_distance_matrix(structure):
     for residue in enumerate(structure.get_residues()):
         residue_count += 1
     coords = np.zeros(shape=(residue_count, 3))
-
     for i, residue in enumerate(structure.get_residues()):
         if residue.get_resname() == "GLY":
             _ = "CA"
@@ -206,6 +205,7 @@ def map_mass_to_unimod_names(mass):
         return " or ".join(mod_names)
     return str(mod_names[0])
 
+
 def map_unimod_name_to_mass(unimod_name):
     query_results = UNIMOD_MAPPER.session.query(unimod.Modification).filter(unimod.Modification.ex_code_name == unimod_name).all()
     mod_masses = [result.monoisotopic_mass for result in query_results]
@@ -302,6 +302,7 @@ def classification_from_id(unimod_id, amino_acid, unimod_db):
             return classification
     return "Non-standard residue" # If the mass shift is not annotated for the amino acid.
 
+
 def get_classification(unimod_id, residue, unimod_db):
     if unimod_id is None:
         return "Unannotated mass shift"
@@ -395,14 +396,17 @@ def get_mass_shift(mod):
         mass_shift = map_unimod_name_to_mass(mod)
     return mass_shift
 
+
 def get_candidates_from_mass_shift(mass_shift):
     unimod_names = map_mass_to_unimod_names(mass_shift)
     if " or " in unimod_names:
         return unimod_names
     return
 
+
 def get_AA(peptide, position):
     return peptide[position]
+
 
 def PSMList_to_mod_df(psm_list):
     """
