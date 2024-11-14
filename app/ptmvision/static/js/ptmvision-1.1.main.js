@@ -881,6 +881,13 @@ class OverviewChart {
   }
 
   /**
+   * Clears the chart option.
+   */
+  clear() {
+    this.chart.instance.clear();
+  }
+
+  /**
    * Internal method for updating the chart option.
    *
    * @param {Boolean} replace Passed to the setOption method of the Chart instance.
@@ -2268,6 +2275,14 @@ class DashboardChart {
   }
 
   /**
+   * Clears the chart option.
+   */
+  clear() {
+    this.chart.instance.clear();
+    this.hideStructure();
+  }
+
+  /**
    * Retrieves the set color for a given key. If the key is not set, a new color is assigned.
    *
    * @param {String} key Identifier for any colorable component.
@@ -2862,6 +2877,7 @@ function startExampleSession(fileIdentifier) {
         fileIdentifier
     )
     .then((_) => {
+      clearCharts();
       overviewTableInitialize(); // Init. table.
       overviewChartInitialize(); // Init.overview chart.
     })
@@ -2896,6 +2912,7 @@ async function startExistingSession() {
       },
     })
     .then((_) => {
+      clearCharts();
       overviewTableInitialize(); // Init. table.
       overviewChartInitialize(); // Init.overview chart.
     })
@@ -2946,6 +2963,7 @@ async function startSession() {
       }
     )
     .then((_) => {
+      clearCharts();
       overviewTableInitialize(overviewChartInitialize); // Init. table and chart.
     })
     .catch((error) => {
@@ -3277,4 +3295,12 @@ function dashboardChartSwitch() {
     $("#panel-dashboard-title").html("Explore detail - Modifications view");
   }
   _dashboardChart.switchContent();
+}
+
+/**
+ * Clears the overview and dashboard charts.
+ */
+function clearCharts() {
+  _overviewChart.clear();
+  _dashboardChart.clear();
 }
