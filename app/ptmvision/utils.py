@@ -60,7 +60,7 @@ def get_structure(uniprot_id):
         pdb_text = data.decode("utf-8")
         structure = PDBPARSER.get_structure(uniprot_id, StringIO(pdb_text))
     except:
-        raise Exception("Alphafold structure not available.")
+        raise Exception("Alphafold structure not available for UniProt id {}.".format(str(uniprot_id)))
     return structure, pdb_text
 
 
@@ -70,7 +70,7 @@ def parse_structure(structure_string):
     try:
         structure = PDBPARSER.get_structure("custom_pdb", StringIO(structure_string))
     except Exception as e:
-        raise Exception("Failed to parse provided .pdb structure: " + str(e))
+        raise Exception("Failed to parse provided .pdb structure: {}".format(str(e)))
     finally:
         return structure, structure_string
 
@@ -119,7 +119,16 @@ def get_sequence_from_structure(structure):
     return sequence
 
 
-def get_peptide_position_in_protein(peptide, protein):
+def get_peptide_index_in_protein(peptide, protein):
+    """ Extracts the starting index (0-based position) of a peptide in a protein sequence.
+
+    Args:
+        peptide (str): The peptide sequence.
+        protein (str): The protein sequence.
+
+    Returns:
+        int: The 0-based starting index of the peptide in the protein sequence or -1 if the peptide is not found or the protein sequence is empty.
+    """
     if protein == "":
         return -1
     peptide_sequence = (
@@ -314,20 +323,30 @@ def get_classification(unimod_id, residue, unimod_db):
 
 
 def extract_mods_from_proforma(peptidoform):
-    """
-    ENYC[+57.0215]NNVMM[+15.994915]K/2	-> [(3, +57.0215), (8, +15.993915)] (zero indexed!), try to map to unimod names
-    AADM[Oxidation]TGADIEAMTR/2 -> [(3, Oxidation)]
+    """ Extracts the modifications from a peptidoform in proforma format.
+
+    For example:
+    - 'ENYC[+57.0215]NNVMM[+15.994915]K/2' is evaluated to [(4, +57.0215), (9, +15.993915)]
+    - 'AADM[Oxidation]TGADIEAMTR/2' is evaluated to [(4, Oxidation)]
+
+    Args:
+        peptidoform (str): The peptidoform in proforma format.
+
+    Returns:
+        list: List of tuples with the modification position on the peptide (1-based index!) and the modification name.
     """
     mods = []
     while peptidoform.count("[") > 0:
         # get first match
         match = re.search(r"\[.+?\]", peptidoform)
         if match:
-            # get modified residue index, append index and mass shift to list
-            modified_residue_index = int(match.start()) - 1
+            # get modified residue position; append position and mass shift to list
+            modified_residue_position = int(match.start())
+            if modified_residue_position == 0: # correct for N-term modifications
+                modified_residue_position = 1
             mod = match.group(0).replace("[", "").replace("]", "")
             peptidoform = peptidoform[: match.start()] + peptidoform[match.end() :]
-            mods.append((modified_residue_index, mod))
+            mods.append((modified_residue_position, mod))
         else:
             return None
     return mods
@@ -405,7 +424,18 @@ def get_candidates_from_mass_shift(mass_shift):
 
 
 def get_AA(peptide, position):
-    return peptide[position]
+    """ Return the aminoacid at position (1-based) in peptide.
+
+    Args:
+        peptide (str): The peptide sequence.
+        position (int): The 1-based position in the peptide.
+
+    Returns:
+        str: The amino acid at the position in the peptide.
+    """
+    if position > len(peptide) or position < 1:
+        raise Exception("Position {} out of range for peptide {}.".format(str(position), str(peptide)))
+    return peptide[position - 1]
 
 
 def PSMList_to_mod_df(psm_list):
@@ -472,11 +502,13 @@ def PSMList_to_mod_df(psm_list):
     )  # Unimod Name if available, otherwise "unannotated mass shift: (mass shift)"
 
     df["peptide_position"] = df.apply(
-        lambda x: get_peptide_position_in_protein(x["peptide"], x["protein_sequence"]),
+        lambda x: get_peptide_index_in_protein(x["peptide"], x["protein_sequence"]),
         axis=1,
     )
+    #remove peptides that are not found in the protein sequence or have no assigned protein sequence.
+    df = df[df["peptide_position"] != -1]
 
-    # get unique unimod - amino acid combinations
+    #get unique unimod - amino acid combinations
     df["AA"] = df.apply(lambda x: get_AA(x["peptide"], x["mod_position_in_peptide"]), axis = 1)
 
     unique_mod_aas = df[["modification_unimod_id", "AA"]].drop_duplicates()
