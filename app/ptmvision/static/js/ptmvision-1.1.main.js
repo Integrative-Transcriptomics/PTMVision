@@ -7,19 +7,19 @@
 /**
  * Instance of the OverviewTable class.
  */
-var __overviewTable = null;
+var _overviewTable = null;
 /**
  * Instance of the OverviewChart class.
  */
-var __overviewChart = null;
+var _overviewChart = null;
 /**
  * Instance of the DashboardChart class.
  */
-var __dashboardChart = null;
+var _dashboardChart = null;
 /**
  * The currently displayed dashboard content. One of "modifications" or "structure".
  */
-var __dashboardContent = null;
+var _dashboardContent = null;
 
 /**
  * ECharts option for global axis style.
@@ -48,10 +48,10 @@ const STYLE_AXIS_LABEL = {
  * ECharts option for global tooltip style.
  */
 const STYLE_TOOLTIP = {
-  backgroundColor: "#fbfbfbe6",
-  borderColor: "#fbfbfb",
+  backgroundColor: "#f0f5f5",
+  borderColor: "#d4d4d4",
   textStyle: {
-    color: "#111111",
+    color: "#333333",
     fontSize: 11,
   },
 };
@@ -1709,13 +1709,12 @@ class DashboardChart {
       var noData;
       if (positionIndex != undefined) {
         noData = true;
-        contentBody += `<hr /><small><b>Position PTM class counts</b></small></br>`;
+        contentBody += `<hr /><b>Position PTM class counts</b></br>`;
         for (const [cls, count] of Object.entries(
           this.#data.positions[positionIndex + 1].counts
         )) {
           noData = false;
-          contentBody +=
-            `<small><code>` + count + `</code>&nbsp;` + cls + `</small></br>`;
+          contentBody += `<code>` + count + `</code>&nbsp;` + cls + `</br>`;
         }
         if (noData) contentBody += `<small>No data.</small>`;
         noData = true;
@@ -1726,7 +1725,7 @@ class DashboardChart {
           for (const i of info) {
             noData = false;
             contentBody +=
-              `<small><code>` +
+              `<code>` +
               cls +
               `</code> at position ` +
               i[1] +
@@ -1735,24 +1734,23 @@ class DashboardChart {
               `&nbsp;` +
               i[0] +
               (i[3] != "" ? `&nbsp;` + i[3] : ``) +
-              `</small></br>`;
+              `</br>`;
           }
         }
-        if (noData) contentBody += `<small>No data.</small>`;
+        if (noData) contentBody += `No data.`;
       }
       if (modificationIndex != undefined) {
         noData = true;
-        contentBody += `<hr /><small><b>PTM class counts</b></small></br>`;
+        contentBody += `<hr /><b>PTM class counts</b></br>`;
         for (const [cls, count] of Object.entries(
           this.#data.modificationCounts[
             this.#data.modifications[modificationIndex]
           ]
         )) {
           noData = false;
-          contentBody +=
-            `<small><code>` + count + `</code>&nbsp;` + cls + `</small></br>`;
+          contentBody += `<code>` + count + `</code>&nbsp;` + cls + `</br>`;
         }
-        if (noData) contentBody += `<small>No data.</small>`;
+        if (noData) contentBody += `No data.`;
       }
       return contentHead + contentBody;
     };
@@ -1833,10 +1831,12 @@ class DashboardChart {
       s2.forEach((e) => _.add(e));
       return _;
     };
-    for (let [index_i, contactEntries] of Object.entries(this.#data.contacts)) {
-      let x = parseInt(index_i) + 1; // +1 to account for protein position instead of 0-based index.
-      for (let [index_j, _] of Object.entries(contactEntries)) {
-        let y = parseInt(index_j) + 1; // +1 to account for protein position instead of 0-based index.
+    for (let [residueI, contactEntries] of Object.entries(
+      this.#data.contacts
+    )) {
+      let x = parseInt(residueI);
+      for (let [residueJ, _] of Object.entries(contactEntries)) {
+        let y = parseInt(residueJ);
         let iModifications = new Set(
           this.#data.positions[x].modifications.map((_) => _.display_name)
         );
@@ -2206,17 +2206,16 @@ class DashboardChart {
           "&nbsp;" +
           this.#data.sequence[index] +
           "</code> ";
-        content += `</br><small><b>PTM class counts</b></small></br>`;
+        content += `</br><b>PTM class counts</b></br>`;
         noData = true;
         for (const [cls, count] of Object.entries(
           this.#data.positions[index + 1].counts
         )) {
           noData = false;
-          content +=
-            `<small><code>` + count + `</code>&nbsp;` + cls + `</small></br>`;
+          content += `<code>` + count + `</code>&nbsp;` + cls + `</br>`;
         }
-        if (noData) content += `<small>No data.</small></br>`;
-        content += `<hr /><small><b>Position annotations</b></small></br>`;
+        if (noData) content += `No data.</br>`;
+        content += `<hr /><b>Position annotations</b></br>`;
         noData = true;
         for (const [cls, info] of Object.entries(
           this.#data.positions[index + 1].annotations
@@ -2224,7 +2223,7 @@ class DashboardChart {
           for (const i of info) {
             noData = false;
             content +=
-              `<small><code>` +
+              `<code>` +
               cls +
               `</code> at position ` +
               i[1] +
@@ -2233,19 +2232,17 @@ class DashboardChart {
               `&nbsp;` +
               i[0] +
               (i[3] != "" ? `&nbsp;` + i[3] : ``) +
-              `</small></br>`;
+              `</br>`;
           }
         }
-        if (noData) content += `<small>No data.</small></br>`;
+        if (noData) content += `No data.</br>`;
       };
       if (positionIndexX != undefined) fillContent(positionIndexX);
       content += "</br>";
       if (positionIndexY != undefined) fillContent(positionIndexY);
       if (positionIndexX != undefined && positionIndexY != undefined)
         content +=
-          `<hr/><small>` +
-          component.seriesName +
-          `</small> <code>Click to highlight.</code>`;
+          `<hr/>` + component.seriesName + ` <code>Click to highlight.</code>`;
       return content;
     };
     this.chart.instance.on("click", (params) => {
@@ -2317,7 +2314,10 @@ class DashboardChart {
     }
     // Check for positions wrt. the data that are not reflected in the sequence length.
     for (const [position, _] of Object.entries(this.#data.positions)) {
-      if (parseInt(position) > this.#data.sequence.length) {
+      if (
+        parseInt(position) < 1 ||
+        parseInt(position) > this.#data.sequence.length
+      ) {
         // Remove from contact information.
         if (this.#data.contacts.hasOwnProperty(position))
           delete this.#data.contacts[position];
@@ -2326,7 +2326,7 @@ class DashboardChart {
         console.warn(
           "Delete modifications data at position " +
             position +
-            "; Position exceeds the sequence length."
+            "; Position exceeds the sequence length or is smaller than one."
         );
       }
     }
@@ -2673,6 +2673,7 @@ class StructureView {
     // Add style for contact highlight, if set.
     if (this.#highlightContacts != undefined) {
       let targetIndex = this.#highlightContacts;
+      alert(targetIndex);
       let targetCaAtom = this.glviewer.getAtomsFromSel({
         resi: [targetIndex],
         atom: "CA",
@@ -2813,16 +2814,16 @@ class StructureView {
 function init() {
   $("#menu")[0].style.display = "flex";
   $("#panel")[0].style.display = "block";
-  __overviewTable = new OverviewTable("panel-table-tabulator");
-  __overviewTable.registerSelectionAction((data) => {
+  _overviewTable = new OverviewTable("panel-table-tabulator");
+  _overviewTable.registerSelectionAction((data) => {
     if (data.length > 0) {
       $("#dashboard-display-button")[0].disabled = false;
     } else {
       $("#dashboard-display-button")[0].disabled = true;
     }
   });
-  __overviewChart = new OverviewChart("panel-overview-chart");
-  __dashboardChart = new DashboardChart(
+  _overviewChart = new OverviewChart("panel-overview-chart");
+  _dashboardChart = new DashboardChart(
     "panel-dashboard-chart",
     "panel-dashboard-structure"
   );
@@ -2837,7 +2838,12 @@ function checkSessionState() {
     if (response.status == 200 && response.data.has_data) {
       overviewTableInitialize(overviewChartInitialize);
       if (response.data.hasOwnProperty("protein_selected"))
-        dashboardChartInitialize(response.data.protein_selected);
+        dashboardChartInitialize(
+          response.data.protein_selected,
+          undefined,
+          undefined,
+          false
+        );
     }
   });
 }
@@ -2975,9 +2981,9 @@ function overviewTableInitialize(afterResponse) {
   axios
     .get(window.location.origin + "/available_proteins")
     .then((response) => {
-      __overviewTable.setData(response.data);
+      _overviewTable.setData(response.data);
       modifications_data_string = "";
-      __overviewTable.availableModifications.forEach((m) => {
+      _overviewTable.availableModifications.forEach((m) => {
         modifications_data_string +=
           `<option value="` + m + `">` + m + `</option>`;
       });
@@ -2985,7 +2991,7 @@ function overviewTableInitialize(afterResponse) {
         modifications_data_string
       );
       identifiers_data_string = "";
-      __overviewTable.availableIdentifiers.forEach((i) => {
+      _overviewTable.availableIdentifiers.forEach((i) => {
         let entry = i.split("$");
         identifiers_data_string +=
           `<option value="id$` +
@@ -3019,7 +3025,7 @@ function overviewTableInitialize(afterResponse) {
  * Sets the filters of the overview table.
  */
 function overviewTableSetFilters() {
-  __overviewTable.setFilters(
+  _overviewTable.setFilters(
     Metro.getPlugin("#panel-table-filter-id", "select").val(),
     Metro.getPlugin("#panel-table-filter-modification", "select").val()
   );
@@ -3034,11 +3040,8 @@ function overviewChartInitialize(afterResponse) {
   axios
     .get(window.location.origin + "/overview_data")
     .then((response) => {
-      __overviewChart.fill(response.data);
-      window.scrollTo({
-        top: $("#panel-overview").get(0).offsetTop + 40,
-        behavior: "smooth",
-      });
+      _overviewChart.fill(response.data);
+      scroll_to("panel-overview");
       if (afterResponse != undefined) afterResponse();
     })
     .catch((error) => {
@@ -3057,7 +3060,7 @@ function overviewChartDownloadImage() {
   const _ = document.createElement("a");
   document.body.appendChild(_);
   _.setAttribute("download", "overview.png");
-  _.href = __overviewChart.getDataUrl();
+  _.href = _overviewChart.getDataUrl();
   if (!_.href.endsWith("undefined")) _.click();
   _.remove();
 }
@@ -3066,7 +3069,7 @@ function overviewChartDownloadImage() {
  * Restores the zoom of the overview chart.
  */
 function overviewChartRestoreZoom() {
-  __overviewChart.restoreZoom();
+  _overviewChart.restoreZoom();
 }
 
 /**
@@ -3074,14 +3077,14 @@ function overviewChartRestoreZoom() {
  */
 function overviewChartHighlight() {
   let options = [];
-  let names = __overviewChart.getDataNames();
+  let names = _overviewChart.getDataNames();
   for (let i = 0; i < names.length; i++) {
     options.push(`<option value="` + i + `">` + names[i] + `</option>`);
   }
   Swal.fire({
     backdrop: false,
     confirmButtonColor: "#62a8ac",
-    width: "auto",
+    width: "35em",
     padding: "1em",
     position: "center",
     html:
@@ -3091,7 +3094,7 @@ function overviewChartHighlight() {
       `</select>`,
   }).then((result) => {
     if (result.isConfirmed) {
-      __overviewChart.highlight(
+      _overviewChart.highlight(
         Metro.getPlugin("#tmpSelect", "select")
           .val()
           .map((_) => parseInt(_))
@@ -3104,27 +3107,31 @@ function overviewChartHighlight() {
  * Resorts the overview chart.
  */
 function overviewChartSort() {
-  __overviewChart.resort();
+  _overviewChart.resort();
 }
 
 /**
  * Initialies the dashboard chart by fetching the data of one protein from the server.
  *
- * @param {Number} cutoff_value Distance cutoff value to use for defining residue contacts.
- * @param {String} pdb_text_value Optional PDB text value to initialize the dashboard chart with.
+ * @param {String} uniprotPaValue Optional UniProt accession value to initialize the dashboard chart with. If undefined, the selected protein from the overview table is used.
+ * @param {Number} cutoffValue Distance cutoff value to use for defining residue contacts.
+ * @param {String} pdbTextValue Optional PDB text value to initialize the dashboard chart with.
+ * @param {Boolean} scrollTo Optional flag to indicate whether to scroll to the dashboard panel after initialization. Default is true.
  */
 function dashboardChartInitialize(
-  uniprot_pa_value,
-  cutoff_value,
-  pdb_text_value
+  uniprotPaValue,
+  cutoffValue,
+  pdbTextValue,
+  scrollTo
 ) {
   displayNotification("Initializing dashboard.");
-  if (cutoff_value == undefined) cutoff_value = 4.69;
-  if (pdb_text_value == undefined) pdb_text_value = null;
   let sel_protein_id = undefined;
-  if (uniprot_pa_value == undefined)
-    sel_protein_id = __overviewTable.getSelection();
-  else sel_protein_id = uniprot_pa_value;
+  if (uniprotPaValue == undefined)
+    sel_protein_id = _overviewTable.getSelection();
+  else sel_protein_id = uniprotPaValue;
+  if (cutoffValue == undefined) cutoffValue = 4.69;
+  if (pdbTextValue == undefined) pdbTextValue = null;
+  if (scrollTo == undefined) scrollTo = true;
   if (sel_protein_id == null) {
     removeNotification();
     displayAlert(
@@ -3134,8 +3141,8 @@ function dashboardChartInitialize(
   }
   request = {
     uniprot_pa: sel_protein_id,
-    pdb_text: pdb_text_value,
-    cutoff: cutoff_value,
+    pdb_text: pdbTextValue,
+    cutoff: cutoffValue,
   };
   axios
     .post(
@@ -3196,13 +3203,11 @@ function dashboardChartInitialize(
             heightAuto: false,
           })
         );
-        __dashboardChart.fill(response.data);
-        __dashboardContent = "modifications";
+        console.log(response.data);
+        _dashboardChart.fill(response.data);
+        _dashboardContent = "modifications";
         $("#panel-dashboard-title").html("Explore detail - Modifications view");
-        window.scrollTo({
-          top: $("#panel-dashboard").get(0).offsetTop + 40,
-          behavior: "smooth",
-        });
+        if (scrollTo) scroll_to("panel-dashboard");
       }
     })
     .catch((error) => {
@@ -3221,7 +3226,7 @@ function dashboardChartDownloadImage() {
   const _ = document.createElement("a");
   document.body.appendChild(_);
   _.setAttribute("download", "dashboard.png");
-  _.href = __dashboardChart.getDataUrl();
+  _.href = _dashboardChart.getDataUrl();
   if (!_.href.endsWith("undefined")) _.click();
   _.remove();
 }
@@ -3230,7 +3235,7 @@ function dashboardChartDownloadImage() {
  * Restores the zoom of the dashboard chart.
  */
 function dashboardChartRestoreZoom() {
-  __dashboardChart.restoreZoom();
+  _dashboardChart.restoreZoom();
 }
 
 /**
@@ -3238,14 +3243,14 @@ function dashboardChartRestoreZoom() {
  */
 function dashboardChartHighlight() {
   let options = [];
-  let names = __dashboardChart.getDataNames();
+  let names = _dashboardChart.getDataNames();
   for (let i = 0; i < names.length; i++) {
     options.push(`<option value="` + i + `">` + names[i] + `</option>`);
   }
   Swal.fire({
     backdrop: false,
     confirmButtonColor: "#62a8ac",
-    width: "auto",
+    width: "35em",
     padding: "1em",
     position: "center",
     html:
@@ -3255,7 +3260,7 @@ function dashboardChartHighlight() {
       `</select>`,
   }).then((result) => {
     if (result.isConfirmed) {
-      __dashboardChart.highlight(Metro.getPlugin("#tmpSelect", "select").val());
+      _dashboardChart.highlight(Metro.getPlugin("#tmpSelect", "select").val());
     }
   });
 }
@@ -3264,12 +3269,12 @@ function dashboardChartHighlight() {
  * Switches the content of the dashboard chart between modifications and structure view.
  */
 function dashboardChartSwitch() {
-  if (__dashboardContent == "modifications") {
-    __dashboardContent = "structure";
+  if (_dashboardContent == "modifications") {
+    _dashboardContent = "structure";
     $("#panel-dashboard-title").html("Explore detail - Structure view");
-  } else if (__dashboardContent == "structure") {
-    __dashboardContent = "modifications";
+  } else if (_dashboardContent == "structure") {
+    _dashboardContent = "modifications";
     $("#panel-dashboard-title").html("Explore detail - Modifications view");
   }
-  __dashboardChart.switchContent();
+  _dashboardChart.switchContent();
 }
