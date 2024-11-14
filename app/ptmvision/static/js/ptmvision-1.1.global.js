@@ -54,9 +54,8 @@ function displayAlert(text) {
  *
  * @param {String} id DOM element identifier to scroll to.
  */
-function to(id) {
-  let e = $("#" + id).get(0);
-  let offset = Math.round(e.getBoundingClientRect().top) - 80;
+function scroll_to(id) {
+  let offset = $("#" + id).get(0).offsetTop - 40;
   window.scrollTo({
     top: offset,
     behavior: "smooth",
