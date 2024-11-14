@@ -2688,7 +2688,6 @@ class StructureView {
     // Add style for contact highlight, if set.
     if (this.#highlightContacts != undefined) {
       let targetIndex = this.#highlightContacts;
-      alert(targetIndex);
       let targetCaAtom = this.glviewer.getAtomsFromSel({
         resi: [targetIndex],
         atom: "CA",
