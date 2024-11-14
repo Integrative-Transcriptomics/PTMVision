@@ -50,7 +50,7 @@ def example_session():
     Route to load an example session from a JSON file.
     """
     try :
-        session.clear( )
+        [session.pop(key) for key in list(session.keys())]
         with open( BASEPATH + "/static/resources/example_session/" + request.args.get("fileIdentifier") + ".zlib", "rb" ) as example_session_data :
             session_data = zlib.decompress( base64.b64decode( example_session_data.read( ) ) ).decode( )
         session[MODIFICATIONS_DATA] = json.loads(session_data)
@@ -93,7 +93,7 @@ def restart_session():
     Route to restart a previous session.
     """
     try :
-        session.clear( )
+        [session.pop(key) for key in list(session.keys())]
         session_data = zlib.decompress( base64.b64decode( request.data ) ).decode( )
         session[MODIFICATIONS_DATA] = json.loads(session_data)
         return "Ok", 200
@@ -107,7 +107,7 @@ def process_search_engine_output():
     Route to process the output of a search engine and store the data in the session.
     """
     try:
-        session.clear( )
+        [session.pop(key) for key in list(session.keys())]
         json_request_data = _request_to_json(request.data)
         json_user_data = utils.parse_user_input(
             StringIO(json_request_data["content"]),
@@ -296,6 +296,7 @@ def protein_data():
             #    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ]["annotation"] = { }
             #    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ]["annotation"] = annotation[ "results" ][ 0 ][ "to" ]
             # Compute contacts from structure and store them in session data.
+            
             if not "contacts" in session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ] :
                 session[MODIFICATIONS_DATA]["meta_data"]["distance_cutoff"] = float(json_request_data["cutoff"])
                 session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ] = { }
@@ -303,11 +304,12 @@ def protein_data():
                 contacts = utils.get_contacts(
                     distance_matrix,
                     session[MODIFICATIONS_DATA]["meta_data"]["distance_cutoff"],
-                )        
-                for source_position, contacts_list in contacts.items( ) :
-                    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ][ source_position ] = { }
-                    for contact_position in contacts_list :
-                        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ][ source_position ][ contact_position ] = round( distance_matrix[ source_position, contact_position ], 4 )
+                )
+                for source_index, contacts_list in contacts.items( ) :
+                    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ][ source_index + 1 ] = { }
+                    for contact_index in contacts_list :
+                        session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ][ source_index + 1 ][ contact_index + 1 ] = round( distance_matrix[ source_index, contact_index ], 4 )
+
             # Construct response
             response = deepcopy( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ] )
             response[ "structure" ] = utils._brotli_decompress( response[ "structure" ] )
@@ -382,8 +384,6 @@ def _map_uniprot_identifiers(identifiers: list, target_db: str) -> dict:
         results = get_id_mapping_results_search(link)
     if DEBUG :
         print( "DONE", end = '', flush = True)
-
-
     return results
 
 
