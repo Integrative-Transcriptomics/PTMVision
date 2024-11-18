@@ -29,7 +29,7 @@ const STYLE_AXIS = {
   nameGap: 40,
   nameTextStyle: {
     fontWeight: "bold",
-    fontSize: 12,
+    fontSize: 14,
   },
   axisTick: {
     alignWithLabel: true,
@@ -42,7 +42,7 @@ const STYLE_AXIS = {
  */
 const STYLE_AXIS_LABEL = {
   fontWeight: "normal",
-  fontSize: 11,
+  fontSize: 12,
 };
 /**
  * ECharts option for global tooltip style.
@@ -52,7 +52,7 @@ const STYLE_TOOLTIP = {
   borderColor: "#d4d4d4",
   textStyle: {
     color: "#333333",
-    fontSize: 11,
+    fontSize: 12,
   },
 };
 /**
@@ -60,7 +60,7 @@ const STYLE_TOOLTIP = {
  */
 const STYLE_TITLE = {
   textStyle: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "bold",
   },
 };
@@ -458,56 +458,55 @@ class OverviewChart {
         {
           text: "Shared PTM Sites between Modification Types",
           top: 35,
-          left: "9%",
+          left: "10%",
           ...STYLE_TITLE,
         },
         {
           text: "Mass shift in Dalton",
           top: 54,
-          left: 9 + 1 + 65 / r + "%",
+          left: 10 + 1 + 65 / r + "%",
           ...STYLE_TITLE,
         },
         {
           text: "Site count",
           top: 54,
-          left: 9 + 2 * 1 + 12 + 65 / r + "%",
+          left: 10 + 1 + 15 + 1 + 65 / r + "%",
           ...STYLE_TITLE,
         },
         {
           text: "Unimod PTM class counts",
           top: 54,
-          left: 9 + 8 * 1 + 2 * 12 + 65 / r + "%",
+          left: 10 + 1 + 15 + 1 + 15 + 1 + 5 + 65 / r + "%",
           ...STYLE_TITLE,
         },
       ],
       grid: [
         {
           top: 80,
-          left: "9%",
+          left: "10%",
           height: "65%",
           width: 65 / r + "%",
           show: true,
         },
         {
           top: 80,
-          left: 9 + 1 + 65 / r + "%",
+          left: 10 + 1 + 65 / r + "%",
           height: "65%",
-          width: "12%",
+          width: "15%",
           show: true,
         },
         {
           top: 80,
-          left: 9 + 2 * 1 + 12 + 65 / r + "%",
+          left: 10 + 1 + 15 + 1 + 65 / r + "%",
           height: "65%",
-          width: "12%",
+          width: "15%",
           show: true,
         },
         {
           top: 80,
-          bottom: "24%",
-          left: 9 + 8 * 1 + 2 * 12 + 65 / r + "%",
-          right: "2%",
-          height: "65%",
+          left: 10 + 1 + 15 + 1 + 15 + 1 + 5 + 65 / r + "%",
+          right: "1%",
+          height: "60%",
           width: "auto",
           show: true,
         },
@@ -519,7 +518,7 @@ class OverviewChart {
           name: "Modification",
           data: dataAxis,
           ...STYLE_AXIS,
-          nameGap: 110,
+          nameGap: 100,
           axisLabel: {
             show: true,
             rotate: 50,
@@ -529,8 +528,8 @@ class OverviewChart {
                 "Unannotated mass-shift",
                 "Mass-shift"
               );
-              return displayName.length > 17
-                ? displayName.slice(0, 17) + "..."
+              return displayName.length > 12
+                ? displayName.slice(0, 12) + "..."
                 : displayName;
             },
             ...STYLE_AXIS_LABEL,
@@ -547,6 +546,7 @@ class OverviewChart {
           type: "value",
           name: "Mass shift [Da]",
           ...STYLE_AXIS,
+          nameGap: 100,
           axisLabel: {
             show: true,
             interval: 0,
@@ -565,6 +565,7 @@ class OverviewChart {
           type: "value",
           name: "Count",
           ...STYLE_AXIS,
+          nameGap: 100,
           axisLabel: {
             show: true,
             interval: 0,
@@ -583,7 +584,7 @@ class OverviewChart {
           type: "category",
           name: "Class",
           ...STYLE_AXIS,
-          nameGap: 110,
+          nameGap: 130,
           data: Object.keys(this.#data.classCounts),
           axisLabel: {
             show: true,
@@ -615,8 +616,8 @@ class OverviewChart {
                 "Unannotated mass-shift",
                 "Mass-shift"
               );
-              return displayName.length > 17
-                ? displayName.slice(0, 17) + "..."
+              return displayName.length > 12
+                ? displayName.slice(0, 12) + "..."
                 : displayName;
             },
             ...STYLE_AXIS_LABEL,
@@ -752,14 +753,14 @@ class OverviewChart {
               max: Math.max(...Object.values(this.#data.coOccurrence)),
               orient: "horizontal",
               top: 54,
-              left: "9%",
+              left: "10%",
               itemHeight: 50,
               itemWidth: 11,
               text: [
                 Math.max(...Object.values(this.#data.coOccurrence)),
                 "No. shared sites 1",
               ],
-              textStyle: { fontWeight: "normal", fontSize: 11 },
+              textStyle: { fontWeight: "normal", fontSize: 12 },
             }
           : null,
       ],
@@ -2280,6 +2281,9 @@ class DashboardChart {
   clear() {
     this.chart.instance.clear();
     this.hideStructure();
+    $("#panel-dashboard-selection").html("No Protein Selected");
+    $("#panel-dashboard-selection").css("cursor", "default");
+    $("#panel-dashboard-selection").prop("onclick", null).off("click");
   }
 
   /**
