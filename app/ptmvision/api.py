@@ -57,7 +57,7 @@ def example_session():
         _set_session_state(**{STATE_HAS_DATA: True})
         return "Ok", 200
     except Exception as e :
-        return "Failed request '/example_session': " + _format_exception(e), 500
+        return "[Status 500] Failed request to start an example session: " + _format_exception(e), 500
 
 
 @app.route("/resource", methods=["GET"])
@@ -68,7 +68,7 @@ def get_resource():
     try:
         return send_file( "./static/resources/" + request.args.get( 'name' ) ), 200
     except Exception as e:
-        return "Failed request '/example_data': " + _format_exception(e), 500
+        return "[Status 500] Failed request to retrieve resource: " + _format_exception(e), 500
 
 
 @app.route("/download_session", methods=["GET"])
@@ -77,14 +77,14 @@ def download_session():
     Route to download the current session as a zlib file.
     """
     if MODIFICATIONS_DATA not in session:
-        return "Failed request '/download_session': Resource is not available.", 404
+        return "[Status 404] Failed request to download session data: The resource is not available. Was a PTMVision session started?", 404
     try :
         zlib_compress = zlib.compressobj( 6, zlib.DEFLATED, zlib.MAX_WBITS )
         compressed_session_bytes = zlib_compress.compress( bytes(json.dumps(session[MODIFICATIONS_DATA]), "utf-8") ) + zlib_compress.flush( )
         encoded_session = base64.b64encode( compressed_session_bytes ).decode("ascii")
         return encoded_session, 200
     except Exception as e :
-        return "Failed request '/download_session': " + _format_exception(e), 500
+        return "[Status 500] Failed request to download session data: " + _format_exception(e), 500
 
 
 @app.route("/restart_session", methods=["POST"])
@@ -98,7 +98,7 @@ def restart_session():
         session[MODIFICATIONS_DATA] = json.loads(session_data)
         return "Ok", 200
     except Exception as e :
-        return "Failed request '/example_session': " + _format_exception(e), 500
+        return "[Status 500] Failed request to restart session: " + _format_exception(e), 500
 
 
 @app.route("/process_search_engine_output", methods=["POST"])
@@ -122,7 +122,7 @@ def process_search_engine_output():
                 dumpfile.write( json.dumps( session[MODIFICATIONS_DATA], indent = 3 ) )
         return "Ok", 200
     except Exception as e:
-        return "Failed request '/process_search_engine_output': " + _format_exception(e), 500
+        return "[Status 500] Failed request to process search engine output: " + _format_exception(e), 500
 
 
 @app.route("/available_proteins", methods=["GET"])
@@ -203,7 +203,7 @@ def available_proteins():
         else :
             raise Exception("Faulty session data.")
     except Exception as e:
-        return "Failed request '/get_available_proteins': " + _format_exception(e), 500
+        return "[Status 500] Failed request to get available proteins: " + _format_exception(e), 500
 
 
 @app.route("/overview_data", methods=["GET"])
@@ -264,7 +264,7 @@ def overview_data():
         else :
             raise Exception("Faulty session data.")
     except Exception as e:
-        return "Failed request '/get_overview_data': " + _format_exception(e), 500
+        return "[Status 500] Failed request to get global/sample-level PTM data: " + _format_exception(e), 500
 
 
 @app.route("/protein_data", methods=["POST"])
@@ -319,7 +319,7 @@ def protein_data():
         else :
             return "Error in request '/get_protein_data': No protein structure available.", 303
     except Exception as e:
-        return "Failed request '/get_protein_data': " + _format_exception(e), 500
+        return "[Status 500] Failed request to get protein PTM data: " + _format_exception(e), 500
 
 
 @app.route("/session_state", methods=["GET"])
