@@ -2882,7 +2882,7 @@ function startExampleSession(fileIdentifier) {
     })
     .catch((error) => {
       console.error(error);
-      displayAlert(error.message);
+      displayAlert(error.response.data);
     })
     .finally(() => {
       removeNotification();
@@ -2917,7 +2917,8 @@ async function startExistingSession() {
     })
     .catch((error) => {
       console.error(error);
-      displayAlert(error.message);
+      removeNotification();
+      displayAlert(error.response.data);
     })
     .finally(() => {
       removeNotification();
@@ -2968,7 +2969,7 @@ async function startSession() {
     .catch((error) => {
       console.error(error);
       removeNotification();
-      displayAlert(error.message);
+      displayAlert(error.response.data);
     });
 }
 
@@ -3034,7 +3035,7 @@ function overviewTableInitialize(afterResponse) {
     .catch((error) => {
       console.error(error);
       removeNotification();
-      displayAlert(error.message);
+      displayAlert(error.response.data);
     });
 }
 
@@ -3063,7 +3064,8 @@ function overviewChartInitialize(afterResponse) {
     })
     .catch((error) => {
       console.error(error);
-      displayAlert(error.message);
+      removeNotification();
+      displayAlert(error.response.data);
     })
     .finally(() => {
       removeNotification();
@@ -3229,7 +3231,8 @@ function dashboardChartInitialize(
     })
     .catch((error) => {
       console.error(error);
-      displayAlert(error.message);
+      removeNotification();
+      displayAlert(error.response.data);
     })
     .finally(() => {
       removeNotification();

@@ -80,7 +80,7 @@ function downloadSessionData() {
     .catch((error) => {
       console.error(error);
       removeNotification();
-      displayAlert(error.message);
+      displayAlert(error.response.data);
     });
 }
 
