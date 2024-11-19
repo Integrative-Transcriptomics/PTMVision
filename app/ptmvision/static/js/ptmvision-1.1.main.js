@@ -3229,7 +3229,7 @@ function dashboardChartInitialize(
             heightAuto: false,
           })
         );
-        console.log(response.data);
+        // console.log(response.data); // Uncomment for local development.
         _dashboardChart.fill(response.data);
         _dashboardContent = "modifications";
         $("#panel-dashboard-title").html("Explore detail - Modifications view");

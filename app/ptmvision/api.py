@@ -25,8 +25,8 @@ MODIFICATIONS_DATA = "7421BE93662C5"
 SESSION_STATE = "E3D6FB747F7ED"
 STATE_HAS_DATA = "has_data"
 STATE_PROTEIN_SELECTED = "protein_selected"
-BASEPATH = "./app/ptmvision" # Use this for local development.
-# BASEPATH = "/app/ptmvision" # Use this for deployment.
+BASEPATH = "./app/ptmvision" # Uncomment for local development.
+#BASEPATH = "/app/ptmvision" # Uncomment for deployment.
 
 """ Set session configuration parameters. """
 app.config["SESSION_COOKIE_NAME"] = "PTMVision"
@@ -117,9 +117,12 @@ def process_search_engine_output():
         )
         session[MODIFICATIONS_DATA] = json_user_data
         _set_session_state(**{STATE_HAS_DATA: True})
+        # Uncomment for local development.
+        """
         if DEBUG :
             with open( "./dump.json", "w+" ) as dumpfile :
                 dumpfile.write( json.dumps( session[MODIFICATIONS_DATA], indent = 3 ) )
+        """
         return "Ok", 200
     except Exception as e:
         return "[Status 500] Failed request to process search engine output: " + _format_exception(e), 500
@@ -196,9 +199,14 @@ def available_proteins():
                     "modifications": "$".join(modifications),
                 }
                 protein_entries.append(protein_entry)
+            
+            # Uncomment for local development.
+            """
             if DEBUG :
                     with open( "./dump.json", "w+" ) as dumpfile :
                         dumpfile.write( json.dumps( session[MODIFICATIONS_DATA], indent = 3 ) )
+            """
+
             return protein_entries, 200
         else :
             raise Exception("Faulty session data.")
@@ -296,7 +304,6 @@ def protein_data():
             #    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ]["annotation"] = { }
             #    session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ]["annotation"] = annotation[ "results" ][ 0 ][ "to" ]
             # Compute contacts from structure and store them in session data.
-            
             if not "contacts" in session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ] :
                 session[MODIFICATIONS_DATA]["meta_data"]["distance_cutoff"] = float(json_request_data["cutoff"])
                 session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ] = { }
@@ -309,7 +316,6 @@ def protein_data():
                     session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ][ source_index + 1 ] = { }
                     for contact_index in contacts_list :
                         session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ][ "contacts" ][ source_index + 1 ][ contact_index + 1 ] = round( distance_matrix[ source_index, contact_index ], 4 )
-
             # Construct response
             response = deepcopy( session[MODIFICATIONS_DATA]["proteins"][ json_request_data["uniprot_pa"] ] )
             response[ "structure" ] = utils._brotli_decompress( response[ "structure" ] )
