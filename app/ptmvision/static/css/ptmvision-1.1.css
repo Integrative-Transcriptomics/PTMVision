@@ -27,7 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   --background-color-1-o-90: #fbfbfbe6;
   --background-color-2: #d4d4d4;
   --background-color-3: #f0f5f5;
-  --background-color-3-o-90: rgba(240, 245, 245, 0.9);
   --color-1: #5497a7;
   --color-2: #50858b;
   --color-3: #62a8ac;
@@ -179,31 +178,29 @@ body {
   height: fit-content;
 }
 
-.image-container:hover .image-overlay {
-  opacity: 1;
-}
-
 .image-overlay {
   position: absolute;
   top: 0;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
-  height: 100%;
-  width: 100%;
-  opacity: 0;
-  transition: 0.4s ease;
-  background-color: var(--background-color-3-o-90);
-  box-shadow: 0px 0px 20px var(--background-color-3);
+  background-color: transparent;
+  border-radius: 4px;
 }
 
 .image-overlay p {
-  font-size: larger;
+  font-size: 0.9em;
   font-family: monospace;
-  font-weight: lighter;
+  font-weight: bolder;
   text-align: justify;
   text-justify: inter-word;
-  padding: 10px;
+  vertical-align: bottom;
+  margin: 1em;
+  padding: 1em;
+  border-radius: 4px;
+  box-shadow: 0px 0px 5px #333333;
+  background-color: var(--background-color-3);
+  opacity: 0.9;
 }
 
 .panel-container {
@@ -245,7 +242,7 @@ body {
 }
 
 #panel-info-banner {
-  display: flex;
+  display: inline-block;
   width: 80%;
   left: 10%;
   right: 10%;

@@ -3059,6 +3059,7 @@ function overviewTableSetFilters() {
  * @param {Function} afterResponse Optional callback function to execute after the response was received.
  */
 function overviewChartInitialize(afterResponse) {
+  displayNotification("Retrieving session data.");
   axios
     .get(window.location.origin + "/overview_data")
     .then((response) => {
