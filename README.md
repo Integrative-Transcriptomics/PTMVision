@@ -87,5 +87,5 @@ docker run -dp 127.0.0.1:5001:5001 ptmvision
 
 ## 🙋 Need Help?
 
-- 📖 Read the [Usage Guide](https://ptmvision-tuevis.cs.uni-tuebingen.de/static/usage.html)
+- 📖 Read the [Usage Guide](https://ptmvision-tuevis.cs.uni-tuebingen.de/usage)
 - 🐛 Found an issue or missing format? [Open a GitHub issue](https://github.com/Integrative-Transcriptomics/PTMVision/issues/new)
