@@ -2,56 +2,90 @@
   <img width="auto" height="auto" src="https://github.com/Integrative-Transcriptomics/PTMVision/blob/main/app/ptmvision/static/resources/logo.png">
 </p>
 
-# About
+# PTMVision
 
-<p align="justify">
-PTMVision (Interactive Visualization of Post Translational Modifications) is an interactive web platform for effortless exploratory visual analysis of post translational modifications (PTMs) obtained from mass spectrometry (MS) data. It enables researchers to comprehend the intricate landscape of PTMs in order to unravel possible mechanisms related to cellular processes and diseases.
-</p>
+**PTMVision** is an interactive web-based platform for the visual exploration of post-translational modifications (PTMs) identified in mass spectrometry-based proteomics data. It enables researchers to interpret the complex PTM landscape, supporting insights into molecular mechanisms of biological processes and disease.
 
-The webserver is available at [https://ptmvision-tuevis.cs.uni-tuebingen.de/](https://ptmvision-tuevis.cs.uni-tuebingen.de/).
+🔗 **Web server**: [https://ptmvision-tuevis.cs.uni-tuebingen.de](https://ptmvision-tuevis.cs.uni-tuebingen.de)
 
-# Key Features
+---
 
-- Variety of overview and summary visualizations that help identify patterns and trends in PTM data.
-- Visualizations are dynamically linked and support features to highlight PTMs of interest.
-- Integration of protein structure and annotation data from UniProt provide multidimensional view. This improves the interpretability of the data is significantly.
-- Unique emphasis on interactions of residues in close contact within a single protein and associated modifications. This allows to study the dynamic interplay between PTMs and their putative effects on protein folding and function.
-- Responsive and intuitive interface that allows users to effortlessly navigate the website and through their data.
-- Supports high degree of data provenance by allowing various input formats and an easy export of session data to continue analysis without repeated processing input data.
+## ✨ Features
 
-# Supported File Formats
+- Rich **interactive visualizations** for sample-level and protein-level PTM data
+- Linked plots for seamless navigation and exploration
+- **3D structure integration** and contact map analysis for structural context
+- Highlights residue-residue PTM interactions in close spatial proximity
+- **Annotation integration** from UniProt and UniMod for interpretability
+- Support for multiple **search engine output formats** and a custom CSV format
+- **Session export/import** for reproducibility and collaboration
+- Intuitive UI accessible to users without programming expertise
 
-Can't find your favorite search engine? [Tell us!](https://github.com/Integrative-Transcriptomics/PTMVision/issues/new)
+---
 
-| **Search Engine**                         | **Version Tested**                              | **Columns Used**                                                                                                                              | **Postprocessing Applied by PTMVision**                                                                                                                                                                                                                |
-| ----------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ionbot                                    | v0.10.0, v0.11.0                                | uniprot_id, unexpected_modification, position                                                                                                 |                                                                                                                                                                                                                                                        |
-| MSFragger (via FragPipe with PTMShepherd) | <br> MSFragger v4.0,<br> PTMShepherd v2.0.6<br> | <br> Modified Peptide, Peptide, Protein ID, Assigned<br> Modifications, Observed Modifications, MSFragger<br> Localization, Protein Start<br> | <br> Filter ambiguous localisations; Filter ambiguous<br> modifications; Filter combinations of modifications; Map<br> mass shifts and UniMod descriptions to UniMod IDs; Map PTM<br> position onto protein; Retrieve UniMod classification; \*\*.<br> |
-| Sage                                      | v0.13.1                                         | \*                                                                                                                                            | <br> 1% FDR filtering (PSM level); Remove decoys; Remove peptides<br> matching to more than one protein; Map mass shifts to UniMod<br> IDs; Map PTM position onto protein; Mass shifts are not<br> localised, only variable mods are used.<br>         |
-| MaxQuant                                  | <br> v2.4.13.0<br>                              | \*                                                                                                                                            | <br> Remove peptides matching to more than one protein; Map<br> MaxQuant modification names to UniMod names; Map PTM<br> position onto protein.<br>                                                                                                    |
-| Spectronaut (PTM Site Report)             | v9                                              | <br> PTM.ProteinId, PTM.SiteLocation, PTM.ModificationTitle,<br> PTM.SiteAA<br>                                                               | <br> Modification mass shift and UniMod classification inferred<br> from the UniMod ID (mapped from PTM.ModificationTitle) and<br> the protein sequence.<br>                                                                                           |
+## 📁 Supported Input Formats
 
-<sup>\* See https://psm-utils.readthedocs.io/en/v0.6.0/ for details.</sup>
+PTMVision accepts output from several widely-used search engines:
 
-<sup>\*\* For FragPipe, localisations for unexpected modifications are derived from the "MSFragger Localization" column. This localisation might be only marginally better than the next best site, so caution is advised. As soon as the next MSFragger version is released, which reports localisation scores as well, PTMVision will include a way to filter modifications based on the scores.</sup>
+| **Search Engine**                         | **Tested Versions**                          | **Key Columns**                                                                                           | **Processing Steps**                                                                                                                                                                                                            |
+|------------------------------------------|----------------------------------------------|------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **ionbot**                                | v0.10.0, v0.11.0                             | `uniprot_id`, `unexpected_modification`, `position`                                                        | Direct parsing of modification information                                                                                                                                                |
+| **MSFragger (via FragPipe + PTMShepherd)** | MSFragger v4.0, PTMShepherd v2.0.6           | `Modified Peptide`, `Assigned Modifications`, `Localization`, `Protein ID`, `Protein Start`               | Filtering ambiguous or multi-localized sites; mass shift mapping to UniMod; UniProt sequence alignment; UniMod classification                                                          |
+| **Sage**                                   | v0.13.1                                      | *See [psm-utils](https://psm-utils.readthedocs.io/en/v0.6.0/)*                                             | FDR filtering; decoy removal; UniMod mapping; PTM localization from variable mods only                                                                                                   |
+| **MaxQuant**                               | v2.4.13.0                                    | *Search result columns used for mapping*                                                                   | Mapping MaxQuant-specific names to UniMod; resolving multi-mapping peptides; UniProt mapping                                                                                             |
+| **Spectronaut (PTM Site Report)**          | v9                                           | `PTM.ProteinId`, `PTM.SiteLocation`, `PTM.ModificationTitle`, `PTM.SiteAA`                                 | Infers mass shifts and UniMod classifications from reported data and UniProt sequence                                                                                                   |
 
-## Custom Plain CSV
+> **Note**: For FragPipe-derived data, localization confidence is inferred from the `MSFragger Localization` field. Use caution until future versions provide dedicated localization scores.
 
-<p align="justify">
-We support a plain CSV format to provide users the possibility to transfer individually compiled PTM data to PTMVision if no other format can be used. The following table provides an overview of the required columns and their content. In essence, the format provides the description of a modification at one position of a protein per line as comma separated values - thus, one file can contain information on several proteins. If <em>mass_shift</em> or <em>classification</em> are not provided, they are tried to be inferred from the UniMod ID and the protein sequence.
-</p>
+---
 
-| **Column Name**         | **uniprot_id**                        | **position**                                                                           | **modification_unimod_name**                                                         | **modification_unimod_id**                                                         | **mass_shift (optional)**                                                                                            | **classification (optional)**                                                                                                                  |
-| ----------------------- | ------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Content Description** | The UniProt Accession of the protein. | <br> The position of the modification in the protein sequence<br> (1-based index).<br> | <br> The UniMod name of the modification observed on the<br> specified position.<br> | <br> The UniMod ID of the modification observed on the specified<br> position.<br> | <br> The mass shift of the modification in Dalton. This will be<br> inferred from the UniMod ID if not provided.<br> | <br> The UniMod classification of the modification. This will be<br> inferred from the UniMod ID and modified residue if not<br> provided.<br> |
-| **Example Entry**       | P04075                                | 5                                                                                      | carbamidomethyl                                                                      | 4                                                                                  | 57.021464                                                                                                            | Artefact                                                                                                                                       |
+## 📄 Custom Plain CSV Format
 
-<p align="justify">
-Important note: Since UniMod classifications are amino acid specific, inferring the classification requires querying the protein sequence from UniProt. If the positions in the csv come from searches using old(er) sequences/entries, it is possible that the amino acid sequence changed in the meantime, which could lead to modifications being misplaced.
-</p>
+Users can submit manually compiled PTM data using a structured CSV format when other formats are unavailable.
 
-An example file for the plain csv format can be found [here](https://github.com/Integrative-Transcriptomics/PTMVision/blob/2b8dfcfb281150d4c634427ffc1d03d5873925fd/app/ptmvision/static/resources/ptmvision.plain-format.template.csv).
+### Required Columns
 
-## Run PTMVision Locally
+| Column Name                 | Description                                                                                      |
+|----------------------------|--------------------------------------------------------------------------------------------------|
+| `uniprot_id`               | UniProt accession of the protein                                                                 |
+| `position`                 | 1-based index of the modified residue                                                            |
+| `modification_unimod_name`| Name of the UniMod modification                                                                  |
+| `modification_unimod_id`  | UniMod ID                                                                                         |
+| `mass_shift` *(optional)* | Monoisotopic mass shift in Daltons (inferred from UniMod ID if omitted)                         |
+| `classification` *(optional)* | UniMod classification (inferred from ID and sequence context if omitted)                |
 
-If required, PTMVision can be executed locally as a Docker container. After the repository has been cloned, simply run `docker build --tag ptmvision app` and `docker run -dp 127.0.0.1:5001:5001 ptmvision` in the root directory of the project. We currently do not provide a Docker image.
+**Example entry**:
+```
+P04075,5,carbamidomethyl,4,57.021464,Artefact
+```
+
+> ⚠ **Note**: Classification relies on up-to-date UniProt sequences. Sequence version mismatches may lead to misaligned positions.
+
+📄 [Download CSV template](https://github.com/Integrative-Transcriptomics/PTMVision/blob/main/app/ptmvision/static/resources/ptmvision.plain-format.template.csv)
+
+---
+
+## 🐳 Running Locally via Docker
+
+To deploy PTMVision locally:
+
+```bash
+# Clone repository
+git clone https://github.com/Integrative-Transcriptomics/PTMVision.git
+cd PTMVision
+
+# Build Docker image
+docker build --tag ptmvision app
+
+# Run locally
+docker run -dp 127.0.0.1:5001:5001 ptmvision
+```
+
+> Note: Prebuilt Docker images are not currently provided.
+
+---
+
+## 🙋 Need Help?
+
+- 📖 Read the [Usage Guide](https://ptmvision-tuevis.cs.uni-tuebingen.de/static/usage.html)
+- 🐛 Found an issue or missing format? [Open a GitHub issue](https://github.com/Integrative-Transcriptomics/PTMVision/issues/new)
