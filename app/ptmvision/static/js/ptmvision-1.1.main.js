@@ -3109,7 +3109,7 @@ function overviewChartHighlight() {
   }
   Swal.fire({
     backdrop: false,
-    confirmButtonColor: "#62a8ac",
+    confirmButtonColor: "#607196",
     width: "35em",
     padding: "1em",
     position: "center",
@@ -3223,7 +3223,7 @@ function dashboardChartInitialize(
                 );
               })
               .join("</br>"),
-            confirmButtonColor: "#d4d4d4",
+            confirmButtonColor: "#607196",
             confirmButtonText: "Close Info",
             width: "35vw",
             heightAuto: false,
@@ -3276,7 +3276,7 @@ function dashboardChartHighlight() {
   }
   Swal.fire({
     backdrop: false,
-    confirmButtonColor: "#62a8ac",
+    confirmButtonColor: "#607196",
     width: "35em",
     padding: "1em",
     position: "center",

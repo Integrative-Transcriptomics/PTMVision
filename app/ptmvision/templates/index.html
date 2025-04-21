@@ -5,1227 +5,1254 @@ Copyright 2023-2024 by Caroline Jachmann and Simon Hackl
 Licensed under GPL-3.0
 -->
 <html lang="en">
-  <head>
-    <title>PTMVision</title>
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="{{ url_for('static', filename='resources/icon.png') }}"
-    />
-    <!--
+	<head>
+		<title>PTMVision</title>
+		<link
+			rel="icon"
+			type="image/x-icon"
+			href="{{ url_for('static', filename='resources/icon_64.png') }}"
+		/>
+		<!--
       Provide meta information about the application.
       -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="PTMVision: Interactive Visualization of Post Translational Modifications | Understanding the intricate landscape of post-translational
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta
+			name="description"
+			content="PTMVision: Interactive Visualization of Post Translational Modifications | Understanding the intricate landscape of post-translational
             modifications (PTMs) is crucial for unraveling the complex
             mechanisms underlying cellular processes and diseases. With
             PTMVision, researchers can effortlessly analyze and explore PTM data
             derived from various proteomics search engines, the mzIdentML data
             standard, or from a plain CSV table format processed manually from
             mass spectrometry (MS) data."
-    />
-    <meta name="author" content="Caroline Jachmann, Simon Hackl" />
-    <!--
+		/>
+		<meta name="author" content="Caroline Jachmann, Simon Hackl" />
+		<!--
       Definition of stylesheets to use in the application.
       -->
-    <link
-      rel="stylesheet"
-      href="{{url_for('static', filename='css/metro-5.0.0.rc9.min.css')}}"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{url_for('static', filename='css/tabulator-6.1.0.min.css')}}"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{url_for('static', filename='css/tabulator-bootstrap4-6.1.0.min.css')}}"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{url_for('static', filename='css/ptmvision-1.1.css')}}"
-    />
-    <!--
+		<link
+			rel="stylesheet"
+			href="{{url_for('static', filename='css/metro-5.0.0.rc9.min.css')}}"
+		/>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="{{url_for('static', filename='css/tabulator-6.1.0.min.css')}}"
+		/>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="{{url_for('static', filename='css/tabulator-bootstrap4-6.1.0.min.css')}}"
+		/>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="{{url_for('static', filename='css/ptmvision-1.1.css')}}"
+		/>
+		<!--
       Definition of java script files to use in the application.
       -->
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/jquery-3.7.1.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/metro-5.0.0.rc9.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/resizesensor-0.0.6.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/echarts-5.5.0.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/3Dmol-2.1.0.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/sweetalert2-11.10.8.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/axios-1.1.2.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/lodash-4.17.21.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/tabulator-6.1.0.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/pako-2.1.0.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/ptmvision-1.1.global.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/ptmvision-1.1.main.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://kit.fontawesome.com/df04f22e3d.js"
-      crossorigin="anonymous"
-    ></script>
-  </head>
-  <body onLoad="init();">
-    <!-- App menu -->
-    <header
-      id="menu"
-      class="app-bar app-bar-expand"
-      data-role="appbar"
-      data-expand="true"
-      data-role-appbar="true"
-    >
-      <img
-        class="brand no-hover"
-        style="height: 80%"
-        src="{{ url_for('static', filename='resources/logo.png') }}"
-        alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
-      />
-      <h5
-        class="ml-2"
-        style="font-family: monospace; color: var(--color-5); width: 4em"
-      >
-        <i class="fa-light fa-pipe"></i> Home
-      </h5>
-      <ul class="app-bar-menu">
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the main page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('', '_self')"
-          disabled
-        >
-          <i
-            class="fa-solid fa-house-blank"
-            style="color: var(--background-color-2)"
-          ></i>
-          Home
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the usage guide."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('usage', '_self')"
-        >
-          <i class="fa-duotone fa-solid fa-book"></i>
-          Usage Guide
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the FAQ page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('faq', '_self')"
-        >
-          <i class="fa-duotone fa-solid fa-question"></i> FAQ
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the legal information page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('legal', '_self')"
-        >
-          <i class="fa-solid fa-section"></i> Legal Information
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Download (binary) session data for re-upload."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="downloadSessionData()"
-        >
-          <i class="fa-duotone fa-solid fa-file-arrow-down"></i> Download
-          Session Data
-        </li>
-      </ul>
-    </header>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/jquery-3.7.1.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/metro-5.0.0.rc9.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/resizesensor-0.0.6.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/echarts-5.5.0.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/3Dmol-2.1.0.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/sweetalert2-11.10.8.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/axios-1.1.2.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/lodash-4.17.21.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/tabulator-6.1.0.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/pako-2.1.0.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/ptmvision-1.1.global.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/ptmvision-1.1.main.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="https://kit.fontawesome.com/df04f22e3d.js"
+			crossorigin="anonymous"
+		></script>
+	</head>
+	<body onLoad="init();">
+		<!-- App menu -->
+		<header
+			id="menu"
+			class="app-bar app-bar-expand"
+			data-role="appbar"
+			data-expand="true"
+			data-role-appbar="true"
+		>
+			<img
+				class="brand no-hover"
+				style="height: 90%"
+				src="{{ url_for('static', filename='resources/logo_lucid_256.png') }}"
+				alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
+			/>
+			<h5
+				class="ml-2"
+				style="font-family: monospace; color: var(--color-5); width: 4em"
+			>
+				<i class="fa-light fa-pipe"></i> Home
+			</h5>
+			<ul class="app-bar-menu">
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the main page."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('', '_self')"
+					disabled
+				>
+					<i
+						class="fa-solid fa-house-blank"
+						style="color: var(--background-color-2)"
+					></i>
+					Home
+				</li>
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the usage guide."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('usage', '_self')"
+				>
+					<i class="fa-duotone fa-solid fa-book"></i>
+					Usage Guide
+				</li>
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the FAQ page."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('faq', '_self')"
+				>
+					<i class="fa-duotone fa-solid fa-question"></i> FAQ
+				</li>
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the legal information page."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('legal', '_self')"
+				>
+					<i class="fa-solid fa-section"></i> Legal Information
+				</li>
+				<li
+					data-role="hint"
+					data-hint-text="Download (binary) session data for re-upload."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="downloadSessionData()"
+				>
+					<i class="fa-duotone fa-solid fa-file-arrow-down"></i> Download
+					Session Data
+				</li>
+			</ul>
+		</header>
 
-    <div id="main">
-      <div id="panel">
-        <div id="vline"></div>
+		<div id="main">
+			<div id="panel">
+				<div id="vline"></div>
 
-        <div id="panel-info" class="panel-container">
-          <h4 style="margin-left: 1em">
-            PTMVision: Interactive Visualization of Post Translational
-            Modifications
-          </h4>
-          <div id="panel-info-banner">
-            <div
-              id="panel-info-banner-l"
-              class="image-container float-left"
-              style="width: 30%"
-            >
-              <img
-                src="{{ url_for('static', filename='resources/index_banner/left.png') }}"
-                alt="Example of the Site Count Histogram."
-              />
-              <div class="image-overlay">
-                <p>
-                  PTMVision supports the upload of PTM data from various
-                  proteomics search engines, the mzIdentML standard or manually
-                  compiled CSV files.
-                </p>
-              </div>
-            </div>
-            <div
-              id="panel-info-banner-m"
-              class="image-container float-left"
-              style="width: 40%"
-            >
-              <img
-                src="{{ url_for('static', filename='resources/index_banner/mid.png') }}"
-                alt="Example of the Site Count Histogram."
-              />
-              <div class="image-overlay">
-                <p>
-                  Receive a quantitative and qualitative assessment of the PTMs
-                  in your data, independent of individual proteins. Get an
-                  overview of all available proteins from your data,
-                  complemented with associated PTMs.
-                </p>
-              </div>
-            </div>
-            <div
-              id="panel-info-banner-r"
-              class="image-container float-left"
-              style="width: 30%"
-            >
-              <img
-                src="{{ url_for('static', filename='resources/index_banner/right.png') }}"
-                alt="Example of the Site Count Histogram."
-              />
-              <div class="image-overlay">
-                <p>
-                  For selected proteins, investigate detailed information on the
-                  occurrence of PTMs along the primary protein sequence and in a
-                  spatial structural context.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div data-role="buttongroup" style="margin: 1em">
-            <button
-              class="text-button"
-              onclick="$('#panel-info-about').toggle()"
-            >
-              About PTMVision
-            </button>
-            <button
-              class="text-button ml-4"
-              onclick="redirectTo('usage', '_self')"
-            >
-              Usage Guide
-            </button>
-          </div>
-          <div id="panel-info-about" class="remark">
-            <h5 class="secondary">About PTMVision</h5>
-            <p>
-              Understanding the intricate landscape of PTMs is crucial for
-              unraveling the complex mechanisms underlying cellular processes
-              and diseases. PTMVision (Interactive Visualization of Post
-              Translational Modifications) is an interactive web platform for
-              effortless exploratory visual analysis of
-              <a
-                href="https://www.thermofisher.com/de/de/home/life-science/protein-biology/protein-biology-learning-center/protein-biology-resource-library/pierce-protein-methods/overview-post-translational-modification.html"
-                target="_blank"
-                ><em>post translational modifications</em></a
-              >
-              (PTMs) obtained from
-              <a
-                href="https://www.broadinstitute.org/technology-areas/what-mass-spectrometry"
-                target="_blank"
-                ><em>mass spectrometry</em></a
-              >
-              (MS) data using search engines such as ionbot, MaxQuant,
-              MSFragger, Spectronaut, or Sage. The application is designed in
-              close collaboration with proteomics experts and was initiated as
-              an entry to the Bio+MedVis Challenge at the IEEE VIS conference in
-              2022. PTMVision is accessible to laboratory researchers without
-              requiring coding skills.
-            </p>
-            <h5 class="secondary">
-              <i class="fa-solid fa-star-shooting"></i> Key Features
-            </h5>
-            <ul>
-              <li>
-                <b>Variety of overview and summary visualizations</b> that help
-                identify patterns and trends in PTM data.
-              </li>
-              <li>
-                Visualizations are dynamically linked and support features to
-                highlight PTMs of interest.
-              </li>
-              <li>
-                <b
-                  >Integration of protein structure and annotation data from
-                  UniProt</b
-                >
-                provide multidimensional view. This improves the
-                interpretability of the data significantly.
-              </li>
-              <li>
-                <b
-                  >Unique emphasis on interactions of residues in close contact
-                  within a single protein</b
-                >
-                and associated modifications. This allows to study the dynamic
-                interplay between PTMs and their putative effects on protein
-                folding and function.
-              </li>
-              <li>
-                <b>Responsive and intuitive interface</b> that allows users to
-                effortlessly navigate the website and through their data.
-              </li>
-              <li>
-                <b>Supports high degree of data provenance</b> by allowing
-                various input formats and an easy export of session data to
-                continue analysis without repeated processing input data.
-              </li>
-            </ul>
-            <h5 class="secondary">
-              <i class="fa-solid fa-triangle-exclamation"></i> Limitations
-            </h5>
-            <ul>
-              <li>
-                We recommend using PTMVision in Chrome or Firefox for optimal
-                performance. Safari has issues when visualising larger datasets.
-              </li>
-              <li>
-                Note that PTMVision serves solely to visualize the content
-                provided in the input and does not conduct any further quality
-                control. The localization of modifications still remains a
-                challenging task and may yield imprecise results.
-              </li>
-              <li>
-                PTMVision will be continuously updated and improved, including
-                the addition of filters for localisation scores as soon as they
-                will be reported by search engines.
-              </li>
-              <li>
-                PTMVision currently limits the maximal request size with respect
-                to the
-                <em>zlib</em> compressed content of the <em>PTM Data</em> file
-                to a maximum of 50 MB.
-              </li>
-            </ul>
-          </div>
-        </div>
+				<div id="panel-info" class="panel-container">
+					<h4 style="margin-left: 1em">
+						PTMVision: Interactive Visualization of Post Translational
+						Modifications
+					</h4>
+					<div id="panel-info-banner">
+						<div
+							id="panel-info-banner-l"
+							class="image-container float-left"
+							style="width: 30%"
+						>
+							<img
+								src="{{ url_for('static', filename='resources/index_banner/left.png') }}"
+								alt="Example of the Site Count Histogram."
+							/>
+							<div class="image-overlay">
+								<p>
+									PTMVision supports the upload of PTM data from various
+									proteomics search engines, the mzIdentML standard or manually
+									compiled CSV files.
+								</p>
+							</div>
+						</div>
+						<div
+							id="panel-info-banner-m"
+							class="image-container float-left"
+							style="width: 40%"
+						>
+							<img
+								src="{{ url_for('static', filename='resources/index_banner/mid.png') }}"
+								alt="Example of the Site Count Histogram."
+							/>
+							<div class="image-overlay">
+								<p>
+									Receive a quantitative and qualitative assessment of the PTMs
+									in your data, independent of individual proteins. Get an
+									overview of all available proteins from your data,
+									complemented with associated PTMs.
+								</p>
+							</div>
+						</div>
+						<div
+							id="panel-info-banner-r"
+							class="image-container float-left"
+							style="width: 30%"
+						>
+							<img
+								src="{{ url_for('static', filename='resources/index_banner/right.png') }}"
+								alt="Example of the Site Count Histogram."
+							/>
+							<div class="image-overlay">
+								<p>
+									For selected proteins, investigate detailed information on the
+									occurrence of PTMs along the primary protein sequence and in a
+									spatial structural context.
+								</p>
+							</div>
+						</div>
+					</div>
+					<div data-role="buttongroup" style="margin: 1em">
+						<button
+							class="text-button"
+							onclick="$('#panel-info-about').toggle()"
+						>
+							About PTMVision
+						</button>
+						<button
+							class="text-button ml-4"
+							onclick="redirectTo('usage', '_self')"
+						>
+							Usage Guide
+						</button>
+					</div>
+					<div id="panel-info-about" class="remark">
+						<h5 class="secondary">About PTMVision</h5>
+						<p>
+							Understanding the intricate landscape of PTMs is crucial for
+							unraveling the complex mechanisms underlying cellular processes
+							and diseases. PTMVision (Interactive Visualization of Post
+							Translational Modifications) is an interactive web platform for
+							effortless exploratory visual analysis of
+							<a
+								href="https://www.thermofisher.com/de/de/home/life-science/protein-biology/protein-biology-learning-center/protein-biology-resource-library/pierce-protein-methods/overview-post-translational-modification.html"
+								target="_blank"
+								><em>post translational modifications</em></a
+							>
+							(PTMs) obtained from
+							<a
+								href="https://www.broadinstitute.org/technology-areas/what-mass-spectrometry"
+								target="_blank"
+								><em>mass spectrometry</em></a
+							>
+							(MS) data using search engines such as ionbot, MaxQuant,
+							MSFragger, Spectronaut, or Sage. The application is designed in
+							close collaboration with proteomics experts and was initiated as
+							an entry to the Bio+MedVis Challenge at the IEEE VIS conference in
+							2022. PTMVision is accessible to laboratory researchers without
+							requiring coding skills.
+						</p>
+						<h5 class="secondary">
+							<i class="fa-solid fa-star-shooting"></i> Key Features
+						</h5>
+						<ul>
+							<li>
+								<b>Variety of overview and summary visualizations</b> that help
+								identify patterns and trends in PTM data.
+							</li>
+							<li>
+								Visualizations are dynamically linked and support features to
+								highlight PTMs of interest.
+							</li>
+							<li>
+								<b
+									>Integration of protein structure and annotation data from
+									UniProt</b
+								>
+								provide multidimensional view. This improves the
+								interpretability of the data significantly.
+							</li>
+							<li>
+								<b
+									>Unique emphasis on interactions of residues in close contact
+									within a single protein</b
+								>
+								and associated modifications. This allows to study the dynamic
+								interplay between PTMs and their putative effects on protein
+								folding and function.
+							</li>
+							<li>
+								<b>Responsive and intuitive interface</b> that allows users to
+								effortlessly navigate the website and through their data.
+							</li>
+							<li>
+								<b>Supports high degree of data provenance</b> by allowing
+								various input formats and an easy export of session data to
+								continue analysis without repeated processing input data.
+							</li>
+						</ul>
+						<h5 class="secondary">
+							<i class="fa-solid fa-triangle-exclamation"></i> Limitations
+						</h5>
+						<ul>
+							<li>
+								We recommend using PTMVision in Chrome or Firefox for optimal
+								performance. Safari has issues when visualising larger datasets.
+							</li>
+							<li>
+								Note that PTMVision serves solely to visualize the content
+								provided in the input and does not conduct any further quality
+								control. The localization of modifications still remains a
+								challenging task and may yield imprecise results.
+							</li>
+							<li>
+								PTMVision will be continuously updated and improved, including
+								the addition of filters for localisation scores as soon as they
+								will be reported by search engines.
+							</li>
+							<li>
+								PTMVision currently limits the maximal request size with respect
+								to the
+								<em>zlib</em> compressed content of the <em>PTM Data</em> file
+								to a maximum of 50 MB.
+							</li>
+						</ul>
+						<hr />
+						<div>
+							<p>If you use this software, please cite it as below:</p>
+							<div
+								class="remark"
+								style="font-family: monospace; font-size: smaller"
+							>
+								<p>
+									<i
+										>PTMVision: An Interactive Visualization Webserver for
+										Post-translational Modifications of Proteins</i
+									>
+								</p>
+								<p>
+									Simon Hackl, Caroline Jachmann, Mathias Witte Paz, Theresa
+									Anisja Harbig, Lennart Martens, and Kay Nieselt
+								</p>
+								<p>
+									Journal of Proteome Research 2025 24 (2), 919-928. DOI:
+									<code
+										><a href="10.1021/acs.jproteome.4c00679"
+											>10.1021/acs.jproteome.4c00679</a
+										></code
+									>
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
 
-        <div id="panel-inputs" class="panel-container">
-          <h5 style="font-weight: 600">
-            <i class="fa-duotone fa-circle-1"></i>
-            Start Session
-          </h5>
-          <p
-            class="text-light text-just"
-            style="font-family: monospace; font-size: small"
-          >
-            Upload data, re-upload a session or browse and start an example
-            session. Once complete, session data can be downloaded with
-            <em>Download Session Data</em> in the header menu and panels
-            <i class="fa-duotone fa-circle-2" style="font-size: small"></i> and
-            <i class="fa-duotone fa-circle-3" style="font-size: small"></i> will
-            be filled. Click
-            <i
-              class="fa-duotone fa-solid fa-circle-question"
-              style="font-size: small"
-            ></i>
-            symbols for help.
-          </p>
-          <p
-            class="text-light text-just"
-            style="font-family: monospace; font-size: small"
-          >
-            PTMVision sessions are stored for 24 hours on our server and will be
-            deleted afterwards (existing session data is automatically
-            re-initialized).
-          </p>
-          <p class="mb-2" style="font-size: larger; font-weight: 500">
-            Upload post-translational modification data from open or closed
-            search to start a new session
-          </p>
-          <p>
-            <code style="color: var(--highlight-2)">Mandatory</code> Input
-            Format
-            <i
-              id="inputs-help-1"
-              class="fa-duotone fa-solid fa-circle-question fa-2xs"
-              style="font-size: small; cursor: pointer"
-            ></i>
-          </p>
-          <div
-            class="remark text-light text-just w-100"
-            data-role="collapse"
-            data-toggle-element="#inputs-help-1"
-            data-collapsed="true"
-          >
-            Select one value from the drop-down menu to specify the data format
-            to be processed. This is either determined by the proteomics search
-            engine used to generate your PTM data (available as options from the
-            <em>Search Engine</em> group) or one of the following (available as
-            options from the <em>Other</em> group): Plain/CSV supports manually
-            compiled inputs in CSV format; mzIdentML supports the mzIdentML
-            exchange standard (.mzid files); Infer/psm_utils attempts to
-            determine the format using the psm_utils Python package. For more
-            information, see the <em>Usage Guide</em>.
-          </div>
-          <select id="data-type-form" class="mt-2 mb-4 w-75" data-role="select">
-            <optgroup label="Search Engine">
-              <option value="ionbot">ionbot</option>
-              <option value="msfragger">MSFragger</option>
-              <option value="sage">Sage (Closed Search)</option>
-              <option value="msms">MaxQuant (Closed Search)</option>
-              <option value="spectronaut">Spectronaut (PTM Site Report)</option>
-            </optgroup>
-            <optgroup label="Other">
-              <option value="csv">Plain/CSV</option>
-              <option value="mzid">mzIdentML (.mzid)</option>
-              <option value="infer">Infer/psm_utils</option>
-            </optgroup>
-          </select>
-          <p>
-            <code style="color: var(--highlight-2)">Mandatory</code> PTM Data
-            <i
-              id="inputs-help-2"
-              class="fa-duotone fa-solid fa-circle-question fa-2xs"
-              style="font-size: small; cursor: pointer"
-            ></i>
-          </p>
-          <div
-            class="remark text-light text-just w-100"
-            data-role="collapse"
-            data-toggle-element="#inputs-help-2"
-            data-collapsed="true"
-          >
-            Browse a file by clicking on the input below. The file is expected
-            to contain the PTM data and should match the format selected above.
-            For more information, see the
-            <em>Usage Guide</em>.
-          </div>
-          <input
-            id="data-input-form"
-            class="mt-2 mb-4 w-75"
-            type="file"
-            data-role="file"
-            data-button-title='<i class="fa-duotone fa-folder-open"></i>'
-          />
-          <p>
-            <code style="color: var(--color-3)">Optional</code> Exclude UniMod
-            Classes
-            <i
-              id="inputs-help-3"
-              class="fa-duotone fa-solid fa-circle-question fa-2xs"
-              style="font-size: small; cursor: pointer"
-            ></i>
-          </p>
-          <div
-            class="remark text-light text-just w-100"
-            data-role="collapse"
-            data-toggle-element="#inputs-help-3"
-            data-collapsed="true"
-          >
-            Select multiple UniMod modification classes from the drop-down menu.
-            PTMs of the specified classes will be excluded from processing,
-            i.e., any PTM in your data that belongs to one of the selected
-            classes will be ignored. Select no class if you want to include all
-            PTMs in your data. For more information, see the
-            <em>Usage Guide</em>.
-          </div>
-          <select
-            id="data-excludecls-form"
-            class="mt-2 mb-4 w-75"
-            data-role="select"
-            multiple
-          >
-            <optgroup label="Other">
-              <option value="Chemical derivative">Chemical derivative</option>
-              <option value="Artefact">Artefact</option>
-              <option value="Synth. pep. protect. gp.">
-                Synth. pep. protect. gp.
-              </option>
-              <option value="Isotopic label">Isotopic label</option>
-              <option value="Other">Other</option>
-              <option value="AA substitution">AA substitution</option>
-              <option value="Unannotated mass shift">
-                Unannotated mass shift
-              </option>
-              <option value="Deprecated unimod entry">
-                Deprecated unimod entry
-              </option>
-              <option value="Non-standard residue">Non-standard residue</option>
-              <option value="Multiple">Multiple</option>
-            </optgroup>
-            <optgroup label="Translational">
-              <option value="Post-translational">Post-translational</option>
-              <option value="Co-translational">Co-translational</option>
-              <option value="Pre-translational">Pre-translational</option>
-            </optgroup>
-            <optgroup label="Glycosylation">
-              <option value="N-linked glycosylation">
-                N-linked glycosylation
-              </option>
-              <option value="O-linked glycosylation">
-                O-linked glycosylation
-              </option>
-              <option value="Other glycosylation">Other glycosylation</option>
-            </optgroup>
-            <optgroup label="Cross-Link">
-              <option value="Cross-link">Cross-link</option>
-              <option value="CID cleavable cross-link">
-                CID cleavable cross-link
-              </option>
-              <option value="Photo cleavable cross-link">
-                Photo cleavable cross-link
-              </option>
-              <option value="Other cleavable cross-link">
-                Other cleavable cross-link
-              </option>
-            </optgroup>
-          </select>
-          <p>
-            <code style="color: var(--color-3)">Optional</code> Adjust Mass
-            Shift Tolerance
-            <i
-              id="inputs-help-4"
-              class="fa-duotone fa-solid fa-circle-question fa-2xs"
-              style="font-size: small; cursor: pointer"
-            ></i>
-          </p>
-          <div
-            class="remark text-light text-just w-100"
-            data-role="collapse"
-            data-toggle-element="#inputs-help-4"
-            data-collapsed="true"
-          >
-            Adjust the tolerance for the mass shift of modifications in Daltons
-            with the input below. This is only relevant for open search data:
-            PTMs whose mass shift, relative to each other, is within the
-            specified tolerance value will be merged. For more information, see
-            the
-            <em>Usage Guide</em>.
-          </div>
-          <input
-            id="data-tolerance-form"
-            class="mt-2 mb-4 w-25 input-small"
-            type="number"
-            value="0.001"
-            min="0"
-            max="10"
-            step="0.001"
-          />
-          <br />
-          <button
-            class="proceed-button mt-2"
-            data-role="hint"
-            data-hint-position="right"
-            data-hint-hide="0"
-            data-hint-text="Submit the specified input data to start a new PTMVision session."
-            onclick="startSession()"
-          >
-            Submit
-          </button>
-          <p class="mb-2" style="font-size: larger; font-weight: 500">
-            <u>or</u> re-upload a PTMVision session
-          </p>
-          <p>
-            <code style="color: var(--highlight-2)">Mandatory</code> PTMVision
-            Session
-            <i
-              id="inputs-help-5"
-              class="fa-duotone fa-solid fa-circle-question fa-2xs"
-              style="font-size: small; cursor: pointer"
-            ></i>
-          </p>
-          <div
-            class="remark text-light text-just w-100"
-            data-role="collapse"
-            data-toggle-element="#inputs-help-5"
-            data-collapsed="true"
-          >
-            Browse a downloaded PTMVision session (.zlib file) by clicking the
-            input below. The file contains all relevant information to reload
-            the session. For more information, see the
-            <em>Usage Guide</em>.
-          </div>
-          <input
-            id="session-input-form"
-            class="mt-2 mb-4 w-75"
-            type="file"
-            data-role="file"
-            accept=".zlib"
-            data-button-title='<i class="fa-duotone fa-folder-open"></i>'
-          />
-          <button
-            class="proceed-button mt-2"
-            data-role="hint"
-            data-hint-position="right"
-            data-hint-hide="0"
-            data-hint-text="Starts the specified PTMVision session."
-            onclick="startExistingSession()"
-          >
-            Submit
-          </button>
+				<div id="panel-inputs" class="panel-container">
+					<h5 style="font-weight: 600">
+						<i class="fa-duotone fa-circle-1"></i>
+						Start Session
+					</h5>
+					<p
+						class="text-light text-just"
+						style="font-family: monospace; font-size: small"
+					>
+						Upload data, re-upload a session or browse and start an example
+						session. Once complete, session data can be downloaded with
+						<em>Download Session Data</em> in the header menu and panels
+						<i class="fa-duotone fa-circle-2" style="font-size: small"></i> and
+						<i class="fa-duotone fa-circle-3" style="font-size: small"></i> will
+						be filled. Click
+						<i
+							class="fa-duotone fa-solid fa-circle-question"
+							style="font-size: small"
+						></i>
+						symbols for help.
+					</p>
+					<p
+						class="text-light text-just"
+						style="font-family: monospace; font-size: small"
+					>
+						PTMVision sessions are stored for 24 hours on our server and will be
+						deleted afterwards (existing session data is automatically
+						re-initialized).
+					</p>
+					<p class="mb-2" style="font-size: larger; font-weight: 500">
+						Upload post-translational modification data from open or closed
+						search to start a new session
+					</p>
+					<p>
+						<code style="color: var(--highlight-2)">Mandatory</code> Input
+						Format
+						<i
+							id="inputs-help-1"
+							class="fa-duotone fa-solid fa-circle-question fa-2xs"
+							style="font-size: small; cursor: pointer"
+						></i>
+					</p>
+					<div
+						class="remark text-light text-just w-100"
+						data-role="collapse"
+						data-toggle-element="#inputs-help-1"
+						data-collapsed="true"
+					>
+						Select one value from the drop-down menu to specify the data format
+						to be processed. This is either determined by the proteomics search
+						engine used to generate your PTM data (available as options from the
+						<em>Search Engine</em> group) or one of the following (available as
+						options from the <em>Other</em> group): Plain/CSV supports manually
+						compiled inputs in CSV format; mzIdentML supports the mzIdentML
+						exchange standard (.mzid files); Infer/psm_utils attempts to
+						determine the format using the psm_utils Python package. For more
+						information, see the <em>Usage Guide</em>.
+					</div>
+					<select id="data-type-form" class="mt-2 mb-4 w-75" data-role="select">
+						<optgroup label="Search Engine">
+							<option value="ionbot">ionbot</option>
+							<option value="msfragger">MSFragger</option>
+							<option value="sage">Sage (Closed Search)</option>
+							<option value="msms">MaxQuant (Closed Search)</option>
+							<option value="spectronaut">Spectronaut (PTM Site Report)</option>
+						</optgroup>
+						<optgroup label="Other">
+							<option value="csv">Plain/CSV</option>
+							<option value="mzid">mzIdentML (.mzid)</option>
+							<option value="infer">Infer/psm_utils</option>
+						</optgroup>
+					</select>
+					<p>
+						<code style="color: var(--highlight-2)">Mandatory</code> PTM Data
+						<i
+							id="inputs-help-2"
+							class="fa-duotone fa-solid fa-circle-question fa-2xs"
+							style="font-size: small; cursor: pointer"
+						></i>
+					</p>
+					<div
+						class="remark text-light text-just w-100"
+						data-role="collapse"
+						data-toggle-element="#inputs-help-2"
+						data-collapsed="true"
+					>
+						Browse a file by clicking on the input below. The file is expected
+						to contain the PTM data and should match the format selected above.
+						For more information, see the
+						<em>Usage Guide</em>.
+					</div>
+					<input
+						id="data-input-form"
+						class="mt-2 mb-4 w-75"
+						type="file"
+						data-role="file"
+						data-button-title='<i class="fa-duotone fa-folder-open"></i>'
+					/>
+					<p>
+						<code style="color: var(--color-3)">Optional</code> Exclude UniMod
+						Classes
+						<i
+							id="inputs-help-3"
+							class="fa-duotone fa-solid fa-circle-question fa-2xs"
+							style="font-size: small; cursor: pointer"
+						></i>
+					</p>
+					<div
+						class="remark text-light text-just w-100"
+						data-role="collapse"
+						data-toggle-element="#inputs-help-3"
+						data-collapsed="true"
+					>
+						Select multiple UniMod modification classes from the drop-down menu.
+						PTMs of the specified classes will be excluded from processing,
+						i.e., any PTM in your data that belongs to one of the selected
+						classes will be ignored. Select no class if you want to include all
+						PTMs in your data. For more information, see the
+						<em>Usage Guide</em>.
+					</div>
+					<select
+						id="data-excludecls-form"
+						class="mt-2 mb-4 w-75"
+						data-role="select"
+						multiple
+					>
+						<optgroup label="Other">
+							<option value="Chemical derivative">Chemical derivative</option>
+							<option value="Artefact">Artefact</option>
+							<option value="Synth. pep. protect. gp.">
+								Synth. pep. protect. gp.
+							</option>
+							<option value="Isotopic label">Isotopic label</option>
+							<option value="Other">Other</option>
+							<option value="AA substitution">AA substitution</option>
+							<option value="Unannotated mass shift">
+								Unannotated mass shift
+							</option>
+							<option value="Deprecated unimod entry">
+								Deprecated unimod entry
+							</option>
+							<option value="Non-standard residue">Non-standard residue</option>
+							<option value="Multiple">Multiple</option>
+						</optgroup>
+						<optgroup label="Translational">
+							<option value="Post-translational">Post-translational</option>
+							<option value="Co-translational">Co-translational</option>
+							<option value="Pre-translational">Pre-translational</option>
+						</optgroup>
+						<optgroup label="Glycosylation">
+							<option value="N-linked glycosylation">
+								N-linked glycosylation
+							</option>
+							<option value="O-linked glycosylation">
+								O-linked glycosylation
+							</option>
+							<option value="Other glycosylation">Other glycosylation</option>
+						</optgroup>
+						<optgroup label="Cross-Link">
+							<option value="Cross-link">Cross-link</option>
+							<option value="CID cleavable cross-link">
+								CID cleavable cross-link
+							</option>
+							<option value="Photo cleavable cross-link">
+								Photo cleavable cross-link
+							</option>
+							<option value="Other cleavable cross-link">
+								Other cleavable cross-link
+							</option>
+						</optgroup>
+					</select>
+					<p>
+						<code style="color: var(--color-3)">Optional</code> Adjust Mass
+						Shift Tolerance
+						<i
+							id="inputs-help-4"
+							class="fa-duotone fa-solid fa-circle-question fa-2xs"
+							style="font-size: small; cursor: pointer"
+						></i>
+					</p>
+					<div
+						class="remark text-light text-just w-100"
+						data-role="collapse"
+						data-toggle-element="#inputs-help-4"
+						data-collapsed="true"
+					>
+						Adjust the tolerance for the mass shift of modifications in Daltons
+						with the input below. This is only relevant for open search data:
+						PTMs whose mass shift, relative to each other, is within the
+						specified tolerance value will be merged. For more information, see
+						the
+						<em>Usage Guide</em>.
+					</div>
+					<input
+						id="data-tolerance-form"
+						class="mt-2 mb-4 w-25 input-small"
+						type="number"
+						value="0.001"
+						min="0"
+						max="10"
+						step="0.001"
+					/>
+					<br />
+					<button
+						class="proceed-button mt-2"
+						data-role="hint"
+						data-hint-position="right"
+						data-hint-hide="0"
+						data-hint-text="Submit the specified input data to start a new PTMVision session."
+						onclick="startSession()"
+					>
+						Submit
+					</button>
+					<p class="mb-2" style="font-size: larger; font-weight: 500">
+						<u>or</u> re-upload a PTMVision session
+					</p>
+					<p>
+						<code style="color: var(--highlight-2)">Mandatory</code> PTMVision
+						Session
+						<i
+							id="inputs-help-5"
+							class="fa-duotone fa-solid fa-circle-question fa-2xs"
+							style="font-size: small; cursor: pointer"
+						></i>
+					</p>
+					<div
+						class="remark text-light text-just w-100"
+						data-role="collapse"
+						data-toggle-element="#inputs-help-5"
+						data-collapsed="true"
+					>
+						Browse a downloaded PTMVision session (.zlib file) by clicking the
+						input below. The file contains all relevant information to reload
+						the session. For more information, see the
+						<em>Usage Guide</em>.
+					</div>
+					<input
+						id="session-input-form"
+						class="mt-2 mb-4 w-75"
+						type="file"
+						data-role="file"
+						accept=".zlib"
+						data-button-title='<i class="fa-duotone fa-folder-open"></i>'
+					/>
+					<button
+						class="proceed-button mt-2"
+						data-role="hint"
+						data-hint-position="right"
+						data-hint-hide="0"
+						data-hint-text="Starts the specified PTMVision session."
+						onclick="startExistingSession()"
+					>
+						Submit
+					</button>
 
-          <p class="mb-2">
-            <u style="font-size: larger; font-weight: 500">or</u>
-            <button id="inputs-help-6" class="text-button ml-2">
-              Browse Example Sessions
-            </button>
-          </p>
-          <div
-            class="remark text-light text-just"
-            style="font-size: small"
-            data-role="collapse"
-            data-toggle-element="#inputs-help-6"
-            data-collapsed="true"
-          >
-            <p style="font-family: monospace">
-              Example sessions to explore the features of PTMVision can be
-              started from the table below by clicking the individual
-              <span
-                style="
-                  background-color: #62a8ac;
-                  padding: 1px;
-                  font-size: small;
-                  font-weight: normal;
-                  border-radius: 4px;
-                  color: #fbfbfb;
-                "
-                >Start</span
-              >
-              buttons - the <em>PTM Data</em> files used for the sessions can be
-              downloaded from the PTMVision Zenodo record at
-              <a href="https://zenodo.org/records/13270569" target="_blank"
-                >https://zenodo.org/records/13270569</a
-              >.
-            </p>
-            <!-- Add example sessions here, if new ones are available. -->
-            <table class="table striped w-100 mt-2">
-              <thead>
-                <tr>
-                  <th>Search Engine or <em>File Format</em></th>
-                  <th>Version</th>
-                  <th>Search Type</th>
-                  <th>Source Data</th>
-                  <th>Note</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>ionbot</td>
-                  <td><code>v0.11.3</code></td>
-                  <td>Open</td>
-                  <td>
-                    PRIDE project
-                    <a
-                      href="https://www.ebi.ac.uk/pride/archive/projects/PXD000498"
-                      target="_blank"
-                      >PXD000498</a
-                    >, LC-MS/MS run of an unenriched
-                    <em>Escherichia coli</em> sample.
-                  </td>
-                  <td>
-                    UniMod classes <em>Artefact</em> and
-                    <em>Chemical derivative</em> excluded (via PTMVision).
-                  </td>
-                  <td>
-                    <button
-                      class="example-button"
-                      data-role="hint"
-                      data-hint-text="Start this example session."
-                      onclick="startExampleSession('ptmvision.example.PXD000498.ionbot-v011')"
-                    >
-                      Start
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>MSFragger</td>
-                  <td><code>v4.0</code></td>
-                  <td>Open</td>
-                  <td>
-                    PRIDE project
-                    <a
-                      href="https://www.ebi.ac.uk/pride/archive/projects/PXD007740"
-                      target="_blank"
-                      >PXD007740</a
-                    >, LC-MS/MS run of a human colorectal cancer sample enriched
-                    for phosphorylated peptides using Ti<sup>4+</sup>-IMAC.
-                  </td>
-                  <td>
-                    Input file filtered for modified peptides. UniMod classes
-                    <em>Artefact</em> and <em>Chemical derivative</em> excluded
-                    (via PTMVision).
-                  </td>
-                  <td>
-                    <button
-                      class="example-button"
-                      data-role="hint"
-                      data-hint-text="Start this example session."
-                      onclick="startExampleSession('ptmvision.example.PXD007740.msfragger-v40')"
-                    >
-                      Start
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Sage</td>
-                  <td><code>v0.13.1</code></td>
-                  <td>Closed</td>
-                  <td>
-                    PRIDE project
-                    <a
-                      href="https://www.ebi.ac.uk/pride/archive/projects/PXD000498"
-                      target="_blank"
-                      >PXD000498</a
-                    >, LC-MS/MS run of an unenriched
-                    <em>Escherichia coli</em> sample. Closed search with
-                    <em>carbamidomethylation</em> as fixed;
-                    <em>oxidation</em> as variable.
-                  </td>
-                  <td></td>
-                  <td>
-                    <button
-                      class="example-button"
-                      data-role="hint"
-                      data-hint-text="Start this example session."
-                      onclick="startExampleSession('ptmvision.example.PXD000498.sage-v0131')"
-                    >
-                      Start
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>MaxQuant</td>
-                  <td><code>v2.4.13.0</code></td>
-                  <td>Closed</td>
-                  <td>
-                    PRIDE project
-                    <a
-                      href="https://www.ebi.ac.uk/pride/archive/projects/PXD025088"
-                      target="_blank"
-                      >PXD025088</a
-                    >, LC-MS/MS run of an unenriched
-                    <em>Escherichia coli</em> sample. Closed search with
-                    <em>carbamidomethylation</em> as fixed;
-                    <em>oxidation</em> and
-                    <em>protein n-terminal acetylation</em> as variable.
-                  </td>
-                  <td>Input file filtered for modified peptides.</td>
-                  <td>
-                    <button
-                      class="example-button"
-                      data-role="hint"
-                      data-hint-text="Start this example session."
-                      onclick="startExampleSession('ptmvision.example.PXD025088.maxquant-v24130')"
-                    >
-                      Start
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Spectronaut</td>
-                  <td><code>v9</code></td>
-                  <td>Not specified</td>
-                  <td>
-                    MassIVE project
-                    <a
-                      href="https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=6dfcd4ae92a7471a85fa0bf0add8c9bd"
-                      target="_blank"
-                      >MSV000091214</a
-                    >, LC-MS/MS run of an succinyl-enriched mouse kidney sample
-                    using DC8 and DC12.
-                  </td>
-                  <td></td>
-                  <td>
-                    <button
-                      class="example-button"
-                      data-role="hint"
-                      data-hint-text="Start this example session."
-                      onclick="startExampleSession('ptmvision.example.MSV000091214.spectronaut')"
-                    >
-                      Start
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><em>Plain/CSV</em></td>
-                  <td></td>
-                  <td></td>
-                  <td>
-                    <a
-                      href="http://biovis.net/2022/biovisChallenges_vis/"
-                      target="_blank"
-                      >IEEE VIS 2022 Bio+MedVis Challenge</a
-                    >
-                    dataset comprising modifications of three human proteins and
-                    their mouse orthologs. PTM analysis carried out with ionbot
-                    (open search).
-                  </td>
-                  <td>
-                    UniMod classes
-                    <em>Artefact</em> and <em>Chemical derivative</em> excluded
-                    (via PTMVision).
-                  </td>
-                  <td>
-                    <button
-                      class="example-button"
-                      data-role="hint"
-                      data-hint-text="Start this example session."
-                      onclick="startExampleSession('ptmvision.example.biomedvis2022.plain')"
-                    >
-                      Start
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><em>mzIdentML</em></td>
-                  <td></td>
-                  <td></td>
-                  <td>
-                    PRIDE project
-                    <a
-                      href="https://www.ebi.ac.uk/pride/archive/projects/PXD001077"
-                      target="_blank"
-                      >PXD001077</a
-                    >, LC-MS/MS of an unenriched
-                    <em>Pyrococcus furiosus</em> sample. PTM analysis carried
-                    out with MS-GF+ v10024 via SearchGUI v1.18.7. Closed search
-                    with <em>carbamidomethylation</em> as fixed;
-                    <em>oxidation</em> and <em>phosphorylation</em> as variable.
-                  </td>
-                  <td></td>
-                  <td>
-                    <button
-                      class="example-button"
-                      data-role="hint"
-                      data-hint-text="Start this example session."
-                      onclick="startExampleSession('ptmvision.example.PXD001077.mzid')"
-                    >
-                      Start
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+					<p class="mb-2">
+						<u style="font-size: larger; font-weight: 500">or</u>
+						<button id="inputs-help-6" class="text-button ml-2">
+							Browse Example Sessions
+						</button>
+					</p>
+					<div
+						class="remark text-light text-just"
+						style="font-size: small"
+						data-role="collapse"
+						data-toggle-element="#inputs-help-6"
+						data-collapsed="true"
+					>
+						<p style="font-family: monospace">
+							Example sessions to explore the features of PTMVision can be
+							started from the table below by clicking the individual
+							<span
+								style="
+									background-color: #62a8ac;
+									padding: 1px;
+									font-size: small;
+									font-weight: normal;
+									border-radius: 4px;
+									color: #fbfbfb;
+								"
+								>Start</span
+							>
+							buttons - the <em>PTM Data</em> files used for the sessions can be
+							downloaded from the PTMVision Zenodo record at
+							<a href="https://zenodo.org/records/13270569" target="_blank"
+								>https://zenodo.org/records/13270569</a
+							>.
+						</p>
+						<!-- Add example sessions here, if new ones are available. -->
+						<table class="table striped w-100 mt-2">
+							<thead>
+								<tr>
+									<th>Search Engine or <em>File Format</em></th>
+									<th>Version</th>
+									<th>Search Type</th>
+									<th>Source Data</th>
+									<th>Note</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>ionbot</td>
+									<td><code>v0.11.3</code></td>
+									<td>Open</td>
+									<td>
+										PRIDE project
+										<a
+											href="https://www.ebi.ac.uk/pride/archive/projects/PXD000498"
+											target="_blank"
+											>PXD000498</a
+										>, LC-MS/MS run of an unenriched
+										<em>Escherichia coli</em> sample.
+									</td>
+									<td>
+										UniMod classes <em>Artefact</em> and
+										<em>Chemical derivative</em> excluded (via PTMVision).
+									</td>
+									<td>
+										<button
+											class="example-button"
+											data-role="hint"
+											data-hint-text="Start this example session."
+											onclick="startExampleSession('ptmvision.example.PXD000498.ionbot-v011')"
+										>
+											Start
+										</button>
+									</td>
+								</tr>
+								<tr>
+									<td>MSFragger</td>
+									<td><code>v4.0</code></td>
+									<td>Open</td>
+									<td>
+										PRIDE project
+										<a
+											href="https://www.ebi.ac.uk/pride/archive/projects/PXD007740"
+											target="_blank"
+											>PXD007740</a
+										>, LC-MS/MS run of a human colorectal cancer sample enriched
+										for phosphorylated peptides using Ti<sup>4+</sup>-IMAC.
+									</td>
+									<td>
+										Input file filtered for modified peptides. UniMod classes
+										<em>Artefact</em> and <em>Chemical derivative</em> excluded
+										(via PTMVision).
+									</td>
+									<td>
+										<button
+											class="example-button"
+											data-role="hint"
+											data-hint-text="Start this example session."
+											onclick="startExampleSession('ptmvision.example.PXD007740.msfragger-v40')"
+										>
+											Start
+										</button>
+									</td>
+								</tr>
+								<tr>
+									<td>Sage</td>
+									<td><code>v0.13.1</code></td>
+									<td>Closed</td>
+									<td>
+										PRIDE project
+										<a
+											href="https://www.ebi.ac.uk/pride/archive/projects/PXD000498"
+											target="_blank"
+											>PXD000498</a
+										>, LC-MS/MS run of an unenriched
+										<em>Escherichia coli</em> sample. Closed search with
+										<em>carbamidomethylation</em> as fixed;
+										<em>oxidation</em> as variable.
+									</td>
+									<td></td>
+									<td>
+										<button
+											class="example-button"
+											data-role="hint"
+											data-hint-text="Start this example session."
+											onclick="startExampleSession('ptmvision.example.PXD000498.sage-v0131')"
+										>
+											Start
+										</button>
+									</td>
+								</tr>
+								<tr>
+									<td>MaxQuant</td>
+									<td><code>v2.4.13.0</code></td>
+									<td>Closed</td>
+									<td>
+										PRIDE project
+										<a
+											href="https://www.ebi.ac.uk/pride/archive/projects/PXD025088"
+											target="_blank"
+											>PXD025088</a
+										>, LC-MS/MS run of an unenriched
+										<em>Escherichia coli</em> sample. Closed search with
+										<em>carbamidomethylation</em> as fixed;
+										<em>oxidation</em> and
+										<em>protein n-terminal acetylation</em> as variable.
+									</td>
+									<td>Input file filtered for modified peptides.</td>
+									<td>
+										<button
+											class="example-button"
+											data-role="hint"
+											data-hint-text="Start this example session."
+											onclick="startExampleSession('ptmvision.example.PXD025088.maxquant-v24130')"
+										>
+											Start
+										</button>
+									</td>
+								</tr>
+								<tr>
+									<td>Spectronaut</td>
+									<td><code>v9</code></td>
+									<td>Not specified</td>
+									<td>
+										MassIVE project
+										<a
+											href="https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=6dfcd4ae92a7471a85fa0bf0add8c9bd"
+											target="_blank"
+											>MSV000091214</a
+										>, LC-MS/MS run of an succinyl-enriched mouse kidney sample
+										using DC8 and DC12.
+									</td>
+									<td></td>
+									<td>
+										<button
+											class="example-button"
+											data-role="hint"
+											data-hint-text="Start this example session."
+											onclick="startExampleSession('ptmvision.example.MSV000091214.spectronaut')"
+										>
+											Start
+										</button>
+									</td>
+								</tr>
+								<tr>
+									<td><em>Plain/CSV</em></td>
+									<td></td>
+									<td></td>
+									<td>
+										<a
+											href="http://biovis.net/2022/biovisChallenges_vis/"
+											target="_blank"
+											>IEEE VIS 2022 Bio+MedVis Challenge</a
+										>
+										dataset comprising modifications of three human proteins and
+										their mouse orthologs. PTM analysis carried out with ionbot
+										(open search).
+									</td>
+									<td>
+										UniMod classes
+										<em>Artefact</em> and <em>Chemical derivative</em> excluded
+										(via PTMVision).
+									</td>
+									<td>
+										<button
+											class="example-button"
+											data-role="hint"
+											data-hint-text="Start this example session."
+											onclick="startExampleSession('ptmvision.example.biomedvis2022.plain')"
+										>
+											Start
+										</button>
+									</td>
+								</tr>
+								<tr>
+									<td><em>mzIdentML</em></td>
+									<td></td>
+									<td></td>
+									<td>
+										PRIDE project
+										<a
+											href="https://www.ebi.ac.uk/pride/archive/projects/PXD001077"
+											target="_blank"
+											>PXD001077</a
+										>, LC-MS/MS of an unenriched
+										<em>Pyrococcus furiosus</em> sample. PTM analysis carried
+										out with MS-GF+ v10024 via SearchGUI v1.18.7. Closed search
+										with <em>carbamidomethylation</em> as fixed;
+										<em>oxidation</em> and <em>phosphorylation</em> as variable.
+									</td>
+									<td></td>
+									<td>
+										<button
+											class="example-button"
+											data-role="hint"
+											data-hint-text="Start this example session."
+											onclick="startExampleSession('ptmvision.example.PXD001077.mzid')"
+										>
+											Start
+										</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 
-        <div id="panel-overview" class="panel-container">
-          <h5 style="font-weight: 600">
-            <i class="fa-duotone fa-circle-2"></i>
-            Overview PTMs
-            <i
-              id="overview-help-1"
-              class="fa-duotone fa-solid fa-circle-question fa-2xs"
-              style="font-size: small; cursor: pointer"
-            ></i>
-          </h5>
-          <div
-            id="panel-overview-help"
-            class="remark text-light text-just"
-            data-role="collapse"
-            data-toggle-element="#overview-help-1"
-            data-collapsed="true"
-            data-effect="fade"
-          >
-            Dashboard displays an overview of all PTMs in your data:
-            <ul>
-              <li>
-                <b>Shared PTM Sites between Modification Types</b>: Shows for
-                each modification pair, if both were found on common sites. The
-                number of common sites is displayed with a color gradient, where
-                brighter cells indicate lower numbers of shared sites.
-              </li>
-              <li>
-                <b>Mass Shift</b>: Shows the mass shift of each modification
-                type in a scatter plot. Hovering over a point will display the
-                mass shift in Dalton.
-              </li>
-              <li>
-                <b>Site Count</b>: Shows the number of sites that are modified
-                with the respective modification type in a bar plot. Hovering
-                over the bars will display the number of sites.
-              </li>
-              <li>
-                <b>PTM Class Counts</b>: Shows how many times each of the UniMod
-                classes have been assigned to a modification and site pair in a
-                bar plot.
-              </li>
-            </ul>
-            <p>The following controls are available for the dashboard:</p>
-            <p>
-              <i class="fa-duotone fa-camera"></i> Screenshot of the current
-              view.
-            </p>
-            <p>
-              <i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
-              Reset the zoom level of all overview visualizations to default
-              (zoomed out completely).
-            </p>
-            <p>
-              <i class="fa-duotone fa-highlighter"></i> Highlight a specific PTM
-              of interest.
-            </p>
-            <p>
-              <i class="fa-duotone fa-arrow-up-arrow-down"></i> Sort the
-              <em>Shared PTM sites</em>, <em>Mass Shift</em> and
-              <em>Site Count</em> visualizations either by mass shift or count.
-            </p>
-            <p>For more information, see the <em>Usage Guide</em>.</p>
-          </div>
-          <div id="panel-overview-chart"></div>
-          <div id="panel-overview-controls">
-            <button
-              id="panel-overview-control-download"
-              class="button-no-decoration"
-              data-role="hint"
-              data-hint-text="Download image."
-              data-hint-position="left"
-              onclick="overviewChartDownloadImage()"
-            >
-              <i class="fa-duotone fa-camera"></i>
-            </button>
-            <button
-              id="panel-overview-control-restore"
-              class="button-no-decoration"
-              data-role="hint"
-              data-hint-text="Reset zoom."
-              data-hint-position="left"
-              onclick="overviewChartRestoreZoom()"
-            >
-              <i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
-            </button>
-            <button
-              id="panel-overview-control-highlight"
-              class="button-no-decoration"
-              data-role="hint"
-              data-hint-text="Highlight PTM."
-              data-hint-position="left"
-              onclick="overviewChartHighlight()"
-            >
-              <i class="fa-duotone fa-highlighter"></i>
-            </button>
-            <button
-              id="panel-overview-control-sort"
-              class="button-no-decoration"
-              data-role="hint"
-              data-hint-text="Sort by count/mass shift."
-              data-hint-position="left"
-              onclick="overviewChartSort()"
-            >
-              <i class="fa-duotone fa-arrow-up-arrow-down"></i>
-            </button>
-          </div>
-        </div>
+				<div id="panel-overview" class="panel-container">
+					<h5 style="font-weight: 600">
+						<i class="fa-duotone fa-circle-2"></i>
+						Overview PTMs
+						<i
+							id="overview-help-1"
+							class="fa-duotone fa-solid fa-circle-question fa-2xs"
+							style="font-size: small; cursor: pointer"
+						></i>
+					</h5>
+					<div
+						id="panel-overview-help"
+						class="remark text-light text-just"
+						data-role="collapse"
+						data-toggle-element="#overview-help-1"
+						data-collapsed="true"
+						data-effect="fade"
+					>
+						Dashboard displays an overview of all PTMs in your data:
+						<ul>
+							<li>
+								<b>Shared PTM Sites between Modification Types</b>: Shows for
+								each modification pair, if both were found on common sites. The
+								number of common sites is displayed with a color gradient, where
+								brighter cells indicate lower numbers of shared sites.
+							</li>
+							<li>
+								<b>Mass Shift</b>: Shows the mass shift of each modification
+								type in a scatter plot. Hovering over a point will display the
+								mass shift in Dalton.
+							</li>
+							<li>
+								<b>Site Count</b>: Shows the number of sites that are modified
+								with the respective modification type in a bar plot. Hovering
+								over the bars will display the number of sites.
+							</li>
+							<li>
+								<b>PTM Class Counts</b>: Shows how many times each of the UniMod
+								classes have been assigned to a modification and site pair in a
+								bar plot.
+							</li>
+						</ul>
+						<p>The following controls are available for the dashboard:</p>
+						<p>
+							<i class="fa-duotone fa-camera"></i> Screenshot of the current
+							view.
+						</p>
+						<p>
+							<i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+							Reset the zoom level of all overview visualizations to default
+							(zoomed out completely).
+						</p>
+						<p>
+							<i class="fa-duotone fa-highlighter"></i> Highlight a specific PTM
+							of interest.
+						</p>
+						<p>
+							<i class="fa-duotone fa-arrow-up-arrow-down"></i> Sort the
+							<em>Shared PTM sites</em>, <em>Mass Shift</em> and
+							<em>Site Count</em> visualizations either by mass shift or count.
+						</p>
+						<p>For more information, see the <em>Usage Guide</em>.</p>
+					</div>
+					<div id="panel-overview-chart"></div>
+					<div id="panel-overview-controls">
+						<button
+							id="panel-overview-control-download"
+							class="button-no-decoration"
+							data-role="hint"
+							data-hint-text="Download image."
+							data-hint-position="left"
+							onclick="overviewChartDownloadImage()"
+						>
+							<i class="fa-duotone fa-camera"></i>
+						</button>
+						<button
+							id="panel-overview-control-restore"
+							class="button-no-decoration"
+							data-role="hint"
+							data-hint-text="Reset zoom."
+							data-hint-position="left"
+							onclick="overviewChartRestoreZoom()"
+						>
+							<i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+						</button>
+						<button
+							id="panel-overview-control-highlight"
+							class="button-no-decoration"
+							data-role="hint"
+							data-hint-text="Highlight PTM."
+							data-hint-position="left"
+							onclick="overviewChartHighlight()"
+						>
+							<i class="fa-duotone fa-highlighter"></i>
+						</button>
+						<button
+							id="panel-overview-control-sort"
+							class="button-no-decoration"
+							data-role="hint"
+							data-hint-text="Sort by count/mass shift."
+							data-hint-position="left"
+							onclick="overviewChartSort()"
+						>
+							<i class="fa-duotone fa-arrow-up-arrow-down"></i>
+						</button>
+					</div>
+				</div>
 
-        <div id="panel-table" class="panel-container">
-          <div class="grid">
-            <div class="row">
-              <div class="cell-11">
-                <h5 style="font-weight: 600">
-                  <i class="fa-duotone fa-circle-3"></i>
-                  Select Single Protein of Interest
-                </h5>
-                <p
-                  class="text-light text-just"
-                  style="font-family: monospace; font-size: small"
-                >
-                  Overview of all proteins available from session data, listing
-                  one protein per row with basic information about the protein
-                  and associated PTMs. Select a single row by clicking on it
-                  (highlighted in red) and click
-                  <em>Display</em> to obtain a detailed view of the PTMs on the
-                  selected protein. Click
-                  <i
-                    class="fa-duotone fa-solid fa-circle-question"
-                    style="font-size: small"
-                  ></i>
-                  symbols for help.
-                </p>
-              </div>
-            </div>
+				<div id="panel-table" class="panel-container">
+					<div class="grid">
+						<div class="row">
+							<div class="cell-11">
+								<h5 style="font-weight: 600">
+									<i class="fa-duotone fa-circle-3"></i>
+									Select Single Protein of Interest
+								</h5>
+								<p
+									class="text-light text-just"
+									style="font-family: monospace; font-size: small"
+								>
+									Overview of all proteins available from session data, listing
+									one protein per row with basic information about the protein
+									and associated PTMs. Select a single row by clicking on it
+									(highlighted in red) and click
+									<em>Display</em> to obtain a detailed view of the PTMs on the
+									selected protein. Click
+									<i
+										class="fa-duotone fa-solid fa-circle-question"
+										style="font-size: small"
+									></i>
+									symbols for help.
+								</p>
+							</div>
+						</div>
 
-            <div class="row">
-              <div class="cell-3">
-                <p class="float-left">
-                  Filter for modifications by UniMod name
-                  <i
-                    id="table-help-1"
-                    class="fa-duotone fa-solid fa-circle-question fa-2xs"
-                    style="font-size: small; cursor: pointer"
-                  ></i>
-                </p>
-              </div>
-              <div class="cell-7">
-                <select
-                  id="panel-table-filter-modification"
-                  class="input-small w-75"
-                  data-role="select"
-                  data-on-change="overviewTableSetFilters"
-                  multiple
-                ></select>
-              </div>
-            </div>
-            <div
-              class="remark text-light text-just w-100"
-              data-role="collapse"
-              data-toggle-element="#table-help-1"
-              data-collapsed="true"
-              data-effect="fade"
-            >
-              Select one or multiple UniMod modifications (by their name) from
-              the drop-down menu above to filter the table for proteins that
-              contain the specified PTMs at least once. Only modifications that
-              are actually included in the session data are listed in the
-              drop-down menu. The table will be updated accordingly. Filters are
-              applied in an AND logic.
-            </div>
-            <div class="row mt-2">
-              <div class="cell-3">
-                <p class="float-left">
-                  Filter for protein names/UniProt identifier
-                  <i
-                    id="table-help-2"
-                    class="fa-duotone fa-solid fa-circle-question fa-2xs"
-                    style="font-size: small; cursor: pointer"
-                  ></i>
-                </p>
-              </div>
-              <div class="cell-7">
-                <select
-                  id="panel-table-filter-id"
-                  class="input-small w-75"
-                  data-role="select"
-                  data-on-change="overviewTableSetFilters"
-                  multiple
-                ></select>
-              </div>
-            </div>
-            <div
-              class="remark text-light text-just w-100"
-              data-role="collapse"
-              data-toggle-element="#table-help-2"
-              data-collapsed="true"
-              data-effect="fade"
-            >
-              Select a protein name or UniProt identifier from the drop-down
-              menu to filter the table for proteins that match the specified
-              name or identifier. Only identifiers and names that are actually
-              included in the session data are listed in the drop-down menu. The
-              table will be updated accordingly. Filters are applied in an AND
-              logic.
-            </div>
-          </div>
-          <div id="panel-table-tabulator"></div>
-          <button
-            id="dashboard-display-button"
-            class="proceed-button"
-            data-role="hint"
-            data-hint-text="Display details of the selected protein."
-            data-hint-position="right"
-            onclick="dashboardChartInitialize( )"
-            disabled
-          >
-            Display
-          </button>
-        </div>
+						<div class="row">
+							<div class="cell-3">
+								<p class="float-left">
+									Filter for modifications by UniMod name
+									<i
+										id="table-help-1"
+										class="fa-duotone fa-solid fa-circle-question fa-2xs"
+										style="font-size: small; cursor: pointer"
+									></i>
+								</p>
+							</div>
+							<div class="cell-7">
+								<select
+									id="panel-table-filter-modification"
+									class="input-small w-75"
+									data-role="select"
+									data-on-change="overviewTableSetFilters"
+									multiple
+								></select>
+							</div>
+						</div>
+						<div
+							class="remark text-light text-just w-100"
+							data-role="collapse"
+							data-toggle-element="#table-help-1"
+							data-collapsed="true"
+							data-effect="fade"
+						>
+							Select one or multiple UniMod modifications (by their name) from
+							the drop-down menu above to filter the table for proteins that
+							contain the specified PTMs at least once. Only modifications that
+							are actually included in the session data are listed in the
+							drop-down menu. The table will be updated accordingly. Filters are
+							applied in an AND logic.
+						</div>
+						<div class="row mt-2">
+							<div class="cell-3">
+								<p class="float-left">
+									Filter for protein names/UniProt identifier
+									<i
+										id="table-help-2"
+										class="fa-duotone fa-solid fa-circle-question fa-2xs"
+										style="font-size: small; cursor: pointer"
+									></i>
+								</p>
+							</div>
+							<div class="cell-7">
+								<select
+									id="panel-table-filter-id"
+									class="input-small w-75"
+									data-role="select"
+									data-on-change="overviewTableSetFilters"
+									multiple
+								></select>
+							</div>
+						</div>
+						<div
+							class="remark text-light text-just w-100"
+							data-role="collapse"
+							data-toggle-element="#table-help-2"
+							data-collapsed="true"
+							data-effect="fade"
+						>
+							Select a protein name or UniProt identifier from the drop-down
+							menu to filter the table for proteins that match the specified
+							name or identifier. Only identifiers and names that are actually
+							included in the session data are listed in the drop-down menu. The
+							table will be updated accordingly. Filters are applied in an AND
+							logic.
+						</div>
+					</div>
+					<div id="panel-table-tabulator"></div>
+					<button
+						id="dashboard-display-button"
+						class="proceed-button"
+						data-role="hint"
+						data-hint-text="Display details of the selected protein."
+						data-hint-position="right"
+						onclick="dashboardChartInitialize( )"
+						disabled
+					>
+						Display
+					</button>
+				</div>
 
-        <div id="panel-dashboard" class="panel-container">
-          <h5 style="font-weight: 600">
-            <i class="fa-duotone fa-circle-4"></i>
-            <span id="panel-dashboard-title">Explore Detail</span>
-            <i
-              id="dashboard-help-1"
-              class="fa-duotone fa-solid fa-circle-question fa-2xs"
-              style="font-size: small; cursor: pointer"
-            ></i>
-            <b
-              id="panel-dashboard-selection"
-              class="ml-4 pb-2"
-              style="
-                font-size: 0.8em;
-                font-weight: lighter;
-                vertical-align: middle;
-              "
-              >No Protein Selected</b
-            >
-          </h5>
-          <div
-            id="panel-dashboard-help"
-            class="remark text-light text-just"
-            data-role="collapse"
-            data-toggle-element="#dashboard-help-1"
-            data-collapsed="true"
-            data-effect="fade"
-          >
-            <p>
-              PTMVision offers two distinct modes to display the PTM landscape
-              of a single protein; The Modifications View (default) and the
-              Structure View.
-            </p>
-            <p>The <b>Modifications View</b> dashboard displays:</p>
-            <ul>
-              <li>
-                <b>Per Position PTMs and Annotations</b>: (Top) The bar plot
-                shows the total number of modifications per position. (Mid) The
-                presence/absence matrix, where each row represents a
-                modification type and each column a position in the protein
-                sequence, indicates which modification type was found at the
-                respective position. (Bottom) Displays UniProt annotation
-                tracks.
-              </li>
-              <li>
-                <b>Per Aminoacid PTM Counts</b>: Displays the distribution of
-                modification types across the different amino acid residues in a
-                heatmap.
-              </li>
-              <li>
-                <b>Per PTM Class Counts</b>: Shows the total number of
-                modification sites per modification type in a bar plot.
-              </li>
-              <li>
-                <b>Legend</b>: Coloring of all plots, excpet the Per Aminoacid
-                PTM Counts, is based on the UniMod class of the modification.
-                Items can be clicked to toggle visibility of the respective
-                PTMs.
-              </li>
-            </ul>
-            <p>The <b>Structure View</b> dashboard displays:</p>
-            <ul>
-              <li>
-                <b>Per Position PTM Counts, Residue Contacts and Annotations</b
-                >: (Top) The bar plot shows the total number of modifications
-                per position. (Mid) The residues are plotted against each other
-                in a contact map; The cell color indicates whether the residues
-                in contact are modified. Clicking on a cell highlights the
-                respective residue in the protein structure. (Bottom) Displays
-                UniProt annotation tracks.
-              </li>
-              <li>
-                <b>Protein Structure and Residue Contact PTM Details</b>:
-                Displays the 3D structure model of the protein as well as
-                details on the obersved PTMs and distances of selected residues.
-              </li>
-              <li>
-                <b>Legend</b>: Coloring indicates if residues in contact are
-                modified or not as well as highlighted PTMs. Items can be
-                clicked to toggle visibility of the respective data points.
-              </li>
-            </ul>
-            <p>The following controls are available for the dashboard:</p>
-            <p>
-              <i class="fa-duotone fa-camera"></i> Screenshot of the current
-              view.
-            </p>
-            <p>
-              <i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
-              Reset the zoom level of all overview visualizations to default
-              (zoomed out completely).
-            </p>
-            <p>
-              <i class="fa-duotone fa-highlighter"></i> Highlight a specific PTM
-              of interest.
-            </p>
-            <p>
-              <i class="fa-duotone fa-repeat"></i> Switch between
-              <em>Modifications View</em> and <em>Structure View</em>.
-            </p>
-            <p>For more information, see the <em>Usage Guide</em>.</p>
-          </div>
-          <div id="panel-dashboard-chart"></div>
-          <div id="panel-dashboard-structure">
-            <div id="panel-dashboard-structure-meta"></div>
-          </div>
-          <div id="panel-dashboard-controls">
-            <button
-              id="panel-dashboard-control-download"
-              class="button-no-decoration"
-              data-role="hint"
-              data-hint-text="Download image (no structure)."
-              data-hint-position="left"
-              onclick="dashboardChartDownloadImage()"
-            >
-              <i class="fa-duotone fa-camera"></i>
-            </button>
-            <button
-              id="panel-dashboard-control-restore"
-              class="button-no-decoration"
-              data-role="hint"
-              data-hint-text="Reset zoom."
-              data-hint-position="left"
-              onclick="dashboardChartRestoreZoom()"
-            >
-              <i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
-            </button>
-            <button
-              id="panel-dashboard-control-highlight"
-              class="button-no-decoration"
-              data-role="hint"
-              data-hint-text="Highlight PTM."
-              data-hint-position="left"
-              onclick="dashboardChartHighlight()"
-            >
-              <i class="fa-duotone fa-highlighter"></i>
-            </button>
-            <button
-              id="panel-dashboard-control-switch"
-              class="button-no-decoration"
-              data-role="hint"
-              data-hint-text="Switch between modifications/structure view."
-              data-hint-position="left"
-              onclick="dashboardChartSwitch()"
-            >
-              <i class="fa-duotone fa-repeat"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </body>
+				<div id="panel-dashboard" class="panel-container">
+					<h5 style="font-weight: 600">
+						<i class="fa-duotone fa-circle-4"></i>
+						<span id="panel-dashboard-title">Explore Detail</span>
+						<i
+							id="dashboard-help-1"
+							class="fa-duotone fa-solid fa-circle-question fa-2xs"
+							style="font-size: small; cursor: pointer"
+						></i>
+						<b
+							id="panel-dashboard-selection"
+							class="ml-4 pb-2"
+							style="
+								font-size: 0.8em;
+								font-weight: lighter;
+								vertical-align: middle;
+							"
+							>No Protein Selected</b
+						>
+					</h5>
+					<div
+						id="panel-dashboard-help"
+						class="remark text-light text-just"
+						data-role="collapse"
+						data-toggle-element="#dashboard-help-1"
+						data-collapsed="true"
+						data-effect="fade"
+					>
+						<p>
+							PTMVision offers two distinct modes to display the PTM landscape
+							of a single protein; The Modifications View (default) and the
+							Structure View.
+						</p>
+						<p>The <b>Modifications View</b> dashboard displays:</p>
+						<ul>
+							<li>
+								<b>Per Position PTMs and Annotations</b>: (Top) The bar plot
+								shows the total number of modifications per position. (Mid) The
+								presence/absence matrix, where each row represents a
+								modification type and each column a position in the protein
+								sequence, indicates which modification type was found at the
+								respective position. (Bottom) Displays UniProt annotation
+								tracks.
+							</li>
+							<li>
+								<b>Per Aminoacid PTM Counts</b>: Displays the distribution of
+								modification types across the different amino acid residues in a
+								heatmap.
+							</li>
+							<li>
+								<b>Per PTM Class Counts</b>: Shows the total number of
+								modification sites per modification type in a bar plot.
+							</li>
+							<li>
+								<b>Legend</b>: Coloring of all plots, excpet the Per Aminoacid
+								PTM Counts, is based on the UniMod class of the modification.
+								Items can be clicked to toggle visibility of the respective
+								PTMs.
+							</li>
+						</ul>
+						<p>The <b>Structure View</b> dashboard displays:</p>
+						<ul>
+							<li>
+								<b>Per Position PTM Counts, Residue Contacts and Annotations</b
+								>: (Top) The bar plot shows the total number of modifications
+								per position. (Mid) The residues are plotted against each other
+								in a contact map; The cell color indicates whether the residues
+								in contact are modified. Clicking on a cell highlights the
+								respective residue in the protein structure. (Bottom) Displays
+								UniProt annotation tracks.
+							</li>
+							<li>
+								<b>Protein Structure and Residue Contact PTM Details</b>:
+								Displays the 3D structure model of the protein as well as
+								details on the obersved PTMs and distances of selected residues.
+							</li>
+							<li>
+								<b>Legend</b>: Coloring indicates if residues in contact are
+								modified or not as well as highlighted PTMs. Items can be
+								clicked to toggle visibility of the respective data points.
+							</li>
+						</ul>
+						<p>The following controls are available for the dashboard:</p>
+						<p>
+							<i class="fa-duotone fa-camera"></i> Screenshot of the current
+							view.
+						</p>
+						<p>
+							<i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+							Reset the zoom level of all overview visualizations to default
+							(zoomed out completely).
+						</p>
+						<p>
+							<i class="fa-duotone fa-highlighter"></i> Highlight a specific PTM
+							of interest.
+						</p>
+						<p>
+							<i class="fa-duotone fa-repeat"></i> Switch between
+							<em>Modifications View</em> and <em>Structure View</em>.
+						</p>
+						<p>For more information, see the <em>Usage Guide</em>.</p>
+					</div>
+					<div id="panel-dashboard-chart"></div>
+					<div id="panel-dashboard-structure">
+						<div id="panel-dashboard-structure-meta"></div>
+					</div>
+					<div id="panel-dashboard-controls">
+						<button
+							id="panel-dashboard-control-download"
+							class="button-no-decoration"
+							data-role="hint"
+							data-hint-text="Download image (no structure)."
+							data-hint-position="left"
+							onclick="dashboardChartDownloadImage()"
+						>
+							<i class="fa-duotone fa-camera"></i>
+						</button>
+						<button
+							id="panel-dashboard-control-restore"
+							class="button-no-decoration"
+							data-role="hint"
+							data-hint-text="Reset zoom."
+							data-hint-position="left"
+							onclick="dashboardChartRestoreZoom()"
+						>
+							<i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+						</button>
+						<button
+							id="panel-dashboard-control-highlight"
+							class="button-no-decoration"
+							data-role="hint"
+							data-hint-text="Highlight PTM."
+							data-hint-position="left"
+							onclick="dashboardChartHighlight()"
+						>
+							<i class="fa-duotone fa-highlighter"></i>
+						</button>
+						<button
+							id="panel-dashboard-control-switch"
+							class="button-no-decoration"
+							data-role="hint"
+							data-hint-text="Switch between modifications/structure view."
+							data-hint-position="left"
+							onclick="dashboardChartSwitch()"
+						>
+							<i class="fa-duotone fa-repeat"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>

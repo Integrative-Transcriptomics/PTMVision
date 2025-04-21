@@ -5,156 +5,156 @@ Copyright 2023-2024 by Caroline Jachmann and Simon Hackl
 Licensed under GPL-3.0
 -->
 <html>
-  <head>
-    <title>PTMVision | FAQ</title>
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="{{ url_for('static', filename='resources/icon.png') }}"
-    />
-    <!--
+	<head>
+		<title>PTMVision | FAQ</title>
+		<link
+			rel="icon"
+			type="image/x-icon"
+			href="{{ url_for('static', filename='resources/icon_64') }}"
+		/>
+		<!--
       Provide meta information about the application.
       -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="PTMVision: Interactive Visualization of Post Translational Modifications | Understanding the intricate landscape of post-translational
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta
+			name="description"
+			content="PTMVision: Interactive Visualization of Post Translational Modifications | Understanding the intricate landscape of post-translational
             modifications (PTMs) is crucial for unraveling the complex
             mechanisms underlying cellular processes and diseases. With
             PTMVision, researchers can effortlessly analyze and explore PTM data
             derived from various proteomics search engines, the mzIdentML data
             standard, or from a plain CSV table format processed manually from
             mass spectrometry (MS) data."
-    />
-    <meta name="author" content="Caroline Jachmann, Simon Hackl" />
-    <!--
+		/>
+		<meta name="author" content="Caroline Jachmann, Simon Hackl" />
+		<!--
       Definition of stylesheets to use in the application.
       -->
-    <link
-      rel="stylesheet"
-      href="{{url_for('static', filename='css/metro-5.0.0.rc9.min.css')}}"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{url_for('static', filename='css/ptmvision-1.1.css')}}"
-    />
-    <!--
+		<link
+			rel="stylesheet"
+			href="{{url_for('static', filename='css/metro-5.0.0.rc9.min.css')}}"
+		/>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="{{url_for('static', filename='css/ptmvision-1.1.css')}}"
+		/>
+		<!--
       Definition of java script files to use in the application.
       -->
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/jquery-3.7.1.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/metro-5.0.0.rc9.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/axios-1.1.2.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/ptmvision-1.1.global.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://kit.fontawesome.com/df04f22e3d.js"
-      crossorigin="anonymous"
-    ></script>
-  </head>
-  <body onload='$("#menu")[0].style.display = "flex";'>
-    <!-- App menu -->
-    <header
-      id="menu"
-      class="app-bar app-bar-expand"
-      data-role="appbar"
-      data-expand="true"
-      data-role-appbar="true"
-    >
-      <img
-        class="brand no-hover"
-        style="height: 80%; cursor: pointer"
-        src="{{ url_for('static', filename='resources/logo.png') }}"
-        alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
-        onclick="redirectTo('', '_self')"
-      />
-      <h5
-        class="ml-2"
-        style="font-family: monospace; color: var(--color-5); width: 4em"
-      >
-        <i class="fa-light fa-pipe"></i> FAQ
-      </h5>
-      <ul class="app-bar-menu">
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the main page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('', '_self')"
-        >
-          <i class="fa-solid fa-house-blank"></i>
-          Home
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the usage guide."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('usage', '_self')"
-        >
-          <i class="fa-duotone fa-solid fa-book"></i>
-          Usage Guide
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the FAQ page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('faq', '_blank')"
-          disabled
-        >
-          <i
-            class="fa-duotone fa-solid fa-question"
-            style="color: var(--background-color-2)"
-          ></i>
-          FAQ
-        </li>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/jquery-3.7.1.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/metro-5.0.0.rc9.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/axios-1.1.2.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/ptmvision-1.1.global.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="https://kit.fontawesome.com/df04f22e3d.js"
+			crossorigin="anonymous"
+		></script>
+	</head>
+	<body onload='$("#menu")[0].style.display = "flex";'>
+		<!-- App menu -->
+		<header
+			id="menu"
+			class="app-bar app-bar-expand"
+			data-role="appbar"
+			data-expand="true"
+			data-role-appbar="true"
+		>
+			<img
+				class="brand no-hover"
+				style="height: 80%; cursor: pointer"
+				src="{{ url_for('static', filename='resources/logo_lucid_256.png') }}"
+				alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
+				onclick="redirectTo('', '_self')"
+			/>
+			<h5
+				class="ml-2"
+				style="font-family: monospace; color: var(--color-5); width: 4em"
+			>
+				<i class="fa-light fa-pipe"></i> FAQ
+			</h5>
+			<ul class="app-bar-menu">
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the main page."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('', '_self')"
+				>
+					<i class="fa-solid fa-house-blank"></i>
+					Home
+				</li>
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the usage guide."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('usage', '_self')"
+				>
+					<i class="fa-duotone fa-solid fa-book"></i>
+					Usage Guide
+				</li>
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the FAQ page."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('faq', '_blank')"
+					disabled
+				>
+					<i
+						class="fa-duotone fa-solid fa-question"
+						style="color: var(--background-color-2)"
+					></i>
+					FAQ
+				</li>
 
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the legal information page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('legal', '_self')"
-        >
-          <i class="fa-solid fa-section"></i> Legal Information
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Download (binary) session data for re-upload."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="downloadSessionData()"
-        >
-          <i class="fa-duotone fa-solid fa-file-arrow-down"></i> Download
-          Session Data
-        </li>
-      </ul>
-    </header>
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the legal information page."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('legal', '_self')"
+				>
+					<i class="fa-solid fa-section"></i> Legal Information
+				</li>
+				<li
+					data-role="hint"
+					data-hint-text="Download (binary) session data for re-upload."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="downloadSessionData()"
+				>
+					<i class="fa-duotone fa-solid fa-file-arrow-down"></i> Download
+					Session Data
+				</li>
+			</ul>
+		</header>
 
-    <div class="text-container text-just text-light">
-      <p style="font-family: monospace; font-size: smaller">
-        We currently have no content for this section. If you encounter any
-        problems or have any questions, do not hesitate to
-        <a
-          href="https://github.com/Integrative-Transcriptomics/PTMVision/issues/new"
-          target="_blank"
-          >open an issue in our GitHub repository</a
-        >.
-      </p>
-    </div>
-  </body>
+		<div class="text-container text-just text-light">
+			<p style="font-family: monospace; font-size: smaller">
+				We currently have no content for this section. If you encounter any
+				problems or have any questions, do not hesitate to
+				<a
+					href="https://github.com/Integrative-Transcriptomics/PTMVision/issues/new"
+					target="_blank"
+					>open an issue in our GitHub repository</a
+				>.
+			</p>
+		</div>
+	</body>
 </html>

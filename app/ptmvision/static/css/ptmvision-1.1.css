@@ -15,9 +15,9 @@
   --background-color-1-o-90: #fbfbfbe6;
   --background-color-2: #d4d4d4;
   --background-color-3: #f0f5f5;
-  --color-1: #5497a7;
-  --color-2: #50858b;
-  --color-3: #62a8ac;
+  --color-1: #607196;
+  --color-2: #4e688d;
+  --color-3: #a8b4c9;
   --color-4: #f2f3f2;
   --color-5: #fdfefd;
   --highlight-1: #ff6663;
@@ -93,7 +93,7 @@ body {
   opacity: 0.9;
   color: var(--text-color);
   border-radius: 4px;
-  box-shadow: 1px 1px 10px #333333;
+  box-shadow: 1px 1px 10px var(--text-color);
 }
 
 .citation {
@@ -194,7 +194,7 @@ body {
   margin: 1em;
   padding: 1em;
   border-radius: 4px;
-  box-shadow: 0px 0px 5px #333333;
+  box-shadow: 0px 0px 5px var(--text-color);
   background-color: var(--background-color-3);
   opacity: 0.9;
 }
@@ -404,7 +404,7 @@ body {
 }
 
 #panel-dashboard-structure-meta i {
-  color: #dc5754;
+  color: var(--highlight-2);
 }
 
 #panel-dashboard-controls {

@@ -5,259 +5,284 @@ Copyright 2023-2024 by Caroline Jachmann and Simon Hackl
 Licensed under GPL-3.0
 -->
 <html>
-  <head>
-    <title>PTMVision | Legal Information</title>
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="{{ url_for('static', filename='resources/icon.png') }}"
-    />
-    <!--
+	<head>
+		<title>PTMVision | Legal Information</title>
+		<link
+			rel="icon"
+			type="image/x-icon"
+			href="{{ url_for('static', filename='resources/icon_64.png') }}"
+		/>
+		<!--
       Provide meta information about the application.
       -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="PTMVision: Interactive Visualization of Post Translational Modifications | Understanding the intricate landscape of post-translational
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta
+			name="description"
+			content="PTMVision: Interactive Visualization of Post Translational Modifications | Understanding the intricate landscape of post-translational
             modifications (PTMs) is crucial for unraveling the complex
             mechanisms underlying cellular processes and diseases. With
             PTMVision, researchers can effortlessly analyze and explore PTM data
             derived from various proteomics search engines, the mzIdentML data
             standard, or from a plain CSV table format processed manually from
             mass spectrometry (MS) data."
-    />
-    <meta name="author" content="Caroline Jachmann, Simon Hackl" />
-    <!--
+		/>
+		<meta name="author" content="Caroline Jachmann, Simon Hackl" />
+		<!--
       Definition of stylesheets to use in the application.
       -->
-    <link
-      rel="stylesheet"
-      href="{{url_for('static', filename='css/metro-5.0.0.rc9.min.css')}}"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{url_for('static', filename='css/ptmvision-1.1.css')}}"
-    />
-    <!--
+		<link
+			rel="stylesheet"
+			href="{{url_for('static', filename='css/metro-5.0.0.rc9.min.css')}}"
+		/>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="{{url_for('static', filename='css/ptmvision-1.1.css')}}"
+		/>
+		<!--
       Definition of java script files to use in the application.
       -->
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/jquery-3.7.1.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/metro-5.0.0.rc9.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/axios-1.1.2.min.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="{{url_for('static', filename='js/ptmvision-1.1.global.js')}}"
-    ></script>
-    <script
-      type="text/javascript"
-      src="https://kit.fontawesome.com/df04f22e3d.js"
-      crossorigin="anonymous"
-    ></script>
-  </head>
-  <body onload='$("#menu")[0].style.display = "flex";'>
-    <!-- App menu -->
-    <header
-      id="menu"
-      class="app-bar app-bar-expand"
-      data-role="appbar"
-      data-expand="true"
-      data-role-appbar="true"
-    >
-      <img
-        class="brand no-hover"
-        style="height: 80%; cursor: pointer"
-        src="{{ url_for('static', filename='resources/logo.png') }}"
-        alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
-        onclick="redirectTo('', '_self')"
-      />
-      <h5
-        class="ml-2"
-        style="font-family: monospace; color: var(--color-5); width: 4em"
-      >
-        <i class="fa-light fa-pipe"></i> Legal
-      </h5>
-      <ul class="app-bar-menu">
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the main page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('', '_self')"
-        >
-          <i class="fa-solid fa-house-blank"></i>
-          Home
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the usage guide."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('usage', '_self')"
-        >
-          <i class="fa-duotone fa-solid fa-book"></i>
-          Usage Guide
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the FAQ page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('faq', '_self')"
-        >
-          <i class="fa-duotone fa-solid fa-question"></i> FAQ
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Redirect to the legal information page."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="redirectTo('legal', '_blank')"
-          disabled
-        >
-          <i
-            class="fa-solid fa-section"
-            style="color: var(--background-color-2)"
-          ></i>
-          Legal Information
-        </li>
-        <li
-          data-role="hint"
-          data-hint-text="Download (binary) session data for re-upload."
-          data-hint-position="bottom"
-          data-hint-offset="10"
-          onclick="downloadSessionData()"
-        >
-          <i class="fa-duotone fa-solid fa-file-arrow-down"></i> Download
-          Session Data
-        </li>
-      </ul>
-    </header>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/jquery-3.7.1.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/metro-5.0.0.rc9.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/axios-1.1.2.min.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="{{url_for('static', filename='js/ptmvision-1.1.global.js')}}"
+		></script>
+		<script
+			type="text/javascript"
+			src="https://kit.fontawesome.com/df04f22e3d.js"
+			crossorigin="anonymous"
+		></script>
+	</head>
+	<body onload='$("#menu")[0].style.display = "flex";'>
+		<!-- App menu -->
+		<header
+			id="menu"
+			class="app-bar app-bar-expand"
+			data-role="appbar"
+			data-expand="true"
+			data-role-appbar="true"
+		>
+			<img
+				class="brand no-hover"
+				style="height: 80%; cursor: pointer"
+				src="{{ url_for('static', filename='resources/logo_lucid_256.png') }}"
+				alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
+				onclick="redirectTo('', '_self')"
+			/>
+			<h5
+				class="ml-2"
+				style="font-family: monospace; color: var(--color-5); width: 4em"
+			>
+				<i class="fa-light fa-pipe"></i> Legal
+			</h5>
+			<ul class="app-bar-menu">
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the main page."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('', '_self')"
+				>
+					<i class="fa-solid fa-house-blank"></i>
+					Home
+				</li>
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the usage guide."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('usage', '_self')"
+				>
+					<i class="fa-duotone fa-solid fa-book"></i>
+					Usage Guide
+				</li>
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the FAQ page."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('faq', '_self')"
+				>
+					<i class="fa-duotone fa-solid fa-question"></i> FAQ
+				</li>
+				<li
+					data-role="hint"
+					data-hint-text="Redirect to the legal information page."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="redirectTo('legal', '_blank')"
+					disabled
+				>
+					<i
+						class="fa-solid fa-section"
+						style="color: var(--background-color-2)"
+					></i>
+					Legal Information
+				</li>
+				<li
+					data-role="hint"
+					data-hint-text="Download (binary) session data for re-upload."
+					data-hint-position="bottom"
+					data-hint-offset="10"
+					onclick="downloadSessionData()"
+				>
+					<i class="fa-duotone fa-solid fa-file-arrow-down"></i> Download
+					Session Data
+				</li>
+			</ul>
+		</header>
 
-    <div class="text-container text-just text-light">
-      <h5>Cookie usage</h5>
-      <p style="font-family: monospace; font-size: smaller">
-        We use a strictly necessary (http-only non-tracking) session cookie so
-        that you can access your data. (1) Your data will not be accessible to
-        other people. (2) No personalized data is collected or shared with third
-        parties and you will not be tracked by this cookie. (3) The cookie will
-        automatically expire after 24 hours.
-      </p>
-      <h5>Medical disclaimer</h5>
-      <p style="font-family: monospace; font-size: smaller">
-        If medical information is provided on this site, it is provided as an
-        information resource only, and is not to be used or relied on for any
-        diagnostic or treatment purposes.
-      </p>
-      <h5>Content liability</h5>
-      <p style="font-family: monospace; font-size: smaller">
-        The contents of our pages were created with the utmost care. However, we
-        cannot guarantee the accuracy, completeness and actuality of the
-        content. As a service provider, we are responsible for our own content
-        on these pages under the general laws according to § 7 TMG. According to
-        §§ 8 to 10 TMG, however, we are not obligated as a service provider to
-        monitor transmitted or stored third-party information or to investigate
-        circumstances that indicate illegal activity. Obligations to remove or
-        block the use of information under the general laws remain unaffected.
-        However, liability in this regard is only possible from the point in
-        time at which a concrete infringement of the law becomes known. If we
-        become aware of such infringements, we will remove this content
-        immediately.
-      </p>
-      <h5>Link liability</h5>
-      <p style="font-family: monospace; font-size: smaller">
-        This page may contain links to external websites of third parties, on
-        whose contents we have no influence. We cannot take any liability for
-        these external contents. The respective provider or operator of the
-        pages is always responsible for the content of the linked pages. The
-        linked pages were checked for possible legal violations at the time of
-        linking. Illegal contents were not recognizable at the time of linking.
-        However, a permanent control of the contents of the linked pages is not
-        reasonable without concrete evidence of a violation of the law. If we
-        become aware of any infringements, we will remove such links
-        immediately.
-      </p>
-      <h5>Data privacy</h5>
-      <p style="font-family: monospace; font-size: smaller">
-        The use of our website is possible without providing personal data and
-        no processed data is stored. If personal data (such as name, address or
-        e-mail addresses) is collected, this is on a voluntary basis. This data
-        will not be passed on to third parties without your express consent. We
-        point out that data transmission over the Internet (e.g. communication
-        by e-mail) may yield security gaps. Complete protection of data against
-        access by third parties is not possible. The use of contact data
-        published within the framework of the impressum by third parties for the
-        purpose of sending advertising and information material is hereby
-        expressly prohibited. The operators of the pages expressly reserve the
-        right to take legal action in the event of the sending of advertising
-        information, such as spam e-mails.
-      </p>
-      <h5>Copyright</h5>
-      <p style="font-family: monospace; font-size: smaller">
-        This program is free software: you can redistribute it and/or modify it
-        under the terms of the GNU General Public License as published by the
-        Free Software Foundation, either version 3 of the License, or (at your
-        option) any later version. This program is distributed in the hope that
-        it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-        warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-        GNU General Public License for more details. (<a
-          href="https://www.gnu.org/licenses/gpl-3.0.en.html"
-          target="_blank"
-          >www.gnu.org/licenses/gpl-3.0.en</a
-        >)
-      </p>
-      <h5>Code availability</h5>
-      <p style="font-family: monospace; font-size: smaller">
-        The source code of PTMVision is available at
-        <a
-          href="https://github.com/Integrative-Transcriptomics/PTMVision"
-          target="_blank"
-          >https://github.com/Integrative-Transcriptomics/PTMVision</a
-        >.
-      </p>
-      <h5>Contact</h5>
-      <address style="font-family: monospace; font-size: smaller">
-        Caroline Jachmann
-        <button
-          class="button-no-decoration"
-          style="font-size: 1.2em"
-          onclick="window.open('mailto:caroline.jachmann$ugent.be'.replace('$', '@'));"
-        >
-          <i class="fa-duotone fa-solid fa-square-envelope"></i>
-        </button>
-        <br />
-        Computational Omics and Systems Biology Group, Department of
-        Biomolecular Medicine, Ghent University
-        <br />
-        VIB Technologiepark 75<br />
-        9052 Gent-Zwijnaarde, Belgium<br />
-      </address>
-      <address style="font-family: monospace; font-size: smaller">
-        Simon Hackl
-        <button
-          class="button-no-decoration"
-          style="font-size: 1.2em"
-          onclick="window.open('mailto:simon.hackl$uni-tuebingen.de'.replace('$', '@'));"
-        >
-          <i class="fa-duotone fa-solid fa-square-envelope"></i>
-        </button>
-        <br />
-        Integrative Transcriptomics Group, Institute for Bioinformatics and
-        Medical Informatics, University Tübingen
-        <br />
-        Sand 14<br />
-        72076 Tübingen, Germany<br />
-      </address>
-    </div>
-  </body>
+		<div class="text-container text-just text-light">
+			<h5>Cookie usage</h5>
+			<p style="font-family: monospace; font-size: smaller">
+				We use a strictly necessary (http-only non-tracking) session cookie so
+				that you can access your data. (1) Your data will not be accessible to
+				other people. (2) No personalized data is collected or shared with third
+				parties and you will not be tracked by this cookie. (3) The cookie will
+				automatically expire after 24 hours.
+			</p>
+			<h5>Medical disclaimer</h5>
+			<p style="font-family: monospace; font-size: smaller">
+				If medical information is provided on this site, it is provided as an
+				information resource only, and is not to be used or relied on for any
+				diagnostic or treatment purposes.
+			</p>
+			<h5>Content liability</h5>
+			<p style="font-family: monospace; font-size: smaller">
+				The contents of our pages were created with the utmost care. However, we
+				cannot guarantee the accuracy, completeness and actuality of the
+				content. As a service provider, we are responsible for our own content
+				on these pages under the general laws according to § 7 TMG. According to
+				§§ 8 to 10 TMG, however, we are not obligated as a service provider to
+				monitor transmitted or stored third-party information or to investigate
+				circumstances that indicate illegal activity. Obligations to remove or
+				block the use of information under the general laws remain unaffected.
+				However, liability in this regard is only possible from the point in
+				time at which a concrete infringement of the law becomes known. If we
+				become aware of such infringements, we will remove this content
+				immediately.
+			</p>
+			<h5>Link liability</h5>
+			<p style="font-family: monospace; font-size: smaller">
+				This page may contain links to external websites of third parties, on
+				whose contents we have no influence. We cannot take any liability for
+				these external contents. The respective provider or operator of the
+				pages is always responsible for the content of the linked pages. The
+				linked pages were checked for possible legal violations at the time of
+				linking. Illegal contents were not recognizable at the time of linking.
+				However, a permanent control of the contents of the linked pages is not
+				reasonable without concrete evidence of a violation of the law. If we
+				become aware of any infringements, we will remove such links
+				immediately.
+			</p>
+			<h5>Data privacy</h5>
+			<p style="font-family: monospace; font-size: smaller">
+				The use of our website is possible without providing personal data and
+				no processed data is stored. If personal data (such as name, address or
+				e-mail addresses) is collected, this is on a voluntary basis. This data
+				will not be passed on to third parties without your express consent. We
+				point out that data transmission over the Internet (e.g. communication
+				by e-mail) may yield security gaps. Complete protection of data against
+				access by third parties is not possible. The use of contact data
+				published within the framework of the impressum by third parties for the
+				purpose of sending advertising and information material is hereby
+				expressly prohibited. The operators of the pages expressly reserve the
+				right to take legal action in the event of the sending of advertising
+				information, such as spam e-mails.
+			</p>
+			<h5>Copyright</h5>
+			<p style="font-family: monospace; font-size: smaller">
+				This program is free software: you can redistribute it and/or modify it
+				under the terms of the GNU General Public License as published by the
+				Free Software Foundation, either version 3 of the License, or (at your
+				option) any later version. This program is distributed in the hope that
+				it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+				warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+				GNU General Public License for more details. (<a
+					href="https://www.gnu.org/licenses/gpl-3.0.en.html"
+					target="_blank"
+					>www.gnu.org/licenses/gpl-3.0.en</a
+				>)
+			</p>
+			<h5>Code availability</h5>
+			<p style="font-family: monospace; font-size: smaller">
+				The source code of PTMVision is available at
+				<a
+					href="https://github.com/Integrative-Transcriptomics/PTMVision"
+					target="_blank"
+					>https://github.com/Integrative-Transcriptomics/PTMVision</a
+				>.
+			</p>
+			<h5>Contact</h5>
+			<address style="font-family: monospace; font-size: smaller">
+				Caroline Jachmann
+				<button
+					class="button-no-decoration"
+					style="font-size: 1.2em"
+					onclick="window.open('mailto:caroline.jachmann$ugent.be'.replace('$', '@'));"
+				>
+					<i class="fa-duotone fa-solid fa-square-envelope"></i>
+				</button>
+				<br />
+				Computational Omics and Systems Biology Group, Department of
+				Biomolecular Medicine, Ghent University
+				<br />
+				VIB Technologiepark 75<br />
+				9052 Gent-Zwijnaarde, Belgium<br />
+			</address>
+			<address style="font-family: monospace; font-size: smaller">
+				Simon Hackl
+				<button
+					class="button-no-decoration"
+					style="font-size: 1.2em"
+					onclick="window.open('mailto:simon.hackl$uni-tuebingen.de'.replace('$', '@'));"
+				>
+					<i class="fa-duotone fa-solid fa-square-envelope"></i>
+				</button>
+				<br />
+				Integrative Transcriptomics Group, Institute for Bioinformatics and
+				Medical Informatics, University Tübingen
+				<br />
+				Sand 14<br />
+				72076 Tübingen, Germany<br />
+			</address>
+			<hr />
+			<h5>Citation</h5>
+			<div>
+				<p>If you use this software, please cite it as below:</p>
+				<div class="remark" style="font-family: monospace; font-size: smaller">
+					<p>
+						<i
+							>PTMVision: An Interactive Visualization Webserver for
+							Post-translational Modifications of Proteins</i
+						>
+					</p>
+					<p>
+						Simon Hackl, Caroline Jachmann, Mathias Witte Paz, Theresa Anisja
+						Harbig, Lennart Martens, and Kay Nieselt
+					</p>
+					<p>
+						Journal of Proteome Research 2025 24 (2), 919-928. DOI:
+						<code
+							><a href="10.1021/acs.jproteome.4c00679"
+								>10.1021/acs.jproteome.4c00679</a
+							></code
+						>
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>

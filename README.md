@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="auto" height="auto" src="https://github.com/Integrative-Transcriptomics/PTMVision/blob/main/app/ptmvision/static/resources/logo.png">
+  <img width="256px" height="256px" src="https://github.com/Integrative-Transcriptomics/PTMVision/blob/main/app/ptmvision/static/resources/logo_lucid_512.png">
 </p>
 
 # PTMVision
@@ -27,13 +27,13 @@
 
 PTMVision accepts output from several widely-used search engines:
 
-| **Search Engine**                         | **Tested Versions**                          | **Key Columns**                                                                                           | **Processing Steps**                                                                                                                                                                                                            |
-|------------------------------------------|----------------------------------------------|------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **ionbot**                                | v0.10.0, v0.11.0                             | `uniprot_id`, `unexpected_modification`, `position`                                                        | Direct parsing of modification information                                                                                                                                                |
-| **MSFragger (via FragPipe + PTMShepherd)** | MSFragger v4.0, PTMShepherd v2.0.6           | `Modified Peptide`, `Assigned Modifications`, `Localization`, `Protein ID`, `Protein Start`               | Filtering ambiguous or multi-localized sites; mass shift mapping to UniMod; UniProt sequence alignment; UniMod classification                                                          |
-| **Sage**                                   | v0.13.1                                      | *See [psm-utils](https://psm-utils.readthedocs.io/en/v0.6.0/)*                                             | FDR filtering; decoy removal; UniMod mapping; PTM localization from variable mods only                                                                                                   |
-| **MaxQuant**                               | v2.4.13.0                                    | *Search result columns used for mapping*                                                                   | Mapping MaxQuant-specific names to UniMod; resolving multi-mapping peptides; UniProt mapping                                                                                             |
-| **Spectronaut (PTM Site Report)**          | v9                                           | `PTM.ProteinId`, `PTM.SiteLocation`, `PTM.ModificationTitle`, `PTM.SiteAA`                                 | Infers mass shifts and UniMod classifications from reported data and UniProt sequence                                                                                                   |
+| **Search Engine**                          | **Tested Versions**                | **Key Columns**                                                                             | **Processing Steps**                                                                                                          |
+| ------------------------------------------ | ---------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **ionbot**                                 | v0.10.0, v0.11.0                   | `uniprot_id`, `unexpected_modification`, `position`                                         | Direct parsing of modification information                                                                                    |
+| **MSFragger (via FragPipe + PTMShepherd)** | MSFragger v4.0, PTMShepherd v2.0.6 | `Modified Peptide`, `Assigned Modifications`, `Localization`, `Protein ID`, `Protein Start` | Filtering ambiguous or multi-localized sites; mass shift mapping to UniMod; UniProt sequence alignment; UniMod classification |
+| **Sage**                                   | v0.13.1                            | _See [psm-utils](https://psm-utils.readthedocs.io/en/v0.6.0/)_                              | FDR filtering; decoy removal; UniMod mapping; PTM localization from variable mods only                                        |
+| **MaxQuant**                               | v2.4.13.0                          | _Search result columns used for mapping_                                                    | Mapping MaxQuant-specific names to UniMod; resolving multi-mapping peptides; UniProt mapping                                  |
+| **Spectronaut (PTM Site Report)**          | v9                                 | `PTM.ProteinId`, `PTM.SiteLocation`, `PTM.ModificationTitle`, `PTM.SiteAA`                  | Infers mass shifts and UniMod classifications from reported data and UniProt sequence                                         |
 
 > **Note**: For FragPipe-derived data, localization confidence is inferred from the `MSFragger Localization` field. Use caution until future versions provide dedicated localization scores.
 
@@ -45,16 +45,17 @@ Users can submit manually compiled PTM data using a structured CSV format when o
 
 ### Required Columns
 
-| Column Name                 | Description                                                                                      |
-|----------------------------|--------------------------------------------------------------------------------------------------|
-| `uniprot_id`               | UniProt accession of the protein                                                                 |
-| `position`                 | 1-based index of the modified residue                                                            |
-| `modification_unimod_name`| Name of the UniMod modification                                                                  |
-| `modification_unimod_id`  | UniMod ID                                                                                         |
-| `mass_shift` *(optional)* | Monoisotopic mass shift in Daltons (inferred from UniMod ID if omitted)                         |
-| `classification` *(optional)* | UniMod classification (inferred from ID and sequence context if omitted)                |
+| Column Name                   | Description                                                              |
+| ----------------------------- | ------------------------------------------------------------------------ |
+| `uniprot_id`                  | UniProt accession of the protein                                         |
+| `position`                    | 1-based index of the modified residue                                    |
+| `modification_unimod_name`    | Name of the UniMod modification                                          |
+| `modification_unimod_id`      | UniMod ID                                                                |
+| `mass_shift` _(optional)_     | Monoisotopic mass shift in Daltons (inferred from UniMod ID if omitted)  |
+| `classification` _(optional)_ | UniMod classification (inferred from ID and sequence context if omitted) |
 
 **Example entry**:
+
 ```
 P04075,5,carbamidomethyl,4,57.021464,Artefact
 ```
@@ -89,3 +90,19 @@ docker run -dp 127.0.0.1:5001:5001 ptmvision
 
 - 📖 Read the [Usage Guide](https://ptmvision-tuevis.cs.uni-tuebingen.de/usage)
 - 🐛 Found an issue or missing format? [Open a GitHub issue](https://github.com/Integrative-Transcriptomics/PTMVision/issues/new)
+
+---
+
+## ✏️ Citation
+
+If you use this software, please cite it as below:
+
+```
+PTMVision: An Interactive Visualization Webserver for Post-translational Modifications of Proteins
+
+Simon Hackl, Caroline Jachmann, Mathias Witte Paz, Theresa Anisja Harbig, Lennart Martens, and Kay Nieselt
+
+Journal of Proteome Research 2025 24 (2), 919-928
+
+DOI: 10.1021/acs.jproteome.4c00679
+```
