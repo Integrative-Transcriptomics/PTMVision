@@ -25,8 +25,8 @@ MODIFICATIONS_DATA = "7421BE93662C5"
 SESSION_STATE = "E3D6FB747F7ED"
 STATE_HAS_DATA = "has_data"
 STATE_PROTEIN_SELECTED = "protein_selected"
-BASEPATH = "./app/ptmvision" # Uncomment for local development.
-#BASEPATH = "/app/ptmvision" # Uncomment for deployment.
+#BASEPATH = "./app/ptmvision" # Uncomment for local development.
+BASEPATH = "/app/ptmvision" # Uncomment for deployment.
 
 """ Set session configuration parameters. """
 app.config["SESSION_COOKIE_NAME"] = "PTMVision"
