@@ -1,0 +1,101 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  PTMVision: An Interactive Visualization Webserver for
+  Post-translational Modifications of Proteins
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Simon
+    family-names: Hackl
+    affiliation: >-
+      Institute for Bioinformatics and Medical Informatics
+      (IBMI), University of Tuebingen, Sand 14, 72076
+      Tuebingen, Germany
+    orcid: "https://orcid.org/0009-0000-3596-3411"
+  - given-names: Caroline
+    family-names: Jachmann
+    affiliation: >-
+      Department of Biomolecular Medicine, Ghent University,
+      Technologiepark-Zwijnaarde 75, Ghent 9052, Belgium
+    orcid: "https://orcid.org/0009-0000-4679-7295"
+  - given-names: Mathias
+    family-names: Witte Paz
+    affiliation: >-
+      Institute for Bioinformatics and Medical Informatics
+      (IBMI), University of Tuebingen, Sand 14, 72076
+      Tuebingen, Germany
+    orcid: "https://orcid.org/0000-0001-8113-4139"
+  - given-names: Theresa Anisja
+    family-names: Harbig
+    affiliation: >-
+      Institute for Bioinformatics and Medical Informatics
+      (IBMI), University of Tuebingen, Sand 14, 72076
+      Tuebingen, Germany
+    orcid: "https://orcid.org/0000-0001-8716-5788"
+  - given-names: Lennart
+    family-names: Martens
+    affiliation: >-
+      Department of Biomolecular Medicine, Ghent University,
+      Technologiepark-Zwijnaarde 75, Ghent 9052, Belgium
+    orcid: "https://orcid.org/0000-0003-4277-658X"
+  - given-names: Kay
+    family-names: Nieselt
+    affiliation: >-
+      Institute for Bioinformatics and Medical Informatics
+      (IBMI), University of Tuebingen, Sand 14, 72076
+      Tuebingen, Germany
+    orcid: "https://orcid.org/0000-0002-1283-7065"
+identifiers:
+  - type: doi
+    value: 10.1021/acs.jproteome.4c00679
+    description: Article
+  - type: other
+    value: "39772617"
+    description: PMID
+repository-code: "https://github.com/Integrative-Transcriptomics/PTMVision"
+url: "https://ptmvision-tuevis.cs.uni-tuebingen.de/"
+repository: "https://doi.org/10.5281/zenodo.13270568"
+abstract: >-
+  Recent improvements in methods and instruments used in
+  mass spectrometry have greatly enhanced the detection of
+  protein post-translational modifications (PTMs). On the
+  computational side, the adoption of open modification
+  search strategies now allows for the identification of a
+  wide variety of PTMs, potentially revealing hundreds to
+  thousands of distinct modifications in biological samples.
+  While the observable part of the proteome is continuously
+  growing, the visualization and interpretation of this vast
+  amount of data in a comprehensive fashion is not yet
+  possible. There is a clear need for methods to easily
+  investigate the PTM landscape and to thoroughly examine
+  modifications on proteins of interest from acquired mass
+  spectrometry data. We present PTMVision, a web server
+  providing an intuitive and simple way to interactively
+  explore PTMs identified in mass spectrometry-based
+  proteomics experiments and to analyze the modification
+  sites of proteins within relevant context. It offers a
+  variety of tools to visualize the PTM landscape from
+  different angles and at different levels, such as 3D
+  structures and contact maps, UniMod classification
+  summaries, and site specific overviews. The web server’s
+  user-friendly interface ensures accessibility across
+  diverse scientific backgrounds.
+keywords:
+  - post-translational modifications
+  - open search
+  - visualization
+  - Web server
+license: GPL-3.0
+commit: 117dfdfea1a600f374e4bc85bef02dd57959920a
+version: "2.0"
+date-released: "2025-01-08"
+journal: "Journal of Proteome Research"
+volume: "24"
+number: "2"
+pages: "919-928"
+year: "2025"
