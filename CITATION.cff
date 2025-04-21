@@ -12,43 +12,21 @@ type: software
 authors:
   - given-names: Simon
     family-names: Hackl
-    affiliation: >-
-      Institute for Bioinformatics and Medical Informatics
-      (IBMI), University of Tuebingen, Sand 14, 72076
-      Tuebingen, Germany
     orcid: "https://orcid.org/0009-0000-3596-3411"
   - given-names: Caroline
     family-names: Jachmann
-    affiliation: >-
-      Department of Biomolecular Medicine, Ghent University,
-      Technologiepark-Zwijnaarde 75, Ghent 9052, Belgium
     orcid: "https://orcid.org/0009-0000-4679-7295"
   - given-names: Mathias
     family-names: Witte Paz
-    affiliation: >-
-      Institute for Bioinformatics and Medical Informatics
-      (IBMI), University of Tuebingen, Sand 14, 72076
-      Tuebingen, Germany
     orcid: "https://orcid.org/0000-0001-8113-4139"
   - given-names: Theresa Anisja
     family-names: Harbig
-    affiliation: >-
-      Institute for Bioinformatics and Medical Informatics
-      (IBMI), University of Tuebingen, Sand 14, 72076
-      Tuebingen, Germany
     orcid: "https://orcid.org/0000-0001-8716-5788"
   - given-names: Lennart
     family-names: Martens
-    affiliation: >-
-      Department of Biomolecular Medicine, Ghent University,
-      Technologiepark-Zwijnaarde 75, Ghent 9052, Belgium
     orcid: "https://orcid.org/0000-0003-4277-658X"
   - given-names: Kay
     family-names: Nieselt
-    affiliation: >-
-      Institute for Bioinformatics and Medical Informatics
-      (IBMI), University of Tuebingen, Sand 14, 72076
-      Tuebingen, Germany
     orcid: "https://orcid.org/0000-0002-1283-7065"
 identifiers:
   - type: doi
@@ -94,8 +72,35 @@ license: GPL-3.0
 commit: 117dfdfea1a600f374e4bc85bef02dd57959920a
 version: "2.0"
 date-released: "2025-01-08"
-journal: "Journal of Proteome Research"
-volume: "24"
-number: "2"
-pages: "919-928"
-year: "2025"
+preferred-citation:
+  type: article
+  authors:
+    - given-names: Simon
+      family-names: Hackl
+      orcid: "https://orcid.org/0009-0000-3596-3411"
+    - given-names: Caroline
+      family-names: Jachmann
+      orcid: "https://orcid.org/0009-0000-4679-7295"
+    - given-names: Mathias
+      family-names: Witte Paz
+      orcid: "https://orcid.org/0000-0001-8113-4139"
+    - given-names: Theresa Anisja
+      family-names: Harbig
+      orcid: "https://orcid.org/0000-0001-8716-5788"
+    - given-names: Lennart
+      family-names: Martens
+      orcid: "https://orcid.org/0000-0003-4277-658X"
+    - given-names: Kay
+      family-names: Nieselt
+      orcid: "https://orcid.org/0000-0002-1283-7065"
+  doi: "10.1021/acs.jproteome.4c00679"
+  journal: "Journal of Proteome Research"
+  start: 919 # First page number
+  end: 928 # Last page number
+  title: "PTMVision: An Interactive Visualization Webserver for Post-translational Modifications of Proteins"
+  volume: 24
+  number: 2
+  year: 2025
+  note: "PMID: 39772617"
+  URL: "https://doi.org/10.1021/acs.jproteome.4c00679"
+  eprint: "https://doi.org/10.1021/acs.jproteome.4c00679"
