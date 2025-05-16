@@ -100,7 +100,6 @@ def restart_session():
     except Exception as e :
         return "[Status 500] Failed request to restart session: " + _format_exception(e), 500
 
-
 @app.route("/process_search_engine_output", methods=["POST"])
 def process_search_engine_output():
     """
@@ -109,11 +108,13 @@ def process_search_engine_output():
     try:
         [session.pop(key) for key in list(session.keys())]
         json_request_data = _request_to_json(request.data)
+
         json_user_data = utils.parse_user_input(
             StringIO(json_request_data["content"]),
             json_request_data["contentType"],
             json_request_data["massShiftTolerance"],
-            json_request_data["excludeClasses"]
+            json_request_data["excludeClasses"],
+            json_request_data["filename"]
         )
         session[MODIFICATIONS_DATA] = json_user_data
         _set_session_state(**{STATE_HAS_DATA: True})
@@ -153,14 +154,14 @@ def available_proteins():
                 seen = set()
                 duplicates = set(item["from"] for item in annotations["results"] if item["from"] in seen or seen.add(item["from"]))
 
-                # remove them from results 
+                # remove them from results
                 annotations["results"] = [item for item in annotations["results"] if item["from"] not in duplicates]
 
                 if "failedIds" in annotations :
                     annotations["failedIds"].extend(list(duplicates))
                 else :
                     annotations["failedIds"] = list(duplicates)
-                
+
                 # Number of demerged proteins / failed IDs to show user
                 #if env_parameters["DEBUG"] :
                 #n_demerged = len(duplicates)
@@ -199,7 +200,7 @@ def available_proteins():
                     "modifications": "$".join(modifications),
                 }
                 protein_entries.append(protein_entry)
-            
+
             # Uncomment for local development.
             """
             if DEBUG :
@@ -458,7 +459,7 @@ def _get_protein_name(annotation: dict) -> str:
                 return na
         else:
             return na
-        
+
 
 def _get_protein_length(annotation: dict) -> int:
     """
@@ -500,6 +501,6 @@ def _format_exception(e: str) -> str:
     if DEBUG:
         # Print the exception traceback with color highlighting
         print("\u001b[31m" + "".join(traceback.format_exception(e)) + "\u001b[0m")
-    
+
     # Format only the exception message
     return "".join(traceback.format_exception_only(e)).strip()

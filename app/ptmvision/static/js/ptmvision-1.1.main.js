@@ -2948,9 +2948,14 @@ async function startSession() {
     removeNotification();
     return;
   }
-  await readFile($("#data-input-form")[0].files[0]).then((response) => {
+
+  const file = $("#data-input-form")[0].files[0];
+
+  await readFile(file).then((response) => {
     request.content = response;
   });
+
+  request.filename = file.name;
   request.contentType = $("#data-type-form")[0].value;
   request.massShiftTolerance = parseFloat($("#data-tolerance-form")[0].value);
   request.excludeClasses = Metro.getPlugin(

@@ -787,16 +787,40 @@ def read_ionbot(file):
     return df
 
 
-def read_mod_csv(file):
+def read_mod_csv(input_data):
     """
     read plain csv.
-    minimum columns: uniprot_id, position, modification_unimod_id
+    minimum columns: uniprot_id, position, and one of (modification_unimod_id or modification_unimod_name)
     optional: classification, mass_shift, annotation
     if classification and mass_shift are not provided, they will be queried from unimod
     """
     if DEBUG :
         print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'csv' ... ", end = '', flush = True)
-    df = pd.read_csv(file)
+
+    if isinstance(input_data, pd.DataFrame):
+            df = input_data.copy()
+    else:
+        df = pd.read_csv(input_data)
+
+    # check which of unimod_id or unimod_name is provided
+    if "modification_unimod_id" not in [x.lower() for x in df.columns]:
+        if "modification_unimod_name" not in [x.lower() for x in df.columns]:
+            raise ValueError(
+                "No unimod id or unimod name provided. Please provide either 'modification_unimod_id' or 'modification_unimod_name'."
+            )
+        else:
+            # map names to ids
+            df["modification_unimod_id"] = df["modification_unimod_name"].apply(
+                lambda x: map_modification_string_to_unimod_id(x)
+            )
+
+    if "modification_unimod_name" not in [x.lower() for x in df.columns]:
+        # map id to names
+        df["modification_unimod_name"] = df["modification_unimod_id"].apply(
+            lambda x: map_id_to_unimod_name(x)
+        )
+
+
     if "classification" not in [x.lower() for x in df.columns]:
         if "modified_residue" not in [x.lower() for x in df.columns]:
             fasta = query_uniprot_for_fasta(df["uniprot_id"].tolist())
@@ -1006,6 +1030,55 @@ def read_mzid(file):
     return df
 
 
+def read_pamod(file, filename):
+    """
+    read modification site matrix from PeptideAtlas
+    parse into plain csv
+    """
+    df = pd.read_table(file, sep="\t")
+    # Extract the Uniprot ID from the filename
+    uniprot_id = filename.split("_")[0]
+    # Extract modification names from the first column
+    modification_names = df.iloc[:, 0]
+
+    # Extract positions from columns (excluding the first column)
+    positions = df.columns[1:].tolist()
+
+    # Extract modified residues from the first row after header (row index 0), excluding first column
+    modified_residues_first_row = df.iloc[0, 1:]
+
+    # Remove rows with NaN in modification names
+    valid_rows = modification_names.notna()
+
+    # Function to clean positions (remove trailing decimals)
+    def clean_position(pos):
+        return str(pos).split('.')[0]
+
+    # Build long format DataFrame including modified residues
+    data_long_res = []
+    for i, mod_name in modification_names[valid_rows].items():
+        for pos in positions:
+            val = df.at[i, pos]
+            # Consider only valid modification entries (not '-' or NaN)
+            if pd.notna(val) and val != '-':
+                clean_pos = clean_position(pos)
+                mod_res = modified_residues_first_row[pos]
+                data_long_res.append((uniprot_id, mod_name, clean_pos, mod_res))
+
+    # Create final DataFrame
+    df_long_res = pd.DataFrame(data_long_res, columns=["uniprot_id", "modification_unimod_name", "position", "modified_residue"])
+
+    # Convert position column to integer
+    df_long_res['position'] = df_long_res['position'].astype(int)
+
+    # Replace n and c with N-Term and C-Term
+    df_long_res['modified_residue'] = df_long_res['modified_residue'].replace({'n': 'N-term', 'c': 'C-term'})
+
+    # parse to df
+    parsed_df = read_mod_csv(df_long_res)
+    return parsed_df
+
+
 def construct_modifications_entry(row):
     return {
         "modification_unimod_name": row["modification_unimod_name"],
@@ -1060,7 +1133,7 @@ def parse_df_to_json_schema(dataframe):
     return protein_dict
 
 
-def read_userinput(file, flag):
+def read_userinput(file, flag, filename = None):
     # psm-utils based parsing (sage, msms) might not work for any other encoding than UTF-8, see psm-utils issue #68
     if flag == "ionbot":
         df = read_ionbot(file)
@@ -1076,6 +1149,8 @@ def read_userinput(file, flag):
         df = read_spectronaut(file)
     elif flag == "mzid":
         df = read_mzid(file)
+    elif flag == "pamod":
+        df = read_pamod(file, filename)
     elif flag == "infer":
         df = read_any(file)
     df = df.fillna("null")
@@ -1084,13 +1159,13 @@ def read_userinput(file, flag):
     return parse_df_to_json_schema(df.drop_duplicates())
 
 
-def parse_user_input(user_file, user_flag, mass_shift_tolerance = 0.001, exclude_classes = []):
+def parse_user_input(user_file, user_flag, mass_shift_tolerance = 0.001, exclude_classes = [], filename = None):
     global TOLERANCE
     TOLERANCE = mass_shift_tolerance
     global EXCLUDE_CLASSES
     EXCLUDE_CLASSES = exclude_classes
     try:
-        json = read_userinput(user_file, user_flag)
+        json = read_userinput(user_file, user_flag, filename)
         json["meta_data"]["mass_shift_tolerance"] = mass_shift_tolerance
         json["meta_data"]["exclude_classes"] = exclude_classes
     except TypeError:
