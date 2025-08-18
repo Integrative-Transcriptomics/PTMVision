@@ -19,13 +19,7 @@ Licensed under GPL-3.0
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta
 			name="description"
-			content="PTMVision: Interactive Visualization of Post Translational Modifications | Understanding the intricate landscape of post-translational
-            modifications (PTMs) is crucial for unraveling the complex
-            mechanisms underlying cellular processes and diseases. With
-            PTMVision, researchers can effortlessly analyze and explore PTM data
-            derived from various proteomics search engines, the mzIdentML data
-            standard, or from a plain CSV table format processed manually from
-            mass spectrometry (MS) data."
+			content="PTMVision Interactive Exploration of Post Translational Modifications"
 		/>
 		<meta name="author" content="Caroline Jachmann, Simon Hackl" />
 		<!--
@@ -189,80 +183,44 @@ Licensed under GPL-3.0
 				<div id="vline"></div>
 
 				<div id="panel-info" class="panel-container">
-					<h4 style="margin-left: 1em">
-						PTMVision: Interactive Visualization of Post Translational
-						Modifications
-					</h4>
-					<div id="panel-info-banner">
-						<div
-							id="panel-info-banner-l"
-							class="image-container float-left"
-							style="width: 30%"
-						>
-							<img
-								src="{{ url_for('static', filename='resources/index_banner/left.png') }}"
-								alt="Example of the Site Count Histogram."
-							/>
-							<div class="image-overlay">
-								<p>
-									PTMVision supports the upload of PTM data from various
-									proteomics search engines, the mzIdentML standard or manually
-									compiled CSV files.
-								</p>
-							</div>
+					<div id="panel-info-header">
+						<h3><strong>PTMVision</strong></h3>
+						<h4>Interactive Exploration of Post Translational Modifications</h4>
+						<img src="{{ url_for('static', filename='resources/abstract.png') }}" alt="Workflow representation of PTMVision from data upload to visualizations."/>
+						<div style="width: 61%; text-align: justify;">
+							<p>
+							PTMVision supports the upload of PTM data from various proteomics search engines, the mzIdentML standard or manually compiled CSV files.
+							Receive a quantitative and qualitative assessment of the PTMs across all proteins in your data; and get an overview of all available proteins from your data, complemented with associated PTMs.
+							For selected proteins, investigate detailed information on the occurrence of PTMs along the primary protein sequence and in a spatial structural context.
+							</p>
 						</div>
-						<div
-							id="panel-info-banner-m"
-							class="image-container float-left"
-							style="width: 40%"
+						<br>
+						<button
+							class="proceed-button mt-2"
+							data-role="hint"
+							data-hint-position="right"
+							data-hint-text="Start an example session with data from the Bio+MedVis Challenge @IEEE VIS 2022"
+							onclick="startExampleSession('ptmvision.example.biomedvis2022.plain')"
 						>
-							<img
-								src="{{ url_for('static', filename='resources/index_banner/mid.png') }}"
-								alt="Example of the Site Count Histogram."
-							/>
-							<div class="image-overlay">
-								<p>
-									Receive a quantitative and qualitative assessment of the PTMs
-									in your data, independent of individual proteins. Get an
-									overview of all available proteins from your data,
-									complemented with associated PTMs.
-								</p>
-							</div>
-						</div>
-						<div
-							id="panel-info-banner-r"
-							class="image-container float-left"
-							style="width: 30%"
-						>
-							<img
-								src="{{ url_for('static', filename='resources/index_banner/right.png') }}"
-								alt="Example of the Site Count Histogram."
-							/>
-							<div class="image-overlay">
-								<p>
-									For selected proteins, investigate detailed information on the
-									occurrence of PTMs along the primary protein sequence and in a
-									spatial structural context.
-								</p>
-							</div>
+							Try Example
+						</button>
+						<div class="mt-6">
+							<button class="text-button" onclick="$('#panel-info-about').toggle()">About</button>
+							<a href="https://pubs.acs.org/doi/full/10.1021/acs.jproteome.4c00679" target="_blank" class="ml-4 text-a">Read the paper</a>
+							<a href="/usage" target="_blank" class="ml-4 text-a">Usage guide</a>
+							<a href="https://github.com/Integrative-Transcriptomics/PTMVision" target="_blank" class="ml-4 text-a">View on GitHub</a>
 						</div>
 					</div>
-					<div data-role="buttongroup" style="margin: 1em">
-						<button
-							class="text-button"
-							onclick="$('#panel-info-about').toggle()"
-						>
-							About PTMVision
-						</button>
-						<button
-							class="text-button ml-4"
-							onclick="redirectTo('usage', '_self')"
-						>
-							Usage Guide
-						</button>
-					</div>
-					<div id="panel-info-about" class="remark">
-						<h5 class="secondary">About PTMVision</h5>
+
+					<div id="panel-info-about">
+						<h5 class="secondary">News</h5>
+						<div>
+							<code>08/15/2025</code>
+							<ul>
+								<li>Add support for <a href="https://peptideatlas.org/" target="_blank">PeptideAtlas</a> data.</li>
+							</ul>
+						</div>
+						<h5 class="secondary">Background</h5>
 						<p>
 							Understanding the intricate landscape of PTMs is crucial for
 							unraveling the complex mechanisms underlying cellular processes
@@ -288,7 +246,7 @@ Licensed under GPL-3.0
 							requiring coding skills.
 						</p>
 						<h5 class="secondary">
-							<i class="fa-solid fa-star-shooting"></i> Key Features
+							Features
 						</h5>
 						<ul>
 							<li>
@@ -321,13 +279,12 @@ Licensed under GPL-3.0
 								effortlessly navigate the website and through their data.
 							</li>
 							<li>
-								<b>Supports high degree of data provenance</b> by allowing
-								various input formats and an easy export of session data to
-								continue analysis without repeated processing input data.
+								<b>Supports various input formats</b> and an easy export of session data to
+								continue analysis without repeated processing.
 							</li>
 						</ul>
 						<h5 class="secondary">
-							<i class="fa-solid fa-triangle-exclamation"></i> Limitations
+							Limitations
 						</h5>
 						<ul>
 							<li>
@@ -411,9 +368,10 @@ Licensed under GPL-3.0
 						deleted afterwards (existing session data is automatically
 						re-initialized).
 					</p>
-					<p class="mb-2" style="font-size: larger; font-weight: 500">
+					<hr>
+					<p class="mb-2" style="font-size: larger; font-weight: 600">
 						Upload post-translational modification data from open or closed
-						search to start a new session
+						search to start a new session:
 					</p>
 					<p>
 						<code style="color: var(--highlight-2)">Mandatory</code> Input
@@ -596,8 +554,9 @@ Licensed under GPL-3.0
 					>
 						Submit
 					</button>
-					<p class="mb-2" style="font-size: larger; font-weight: 500">
-						<u>or</u> re-upload a PTMVision session
+					<hr>
+					<p class="mb-2" style="font-size: larger; font-weight: 600">
+						(Or) Re-upload a PTMVision session:
 					</p>
 					<p>
 						<code style="color: var(--highlight-2)">Mandatory</code> PTMVision
@@ -637,9 +596,9 @@ Licensed under GPL-3.0
 					>
 						Submit
 					</button>
-
+					<hr>
 					<p class="mb-2">
-						<u style="font-size: larger; font-weight: 500">or</u>
+						<b style="font-size: larger; font-weight: 600">(Or)</b>
 						<button id="inputs-help-6" class="text-button ml-2">
 							Browse Example Sessions
 						</button>
@@ -656,7 +615,7 @@ Licensed under GPL-3.0
 							started from the table below by clicking the individual
 							<span
 								style="
-									background-color: #62a8ac;
+									background-color: #a8b4c9;
 									padding: 1px;
 									font-size: small;
 									font-weight: normal;
@@ -705,6 +664,7 @@ Licensed under GPL-3.0
 										<button
 											class="example-button"
 											data-role="hint"
+											data-hint-position="left"
 											data-hint-text="Start this example session."
 											onclick="startExampleSession('ptmvision.example.PXD000498.ionbot-v011')"
 										>
@@ -734,6 +694,7 @@ Licensed under GPL-3.0
 										<button
 											class="example-button"
 											data-role="hint"
+											data-hint-position="left"
 											data-hint-text="Start this example session."
 											onclick="startExampleSession('ptmvision.example.PXD007740.msfragger-v40')"
 										>
@@ -761,6 +722,7 @@ Licensed under GPL-3.0
 										<button
 											class="example-button"
 											data-role="hint"
+											data-hint-position="left"
 											data-hint-text="Start this example session."
 											onclick="startExampleSession('ptmvision.example.PXD000498.sage-v0131')"
 										>
@@ -789,6 +751,7 @@ Licensed under GPL-3.0
 										<button
 											class="example-button"
 											data-role="hint"
+											data-hint-position="left"
 											data-hint-text="Start this example session."
 											onclick="startExampleSession('ptmvision.example.PXD025088.maxquant-v24130')"
 										>
@@ -814,6 +777,7 @@ Licensed under GPL-3.0
 										<button
 											class="example-button"
 											data-role="hint"
+											data-hint-position="left"
 											data-hint-text="Start this example session."
 											onclick="startExampleSession('ptmvision.example.MSV000091214.spectronaut')"
 										>
@@ -822,9 +786,63 @@ Licensed under GPL-3.0
 									</td>
 								</tr>
 								<tr>
+									<td>PeptideAtlas</td>
+									<td></td>
+									<td>Open+Closed</td>
+									<td>
+										PeptideAtlas protein entry
+										<a
+											href="https://db.systemsbiology.net/sbeams/cgi/PeptideAtlas/GetProtein?atlas_build_id=585&protein_name=P0AA16&apply_action=QUERY"
+											target="_blank"
+											>P0AA16</a
+										>, large-scale reprocessing of public <em>Escherichia coli</em> data with open and closed search.
+									</td>
+									<td></td>
+									<td>
+										<button
+											class="example-button"
+											data-role="hint"
+											data-hint-position="left"
+											data-hint-text="Start this example session."
+											onclick="startExampleSession('ptmvision.example.peptideatlas.P0AA16.peptideatlas')"
+										>
+											Start
+										</button>
+									</td>
+								</tr>
+								<tr>
+									<td><em>mzIdentML</em></td>
+									<td></td>
+									<td>Closed</td>
+									<td>
+										PRIDE project
+										<a
+											href="https://www.ebi.ac.uk/pride/archive/projects/PXD001077"
+											target="_blank"
+											>PXD001077</a
+										>, LC-MS/MS of an unenriched
+										<em>Pyrococcus furiosus</em> sample. PTM analysis carried
+										out with MS-GF+ v10024 via SearchGUI v1.18.7. Closed search
+										with <em>carbamidomethylation</em> as fixed;
+										<em>oxidation</em> and <em>phosphorylation</em> as variable.
+									</td>
+									<td></td>
+									<td>
+										<button
+											class="example-button"
+											data-role="hint"
+											data-hint-position="left"
+											data-hint-text="Start this example session."
+											onclick="startExampleSession('ptmvision.example.PXD001077.mzid')"
+										>
+											Start
+										</button>
+									</td>
+								</tr>
+								<tr>
 									<td><em>Plain/CSV</em></td>
 									<td></td>
-									<td></td>
+									<td>Open</td>
 									<td>
 										<a
 											href="http://biovis.net/2022/biovisChallenges_vis/"
@@ -844,6 +862,7 @@ Licensed under GPL-3.0
 										<button
 											class="example-button"
 											data-role="hint"
+											data-hint-position="left"
 											data-hint-text="Start this example session."
 											onclick="startExampleSession('ptmvision.example.biomedvis2022.plain')"
 										>
@@ -851,58 +870,7 @@ Licensed under GPL-3.0
 										</button>
 									</td>
 								</tr>
-								<tr>
-									<td><em>mzIdentML</em></td>
-									<td></td>
-									<td></td>
-									<td>
-										PRIDE project
-										<a
-											href="https://www.ebi.ac.uk/pride/archive/projects/PXD001077"
-											target="_blank"
-											>PXD001077</a
-										>, LC-MS/MS of an unenriched
-										<em>Pyrococcus furiosus</em> sample. PTM analysis carried
-										out with MS-GF+ v10024 via SearchGUI v1.18.7. Closed search
-										with <em>carbamidomethylation</em> as fixed;
-										<em>oxidation</em> and <em>phosphorylation</em> as variable.
-									</td>
-									<td></td>
-									<td>
-										<button
-											class="example-button"
-											data-role="hint"
-											data-hint-text="Start this example session."
-											onclick="startExampleSession('ptmvision.example.PXD001077.mzid')"
-										>
-											Start
-										</button>
-									</td>
-								</tr>
-								<tr>
-									<td><em>PeptideAtlas</em></td>
-									<td></td>
-									<td>Open+Closed</td>
-									<td>
-										E. coli PeptideAtlas protein entry
-										<a
-											href="https://db.systemsbiology.net/sbeams/cgi/PeptideAtlas/GetProtein?atlas_build_id=585&protein_name=P0AA16&apply_action=QUERY"
-											target="_blank"
-											>P0AA16</a
-										>, large-scale reprocessing of public <em>Escherichia coli</em> data with open and closed search.
-									</td>
-									<td></td>
-									<td>
-										<button
-											class="example-button"
-											data-role="hint"
-											data-hint-text="Start this example session."
-											onclick="startExampleSession('ptmvision.example.peptideatlas.P0AA16.peptideatlas')"
-										>
-											Start
-										</button>
-									</td>
-								</tr>
+							
 							</tbody>
 						</table>
 					</div>
