@@ -268,7 +268,7 @@ body {
 #panel-inputs {
   margin: 1vw;
   margin-top: 5vh;
-  width: fit-content;
+  width: 98vw;
   height: auto;
   overflow: visible;
 }
