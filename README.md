@@ -1,10 +1,14 @@
 <p align="center">
-  <img width="256px" height="256px" src="https://github.com/Integrative-Transcriptomics/PTMVision/blob/main/app/ptmvision/static/resources/logo_lucid_512.png">
+  <img width="256px" height="256px" src="https://raw.githubusercontent.com/Integrative-Transcriptomics/PTMVision/refs/heads/main/app/ptmvision/static/resources/logo_lucid_512.png">
 </p>
 
 # PTMVision
 
 **PTMVision** is an interactive web-based platform for the visual exploration of post-translational modifications (PTMs) identified in mass spectrometry-based proteomics data. It enables researchers to interpret the complex PTM landscape, supporting insights into molecular mechanisms of biological processes and disease.
+
+<p align="center">
+	<img width="900px" height="250px" src="https://raw.githubusercontent.com/Integrative-Transcriptomics/PTMVision/refs/heads/main/app/ptmvision/static/resources/abstract.png">
+</p>
 
 🔗 **Web server**: [https://ptmvision-tuevis.cs.uni-tuebingen.de](https://ptmvision-tuevis.cs.uni-tuebingen.de)
 
