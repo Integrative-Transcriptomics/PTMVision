@@ -144,6 +144,7 @@ dmypy.json
 /*.tar.gz
 
 # Local files
-_local/
+_local
+.local
 dump.json
 unimod.db
