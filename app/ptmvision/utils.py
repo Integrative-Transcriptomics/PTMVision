@@ -9,7 +9,7 @@ from pathlib import Path
 from psm_utils.io import read_file
 from tempfile import NamedTemporaryFile
 from datetime import datetime
-import re, urllib.request, requests, brotli, base64, os
+import re, urllib.request, requests, os
 
 #BASEPATH = "./app/ptmvision" # Uncomment for local development.
 BASEPATH = "/app/ptmvision" # Uncomment for deployment.
@@ -52,15 +52,16 @@ def get_contacts(dist_matrix, threshold):
 
 
 def get_structure(uniprot_id):
-    url = "https://alphafold.ebi.ac.uk/files/AF-{}-F1-model_v6.pdb".format(uniprot_id)
+    model_version = "v6" # Currently the latest version, should be updated when new versions are released!
+    url = "https://alphafold.ebi.ac.uk/files/AF-{}-F1-model_{}.pdb".format(uniprot_id, model_version)
     structure = None
     try:
         response = urllib.request.urlopen(url)
         data = response.read()
         pdb_text = data.decode("utf-8")
         structure = PDBPARSER.get_structure(uniprot_id, StringIO(pdb_text))
-    except:
-        raise Exception("Alphafold structure not available for UniProt id {}.".format(str(uniprot_id)))
+    except Exception as e:
+        raise Exception(f"Alphafold structure not available for UniProt ID {str(uniprot_id)}.")
     return structure, pdb_text
 
 
@@ -70,7 +71,7 @@ def parse_structure(structure_string):
     try:
         structure = PDBPARSER.get_structure("custom_pdb", StringIO(structure_string))
     except Exception as e:
-        raise Exception("Failed to parse provided .pdb structure: {}".format(str(e)))
+        raise Exception("Failed to parse provided PDB structure: {}".format(str(e)))
     finally:
         return structure, structure_string
 
@@ -606,8 +607,8 @@ def parse_msfragger_mods(msfragger_psm_row):
 
 
 def read_msfragger(file):
-    if DEBUG :
-        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'msfragger' ... ", end = '', flush = True)
+    _log_status("Process data of type 'msfragger' ... ")
+
     # read file and pick relevant rows and columns
     pept_mods = pd.read_csv(file, sep="\t")
     
@@ -717,8 +718,8 @@ def read_msfragger(file):
 
 
 def read_ionbot(file):
-    if DEBUG :
-        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'ionbot' ... ", end = '', flush = True)
+    _log_status("Process data of type 'ionbot' ... ")
+
     df = pd.read_csv(file)
 
     df = df[["uniprot_id", "modification", "position"]]
@@ -800,8 +801,7 @@ def read_mod_csv(input_data):
     optional: classification, mass_shift, annotation
     if classification and mass_shift are not provided, they will be queried from unimod
     """
-    if DEBUG :
-        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'csv' ... ", end = '', flush = True)
+    _log_status("Process data of type 'csv' ... ")
 
     if isinstance(input_data, pd.DataFrame):
             df = input_data.copy()
@@ -862,8 +862,8 @@ def read_mod_csv(input_data):
 
 
 def read_sage(file):
-    if DEBUG :
-        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'sage' ... ", end = '', flush = True)
+    _log_status("Process data of type 'sage' ... ")
+
     # write sage to temporary file and then give filepath to psm utils
     with NamedTemporaryFile(mode="wt", delete=False) as f:
         f.write(file.getvalue())
@@ -893,8 +893,8 @@ def read_sage(file):
 
 
 def read_maxquant(file):
-    if DEBUG :
-        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'maxquant' ... ", end = '', flush = True)
+    _log_status("Process data of type 'maxquant' ... ")
+
     # write msms to temporary file and then give filepath to psm utils
     with NamedTemporaryFile(mode="wt", delete=False) as f:
         f.write(file.getvalue())
@@ -926,8 +926,7 @@ def read_maxquant(file):
 
 def read_spectronaut(file):
     # reads spectronaut PTM Site report file
-    if DEBUG :
-        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'spectronaut' ... ", end = '', flush = True)
+    _log_status("Process data of type 'spectronaut' ... ")
 
     df = pd.read_csv(file, usecols=["PTM.ProteinId", "PTM.SiteLocation", "PTM.ModificationTitle", "PTM.SiteAA"], sep="\t")
     df = df.dropna(subset=["PTM.SiteLocation"])
@@ -973,8 +972,8 @@ def read_spectronaut(file):
 
 
 def read_any(file):
-    if DEBUG :
-        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'any' ... ", end = '', flush = True)
+    _log_status("Process data of type 'any' ... ")
+
     # write to temporary file and then give filepath to psm utils
 
     with NamedTemporaryFile(mode="wt", delete=False) as f:
@@ -1005,8 +1004,8 @@ def read_any(file):
 
 
 def read_mzid(file):
-    if DEBUG :
-        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tProcess data of type 'mzid' ... ", end = '', flush = True)
+    _log_status("Process data of type 'mzid' ... ")
+
     # write mzid to temporary file and then give filepath to psm utils
     with NamedTemporaryFile(mode="wt", delete=False) as f:
         f.write(file.getvalue())
@@ -1099,8 +1098,8 @@ def construct_modifications_entry(row):
 
 
 def parse_df_to_json_schema(dataframe):
-    if DEBUG :
-        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tConvert data into schema ... ", end = '', flush = True)
+    _log_status("Convert data into JSON schema ... ")
+
     # Init. dictionary to store results in JSON schema.
     protein_dict = {"proteins": {}, "meta_data": {}}
     # For each row
@@ -1134,8 +1133,6 @@ def parse_df_to_json_schema(dataframe):
             protein_dict["proteins"][row["uniprot_id"]]["positions"][row["position"]][
                 "modifications"
             ].append(construct_modifications_entry(row))
-    if DEBUG :
-        print( "DONE" )
     return protein_dict
 
 
@@ -1160,8 +1157,6 @@ def read_userinput(file, flag, filename = None):
     elif flag == "infer":
         df = read_any(file)
     df = df.fillna("null")
-    if DEBUG :
-        print( "DONE" )
     return parse_df_to_json_schema(df.drop_duplicates())
 
 
@@ -1174,16 +1169,81 @@ def parse_user_input(user_file, user_flag, mass_shift_tolerance = 0.001, exclude
         json = read_userinput(user_file, user_flag, filename)
         json["meta_data"]["mass_shift_tolerance"] = mass_shift_tolerance
         json["meta_data"]["exclude_classes"] = exclude_classes
-    except TypeError:
-        raise TypeError(
-            "Your file could not be parsed. Have you selected the right format?"
-        )
+    except TypeError as e:
+        raise TypeError(f"Input could not be parsed: {str(e)}. Was the correct format selected?")
     return json
 
 
 def _brotli_decompress(content: str) -> str:
+    """
+    Decompresses a Brotli-compressed string that has been encoded in base64.
+
+    Args:
+        content (str): A base64-encoded string that represents Brotli-compressed data.
+
+    Returns:
+        str: The original uncompressed string after decoding and decompression.
+    """
     return brotli.decompress(base64.urlsafe_b64decode(content)).decode()
 
 
 def _brotly_compress(content: str) -> str:
+    """
+    Compresses a string using Brotli compression and encodes it in base64.
+
+    Args:
+        content (str): The original string to be compressed.
+
+    Returns:
+        str: A base64-encoded string that represents the Brotli-compressed version of the input content.
+    """
     return base64.urlsafe_b64encode(brotli.compress(content.encode())).decode()
+
+
+def _log_status(s: str):
+    """
+    Logs the given status message if in debug mode.
+
+    Args:
+        s (str): The status message to be logged.
+    
+    Returns:
+        None
+
+    Note:
+        This function utilizes the global variable `DEBUG` to determine whether to print the status message or not.
+    """
+    if DEBUG:
+        print(f"\33[36m[INFO {str(datetime.now())}]\33[0m\t {s}")
+
+
+def _format_exception(s: str, e: Exception = None) -> str:
+    """
+    Formats an exception message with a timestamp and optional exception details.
+    
+    Args:
+        s (str): The base error message to be formatted.
+        e (Exception, optional): An optional exception object whose details will be included in the formatted message. Defaults to None.
+        
+    Returns:
+        str: A formatted string containing the error message, timestamp, and optionally the exception details.
+        
+    Note:
+        If the `DEBUG` flag is set to True, the formatted message will be printed to the console along with the exception traceback if an exception is provided.
+        The function ensures that the error message is consistently formatted, and it appends exception details when available for better context.
+    """
+    prefix = f"[ERROR {str(datetime.now())}]"
+    message = s
+    # If an exception object is provided, append its string representation to the message for more context about the error.
+    if e is not None:
+        # Add a colon and space at the end of the message if it doesn't already end with one, to ensure consistent formatting when appending exception details.
+        if not message.endswith(": ") :
+            message += ": "
+        message += str(e)
+    # Log the message if in debug mode to provide immediate feedback about the error occurrence; if an exception is provided, its traceback will be printed.
+    if DEBUG:
+        print( f"\33[31m{prefix}\33[0m\t{message}" )
+        if e is not None:
+            traceback.print_exception(type(e), e, e.__traceback__)
+    # Return the formatted exception message without the traceback as string.
+    return f"{prefix} {message}"

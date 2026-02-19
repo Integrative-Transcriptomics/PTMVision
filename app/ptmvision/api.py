@@ -15,7 +15,7 @@ from io import StringIO
 from itertools import combinations
 from copy import deepcopy
 from datetime import datetime
-import json, zlib, os, base64, traceback
+import json, zlib, os, base64, traceback, brotli
 
 """ Load variables from local file system. """
 load_dotenv()
@@ -57,7 +57,7 @@ def example_session():
         _set_session_state(**{STATE_HAS_DATA: True})
         return "Ok", 200
     except Exception as e :
-        return "[Status 500] Failed request to start an example session: " + _format_exception(e), 500
+        return  utils._format_exception( "Failed request to start an example session (Status 500): ", e ), 500
 
 
 @app.route("/resource", methods=["GET"])
@@ -68,7 +68,7 @@ def get_resource():
     try:
         return send_file( "./static/resources/" + request.args.get( 'name' ) ), 200
     except Exception as e:
-        return "[Status 500] Failed request to retrieve resource: " + _format_exception(e), 500
+        return  utils._format_exception( "Failed request to retrieve resource (Status 500): ", e ), 500
 
 
 @app.route("/download_session", methods=["GET"])
@@ -84,7 +84,7 @@ def download_session():
         encoded_session = base64.b64encode( compressed_session_bytes ).decode("ascii")
         return encoded_session, 200
     except Exception as e :
-        return "[Status 500] Failed request to download session data: " + _format_exception(e), 500
+        return  utils._format_exception( "Failed request to download session data (Status 500): ", e ), 500
 
 
 @app.route("/restart_session", methods=["POST"])
@@ -98,7 +98,7 @@ def restart_session():
         session[MODIFICATIONS_DATA] = json.loads(session_data)
         return "Ok", 200
     except Exception as e :
-        return "[Status 500] Failed request to restart session: " + _format_exception(e), 500
+        return  utils._format_exception( "Failed request to restart session (Status 500): ", e ), 500
 
 @app.route("/process_search_engine_output", methods=["POST"])
 def process_search_engine_output():
@@ -126,7 +126,7 @@ def process_search_engine_output():
         """
         return "Ok", 200
     except Exception as e:
-        return "[Status 500] Failed request to process search engine output: " + _format_exception(e), 500
+        return  utils._format_exception( "Failed request to process search engine output (Status 500): ", e ), 500
 
 
 @app.route("/available_proteins", methods=["GET"])
@@ -184,11 +184,18 @@ def available_proteins():
                 modified_positions = []
                 modifications = []
                 for modified_position in position_modification_data:
-                    modified_positions.append(int(modified_position))
-                    for modification in position_modification_data[modified_position][
-                        "modifications"
-                    ]:
-                        modifications.append(modification["display_name"])
+                    try :
+                        modified_positions.append(int(modified_position))
+                        for modification in position_modification_data[modified_position][
+                            "modifications"
+                        ]:
+                            modifications.append(modification["display_name"])
+                    except ValueError as e :
+                        # Catch special case where modified position is not an integer (e.g. "null" for missing position information) and raise exception with more informative message.
+                        if modified_position == "null" :
+                            raise Exception(f"Missing position information for a modification in protein {protein_identifier}: {str(e)}")
+                        else :
+                            raise Exception(f"Failed to parse modified position {modified_position} for protein {protein_identifier}: {str(e)}")
                 modified_positions = sorted(modified_positions)
                 modifications = list(set(modifications))
                 protein_entry = {
@@ -212,7 +219,7 @@ def available_proteins():
         else :
             raise Exception("Faulty session data.")
     except Exception as e:
-        return "[Status 500] Failed request to get available proteins: " + _format_exception(e), 500
+        return  utils._format_exception( "Failed request to get available proteins (Status 500): ", e ), 500
 
 
 @app.route("/overview_data", methods=["GET"])
@@ -273,7 +280,7 @@ def overview_data():
         else :
             raise Exception("Faulty session data.")
     except Exception as e:
-        return "[Status 500] Failed request to get global/sample-level PTM data: " + _format_exception(e), 500
+        return  utils._format_exception( "Failed request to get global/sample-level PTM data (Status 500): ", e ), 500
 
 
 @app.route("/protein_data", methods=["POST"])
@@ -324,9 +331,9 @@ def protein_data():
             _set_session_state(**{STATE_PROTEIN_SELECTED: json_request_data["uniprot_pa"]})
             return response, 200
         else :
-            return "Error in request '/get_protein_data': No protein structure available.", 303
+            return  utils._format_exception( "Error in request '/get_protein_data' (Status 303): No protein structure available."), 303
     except Exception as e:
-        return "[Status 500] Failed request to get protein PTM data: " + _format_exception(e), 500
+        return  utils._format_exception( "Failed request to get protein PTM data (Status 500): ", e ), 500
 
 
 @app.route("/session_state", methods=["GET"])
@@ -381,16 +388,13 @@ def _map_uniprot_identifiers(identifiers: list, target_db: str) -> dict:
     Returns:
         dict: Results of the identifier mapping.
     """
-    if DEBUG :
-        print( "\33[33mSTATUS [" + str(datetime.now()) + "]\33[0m\tRetrieve UniProt information ... ", end = '', flush = True)
+    utils._log_status("Retrieve UniProt information ...")
     job_id = submit_id_mapping(
         from_db="UniProtKB_AC-ID", to_db=target_db, ids=identifiers
     )
     if check_id_mapping_results_ready(job_id):
         link = get_id_mapping_results_link(job_id)
         results = get_id_mapping_results_search(link)
-    if DEBUG :
-        print( "DONE", end = '', flush = True)
     return results
 
 
@@ -482,25 +486,3 @@ def _get_protein_length(annotation: dict) -> int:
                 return na
         else :
             return na
-
-
-def _format_exception(e: str) -> str:
-    """
-    Formats the given exception into a string.
-
-    Args:
-        e (str): The exception to be formatted.
-
-    Returns:
-        str: The formatted exception as a string.
-
-    Note:
-        This function utilizes the global variable `api_parameters` to determine whether to print the exception traceback.
-        If `api_parameters["DEBUG"]` is True, the traceback will be printed with color highlighting; otherwise, only the exception message will be formatted.
-    """
-    if DEBUG:
-        # Print the exception traceback with color highlighting
-        print("\u001b[31m" + "".join(traceback.format_exception(e)) + "\u001b[0m")
-
-    # Format only the exception message
-    return "".join(traceback.format_exception_only(e)).strip()
