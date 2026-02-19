@@ -187,7 +187,7 @@ Licensed under GPL-3.0
 						<h3><strong>PTMVision</strong></h3>
 						<h4>Interactive Exploration of Post Translational Modifications</h4>
 						<img src="{{ url_for('static', filename='resources/abstract.png') }}" alt="Workflow representation of PTMVision from data upload to visualizations."/>
-						<div style="width: 61%; text-align: justify;">
+						<div style="width: 60%; margin: auto; text-align: justify;">
 							<p>
 							PTMVision supports the upload of PTM data from various proteomics search engines, the mzIdentML standard or manually compiled CSV files.
 							Receive a quantitative and qualitative assessment of the PTMs across all proteins in your data; and get an overview of all available proteins from your data, complemented with associated PTMs.
@@ -215,6 +215,11 @@ Licensed under GPL-3.0
 					<div id="panel-info-about">
 						<h5 class="secondary">News</h5>
 						<div>
+							<code>01/23/2026</code>
+							<ul>
+								<li>Users can now use <i class="fa-duotone fa-solid fa-tag"></i> on charts to display all PTM labels, if needed.</li>
+								<li>Optimized grid layout of diagrams to correctly support more screen resolutions.</li>
+							</ul>
 							<code>08/15/2025</code>
 							<ul>
 								<li>Add support for <a href="https://peptideatlas.org/" target="_blank">PeptideAtlas</a> data.</li>
@@ -972,6 +977,16 @@ Licensed under GPL-3.0
 							<i class="fa-duotone fa-highlighter"></i>
 						</button>
 						<button
+							id="panel-overview-control-labels"
+							class="button-no-decoration"
+							data-role="hint"
+							data-hint-text="Show all/auto labels. Results may clutter."
+							data-hint-position="left"
+							onclick="overviewChartSwitchLabels()"
+						>
+							<i class="fa-duotone fa-solid fa-tag"></i>
+						</button>
+						<button
 							id="panel-overview-control-sort"
 							class="button-no-decoration"
 							data-role="hint"
@@ -1232,6 +1247,16 @@ Licensed under GPL-3.0
 							onclick="dashboardChartHighlight()"
 						>
 							<i class="fa-duotone fa-highlighter"></i>
+						</button>
+						<button
+							id="panel-overview-control-labels"
+							class="button-no-decoration"
+							data-role="hint"
+							data-hint-text="Show all/auto modification labels. Results may clutter. Only active in modifications view."
+							data-hint-position="left"
+							onclick="dashboardChartSwitchLabels()"
+						>
+							<i class="fa-duotone fa-solid fa-tag"></i>
 						</button>
 						<button
 							id="panel-dashboard-control-switch"
