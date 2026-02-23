@@ -9,7 +9,7 @@ from pathlib import Path
 from psm_utils.io import read_file
 from tempfile import NamedTemporaryFile
 from datetime import datetime
-import re, urllib.request, requests, os
+import re, urllib.request, requests, os, base64, brotli, traceback
 
 #BASEPATH = "./app/ptmvision" # Uncomment for local development.
 BASEPATH = "/app/ptmvision" # Uncomment for deployment.
