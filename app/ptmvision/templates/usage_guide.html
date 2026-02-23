@@ -40,6 +40,10 @@ Licensed under GPL-3.0
 			type="text/css"
 			href="{{url_for('static', filename='css/ptmvision-1.1.css')}}"
 		/>
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=book,bookmark,copyright,counter_1,counter_2,counter_3,counter_4,file_save,find_replace,folder_open,home,info,ink_marker,mail,quiz,screen_rotation_alt,screenshot_monitor,sell,swap_vert"
+		/>
 		<!--
       Definition of java script files to use in the application.
       -->
@@ -59,11 +63,6 @@ Licensed under GPL-3.0
 			type="text/javascript"
 			src="{{url_for('static', filename='js/ptmvision-1.1.global.js')}}"
 		></script>
-		<script
-			type="text/javascript"
-			src="https://kit.fontawesome.com/df04f22e3d.js"
-			crossorigin="anonymous"
-		></script>
 	</head>
 	<body onload='$("#menu")[0].style.display = "flex";'>
 		<!-- App menu -->
@@ -76,16 +75,16 @@ Licensed under GPL-3.0
 		>
 			<img
 				class="brand no-hover"
-				style="height: 80%; cursor: pointer"
-				src="{{ url_for('static', filename='resources/logo_lucid_256.png') }}"
+				style="height: 68%; cursor: pointer"
+				src="{{ url_for('static', filename='resources/icon_256.png') }}"
 				alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
 				onclick="redirectTo('', '_self')"
 			/>
 			<h5
-				class="ml-2"
-				style="font-family: monospace; color: var(--color-5); width: 4em"
+				class="ml-1"
+				style="color: var(--color-5); width: 4em"
 			>
-				<i class="fa-light fa-pipe"></i> Usage
+				Usage
 			</h5>
 			<ul class="app-bar-menu">
 				<li
@@ -95,7 +94,7 @@ Licensed under GPL-3.0
 					data-hint-offset="10"
 					onclick="redirectTo('', '_self')"
 				>
-					<i class="fa-solid fa-house-blank"></i>
+					<span class="material-symbols-rounded">home</span>
 					Home
 				</li>
 				<li
@@ -106,10 +105,7 @@ Licensed under GPL-3.0
 					onclick="redirectTo('usage', '_self')"
 					disabled
 				>
-					<i
-						class="fa-duotone fa-solid fa-book"
-						style="color: var(--background-color-2)"
-					></i>
+					<span class="material-symbols-rounded">book</span>
 					Usage Guide
 				</li>
 
@@ -120,7 +116,8 @@ Licensed under GPL-3.0
 					data-hint-offset="10"
 					onclick="redirectTo('faq', '_self')"
 				>
-					<i class="fa-duotone fa-solid fa-question"></i> FAQ
+					<span class="material-symbols-rounded">quiz</span>
+					FAQ
 				</li>
 				<li
 					data-role="hint"
@@ -129,7 +126,8 @@ Licensed under GPL-3.0
 					data-hint-offset="10"
 					onclick="redirectTo('legal', '_self')"
 				>
-					<i class="fa-solid fa-section"></i> Legal Information
+					<span class="material-symbols-rounded">copyright</span>
+					Legal Information
 				</li>
 				<li
 					data-role="hint"
@@ -138,8 +136,8 @@ Licensed under GPL-3.0
 					data-hint-offset="10"
 					onclick="downloadSessionData()"
 				>
-					<i class="fa-duotone fa-solid fa-file-arrow-down"></i> Download
-					Session Data
+					<span class="material-symbols-rounded">file_save</span>
+					Download Session Data
 				</li>
 			</ul>
 		</header>
@@ -162,13 +160,13 @@ Licensed under GPL-3.0
 			<hr />
 
 			<h4 id="about-c1">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				I. Starting a PTMVision Session - Input Specification and Supported
 				Formats
 			</h4>
 			<p>
-				On the main page at panel
-				<i class="fa-duotone fa-circle-1 fa-sm"></i> users have three options to
+				On the main page at panel <span class="material-symbols-rounded" style="font-size: medium;">counter_1</span>
+				users have three options to
 				start a PTMVision session:
 			</p>
 			<ul>
@@ -224,7 +222,7 @@ Licensed under GPL-3.0
 						>Start</span
 					>
 					buttons in the example sessions table on panel
-					<i class="fa-duotone fa-circle-1 fa-sm"></i>. Available example
+					<span class="material-symbols-rounded" style="font-size: medium;">counter_1</span>. Available example
 					sessions are described in section
 					<u onclick="to('about-c3')" style="cursor: pointer"
 						>III. Available Example Sessions</u
@@ -232,9 +230,8 @@ Licensed under GPL-3.0
 				</li>
 			</ul>
 			<div class="remark">
-				<i class="fa-duotone fa-solid fa-circle-exclamation"></i> PTMVision
-				sessions are stored for 24 hours on our server and are accessed via a
-				cookie that is stored in your browser. If you delete the cookie or the
+				PTMVision sessions are stored for 24 hours on our server and are accessed 
+				via a cookie that is stored in your browser. If you delete the cookie or the
 				session data is older than 24 hours, the session will be deleted. Please
 				download your session data if you want to keep it for later use. If you
 				have a valid cookie stored, your session data will automatically
@@ -242,7 +239,7 @@ Licensed under GPL-3.0
 			</div>
 
 			<h5 style="margin-top: 1em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				Mandatory Inputs - Input Format and PTM Data
 			</h5>
 			<p>
@@ -304,7 +301,7 @@ Licensed under GPL-3.0
 				</li>
 			</ul>
 			<div class="remark">
-				<i class="fa-duotone fa-solid fa-circle-exclamation"></i> If you can't
+				If you can't
 				find a suitable format, feel free to open an issue in the PTMVision
 				GitHub repository
 				<a
@@ -324,7 +321,7 @@ Licensed under GPL-3.0
 			</div>
 
 			<h5 style="margin-top: 1em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				Search Engine Specific Formats
 			</h5>
 			<p class="text-just">
@@ -421,12 +418,11 @@ Licensed under GPL-3.0
 			</p>
 
 			<h5 style="margin-top: 1em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				Plain CSV Format
 			</h5>
 			<div class="remark">
-				<i class="fa-duotone fa-solid fa-circle-exclamation"></i> A template
-				file is available
+				A template file is available
 				<a
 					href="javascript:void(0)"
 					onclick="downloadResource('ptmvision.plain-format.template.csv')"
@@ -497,7 +493,7 @@ Licensed under GPL-3.0
 			</table>
 
 			<h5 style="margin-top: 1em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				Optional Inputs - Exclude UniMod Classes and Mass Shift Tolerance
 			</h5>
 			<p>
@@ -531,14 +527,12 @@ Licensed under GPL-3.0
 			</p>
 
 			<h4 id="about-c2" style="margin-top: 2em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				II. Download Session Data
 			</h4>
 			<p>
 				Once a PTMVision session was established, one can download the results
-				in a binary <em>zlib</em> compressed format by clicking on '<i
-					class="fa-duotone fa-file-arrow-down"
-				></i>
+				in a binary <em>zlib</em> compressed format by clicking on '<span class="material-symbols-rounded" style="font-size: medium;">file_save</span>
 				Download Session Data' in the header menu on the right. If no session
 				data is yet available, the request will fail with a
 				<code>404</code> status code. The downloaded format is not human
@@ -548,7 +542,7 @@ Licensed under GPL-3.0
 			</p>
 
 			<h4 id="about-c3" style="margin-top: 2em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				III. Available Example Sessions
 			</h4>
 			<p>
@@ -556,7 +550,7 @@ Licensed under GPL-3.0
 				supported input type with the exception of the
 				<em>Infer</em> option. A table with all available example sessions with
 				a description can be be accessed by clicking on the 'Browse Example
-				Sessions' button on panel <i class="fa-duotone fa-circle-1 fa-sm"></i>.
+				Sessions' button on panel <span class="material-symbols-rounded" style="font-size: medium;">counter_1</span>.
 				From there, example sessions can be started with a single click on the
 				individual
 				<span
@@ -716,7 +710,7 @@ Licensed under GPL-3.0
 			</table>
 
 			<h4 id="about-c4" style="margin-top: 2em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				IV. Global PTM Overview Visualizations
 			</h4>
 			<p>
@@ -729,29 +723,30 @@ Licensed under GPL-3.0
 				the y-axes of those visualizations that display information per
 				modification are linked, and offer a range of user interactions
 				accessible via the buttons at the top right of panel
-				<i class="fa-duotone fa-circle-2"></i>:
+				<span class="material-symbols-rounded" style="font-size: medium;">counter_2</span>:
 			</p>
 			<p>
-				<i class="fa-duotone fa-camera"></i> Screenshot of the current view of
+				<span class="material-symbols-rounded" style="font-size: medium;">screenshot_monitor</span>
+				Screenshot of the current view of
 				the overview visualizations. The corresponding image file is
 				automatically downloaded in <em>PNG</em> format.
 			</p>
 			<p>
-				<i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+				<span class="material-symbols-rounded" style="font-size: medium;">find_replace</span>
 				Reset the zoom level of all overview visualizations to default (zoomed
 				out completely).
 			</p>
 			<p>
-				<i class="fa-duotone fa-highlighter"></i> Highlight a specific PTM of
-				interest. A pop-up window that supports search input prompts you to
-				select a number of modifications to be highlighted. When you confirm the
+				<span class="material-symbols-rounded" style="font-size: medium;">ink_marker</span>
+				Highlight a specific PTM of interest. A pop-up window that supports search input prompts
+				you to select a number of modifications to be highlighted. When you confirm the
 				popup, lines are drawn at the respective coordinates of the specified
 				modifications. To remove a highlight, the interaction must be performed
 				without selecting a modification.
 			</p>
 			<p>
-				<i class="fa-duotone fa-arrow-up-arrow-down"></i> Sort the
-				<em>Shared PTM sites</em>, <em>Mass Shift</em> and
+				<span class="material-symbols-rounded" style="font-size: medium;">swap_vert</span>
+				Sort the <em>Shared PTM sites</em>, <em>Mass Shift</em> and
 				<em>Site Count</em> visualizations either by mass shift or count. By
 				default, the axes are sorted by count. If sorting by mass shift is set,
 				red areas in the <em>Mass Shift</em> visualization will be highlighted
@@ -779,7 +774,7 @@ Licensed under GPL-3.0
 			</div>
 
 			<h5 style="margin-top: 1em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				Shared PTM Sites between Modification Types
 			</h5>
 			<p>
@@ -825,7 +820,7 @@ Licensed under GPL-3.0
 			</ul>
 
 			<h5 style="margin-top: 1em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				Mass Shift
 			</h5>
 			<p>
@@ -834,7 +829,7 @@ Licensed under GPL-3.0
 				mass shift in Dalton. Depending on the input file, the mass shift is
 				either parsed directly from the file or retrieved from the UniMod
 				database (monoisotopic mass). Using the
-				<i class="fa-duotone fa-arrow-up-arrow-down"></i> button at the top
+				<span class="material-symbols-rounded" style="font-size: medium;">swap_vert</span> button at the top
 				right, the visualization can be sorted by mass shift instead of Site
 				Count.
 			</p>
@@ -875,7 +870,7 @@ Licensed under GPL-3.0
 			</ul>
 
 			<h5 style="margin-top: 1em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				Site Count
 			</h5>
 			<p>
@@ -903,7 +898,7 @@ Licensed under GPL-3.0
 			</ul>
 
 			<h5 style="margin-top: 1em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				PTM Class Counts
 			</h5>
 			<p>
@@ -927,7 +922,7 @@ Licensed under GPL-3.0
 			</div>
 
 			<h4 id="about-c5" style="margin-top: 2em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				V. Overview Table and Protein Selection
 			</h4>
 			<div class="img-container rounded thumbnail mt-4 mb-4">
@@ -978,34 +973,36 @@ Licensed under GPL-3.0
 			</p>
 
 			<h4 id="about-c6" style="margin-top: 2em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				VI. Investigating the PTMs of one Protein in Detail
 			</h4>
 			<p>
 				PTMVision offers two distinct modes to display the PTM landscape of a
 				single protein; The
 				<b>Modifications View</b> (default) and the <b>Structure View</b>. Both
-				are rendered in panel <i class="fa-duotone fa-circle-4"></i> and are
+				are rendered in panel <span class="material-symbols-rounded" style="font-size: medium;">counter_4</span> and are
 				compiled as soon as a single protein is selected for detailed reporting
 				(see section five). The currently selected protein (primary accession,
 				name and source organism) is indicated in the header of panel
-				<i class="fa-duotone fa-circle-4"></i> and can be clicked to retrieve
+				<span class="material-symbols-rounded" style="font-size: medium;">counter_4</span> and can be clicked to retrieve
 				UniProt comments for the protein. Furthermore, a range of user
 				interactions is accessible via the buttons at the top right of panel
-				<i class="fa-duotone fa-circle-4"></i>.
+				<span class="material-symbols-rounded" style="font-size: medium;">counter_4</span>.
 			</p>
 			<p>
-				<i class="fa-duotone fa-camera"></i> Screenshot of the current view of
+				<span class="material-symbols-rounded" style="font-size: medium;">screenshot_monitor</span>
+				Screenshot of the current view of
 				the detail visualizations. The corresponding image file is automatically
 				downloaded in <code>png</code> format.
 			</p>
 			<p>
-				<i class="fa-duotone fa-magnifying-glass-arrows-rotate"></i>
+				<span class="material-symbols-rounded" style="font-size: medium;">find_replace</span>
 				Reset the zoom level of all visualizations to default (zoomed out
 				completely).
 			</p>
 			<p>
-				<i class="fa-duotone fa-highlighter"></i> Highlight a specific PTM of
+				<span class="material-symbols-rounded" style="font-size: medium;">ink_marker</span>
+				Highlight a specific PTM of
 				interest. A pop-up window that supports search input prompts you to
 				select a number of modifications to be highlighted. To remove a
 				highlight, the interaction must be performed without selecting a
@@ -1015,12 +1012,12 @@ Licensed under GPL-3.0
 				structure model and those contacts, that comprise the respective PTMs.
 			</p>
 			<p>
-				<i class="fa-duotone fa-repeat"></i> Switch between
-				<em>Modifications View</em> and <em>Structure View</em>.
+				<span class="material-symbols-rounded" style="font-size: medium;">screen_rotation_alt</span>
+				Switch between <em>Modifications View</em> and <em>Structure View</em>.
 			</p>
 
 			<h5 style="margin-top: 1em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				Modifications View
 			</h5>
 			<div class="img-container rounded thumbnail mt-4 mb-4">
@@ -1132,7 +1129,7 @@ Licensed under GPL-3.0
 			</p>
 
 			<h5 style="margin-top: 1em">
-				<i class="fa-solid fa-bookmark" style="color: var(--highlight-2)"></i>
+				<span class="material-symbols-rounded" style="color: var(--highlight-2);">bookmark</span>
 				Structure View
 			</h5>
 			<div class="img-container rounded thumbnail mt-4 mb-4">
@@ -1152,8 +1149,8 @@ Licensed under GPL-3.0
 				>
 			</div>
 			<p>
-				Clicking the <i class="fa-duotone fa-repeat"></i> switch button on the
-				panel menu will open the structure dashboard. The left side shows a
+				Clicking the <span class="material-symbols-rounded" style="font-size: medium;">screen_rotation_alt</span>
+				switch button on the panel menu will open the structure dashboard. The left side shows a
 				protein contact map of the protein structure: The residues are plotted
 				against each other, and a cell is colored if the respective residues are
 				in close contact, meaning that their C-beta (Glycine: C-alpha) atoms are
@@ -1174,12 +1171,6 @@ Licensed under GPL-3.0
 					least one residue is modified with a modification type that was
 					selected for highlighting.
 				</li>
-				<!-- <li>
-          If a modification was highlighted via the
-          <i class="fa-duotone fa-highlighter"></i> button in the menu, residues
-          that are in contact and where one or both carry the selected
-          modification are colored in blue.
-        </li> -->
 			</ul>
 			<p>
 				The color legend is displayed at the top and items can be clicked to
@@ -1197,8 +1188,9 @@ Licensed under GPL-3.0
 				will highlight the respective residues in the structure model on the
 				right side, and show their distance in Angström. Highlighting a
 				modification via the
-				<i class="fa-duotone fa-highlighter"></i> button will color the residues
-				in the structure model that carry the selected modification in red. The
+				<span class="material-symbols-rounded" style="font-size: medium;">ink_marker</span>
+				button will color the residues in the structure model that carry the
+				selected modification in red. The
 				structure model can be rotated by clicking and dragging the mouse,
 				zoomed in and out by scrolling the mouse wheel, and panned by dragging
 				the mouse. Furthermore, details of the modification types observed for
@@ -1210,7 +1202,7 @@ Licensed under GPL-3.0
 			<hr />
 			<div>
 				<p>If you use this software, please cite it as below:</p>
-				<div class="remark" style="font-family: monospace; font-size: smaller">
+				<div class="remark" style="font-size: small">
 					<p>
 						<i
 							>PTMVision: An Interactive Visualization Webserver for

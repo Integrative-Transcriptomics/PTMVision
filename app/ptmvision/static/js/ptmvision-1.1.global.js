@@ -23,10 +23,8 @@ function redirectTo(pageName, target) {
  */
 function displayNotification(text) {
   $("#menu").append(
-    `<div class='notification'><i class="fa-duotone fa-spinner-third fa-spin fa-2xl"></i> ` +
-      text +
-      `</div>`
-  );
+		`<div class='notification'><span class="loader"></span> ` + text + `</div>`,
+	);
 }
 
 /**
@@ -43,10 +41,10 @@ function removeNotification() {
  */
 function displayAlert(text) {
   $("#menu").append(
-    `<div class='alert'><i class="fa-duotone fa-circle-exclamation"></i> ` +
-      text +
-      `<button class='button-no-decoration float-right' onclick='$(".alert").remove()'><i class="fa-solid fa-x"></i></button></div>`
-  );
+		`<div class='alert'>` +
+			text +
+			`<button class='button-no-decoration float-right' style="font-weight: bolder; color: inherit;" onclick='$(".alert").remove()'>X</button></div>`,
+	);
 }
 
 /**

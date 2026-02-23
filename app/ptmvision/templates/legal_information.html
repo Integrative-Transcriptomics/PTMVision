@@ -40,6 +40,10 @@ Licensed under GPL-3.0
 			type="text/css"
 			href="{{url_for('static', filename='css/ptmvision-1.1.css')}}"
 		/>
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=book,copyright,counter_1,counter_2,counter_3,counter_4,file_save,find_replace,folder_open,home,info,ink_marker,mail,quiz,screen_rotation_alt,screenshot_monitor,sell,swap_vert"
+		/>
 		<!--
       Definition of java script files to use in the application.
       -->
@@ -59,11 +63,6 @@ Licensed under GPL-3.0
 			type="text/javascript"
 			src="{{url_for('static', filename='js/ptmvision-1.1.global.js')}}"
 		></script>
-		<script
-			type="text/javascript"
-			src="https://kit.fontawesome.com/df04f22e3d.js"
-			crossorigin="anonymous"
-		></script>
 	</head>
 	<body onload='$("#menu")[0].style.display = "flex";'>
 		<!-- App menu -->
@@ -76,16 +75,16 @@ Licensed under GPL-3.0
 		>
 			<img
 				class="brand no-hover"
-				style="height: 80%; cursor: pointer"
-				src="{{ url_for('static', filename='resources/logo_lucid_256.png') }}"
+				style="height: 68%; cursor: pointer"
+				src="{{ url_for('static', filename='resources/icon_256.png') }}"
 				alt="The PTMVision logo; Redirects to the applicatios main page by clicking."
 				onclick="redirectTo('', '_self')"
 			/>
 			<h5
-				class="ml-2"
-				style="font-family: monospace; color: var(--color-5); width: 4em"
+				class="ml-1"
+				style="color: var(--color-5); width: 4em"
 			>
-				<i class="fa-light fa-pipe"></i> Legal
+				Legal
 			</h5>
 			<ul class="app-bar-menu">
 				<li
@@ -95,7 +94,7 @@ Licensed under GPL-3.0
 					data-hint-offset="10"
 					onclick="redirectTo('', '_self')"
 				>
-					<i class="fa-solid fa-house-blank"></i>
+					<span class="material-symbols-rounded">home</span>
 					Home
 				</li>
 				<li
@@ -105,7 +104,7 @@ Licensed under GPL-3.0
 					data-hint-offset="10"
 					onclick="redirectTo('usage', '_self')"
 				>
-					<i class="fa-duotone fa-solid fa-book"></i>
+					<span class="material-symbols-rounded">book</span>
 					Usage Guide
 				</li>
 				<li
@@ -115,7 +114,8 @@ Licensed under GPL-3.0
 					data-hint-offset="10"
 					onclick="redirectTo('faq', '_self')"
 				>
-					<i class="fa-duotone fa-solid fa-question"></i> FAQ
+					<span class="material-symbols-rounded">quiz</span>
+					FAQ
 				</li>
 				<li
 					data-role="hint"
@@ -125,10 +125,7 @@ Licensed under GPL-3.0
 					onclick="redirectTo('legal', '_blank')"
 					disabled
 				>
-					<i
-						class="fa-solid fa-section"
-						style="color: var(--background-color-2)"
-					></i>
+					<span class="material-symbols-rounded">copyright</span>
 					Legal Information
 				</li>
 				<li
@@ -138,8 +135,8 @@ Licensed under GPL-3.0
 					data-hint-offset="10"
 					onclick="downloadSessionData()"
 				>
-					<i class="fa-duotone fa-solid fa-file-arrow-down"></i> Download
-					Session Data
+					<span class="material-symbols-rounded">file_save</span>
+					Download Session Data
 				</li>
 			</ul>
 		</header>
@@ -227,29 +224,13 @@ Licensed under GPL-3.0
 			</p>
 			<h5>Contact</h5>
 			<address style="font-family: monospace; font-size: smaller">
-				Caroline Jachmann
-				<button
-					class="button-no-decoration"
-					style="font-size: 1.2em"
-					onclick="window.open('mailto:caroline.jachmann$ugent.be'.replace('$', '@'));"
-				>
-					<i class="fa-duotone fa-solid fa-square-envelope"></i>
-				</button>
-				<br />
-				Computational Omics and Systems Biology Group, Department of
-				Biomolecular Medicine, Ghent University
-				<br />
-				VIB Technologiepark 75<br />
-				9052 Gent-Zwijnaarde, Belgium<br />
-			</address>
-			<address style="font-family: monospace; font-size: smaller">
 				Simon Hackl
 				<button
 					class="button-no-decoration"
 					style="font-size: 1.2em"
 					onclick="window.open('mailto:simon.hackl$uni-tuebingen.de'.replace('$', '@'));"
 				>
-					<i class="fa-duotone fa-solid fa-square-envelope"></i>
+					<span class="material-symbols-rounded symbol-light" style="font-size: medium;">mail</span>
 				</button>
 				<br />
 				Integrative Transcriptomics Group, Institute for Bioinformatics and
@@ -257,6 +238,22 @@ Licensed under GPL-3.0
 				<br />
 				Sand 14<br />
 				72076 Tübingen, Germany<br />
+			</address>
+			<address style="font-family: monospace; font-size: smaller">
+				Caroline Jachmann
+				<button
+					class="button-no-decoration"
+					style="font-size: 1.2em"
+					onclick="window.open('mailto:caroline.jachmann$ugent.be'.replace('$', '@'));"
+				>
+					<span class="material-symbols-rounded symbol-light" style="font-size: medium;">mail</span>
+				</button>
+				<br />
+				Computational Omics and Systems Biology Group, Department of
+				Biomolecular Medicine, Ghent University
+				<br />
+				VIB Technologiepark 75<br />
+				9052 Gent-Zwijnaarde, Belgium<br />
 			</address>
 			<hr />
 			<h5>Citation</h5>

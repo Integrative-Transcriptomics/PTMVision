@@ -2851,7 +2851,7 @@ class StructureView {
         }
       );
       $("#panel-dashboard-structure-meta").html(
-        `<i class="fa-solid fa-circle fa-sm"></i> Highlight positions with modifications: ` +
+        `Highlight positions with modifications: ` +
           this.#highlightModifications
             .map((_) => "<code>" + _ + "</code>")
             .join(", ")
@@ -2905,7 +2905,7 @@ function init() {
     "panel-dashboard-chart",
     "panel-dashboard-structure"
   );
-  checkSessionState();
+	checkSessionState();
 }
 
 /**
@@ -3231,8 +3231,8 @@ function dashboardChartInitialize(
   if (sel_protein_id == null) {
     removeNotification();
     displayAlert(
-      `No protein was selected from panel <i class="fa-duotone fa-circle-3"></i>`
-    );
+			`No protein was selected from panel <span class="material-symbols-rounded symbol-light" style="font-size: medium;">home</span>`,
+		);
     return;
   }
   request = {
