@@ -14,8 +14,7 @@ from dotenv import load_dotenv
 from io import StringIO
 from itertools import combinations
 from copy import deepcopy
-from datetime import datetime
-import json, zlib, os, base64, traceback, brotli
+import json, zlib, os, base64
 
 """ Load variables from local file system. """
 load_dotenv()
